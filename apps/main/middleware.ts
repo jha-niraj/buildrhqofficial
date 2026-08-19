@@ -27,7 +27,10 @@ async function getSessionFromRequest(request: NextRequest): Promise<SessionData 
 
 function redirectToSignIn(req: NextRequest): NextResponse {
 	const url = new URL("/signin", req.nextUrl.origin)
-	url.searchParams.set("callbackUrl", req.nextUrl.pathname)
+	// pathname + search, not pathname alone - dropping the query string returns the
+	// user to a bare route with their selection gone (e.g. /purchase without the
+	// pack they picked on the pricing page).
+	url.searchParams.set("callbackUrl", req.nextUrl.pathname + req.nextUrl.search)
 	return NextResponse.redirect(url)
 }
 
@@ -113,7 +116,13 @@ export default async function middleware(req: NextRequest) {
 
 	if (isLoggedIn) {
 		if (!onboardingCompleted && pathname !== '/onboarding') {
-			return withNoindex(NextResponse.redirect(new URL('/onboarding', nextUrl.origin)))
+			// Carry where they were headed, so someone who signed up from a pricing
+			// CTA lands back on their pack once setup is done instead of on /home.
+			const url = new URL('/onboarding', nextUrl.origin)
+			if (pathname !== '/home') {
+				url.searchParams.set('callbackUrl', pathname + nextUrl.search)
+			}
+			return withNoindex(NextResponse.redirect(url))
 		}
 		if (onboardingCompleted && pathname === '/onboarding') {
 			return withNoindex(NextResponse.redirect(new URL('/home', nextUrl.origin)))

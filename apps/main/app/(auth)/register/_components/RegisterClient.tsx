@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, Suspense, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, signUp, emailOtp } from "@repo/auth/client";
+import { isSafeCallback } from "@/lib/urls";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Eye, EyeOff, Check, X, Gift, ArrowLeft, Loader2, MailCheck, Wand2,
@@ -58,8 +59,14 @@ function SignUpForm() {
         const ref = searchParams.get("ref");
         if (ref) setReferralCode(ref);
 
-        const ssoCallback = searchParams.get("sso_callback");
-        if (ssoCallback) sessionStorage.setItem("sso_callback", ssoCallback);
+        // `callbackUrl` is what the sign-in page and the middleware send, and what
+        // the marketing site's pricing CTAs use to resume checkout after signup.
+        // `sso_callback` is the older name kept working for existing links.
+        const callback =
+            searchParams.get("callbackUrl") ?? searchParams.get("sso_callback");
+        if (callback && isSafeCallback(callback)) {
+            sessionStorage.setItem("sso_callback", callback);
+        }
     }, [searchParams]);
 
     // Validate password as user types
@@ -159,9 +166,9 @@ function SignUpForm() {
                 await finalizeSignup(referralCode);
 
                 toast.success("Email verified - let's set up your profile");
-                const ssoCallback = sessionStorage.getItem("sso_callback");
-                sessionStorage.removeItem("sso_callback");
-                router.push(ssoCallback || "/onboarding");
+                // Leave "sso_callback" parked: a brand-new account still needs
+                // onboarding, which hands the destination back once setup is done.
+                router.push("/onboarding");
             } catch {
                 setError("Could not verify the code. Please try again.");
             } finally {

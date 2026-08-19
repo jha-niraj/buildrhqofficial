@@ -10,7 +10,7 @@ import { db, users, payments } from '@repo/db';
 import { eq } from 'drizzle-orm';
 import {
     creditPackages, convertToPaise, calculatePrice, paymentConfig
-} from '@/lib/payment-config';
+} from '@repo/pricing';
 
 export async function POST(req: NextRequest) {
     try {
@@ -21,7 +21,9 @@ export async function POST(req: NextRequest) {
 
         const { credits, currency = 'INR' } = await req.json();
 
-        if (!credits || credits < paymentConfig.minCredits || credits > paymentConfig.maxCredits) {
+        // Integer check first: a fractional or string `credits` passes a bare range
+        // comparison and goes on to produce a fractional charge.
+        if (!Number.isInteger(credits) || credits < paymentConfig.minCredits || credits > paymentConfig.maxCredits) {
             return NextResponse.json({
                 message: `Credits must be between ${paymentConfig.minCredits} and ${paymentConfig.maxCredits}`
             }, { status: 400 });

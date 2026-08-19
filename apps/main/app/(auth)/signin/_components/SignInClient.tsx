@@ -9,6 +9,7 @@ import { Button } from "@repo/ui/components/ui/button";
 import { Input } from "@repo/ui/components/ui/input";
 import { Label } from "@repo/ui/components/ui/label";
 import { signIn, emailOtp, useSession } from '@repo/auth/client';
+import { isSafeCallback } from "@/lib/urls";
 import toast from '@repo/ui/components/ui/sonner'
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppContext } from "@/app/context/usercontext";
@@ -41,7 +42,10 @@ function SignInForm({ searchParams }: SignInFormProps) {
     const router = useRouter();
     // Always /home: middleware bounces anyone who hasn't finished onboarding to
     // /onboarding, so a single callback covers new and returning users alike.
-    const callbackUrl = searchParams?.get("callbackUrl") || "/home";
+    const rawCallback = searchParams?.get("callbackUrl");
+    // Same-origin paths only - an absolute callbackUrl would let a mailed link
+    // hand the freshly authenticated user to an attacker's host.
+    const callbackUrl = isSafeCallback(rawCallback) ? rawCallback : "/home";
     const { data: session } = useSession();
 
     // ── Inline verification (an unverified account tried to sign in) ──────────

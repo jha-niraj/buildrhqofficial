@@ -34,6 +34,7 @@
 		"framer-motion": "^12.23.26"
 	},
 	"dependencies": {
+		"@repo/pricing": "workspace:*",
 		"@hookform/resolvers": "^5.2.2",
 		"@paper-design/shaders-react": "^0.0.76",
 		"@radix-ui/react-accordion": "^1.2.12",

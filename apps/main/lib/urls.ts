@@ -58,3 +58,19 @@ export function projectLeaderboardUrl(slug: string, username: string): string {
     const params = new URLSearchParams({ username, showProgress: "true" });
     return absoluteUrl(`/projects/${encodeURIComponent(slug)}/leaderboard?${params}`);
 }
+
+/**
+ * Whether a `callbackUrl` from the query string is safe to navigate to.
+ *
+ * Only same-origin paths are allowed. Anything absolute ("https://evil.com"),
+ * protocol-relative ("//evil.com") or backslash-smuggled ("/\evil.com") is an
+ * open redirect: an attacker mails a link to our real sign-in page and the app
+ * hands the freshly authenticated user straight to them.
+ */
+export function isSafeCallback(value: string | null | undefined): value is string {
+	if (!value) return false;
+	if (!value.startsWith("/")) return false;
+	// "//host" and "/\host" are both read as protocol-relative by browsers.
+	if (value.startsWith("//") || value.startsWith("/\\")) return false;
+	return true;
+}

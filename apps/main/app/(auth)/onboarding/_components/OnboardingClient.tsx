@@ -1,7 +1,8 @@
 "use client"
 
 import { useMemo, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
+import { isSafeCallback } from "@/lib/urls"
 import { LogOut, Loader2 } from "lucide-react"
 import {
 	TypeformFlow, type FlowStep, type FlowFileValue,
@@ -64,6 +65,7 @@ function suggestUsername(source: string | null | undefined): string {
 
 export default function OnboardingClient() {
 	const router = useRouter()
+	const searchParams = useSearchParams()
 	const { data: session, refetch } = useSession()
 	const [open, setOpen] = useState(true)
 	const [loggingOut, setLoggingOut] = useState(false)
@@ -206,7 +208,19 @@ export default function OnboardingClient() {
 
 	const handleClose = () => {
 		setOpen(false)
-		router.push(submittedRef.current ? "/home" : "/signin")
+		if (!submittedRef.current) {
+			router.push("/signin")
+			return
+		}
+		// A user who arrived from a pricing CTA still has to finish onboarding, so
+		// the destination they came for is parked rather than jumped to directly.
+		// Hand it back now that setup is done. Two sources: `?callbackUrl=` when
+		// middleware bounced an already-signed-in user here, and sessionStorage
+		// when they came through the register page.
+		const parked =
+			searchParams.get("callbackUrl") ?? sessionStorage.getItem("sso_callback")
+		sessionStorage.removeItem("sso_callback")
+		router.push(isSafeCallback(parked) ? parked : "/home")
 	}
 
 	const handleLogout = async () => {

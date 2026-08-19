@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from '@repo/auth/client';
 import { Button } from '@repo/ui/components/ui/button'
 import { Input } from '@repo/ui/components/ui/input'
@@ -20,12 +21,15 @@ import {
 import Link from 'next/link'
 import toast from '@repo/ui/components/ui/sonner'
 import { motion } from 'framer-motion'
-import { paymentConfig, calculatePrice } from '@/lib/payment-config'
+import {
+	paymentConfig, calculatePrice, packagePrice, parseCheckoutIntent, checkoutPath,
+	getPackageByCredits
+} from '@repo/pricing'
 import {
 	computeUsageForCredits, creditUsageConfig, formatCountRange
 } from '@/lib/credit-usage'
 import { submitCreditRequest } from '../../../../actions/(main)/user/dashboard.action'
-import { BentoPricing } from '@/components/main/bentopricing'
+import { PricingBento } from '@repo/ui/components/pricing-bento'
 
 // Load Razorpay types
 interface RazorpayResponse {
@@ -60,7 +64,9 @@ declare global {
 }
 
 export default function PurchasePage() {
-	const { data: session } = useSession()
+	const { data: session, isPending: sessionPending } = useSession()
+	const router = useRouter()
+	const searchParams = useSearchParams()
 	const [currency, setCurrency] = useState<'INR' | 'USD'>('INR')
 	const [basicCredits, setBasicCredits] = useState(50)
 
@@ -180,9 +186,18 @@ export default function PurchasePage() {
 		}
 	}
 
+	// Signed-out visitors reach this page from the public pricing site, so a dead
+	// "Authentication required" toast would strand them. Send them to sign up with
+	// the pack they picked encoded in the callback, and they land back here on it.
+	const sendToSignUp = (credits: number) => {
+		const pkg = getPackageByCredits(credits)
+		const back = pkg ? checkoutPath(pkg, currency) : '/purchase'
+		router.push(`/register?callbackUrl=${encodeURIComponent(back)}`)
+	}
+
 	const openUsageSheet = (credits: number, price: number) => {
 		if (!session?.user) {
-			toast.error('Authentication required')
+			sendToSignUp(credits)
 			return
 		}
 		setPendingCredits(credits)
@@ -190,6 +205,38 @@ export default function PurchasePage() {
 		setUsageSummary(computeUsageForCredits(credits, creditUsageConfig))
 		setIsUsageSheetOpen(true)
 	}
+
+	// ── Checkout handoff from the marketing site ──────────────────────────────
+	// apps/web links here as /purchase?plan=<slug>&credits=<n>&currency=<INR|USD>.
+	// Only the pack identity travels in the URL - never a price - so the amount is
+	// always the one looked up from @repo/pricing here and re-verified server-side
+	// when the order is created.
+	const handledIntent = useRef(false)
+	useEffect(() => {
+		if (handledIntent.current) return
+		const intent = parseCheckoutIntent(searchParams)
+		if (!intent) return
+		// Wait for the session to resolve, otherwise a signed-in user gets bounced
+		// to /register on the first render.
+		if (sessionPending) return
+
+		handledIntent.current = true
+		setCurrency(intent.currency)
+		setBasicCredits(intent.pkg.credits)
+
+		if (!session?.user) {
+			router.push(
+				`/register?callbackUrl=${encodeURIComponent(checkoutPath(intent.pkg, intent.currency))}`
+			)
+			return
+		}
+
+		const price = packagePrice(intent.pkg, intent.currency)
+		setPendingCredits(intent.pkg.credits)
+		setPendingPrice(price)
+		setUsageSummary(computeUsageForCredits(intent.pkg.credits, creditUsageConfig))
+		setIsUsageSheetOpen(true)
+	}, [searchParams, session, sessionPending, router])
 
 	const handleRequestSubmit = async () => {
 		if (!linkedinPostUrl.trim() && !twitterPostUrl.trim()) {
@@ -432,9 +479,9 @@ export default function PurchasePage() {
 
 				{/* ── Bento Pricing ── */}
 				<div className="mb-20">
-					<BentoPricing
+					<PricingBento
 						currency={currency}
-						onPurchase={(credits, price) => openUsageSheet(credits, price)}
+						onSelect={(pkg) => openUsageSheet(pkg.credits, packagePrice(pkg, currency))}
 						showFreeCredits={false}
 						onRequestFreeCredits={() => setIsRequestSheetOpen(true)}
 					/>

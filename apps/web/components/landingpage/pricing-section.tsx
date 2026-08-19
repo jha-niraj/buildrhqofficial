@@ -9,7 +9,9 @@ import {
 import { Switch } from "@repo/ui/components/ui/switch"
 import { Badge } from "@repo/ui/components/ui/badge"
 import { Button } from "@repo/ui/components/ui/button"
-import { BentoPricing } from "@/components/main/bentopricing"
+import { PricingBento } from "@repo/ui/components/pricing-bento"
+import { checkoutUrl } from "@repo/pricing"
+import { APP_URL } from "@/lib/site"
 
 const securityFeatures = [
     {
@@ -75,7 +77,12 @@ export default function PricingSection() {
                     transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                     className="mb-20"
                 >
-                    <BentoPricing currency={currency} showFreeCredits={true} />
+                    <PricingBento
+                        currency={currency}
+                        hrefFor={(pkg) => checkoutUrl(APP_URL, pkg, currency)}
+                        showFreeCredits
+                        freeCreditsHref={`${APP_URL}/purchase`}
+                    />
                 </motion.div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-16">
                     {

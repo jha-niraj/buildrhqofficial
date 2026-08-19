@@ -255,6 +255,9 @@ importers:
       '@repo/email':
         specifier: workspace:*
         version: link:../../packages/email
+      '@repo/pricing':
+        specifier: workspace:*
+        version: link:../../packages/pricing
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -567,6 +570,9 @@ importers:
       '@repo/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@repo/pricing':
+        specifier: workspace:*
+        version: link:../../packages/pricing
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -798,6 +804,15 @@ importers:
         specifier: ^8.49.0
         version: 8.50.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.2)
 
+  packages/pricing:
+    devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
+
   packages/typescript-config: {}
 
   packages/ui:
@@ -871,6 +886,9 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@repo/pricing':
+        specifier: workspace:*
+        version: link:../pricing
       '@tailwindcss/postcss':
         specifier: ^4.1.18
         version: 4.1.18

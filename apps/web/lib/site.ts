@@ -22,7 +22,8 @@ export const APP_URL = (
 
 /** Canonical CTA destinations on the app. Keep every "Get started"/"Sign in" here. */
 export const APP_LINKS = {
-    signup: `${APP_URL}/signup`,
+    // The app's sign-up route is /register - /signup does not exist and 404s.
+    signup: `${APP_URL}/register`,
     signin: `${APP_URL}/signin`,
     dashboard: `${APP_URL}/home`,
 } as const;

@@ -11,9 +11,10 @@ import {
 	AccordionItem,
 	AccordionTrigger,
 } from "@repo/ui/components/ui/accordion"
-import { BentoPricing } from "@/components/main/bentopricing"
+import { PricingBento } from "@repo/ui/components/pricing-bento"
+import { checkoutUrl } from "@repo/pricing"
 import { pricingFaqs } from "./pricing-faqs"
-import { APP_LINKS } from "@/lib/site"
+import { APP_LINKS, APP_URL } from "@/lib/site"
 
 const valueProps = [
 	{ icon: Infit, title: "Credits never expire", desc: "Buy once, spend whenever. Your balance is yours forever." },
@@ -74,7 +75,12 @@ export default function PricingClient() {
 			{/* ── Pricing cards ────────────────────────────────────────────────── */}
 			<section className="relative border-t border-neutral-100 py-20 dark:border-neutral-800">
 				<div className="mx-auto max-w-7xl px-6">
-					<BentoPricing currency={currency} showFreeCredits />
+					<PricingBento
+						currency={currency}
+						hrefFor={(pkg) => checkoutUrl(APP_URL, pkg, currency)}
+						showFreeCredits
+						freeCreditsHref={`${APP_URL}/purchase`}
+					/>
 				</div>
 			</section>
 
