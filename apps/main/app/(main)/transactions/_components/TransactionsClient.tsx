@@ -130,7 +130,7 @@ export default function TransactionsPage() {
 
 	if (isPending || isLoading) {
 		return (
-			<div className="min-h-screen bg-white dark:bg-neutral-950 relative">
+			<div className="min-h-screen relative">
 				<div className="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
 				<div className="container mx-auto px-4 py-16 max-w-5xl">
 					<div className="animate-pulse space-y-6">
@@ -151,7 +151,7 @@ export default function TransactionsPage() {
 
 	if (!session && !isPending) {
 		return (
-			<div className="min-h-screen bg-white dark:bg-neutral-950 relative">
+			<div className="min-h-screen relative">
 				<div className="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
 				<div className="container mx-auto px-4 py-16 max-w-5xl">
 					<div className="flex flex-col items-center justify-center py-32 text-center">
@@ -174,7 +174,7 @@ export default function TransactionsPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-white dark:bg-neutral-950 relative">
+		<div className="min-h-screen relative">
 			<div className="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
 			<div className="container mx-auto px-6 py-16 max-w-5xl relative z-10">
 				{/* Page Header */}

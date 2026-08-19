@@ -22,7 +22,7 @@ export default async function KnowMePage() {
     }
 
     return (
-        <div className="min-h-screen bg-white dark:bg-black">
+        <div className="min-h-screen">
             <Suspense fallback={<KnowMeDashboardSkeleton />}>
                 <KnowMeContent />
             </Suspense>

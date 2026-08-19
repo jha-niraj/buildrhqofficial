@@ -563,7 +563,7 @@ export default function SprintsPageClient({
     }
 
     return (
-        <div className="flex h-screen w-full bg-white dark:bg-neutral-950 overflow-hidden">
+        <div className="flex h-screen w-full overflow-hidden">
             <div className="hidden md:flex w-72 border-r border-neutral-200 dark:border-neutral-800 flex-col bg-neutral-50/50 dark:bg-neutral-900/20">
                 <div className="p-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
                     <Link

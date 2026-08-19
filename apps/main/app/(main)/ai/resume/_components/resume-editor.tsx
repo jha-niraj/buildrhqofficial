@@ -22,6 +22,8 @@ import { DotmSquare11 } from '@repo/ui/components/ui/dotm-square-11'
 import toast from '@repo/ui/components/ui/sonner'
 import { updateResumeDraft, scoreResumeAgainstJD, tailorResumeForJD } from '@/actions/(main)/ai/resume-draft.action'
 import { syncProfileToResumeDraft } from '@/actions/(main)/ai/resume-profile-sync.action'
+import { extractJobDescription } from '@/actions/(main)/ai/cover-letter.action'
+import { creditErrorMessage, priceSuffix } from '@/lib/credits/notify'
 import {
     ResumeDraftContent, ResumeHeader, ResumeExperienceEntry,
     ResumeProjectEntry, ResumeEducationEntry, ResumeSkillGroup,
@@ -215,17 +217,42 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
     onContentUpdated: (content: ResumeDraftContent) => void
 }) {
     const [jd, setJd] = useState('')
+    const [jobUrl, setJobUrl] = useState('')
     const [jobTitle, setJobTitle] = useState('')
-    const [loading, setLoading] = useState<'score' | 'tailor' | null>(null)
+    const [loading, setLoading] = useState<'score' | 'tailor' | 'fetch' | null>(null)
     const [scoreResult, setScoreResult] = useState<{ score: number; missing_keywords: string[]; matched_keywords: string[]; suggestions: string[] } | null>(null)
     const [tailorResult, setTailorResult] = useState<{ suggestions: string[]; keywordsAdded: string[]; summary: string } | null>(null)
+
+    /**
+     * Pull the job description off a posting URL, the same way the cover letter
+     * flow does. Nobody wants to select and copy a job ad, and a partial paste is
+     * the most common reason a tailored resume misses the requirements.
+     */
+    const handleFetchJd = async () => {
+        if (!jobUrl.trim()) {
+            toast.error('Paste a job posting URL first')
+            return
+        }
+        setLoading('fetch')
+        const res = await extractJobDescription(jobUrl.trim())
+        setLoading(null)
+        if (!res.success || !res.description) {
+            toast.error(res.error ?? 'Could not read that posting - paste the description instead')
+            return
+        }
+        setJd(res.description)
+        // Only fill the title if the user has not typed one; the page title is a
+        // guess ("Careers | Acme") often enough that it must not overwrite them.
+        if (res.title && !jobTitle.trim()) setJobTitle(res.title)
+        toast.success('Job description pulled in - check it before tailoring')
+    }
 
     const handleScore = async () => {
         if (!jd.trim()) return toast.error('Paste a job description first')
         setLoading('score')
         const res = await scoreResumeAgainstJD(draftId, jd)
         setLoading(null)
-        if (!res.success) return toast.error(res.error ?? 'Failed to score')
+        if (!res.success) return toast.error(creditErrorMessage(res, 'Failed to score'))
         setScoreResult(res as unknown as { score: number; missing_keywords: string[]; matched_keywords: string[]; suggestions: string[] })
         setTailorResult(null)
     }
@@ -235,7 +262,7 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
         setLoading('tailor')
         const res = await tailorResumeForJD(draftId, jd, jobTitle)
         setLoading(null)
-        if (!res.success) return toast.error(res.error ?? 'Failed to tailor')
+        if (!res.success) return toast.error(creditErrorMessage(res, 'Failed to tailor'))
         if (res.updatedContent) {
             onContentUpdated(res.updatedContent as ResumeDraftContent)
             // Auto-save the tailored content so changes persist without manual Save click
@@ -258,6 +285,24 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
                         <Input placeholder="e.g. Senior Frontend Engineer" value={jobTitle} onChange={e => setJobTitle(e.target.value)} />
                     </div>
                     <div className="space-y-1.5">
+                        <Label className="text-sm font-medium">Job Posting URL</Label>
+                        <div className="flex gap-2">
+                            <Input
+                                placeholder="https://company.com/jobs/123"
+                                value={jobUrl}
+                                onChange={e => setJobUrl(e.target.value)}
+                            />
+                            <Button
+                                variant="outline"
+                                onClick={handleFetchJd}
+                                disabled={loading !== null || !jobUrl.trim()}
+                            >
+                                {loading === 'fetch' ? 'Reading…' : 'Fetch'}
+                            </Button>
+                        </div>
+                        <p className="text-[10px] text-neutral-500">Or paste the description below.</p>
+                    </div>
+                    <div className="space-y-1.5">
                         <Label className="text-sm font-medium">Job Description</Label>
                         <Textarea className="h-36 text-xs" placeholder="Paste the full job description here…" value={jd} onChange={e => setJd(e.target.value)} />
                     </div>
@@ -270,10 +315,10 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
                     ) : (
                         <div className="grid grid-cols-2 gap-2">
                             <Button variant="outline" className="w-full" onClick={handleScore}>
-                                <BarChart3 className="w-4 h-4 mr-2" /> ATS Score
+                                <BarChart3 className="w-4 h-4 mr-2" /> ATS Score{priceSuffix('resume_ats_score')}
                             </Button>
                             <Button className="w-full bg-neutral-900 text-white dark:bg-white dark:text-black hover:opacity-90" onClick={handleTailor}>
-                                <Wand2 className="w-4 h-4 mr-2" /> Tailor This Resume
+                                <Wand2 className="w-4 h-4 mr-2" /> Tailor This Resume{priceSuffix('resume_tailor_jd')}
                             </Button>
                         </div>
                     )}
@@ -452,7 +497,7 @@ export function ResumeEditor({ draft, content: initialContent, templates }: Prop
     const platformTemplates = templates.filter(t => t.isPlatform)
 
     return (
-        <div className="flex flex-col h-screen bg-neutral-50 dark:bg-neutral-950">
+        <div className="flex flex-col h-screen">
             {/* ── Top bar ── */}
             <div className="flex items-center gap-3 px-4 h-12 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 flex-shrink-0">
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0" asChild><Link href='/ai/resume'>

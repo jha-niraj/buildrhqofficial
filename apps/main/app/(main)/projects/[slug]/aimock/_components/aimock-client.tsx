@@ -277,7 +277,7 @@ export default function AIMockInterviewClient({
 
     if (stage === 'payment') {
         return (
-            <div className="min-h-screen bg-white dark:bg-neutral-950 py-12 px-6">
+            <div className="min-h-screen py-12 px-6">
                 <div className="max-w-4xl mx-auto">
                     <Link
                         href={`/projects/${project.slug}`}
@@ -448,7 +448,7 @@ export default function AIMockInterviewClient({
     // Ready Stage (Knowledge base exists, ready to start)
     if (stage === 'ready') {
         return (
-            <div className="min-h-screen bg-white dark:bg-neutral-950 py-12 px-6">
+            <div className="min-h-screen py-12 px-6">
                 <div className="max-w-4xl mx-auto">
                     <Link
                         href={`/projects/${project.slug}`}

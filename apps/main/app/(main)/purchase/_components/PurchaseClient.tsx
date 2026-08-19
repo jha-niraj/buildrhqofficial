@@ -266,7 +266,7 @@ export default function PurchasePage() {
 	}
 
 	return (
-		<div className="min-h-screen w-full bg-white dark:bg-neutral-950 relative overflow-hidden font-sans selection:bg-neutral-200 dark:selection:bg-neutral-800">
+		<div className="min-h-screen w-full relative overflow-hidden font-sans selection:bg-neutral-200 dark:selection:bg-neutral-800">
 			{/* Grid background */}
 			<div className="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
 

@@ -27,7 +27,7 @@ export function ProgressGate({ type, currentProgress, requiredProgress, projectS
         : 'Practice with an AI-powered mock interview'
 
     return (
-        <div className="relative min-h-screen w-full bg-white dark:bg-neutral-950 overflow-hidden">
+        <div className="relative min-h-screen w-full overflow-hidden">
             <div className="max-w-4xl mx-auto px-6 py-12">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

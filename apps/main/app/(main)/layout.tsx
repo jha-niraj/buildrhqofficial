@@ -19,6 +19,7 @@ import { AITriggerButton } from '@/components/ai/ai-trigger-button';
 import {
     useAIPanelStore, AI_MIN_WIDTH, AI_MAX_WIDTH, clampPanelWidth,
 } from '@/app/store/aiPanelStore';
+import { AppBackdrop } from '@/components/common/app-backdrop';
 
 interface LayoutProps {
     children: React.ReactNode
@@ -108,7 +109,11 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
 
             <div
                 className={cn(
-                    "min-w-0 flex-1 transition-all duration-300 ease-in-out",
+                    // `relative` is load-bearing, not cosmetic: the shell's backdrop is
+                    // an absolutely positioned sibling, and a positioned element paints
+                    // above a STATIC one whatever the DOM order. Without this the
+                    // photograph covers the cards instead of sitting behind them.
+                    "relative min-w-0 flex-1 transition-all duration-300 ease-in-out",
                     isCollapsed ? "lg:ml-[106px]" : "lg:ml-[17rem]",
                 )}
             >
@@ -215,14 +220,25 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
 const Layout = ({ children }: LayoutProps) => {
     const pathname = usePathname();
 
-    // Define paths where sidebar and navbar should be hidden (full-screen mode)
+    // Routes that render OUTSIDE the shell - no sidebar, no page card, no AI rail.
+    // All of them are full-window working surfaces (a code editor, a problem
+    // workspace) where a 17rem nav column costs more than it gives.
+    //
+    // These are matched against real directories under app/(main). Two entries
+    // here used to point at routes that do not exist:
+    //   - '/ai/jobinterviewassistant/...' - the real route has no "job" prefix,
+    //     so the coding-questions editor was silently rendering inside the card
+    //     with the sidebar beside it
+    //   - '/learn/[subcategorySlug]/[learnSlug]' - there is no learn module in
+    //     this app at all
+    // A stale path here fails silently, so it is worth checking against the
+    // filesystem when adding one.
     const fullScreenPaths = [
-        '/ai/jobinterviewassistant/[slug]/codingquestions',
+        '/ai/interviewassistant/[slug]/codingquestions',
         '/practice/dsa/[slug]',
         '/practice/system-design/[slug]',
         '/practice/web-frontend/[slug]',
         '/practice/web-backend/[slug]',
-        '/learn/[subcategorySlug]/[learnSlug]',
     ];
 
     // Check if current path should be in full-screen mode
@@ -248,7 +264,13 @@ const Layout = ({ children }: LayoutProps) => {
 
     return (
         <SidebarProvider>
-            <div className="flex h-screen w-full overflow-hidden bg-neutral-100 dark:bg-neutral-900">
+            {/* `relative` so the backdrop can be `absolute inset-0`, and the flat
+                colour stays underneath it: the .webp is a network fetch, and
+                without a base the first paint is a white flash in dark mode.
+                The backdrop is what the three cards float on - it shows through
+                the gutter between them, not through the page itself. */}
+            <div className="relative flex h-screen w-full overflow-hidden bg-neutral-100 dark:bg-neutral-900">
+                <AppBackdrop />
                 <MainContent>{children}</MainContent>
             </div>
         </SidebarProvider>

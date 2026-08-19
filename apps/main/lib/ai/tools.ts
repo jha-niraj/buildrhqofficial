@@ -1,7 +1,7 @@
 import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import {
     db, users, projectsV2, projectIdeas, userProjectV2Progress,
-    pathfinderGoals, practiceModuleProgress, jobs, companies,
+    pathfinderGoals, practiceModuleProgress, jobs, companies, resumeDraft,
 } from "@repo/db";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -83,6 +83,97 @@ const getMyProfile: Handler = async (_args, userId) => {
 
     if (!row) return { error: "Profile not found." };
     return row;
+};
+
+// ── get_my_resume ────────────────────────────────────────────────────────────
+
+/**
+ * The user's default resume, as structured content.
+ *
+ * This is the tool that makes "tailor this for me" work without the user pasting
+ * their background into the chat. It reads the resume they marked as default;
+ * failing that, their most recently updated one; failing that, the raw text
+ * extracted from whatever they uploaded, which is all a user who has only ever
+ * dropped in a PDF will have until the structuring job lands.
+ *
+ * Bullets are capped rather than returned whole: a long resume is several
+ * thousand tokens of context on every turn that mentions it, and the tail of a
+ * ten-bullet role is not what the model is reasoning about.
+ */
+const getMyResume: Handler = async (_args, userId) => {
+    const [draft] = await db
+        .select({
+            name: resumeDraft.name,
+            content: resumeDraft.content,
+            isDefault: resumeDraft.isDefault,
+            tailoredFor: resumeDraft.tailoredFor,
+            updatedAt: resumeDraft.updatedAt,
+        })
+        .from(resumeDraft)
+        .where(eq(resumeDraft.userId, userId))
+        // Default first, then most recently touched - the same order
+        // `getDefaultResumeDraft` uses, so the assistant and the app never
+        // disagree about which resume is "theirs".
+        .orderBy(desc(resumeDraft.isDefault), desc(resumeDraft.updatedAt))
+        .limit(1);
+
+    if (draft) {
+        const content = (draft.content ?? {}) as {
+            header?: Record<string, unknown>;
+            experience?: Array<{ company?: string; role?: string; startDate?: string; endDate?: string; current?: boolean; bullets?: string[] }>;
+            projects?: Array<{ name?: string; description?: string; technologies?: string[] }>;
+            education?: Array<{ institution?: string; degree?: string; field?: string; endDate?: string }>;
+            skills?: Array<{ category?: string; items?: string[] }>;
+            certifications?: Array<{ name?: string; issuer?: string }>;
+        };
+        const header = (content.header ?? {}) as Record<string, string | null>;
+        return {
+            source: "resume",
+            resumeName: draft.name,
+            isDefault: draft.isDefault,
+            tailoredFor: draft.tailoredFor,
+            headline: header.title ?? null,
+            summary: header.summary ?? null,
+            location: header.location ?? null,
+            experience: (content.experience ?? []).slice(0, 8).map((e) => ({
+                company: e.company,
+                role: e.role,
+                startDate: e.startDate,
+                endDate: e.current ? "Present" : e.endDate,
+                bullets: (e.bullets ?? []).slice(0, 5),
+            })),
+            projects: (content.projects ?? []).slice(0, 6).map((p) => ({
+                name: p.name,
+                description: p.description,
+                technologies: p.technologies,
+            })),
+            education: (content.education ?? []).slice(0, 4),
+            skills: content.skills ?? [],
+            certifications: (content.certifications ?? []).slice(0, 6),
+        };
+    }
+
+    // No structured resume yet. The raw upload is still better than nothing, and
+    // saying so lets the model explain why its answer is rougher than usual.
+    const [row] = await db
+        .select({ hasResume: users.hasResume, resumeText: users.resumeText })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+
+    if (row?.resumeText) {
+        return {
+            source: "uploaded_text",
+            note: "Raw text from the user's uploaded resume. It has not been parsed into sections yet, so treat the structure loosely.",
+            text: row.resumeText.slice(0, 6000),
+        };
+    }
+
+    return {
+        source: "none",
+        hasResume: row?.hasResume ?? false,
+        note: "This user has no resume on ShipItHQ yet. Suggest they upload one or build one at /ai/resume before giving resume-specific advice.",
+    };
 };
 
 // ── list_my_projects ─────────────────────────────────────────────────────────
@@ -305,6 +396,18 @@ const TOOLS: Tool[] = [
             },
         },
         handler: getMyProfile,
+    },
+    {
+        spec: {
+            type: "function",
+            function: {
+                name: "get_my_resume",
+                description:
+                    "Read the signed-in user's default resume on ShipItHQ: work experience with bullet points, projects, education, skills and certifications. Call this whenever the answer depends on the user's actual background - tailoring a resume or cover letter, judging fit for a job, suggesting what to learn or build next, or preparing them for an interview. Prefer it over asking the user to describe their experience.",
+                parameters: { type: "object", properties: {}, additionalProperties: false },
+            },
+        },
+        handler: getMyResume,
     },
     {
         spec: {

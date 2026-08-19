@@ -13,7 +13,7 @@ import {
     skills,
     certifications,
 } from '@repo/db'
-import { eq, asc, desc } from 'drizzle-orm'
+import { and, asc, desc, eq } from 'drizzle-orm'
 import type {
     ResumeDraftContent,
     ResumeExperienceEntry,
@@ -264,9 +264,12 @@ export async function syncProfileToResumeDraft(draftId?: string): Promise<
 
         // ── 12. Optionally persist to an existing draft ───────────────────────
         if (draftId) {
+            // Scoped to the caller. `draftId` arrives from the client, so without
+            // the userId predicate this action would overwrite ANY user's resume
+            // with the caller's profile data.
             await db.update(resumeDraft)
                 .set({ content: JSON.parse(JSON.stringify(mappedContent)) })
-                .where(eq(resumeDraft.id, draftId))
+                .where(and(eq(resumeDraft.id, draftId), eq(resumeDraft.userId, userId)))
         }
 
         return { success: true, content: mappedContent }

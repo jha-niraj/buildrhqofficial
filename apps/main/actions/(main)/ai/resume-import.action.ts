@@ -8,6 +8,7 @@ import { ResumeDraftContent } from '@/types/resume-draft'
 import { createResumeDraft } from './resume-draft.action'
 import { z } from 'zod'
 import { zodResponseFormat } from "@/lib/openai-client"
+import { withCredits, OperationFailed } from '@/lib/credits/charge'
 
 // ── Exa client (lazy singleton) ──────────────────────────────────────────────
 let _exa: Exa | null = null
@@ -108,85 +109,6 @@ All nullable fields should be null if not found, never undefined.`,
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// IMPORT from LinkedIn URL
-// ─────────────────────────────────────────────────────────────────────────────
-export async function importFromLinkedIn(url: string) {
-    const session = await getSession(headers())
-    if (!session?.user?.id) return { success: false, error: 'Unauthorized' }
-
-    try {
-        const raw = await fetchPageText(url)
-        if (!raw) return { success: false, error: 'Could not extract LinkedIn profile. Make sure the profile is public.' }
-
-        const content = await extractStructuredContent(raw, 'a LinkedIn profile page')
-        return { success: true, content, rawPreview: raw.slice(0, 500) }
-    } catch (e) {
-        return { success: false, error: e instanceof Error ? e.message : 'Import failed' }
-    }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// IMPORT from GitHub profile URL
-// ─────────────────────────────────────────────────────────────────────────────
-export async function importFromGitHub(url: string) {
-    const session = await getSession(headers())
-    if (!session?.user?.id) return { success: false, error: 'Unauthorized' }
-
-    try {
-        const username = url.replace(/https?:\/\/(www\.)?github\.com\/?/, '').split('/')[0]
-
-        const [profileRaw, reposRaw] = await Promise.all([
-            fetchPageText(`https://github.com/${username}`),
-            fetchPageText(`https://github.com/${username}?tab=repositories`),
-        ])
-
-        if (!profileRaw) return { success: false, error: 'Could not extract GitHub profile. Make sure the profile is public.' }
-
-        const combined = `=== GitHub Profile ===\n${profileRaw}\n\n=== Repositories ===\n${reposRaw}`
-        const content = await extractStructuredContent(combined, 'a GitHub developer profile and repositories')
-
-        return { success: true, content, username }
-    } catch (e) {
-        return { success: false, error: e instanceof Error ? e.message : 'GitHub import failed' }
-    }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// IMPORT from pasted resume text / PDF text
-// ─────────────────────────────────────────────────────────────────────────────
-export async function importFromText(text: string) {
-    const session = await getSession(headers())
-    if (!session?.user?.id) return { success: false, error: 'Unauthorized' }
-
-    if (text.trim().length < 50) return { success: false, error: 'Text is too short to extract resume data.' }
-
-    try {
-        const content = await extractStructuredContent(text, 'a pasted resume or document')
-        return { success: true, content }
-    } catch (e) {
-        return { success: false, error: e instanceof Error ? e.message : 'Import failed' }
-    }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// IMPORT from any URL (generic: company page, portfolio, etc.)
-// ─────────────────────────────────────────────────────────────────────────────
-export async function importFromUrl(url: string) {
-    const session = await getSession(headers())
-    if (!session?.user?.id) return { success: false, error: 'Unauthorized' }
-
-    try {
-        const raw = await fetchPageText(url)
-        if (!raw) return { success: false, error: 'Could not extract content from this URL.' }
-
-        const content = await extractStructuredContent(raw, 'a professional profile or portfolio page')
-        return { success: true, content }
-    } catch (e) {
-        return { success: false, error: e instanceof Error ? e.message : 'Import failed' }
-    }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // COMBINED: Scrape multiple sources and merge into one draft
 // ─────────────────────────────────────────────────────────────────────────────
 export async function importAndCreateDraft(input: {
@@ -219,20 +141,38 @@ export async function importAndCreateDraft(input: {
             usedSources.push('text')
         }
 
+        // Charged only once at least one source produced text. A user who typed a
+        // dead URL pays nothing, because no model call was made.
         if (parts.length === 0) return { success: false, error: 'Please provide at least one source (LinkedIn, GitHub, or resume text).' }
 
         const combined = parts.join('\n\n')
-        const content = await extractStructuredContent(combined, `${usedSources.join(' + ')} sources`)
 
-        const result = await createResumeDraft({
-            name: input.name,
-            templateSlug: input.templateSlug,
-            content,
-            importedFrom: usedSources.join(','),
-            importedUrl: input.linkedinUrl ?? input.githubUrl,
-        })
+        // The model call AND the insert are inside the hold. Unlike a cover
+        // letter, the product of an import is the saved draft - an import that
+        // generates content and then fails to save leaves the user with nothing,
+        // so it must refund.
+        const charged = await withCredits(
+            { userId: session.user.id, operation: 'resume_import', reason: `Resume import: ${usedSources.join(' + ')}` },
+            async () => {
+                const content = await extractStructuredContent(combined, `${usedSources.join(' + ')} sources`)
+                const result = await createResumeDraft({
+                    name: input.name,
+                    templateSlug: input.templateSlug,
+                    content,
+                    importedFrom: usedSources.join(','),
+                    importedUrl: input.linkedinUrl ?? input.githubUrl,
+                })
+                if (!result.success || !result.draft) {
+                    throw new OperationFailed('We read your profile but could not save the resume.')
+                }
+                return result.draft
+            },
+        )
 
-        return result
+        if (!charged.success) {
+            return { success: false, error: charged.error, code: charged.code, required: charged.required, available: charged.available }
+        }
+        return { success: true, draft: charged.data }
     } catch (e) {
         return { success: false, error: e instanceof Error ? e.message : 'Import failed' }
     }
@@ -342,23 +282,39 @@ export async function importProfileAndCreateDraft(input: ProfileImportInput) {
             if (portfolioRaw) parts.push(`=== Portfolio Website ===\n${portfolioRaw.slice(0, 3000)}`)
         }
 
+        // Every source is best-effort. All of them failing means no model call was
+        // made and there is nothing to charge for - the return below happens
+        // before the hold. Some succeeding means the model ran: that is charged,
+        // even though the import is thinner than the user hoped.
         if (parts.length === 0) return { success: false, error: 'Could not extract data from any source. Make sure profiles are public.' }
 
         const combined = parts.join('\n\n')
-        const content = await extractStructuredContent(
-            combined,
-            'LinkedIn profile, GitHub repositories, and additional sources'
+
+        const charged = await withCredits(
+            { userId: session.user.id, operation: 'resume_import', reason: 'Resume import: LinkedIn + GitHub' },
+            async () => {
+                const content = await extractStructuredContent(
+                    combined,
+                    'LinkedIn profile, GitHub repositories, and additional sources'
+                )
+                const result = await createResumeDraft({
+                    name: `${content.header.name || 'My'} AI-Generated Resume`,
+                    templateSlug: input.templateSlug ?? 'clean-minimal',
+                    content,
+                    importedFrom: 'linkedin_github_ai_import',
+                    importedUrl: input.linkedinUrl,
+                })
+                if (!result.success || !result.draft) {
+                    throw new OperationFailed('We read your profiles but could not save the resume.')
+                }
+                return result.draft
+            },
         )
 
-        const result = await createResumeDraft({
-            name: `${content.header.name || 'My'} AI-Generated Resume`,
-            templateSlug: input.templateSlug ?? 'clean-minimal',
-            content,
-            importedFrom: 'linkedin_github_ai_import',
-            importedUrl: input.linkedinUrl,
-        })
-
-        return result
+        if (!charged.success) {
+            return { success: false, error: charged.error, code: charged.code, required: charged.required, available: charged.available }
+        }
+        return { success: true, draft: charged.data }
     } catch (e) {
         return { success: false, error: e instanceof Error ? e.message : 'Profile import failed' }
     }

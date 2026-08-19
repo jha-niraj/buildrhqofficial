@@ -370,8 +370,9 @@ export interface MockInterviewConfig extends AIGenerationConfig {
 
 // ==================== CONSTANTS ====================
 
-export const PRACTICE_SET_CREDIT_COST = 5
-export const EXAM_SET_CREDIT_COST = 10
+// Prices live in lib/credits/pricing.ts. Re-exported here so the existing
+// importers of this module keep working; new code should read them from there.
+export { PRACTICE_SET_CREDIT_COST, EXAM_SET_CREDIT_COST } from '@/lib/credits/pricing'
 export const PUBLIC_CREDIT_REFUND_PERCENT = 50
 
 export const LANGUAGE_CONFIG: Record<AssessmentLanguage, { label: string; icon: string }> = {

@@ -2,12 +2,13 @@
 
 import { getSession } from "@repo/auth";
 import { headers } from "next/headers";
-import { db, coverLetter as coverLetters, users, skills, workExperiences, portfolioProjects } from "@repo/db";
+import { db, coverLetter as coverLetters, users, skills, workExperiences, portfolioProjects, resumeDraft } from "@repo/db";
 import { eq, and, desc } from "drizzle-orm";
 import Exa from "exa-js";
 import { openai, zodResponseFormat } from '@/lib/openai-client'
 import { z } from "zod";
 import { CoverLetterGenerationData } from "@/types/aitools/cover-letter";
+import { withCredits, OperationFailed } from "@/lib/credits/charge";
 
 // ── Exa client (lazy singleton) ──────────────────────────────────────────────
 let _exa: Exa | null = null
@@ -70,35 +71,47 @@ export async function generateCoverLetterQuestions(jobDescription: string) {
             return { success: false, error: "Unauthorized" };
         }
 
-        const completion = await openai.chat.completions.create({
-            model: "gpt-4o",
-            messages: [
-                {
-                    role: "system",
-                    content: `You are an expert technical recruiter and career coach. Review the provided Job Description and generate 3 to 5 targeted questions for the applicant. These questions should help customize their cover letter based on specific job requirements. The questions should ask for specific metrics, examples of experience with required tools, or how their past work aligns with core responsibilities.
+        const charged = await withCredits(
+            { userId: user.id!, operation: "cover_letter_questions", reason: "Cover letter: tailored questions" },
+            async () => {
+                const completion = await openai.chat.completions.create({
+                    model: "gpt-4o",
+                    messages: [
+                        {
+                            role: "system",
+                            content: `You are an expert technical recruiter and career coach. Review the provided Job Description and generate 3 to 5 targeted questions for the applicant. These questions should help customize their cover letter based on specific job requirements. The questions should ask for specific metrics, examples of experience with required tools, or how their past work aligns with core responsibilities.
 
 IMPORTANT: Always include the "options" field in every question. Set it to null for TEXTAREA questions and to an array of 3-4 choices for SINGLE or MULTIPLE questions. Never omit the field.`
-                },
-                {
-                    role: "user",
-                    content: `Job Description:\n\n${jobDescription}`
+                        },
+                        {
+                            role: "user",
+                            content: `Job Description:\n\n${jobDescription}`
+                        }
+                    ],
+                    response_format: zodResponseFormat(QuestionsSchema, "questions_schema"),
+                });
+
+                const content = completion.choices[0]?.message?.content;
+                // No questions is a failed generation, not an empty result. Both a
+                // missing completion and output that will not parse mean the user
+                // has nothing to answer, so both refund rather than returning [].
+                if (!content) throw new OperationFailed("The question generator returned nothing.");
+
+                let questions: unknown[] = [];
+                try {
+                    questions = JSON.parse(content).questions ?? [];
+                } catch {
+                    throw new OperationFailed("Could not read the generated questions.");
                 }
-            ],
-            response_format: zodResponseFormat(QuestionsSchema, "questions_schema"),
-        });
+                if (!questions.length) throw new OperationFailed("No questions could be generated from that job description.");
+                return questions;
+            },
+        );
 
-        const content = completion.choices[0]?.message?.content;
-        let questions = [];
-        if (content) {
-            try {
-                const parsed = JSON.parse(content);
-                questions = parsed.questions || [];
-            } catch (e) {
-                console.error("Failed to parse JSON response:", e);
-            }
+        if (!charged.success) {
+            return { success: false, error: charged.error, code: charged.code, required: charged.required, available: charged.available };
         }
-
-        return { success: true, questions };
+        return { success: true, questions: charged.data };
     } catch (e: unknown) {
         return { success: false, error: e instanceof Error ? e.message : "Failed to generate questions." };
     }
@@ -133,6 +146,77 @@ export async function saveCoverLetterDraft(data: {
     }
 }
 
+/**
+ * Flatten a resume draft's stored content into the prompt.
+ *
+ * Not exported: a `"use server"` module may only export async functions, and
+ * this is a pure formatter.
+ */
+function formatResumeForPrompt(raw: unknown): string {
+    if (!raw || typeof raw !== "object") return "";
+    const content = raw as {
+        header?: { title?: string; summary?: string; location?: string };
+        experience?: Array<{ company?: string; role?: string; startDate?: string; endDate?: string; current?: boolean; bullets?: string[] }>;
+        projects?: Array<{ name?: string; description?: string; technologies?: string[]; bullets?: string[] }>;
+        education?: Array<{ institution?: string; degree?: string; field?: string; endDate?: string }>;
+        skills?: Array<{ category?: string; items?: string[] }>;
+        certifications?: Array<{ name?: string; issuer?: string }>;
+    };
+
+    const out: string[] = [];
+    const { header, experience, projects, education, skills: skillGroups, certifications } = content;
+
+    if (header?.title || header?.summary) {
+        out.push("From the applicant's resume:");
+        if (header.title) out.push(`Current title: ${header.title}`);
+        if (header.location) out.push(`Location: ${header.location}`);
+        if (header.summary) out.push(`Summary: ${header.summary}`);
+        out.push("");
+    }
+
+    if (experience?.length) {
+        out.push("Resume - Work Experience:");
+        for (const e of experience.slice(0, 8)) {
+            const end = e.current ? "Present" : (e.endDate ?? "");
+            out.push(`- ${e.role ?? ""} at ${e.company ?? ""} (${e.startDate ?? ""} to ${end})`);
+            for (const b of (e.bullets ?? []).slice(0, 5)) out.push(`  * ${b}`);
+        }
+        out.push("");
+    }
+
+    if (projects?.length) {
+        out.push("Resume - Projects:");
+        for (const p of projects.slice(0, 6)) {
+            out.push(`- ${p.name ?? ""}${p.technologies?.length ? ` (${p.technologies.join(", ")})` : ""}`);
+            if (p.description) out.push(`  ${p.description}`);
+            for (const b of (p.bullets ?? []).slice(0, 3)) out.push(`  * ${b}`);
+        }
+        out.push("");
+    }
+
+    if (education?.length) {
+        out.push("Resume - Education:");
+        for (const e of education.slice(0, 4)) {
+            out.push(`- ${e.degree ?? ""}${e.field ? ` in ${e.field}` : ""}, ${e.institution ?? ""}${e.endDate ? ` (${e.endDate})` : ""}`);
+        }
+        out.push("");
+    }
+
+    if (skillGroups?.length) {
+        out.push("Resume - Skills:");
+        for (const g of skillGroups) out.push(`- ${g.category ?? "Other"}: ${(g.items ?? []).join(", ")}`);
+        out.push("");
+    }
+
+    if (certifications?.length) {
+        out.push("Resume - Certifications:");
+        for (const c of certifications.slice(0, 6)) out.push(`- ${c.name ?? ""}${c.issuer ? ` (${c.issuer})` : ""}`);
+        out.push("");
+    }
+
+    return out.length ? out.join("\n") + "\n" : "";
+}
+
 export async function generateAndSaveCoverLetter(data: CoverLetterGenerationData) {
     try {
         const user = await currentUser();
@@ -149,10 +233,18 @@ export async function generateAndSaveCoverLetter(data: CoverLetterGenerationData
             return { success: false, error: "User not found" };
         }
 
-        const [userSkills, userExperiences, userProjects] = await Promise.all([
+        const [userSkills, userExperiences, userProjects, defaultResume] = await Promise.all([
             db.query.skills.findMany({ where: eq(skills.userId, user.id!) }),
             db.query.workExperiences.findMany({ where: eq(workExperiences.userId, user.id!), orderBy: [desc(workExperiences.startDate)] }),
             db.query.portfolioProjects.findMany({ where: eq(portfolioProjects.userId, user.id!), orderBy: [desc(portfolioProjects.startDate)] }),
+            // The resume the user marked as default, else their newest. A cover
+            // letter written from an empty profile is the single most common way
+            // this feature disappoints: most people upload a resume and never
+            // re-type its contents into the profile tabs.
+            db.query.resumeDraft.findFirst({
+                where: eq(resumeDraft.userId, user.id!),
+                orderBy: [desc(resumeDraft.isDefault), desc(resumeDraft.updatedAt)],
+            }),
         ]);
 
         // Format user info
@@ -185,6 +277,11 @@ export async function generateAndSaveCoverLetter(data: CoverLetterGenerationData
             });
             userInfoStr += "\n";
         }
+
+        // The resume goes in last so the model reads it as the fuller account and
+        // the hand-entered profile rows above as the confirmed one. Whichever the
+        // user maintains, the letter has something concrete to work from.
+        userInfoStr += formatResumeForPrompt(defaultResume?.content);
 
         // Format Q&A
         let qaStr = "Applicant Responses to Targeted Questions:\n";
@@ -221,22 +318,40 @@ export async function generateAndSaveCoverLetter(data: CoverLetterGenerationData
             5. Return ONLY markdown content. No preamble.
             `;
 
-        const completion = await openai.chat.completions.create({
-            model: "gpt-4o",
-            messages: [
-                {
-                    role: "system",
-                    content: "You are an expert copywriter and career coach."
-                },
-                {
-                    role: "user",
-                    content: prompt
-                }
-            ],
-            temperature: 0.7,
-        });
+        // Only the model call is inside the hold. The letter is returned to the
+        // user in this response, so a later failure to SAVE it must not refund -
+        // they received what they paid for, and refunding delivered work would
+        // make the letter free on every retry.
+        const charged = await withCredits(
+            { userId: user.id!, operation: "cover_letter_generate", reason: `Cover letter: ${data.jobTitle || "generation"}` },
+            async () => {
+                const completion = await openai.chat.completions.create({
+                    model: "gpt-4o",
+                    messages: [
+                        {
+                            role: "system",
+                            content: "You are an expert copywriter and career coach."
+                        },
+                        {
+                            role: "user",
+                            content: prompt
+                        }
+                    ],
+                    temperature: 0.7,
+                });
 
-        const generatedContent = completion?.choices?.[0]?.message?.content || "";
+                const text = completion?.choices?.[0]?.message?.content?.trim() || "";
+                // A completion can succeed with empty content. Keeping the charge
+                // for a blank letter is exactly the failure holds exist to stop.
+                if (!text) throw new OperationFailed("The cover letter came back empty.");
+                return text;
+            },
+        );
+
+        if (!charged.success) {
+            return { success: false, error: charged.error, code: charged.code, required: charged.required, available: charged.available };
+        }
+        const generatedContent = charged.data;
 
         // Save to DB - update draft if draftId provided, otherwise create new
         let letter;

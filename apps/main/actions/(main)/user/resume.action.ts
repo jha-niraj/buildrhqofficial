@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache"
 import { db, users } from "@repo/db"
 import { eq } from "drizzle-orm"
 import { uploadToR2, deleteFromR2, getR2SignedUrl, isR2Configured } from "@/lib/r2-client"
+import { startBackgroundJob } from "@/actions/(main)/workers/jobs.action"
 
 async function extractTextFromPDFBuffer(buffer: ArrayBuffer): Promise<string> {
     try {
@@ -41,27 +42,59 @@ export async function extractResumeText(file: File): Promise<string> {
     return ""
 }
 
-export async function uploadResume(file: File, _resumeText?: string) {
+/**
+ * Hand the freshly extracted text to the worker to be turned into a structured
+ * resume draft.
+ *
+ * Best-effort and never awaited for its result: the upload has already
+ * succeeded by this point, and a parser that is down must not turn a stored
+ * resume into an error the user sees. If it fails they still have their file,
+ * their text, and every non-AI feature that reads it.
+ *
+ * Free (no `cost`): the user did not ask for a generation, we are doing this
+ * because the rest of the product needs it.
+ */
+async function dispatchResumeStructuring(draftName: string): Promise<string | undefined> {
+    try {
+        const res = await startBackgroundJob(
+            "resume_structure",
+            { draftName },
+            {
+                // One structuring run at a time. Re-uploading twice in a minute is
+                // a correction, not a request for two resumes.
+                singleFlight: true,
+            },
+        )
+        return res.success ? res.jobId : undefined
+    } catch (error: unknown) {
+        console.error("Resume structuring dispatch failed:", error)
+        return undefined
+    }
+}
+
+export async function uploadResume(file: File, _resumeText?: string, options?: { draftName?: string }) {
     const session = await getSession(headers())
     if (!session?.user?.id) {
         throw new Error("You must be logged in to upload a resume")
     }
     const userId = session.user.id
 
-    // Server-side text extraction using unpdf
+    // Server-side text extraction: unpdf for PDF, mammoth for DOCX. Dispatched on
+    // the file's own type rather than trying the PDF reader on everything - a
+    // DOCX put through unpdf costs a parse and returns nothing useful.
     const buffer = await file.arrayBuffer()
+    const name = file.name.toLowerCase()
+    const isPdf = file.type === "application/pdf" || name.endsWith(".pdf")
+    const isDocx =
+        file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+        name.endsWith(".docx")
+
+    const draftName = options?.draftName?.trim() || "Imported resume"
+
     let resumeText = _resumeText ?? ""
     if (!resumeText) {
-        resumeText = await extractTextFromPDFBuffer(buffer).catch(() => "")
-        if (!resumeText) {
-            const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")
-            const isDocx =
-                file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-                file.name.toLowerCase().endsWith(".docx")
-            if (!isPdf && isDocx) {
-                resumeText = await extractTextFromDOCXBuffer(buffer).catch(() => "")
-            }
-        }
+        if (isPdf) resumeText = await extractTextFromPDFBuffer(buffer).catch(() => "")
+        else if (isDocx) resumeText = await extractTextFromDOCXBuffer(buffer).catch(() => "")
     }
     if (resumeText.length > 50000) resumeText = resumeText.substring(0, 50000)
 
@@ -69,8 +102,9 @@ export async function uploadResume(file: File, _resumeText?: string) {
         console.warn("R2 storage not configured. Saving resume text only.")
         if (resumeText) {
             await db.update(users).set({ hasResume: true, resumeText }).where(eq(users.id, userId))
+            const structureJobId = await dispatchResumeStructuring(draftName)
             revalidatePath("/profile")
-            return { success: true, url: undefined, message: "Resume text saved (file upload disabled)" }
+            return { success: true, url: undefined, structureJobId, message: "Resume text saved (file upload disabled)" }
         }
         return { success: false, url: undefined, message: "Storage not configured and no resume text provided" }
     }
@@ -93,14 +127,18 @@ export async function uploadResume(file: File, _resumeText?: string) {
         }).where(eq(users.id, userId))
 
         const signedUrl = await getR2SignedUrl(fileName)
+        // Only worth structuring if there is text to structure. A scanned PDF
+        // with no text layer gets stored and shown, but never parsed.
+        const structureJobId = resumeText ? await dispatchResumeStructuring(draftName) : undefined
         revalidatePath("/profile")
-        return { success: true, url: signedUrl }
+        return { success: true, url: signedUrl, structureJobId }
     } catch (error) {
         console.error("Resume upload failed:", error)
         if (resumeText) {
             await db.update(users).set({ hasResume: true, resumeText }).where(eq(users.id, userId))
+            const structureJobId = await dispatchResumeStructuring(draftName)
             revalidatePath("/profile")
-            return { success: true, url: undefined, message: "Resume text saved but file upload failed." }
+            return { success: true, url: undefined, structureJobId, message: "Resume text saved but file upload failed." }
         }
         throw new Error("Failed to upload resume. Please try again.")
     }

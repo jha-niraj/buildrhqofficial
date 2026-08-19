@@ -14,6 +14,7 @@ import {
 import toast from "@repo/ui/components/ui/sonner"
 import { importProfileAndCreateDraft } from "@/actions/(main)/ai/resume-import.action"
 import { useResumeHubStore } from "@/app/store/resumeHubStore"
+import { creditErrorMessage, priceSuffix } from "@/lib/credits/notify"
 
 const STAGES = [
     "Scraping LinkedIn profile…",
@@ -66,7 +67,7 @@ export function ImportClient() {
             setImportProgress(null)
 
             if (!res.success) {
-                toast.error(res.error ?? "Import failed")
+                toast.error(creditErrorMessage(res, "Import failed"))
                 setLoading(false)
                 return
             }
@@ -257,7 +258,7 @@ export function ImportClient() {
                         disabled={loading}
                     >
                         <Sparkles className="w-4 h-4" />
-                        Generate Resume with AI
+                        Generate Resume with AI{priceSuffix("resume_import")}
                     </Button>
                 </div>
             )}

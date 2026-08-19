@@ -14,7 +14,7 @@ import {
 import { eq, and, sql } from "drizzle-orm";
 import { openai } from '@/lib/openai-client'
 
-const MOCK_CREDIT_COST = 30
+import { MOCK_CREDIT_COST } from "@/lib/credits/pricing"
 
 interface MockKnowledgeBase {
     overview: string

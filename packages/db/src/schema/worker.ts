@@ -40,6 +40,11 @@ export const JOB_TYPES = [
     // scoring still fail, and the user should be told which.
     "mock_conversation",
     "mock_feedback",
+    // Turning an uploaded resume's raw extracted text into structured content.
+    // A job rather than an inline call because it runs behind an upload the user
+    // is not watching - at onboarding they have already moved on by the time it
+    // finishes.
+    "resume_structure",
 ] as const;
 
 export type JobType = (typeof JOB_TYPES)[number];

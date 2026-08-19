@@ -57,6 +57,27 @@
       "when": 1785664872026,
       "tag": "0007_wide_groot",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1787162647663,
+      "tag": "0008_supreme_supernaut",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1787166266695,
+      "tag": "0009_brave_energizer",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1787166267695,
+      "tag": "0010_credit_ledger_backfill",
+      "breakpoints": true
     }
   ]
 }

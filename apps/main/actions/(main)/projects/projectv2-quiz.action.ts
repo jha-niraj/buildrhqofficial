@@ -17,7 +17,7 @@ import { eq, and, sql } from "drizzle-orm";
 import { startBackgroundJob } from '@/actions/(main)/workers/jobs.action'
 import { type Quiz } from '@/types/project'
 
-const QUIZ_CREDIT_COST = 25
+import { QUIZ_CREDIT_COST } from "@/lib/credits/pricing"
 
 interface QuizQuestion {
     difficulty: "EASY" | "MEDIUM" | "HARD"

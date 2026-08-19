@@ -15,7 +15,7 @@ export default async function ExploreLayout({
     const { goals = [] } = await getPublicPathfinderGoals()
 
     return (
-        <div className="h-screen flex flex-col bg-neutral-100 dark:bg-black">
+        <div className="h-screen flex flex-col">
             <div className="flex-shrink-0 px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 flex items-center gap-3">
                 <Link
                     href="/pathfinder"

@@ -39,6 +39,7 @@ there is one place in the product where a charge or a refund can happen.
 | `standup_voice` | `StandupVoice` | ElevenLabs transcript, then an extraction completion |
 | `mock_conversation` | `MockConversation` | ElevenLabs transcript |
 | `mock_feedback` | `MockFeedback` | a scored report over the whole transcript |
+| `resume_structure` | `ResumeStructure` | one gpt-4o pass turning an uploaded resume's extracted text into a structured draft |
 
 ## Adding a job type
 

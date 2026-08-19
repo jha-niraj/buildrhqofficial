@@ -168,12 +168,16 @@ export default function OnboardingClient() {
 			}
 		}
 
-		// 2) Resume → R2. `uploadResume` persists hasResume/resume/resumeText itself.
-		//    Also best-effort.
+		// 2) Resume → R2. `uploadResume` persists hasResume/resume/resumeText itself
+		//    and dispatches the worker job that turns that text into a structured
+		//    resume draft, so the experience and skills we need for cover letters
+		//    and mock interviews are already there the first time the user asks.
+		//    Best-effort: the parse happens off the request path and lands minutes
+		//    later, long after this screen is gone.
 		const resumeFile = resumeFiles.resume
 		if (resumeFile) {
 			try {
-				await uploadResume(resumeFile)
+				await uploadResume(resumeFile, undefined, { draftName: "My resume" })
 			} catch {
 				toast.warning("Resume upload failed - you can upload it later from your profile.")
 			}

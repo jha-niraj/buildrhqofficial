@@ -219,7 +219,7 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
 
     return (
         <>
-            <div className="min-h-screen bg-white dark:bg-black overflow-hidden">
+            <div className="min-h-screen overflow-hidden">
                 <section className="relative py-20 lg:py-32">
                     <div className="absolute inset-0 overflow-hidden">
                         <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />

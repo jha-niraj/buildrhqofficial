@@ -1,0 +1,2 @@
+ALTER TABLE "resume_draft" ADD COLUMN "is_default" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+CREATE INDEX "resume_draft_user_id_is_default_idx" ON "resume_draft" USING btree ("user_id","is_default");

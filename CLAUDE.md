@@ -3,6 +3,37 @@
 Turborepo. `apps/{main,web,uni,hiring,admin,shipitworker,worker}` and
 `packages/{auth,db,email,ui,eslint-config,typescript-config}`.
 
+## Plan before you build
+
+**Anything beyond a small fix gets planned in `plan/` before any code is
+written.** Read `plan/README.md` for the full convention; the short version:
+
+```
+plan/<module>/overview.md   what the module IS when it is 100% done
+plan/<module>/tasks.md      numbered, checkable tasks with edge cases
+```
+
+When Niraj asks for something new, or for more work on something existing:
+
+1. **Look for an existing task first** in `plan/<module>/tasks.md`. If the work
+   already has a task, do that task - do not improvise a second version of it.
+2. **No task?** Write `overview.md` (if the module is new) and the tasks
+   **before** touching code. The overview defines done; the tasks derive from it.
+   Every task carries a **Why**, exact **Files**, **Steps**, **Edge cases** and a
+   falsifiable **Done when**.
+3. **Build one task at a time**, in the order given.
+4. **Mark a task done only after verifying it** against its own "Done when" line,
+   with the date. Writing the code is not done.
+5. **Something new turns up mid-task?** Add a task. Do not widen the one in
+   flight.
+
+Prices, grants and limits are **decisions** and live in the module's
+`overview.md`, not buried in a constant - the constant references the doc.
+Deletions are proposed in a task and approved by Niraj, never assumed.
+
+`srs/core-modules/` holds the older scan-and-blocker docs for `projects` and
+`pathfinder`. Not superseded - read it before working on those two.
+
 ## Long-running work
 
 Anything that calls an LLM, or sleeps waiting on someone else's API, runs in

@@ -10,7 +10,7 @@ import { Shimmer, ShimmerStyles } from "@repo/ui/components/skeleton-kit";
 
 export default function Loading() {
     return (
-        <div className="flex h-screen flex-col bg-neutral-50/50 dark:bg-neutral-950">
+        <div className="flex h-screen flex-col">
             <ShimmerStyles />
 
             {/* Header - icon tile, title + sub, QuickActions on the right. */}

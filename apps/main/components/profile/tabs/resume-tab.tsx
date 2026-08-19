@@ -144,9 +144,16 @@ export function ResumeTab({
         }
         setUploading(true);
         try {
-            const result = await uploadResume(file);
+            const result = await uploadResume(file, undefined, { draftName: "My resume" });
             if (result.url || result.success) {
-                toast.success("Resume uploaded successfully!");
+                // The parse runs in a worker and lands after this request. Say so,
+                // otherwise the editable version showing up minutes later at
+                // /ai/resume looks like something the user did not ask for.
+                toast.success(
+                    result.structureJobId
+                        ? "Resume uploaded. We're reading it now - an editable version will appear in your Resume Creator shortly."
+                        : "Resume uploaded successfully!"
+                );
                 await onUploadResume?.();
             } else {
                 toast.error(result.message || "Upload failed");

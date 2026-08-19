@@ -315,7 +315,12 @@ export const users = pgTable(
         workExperience: text("work_experience"),
         openToWork: boolean("open_to_work").notNull().default(false),
         // Credits & XP
-        credits: integer("credits").notNull().default(100),
+        // Defaults to 0, NOT to the welcome grant. The grant is made explicitly by
+        // `lib/credits/grant.ts:grantSignupCredits` so that it is paired with a
+        // `credit_transaction` row in the same write. A column default gave every
+        // user a balance that nothing in the ledger could account for.
+        // See plan/credits/overview.md.
+        credits: integer("credits").notNull().default(0),
         totalCredits: integer("total_credits").notNull().default(0),
         creditsShared: integer("credits_shared").notNull().default(0),
         totalCreditsShared: integer("total_credits_shared").notNull().default(0),

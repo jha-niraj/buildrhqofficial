@@ -69,7 +69,7 @@ Thank you for your purchase!
 	}
 
 	return (
-		<div className="min-h-screen w-full bg-white dark:bg-black/[0.96] relative overflow-hidden flex items-center justify-center">
+		<div className="min-h-screen w-full relative overflow-hidden flex items-center justify-center">
 			<Spotlight
 				className="-top-40 left-0 md:left-60 md:-top-20"
 				fill="white"

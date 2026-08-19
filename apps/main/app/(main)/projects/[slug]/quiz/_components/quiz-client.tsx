@@ -108,7 +108,7 @@ export default function QuizClient({ project, existingQuiz, userCredits, previou
 
     if (stage === 'payment') {
         return (
-            <div className="min-h-screen bg-white dark:bg-neutral-950 py-12 px-6">
+            <div className="min-h-screen py-12 px-6">
                 <div className="max-w-4xl mx-auto">
                     <Link
                         href={`/projects/${project.slug}`}
@@ -278,7 +278,7 @@ export default function QuizClient({ project, existingQuiz, userCredits, previou
     if (stage === 'quiz' && quiz) {
         if (submitting) {
             return (
-                <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-white dark:bg-neutral-950">
+                <div className="min-h-screen flex flex-col items-center justify-center p-6">
                     <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
                     <h2 className="text-xl font-semibold mb-2">Submitting Quiz</h2>
                     <p className="text-muted-foreground">Please wait while we process your results...</p>
@@ -299,7 +299,7 @@ export default function QuizClient({ project, existingQuiz, userCredits, previou
         }));
 
         return (
-            <div className="min-h-screen bg-white dark:bg-neutral-950 py-12 px-6">
+            <div className="min-h-screen py-12 px-6">
                 <Quiz
                     quizId={quiz.id}
                     questions={questions}
@@ -356,7 +356,7 @@ export default function QuizClient({ project, existingQuiz, userCredits, previou
         };
 
         return (
-            <div className="min-h-screen bg-white dark:bg-neutral-950 py-12 px-6">
+            <div className="min-h-screen py-12 px-6">
                 <QuizResults
                     result={transformedResult}
                     questions={transformedQuestions}

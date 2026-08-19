@@ -312,6 +312,13 @@ export const resumeDraft = pgTable(
         jdSnapshot: text("jd_snapshot"),
         atsScore: integer("ats_score"),
         isPublic: boolean("is_public").notNull().default(false),
+        // The one resume the AI reaches for when a feature needs "this user's
+        // resume" without being told which - cover letters, mock interviews, the
+        // assistant's tools. Exactly one row per user should carry it; that is
+        // enforced by `setDefaultResumeDraft`, which clears the others in the
+        // same batch, not by a constraint (a partial unique index would make an
+        // ordinary two-statement swap fail halfway).
+        isDefault: boolean("is_default").notNull().default(false),
         shareSlug: text("share_slug").notNull().unique().$defaultFn(() => createId()),
         viewCount: integer("view_count").notNull().default(0),
         importedFrom: text("imported_from"),
@@ -321,6 +328,7 @@ export const resumeDraft = pgTable(
     },
     (t) => [
         index("resume_draft_user_id_idx").on(t.userId),
+        index("resume_draft_user_id_is_default_idx").on(t.userId, t.isDefault),
         index("resume_draft_share_slug_idx").on(t.shareSlug),
         index("resume_draft_is_public_idx").on(t.isPublic),
     ]

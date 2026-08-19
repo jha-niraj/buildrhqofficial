@@ -6,6 +6,7 @@ import { headers } from "next/headers"
 import { and, eq } from "drizzle-orm"
 import { processReferral, createSignupActivity } from "@/utils/referral"
 import { sendEmail } from "@/utils/mail"
+import { grantSignupCredits } from "@/lib/credits/grant"
 
 /**
  * Post-signup side effects that better-auth doesn't own.
@@ -54,6 +55,18 @@ export async function finalizeSignup(referralCode?: string | null): Promise<{ su
 			await processReferral(referralCode, userId, user.name || "a new developer")
 		} else {
 			await createSignupActivity(userId)
+		}
+
+		// The opening credit balance. Independently idempotent rather than relying
+		// on the SIGNUP-activity guard above: that guard is written by
+		// processReferral/createSignupActivity, and if either ever stops writing it
+		// an unguarded grant here becomes a repeatable 100 credits.
+		//
+		// Best-effort, like the welcome mail below. A user sitting at 0 credits can
+		// be granted later; a user who cannot finish signup cannot.
+		const grant = await grantSignupCredits(userId)
+		if (!grant.ok) {
+			console.error("[signup] credit grant failed for", userId, "-", grant.error)
 		}
 
 		// Best-effort: a failed welcome email must not fail the signup.

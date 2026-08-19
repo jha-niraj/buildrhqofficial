@@ -20,7 +20,7 @@ export default async function SettingsLayout({
     }
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen">
             <div className="max-w-6xl mx-auto px-4 md:px-8 py-6">
                 <div className="mb-8">
                     <h1 className="text-2xl font-bold text-foreground">Settings</h1>

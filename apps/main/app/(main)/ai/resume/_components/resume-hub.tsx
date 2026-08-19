@@ -15,23 +15,29 @@ import { Textarea } from '@repo/ui/components/ui/textarea'
 import {
     Plus, FileText, Upload, Globe, Github, Linkedin,
     Download, Copy, Trash2, Eye, ExternalLink, Sparkles, Store,
-    LayoutTemplate, Clock, Lock, CheckCircle2, Settings
+    LayoutTemplate, Clock, Lock, CheckCircle2, Settings, Star, FileUp
 } from 'lucide-react'
 import { DotmSquare11 } from '@repo/ui/components/ui/dotm-square-11'
 import toast from '@repo/ui/components/ui/sonner'
 import {
-    createDraftFromProfile, deleteResumeDraft, updateResumeDraft, duplicateResumeDraft
+    createDraftFromProfile, createResumeDraft, deleteResumeDraft, updateResumeDraft,
+    duplicateResumeDraft, setDefaultResumeDraft
 } from '@/actions/(main)/ai/resume-draft.action'
 import { importAndCreateDraft } from '@/actions/(main)/ai/resume-import.action'
+import { uploadResume } from '@/actions/(main)/user/resume.action'
+import { validateResumeFile } from '@/lib/resume-extractor.client'
+import { emptyResumeDraftContent } from '@/types/resume-draft'
 import { PLATFORM_TEMPLATES } from '@/types/resume-draft'
 import { cn } from '@repo/ui/lib/utils'
 import { resumeShareUrl } from "@/lib/urls"
+import { creditErrorMessage, priceSuffix } from '@/lib/credits/notify'
 
 interface Draft {
     id: string
     name: string
     templateSlug: string
     isPublic: boolean
+    isDefault: boolean
     shareSlug: string
     viewCount: number
     tailoredFor: string | null
@@ -80,12 +86,13 @@ function NewResumeSheet({ templates, open, onClose }: {
     onClose: () => void
 }) {
     const router = useRouter()
-    const [source, setSource] = useState<'profile' | 'import' | 'blank'>('profile')
+    const [source, setSource] = useState<'profile' | 'import' | 'upload' | 'blank'>('profile')
     const [name, setName] = useState('')
     const [selectedTemplate, setSelectedTemplate] = useState('clean-minimal')
     const [linkedinUrl, setLinkedinUrl] = useState('')
     const [githubUrl, setGithubUrl] = useState('')
     const [pastedText, setPastedText] = useState('')
+    const [uploadFile, setUploadFile] = useState<File | null>(null)
     const [loading, setLoading] = useState(false)
 
     const platformTemplates = templates.filter(t => t.isPlatform)
@@ -95,17 +102,52 @@ function NewResumeSheet({ templates, open, onClose }: {
         setLoading(true)
         try {
             let result: { success: boolean; error?: string; draft?: { id: string }; missingFields?: string[] } | null = null
+
+            if (source === 'upload') {
+                if (!uploadFile) {
+                    setLoading(false)
+                    return toast.error('Choose a PDF or DOCX file first')
+                }
+                // The file goes to the profile, its text is extracted with unpdf,
+                // and a worker turns that text into the draft. That parse takes
+                // longer than a request, so there is no draft id to redirect to
+                // here - the resume appears in the list when the job lands.
+                const upload = await uploadResume(uploadFile, undefined, { draftName: name })
+                if (!upload.success) {
+                    setLoading(false)
+                    return toast.error(upload.message ?? 'Could not read that file')
+                }
+                if (!upload.structureJobId) {
+                    setLoading(false)
+                    return toast.error(
+                        'We saved the file but could not read any text from it. If it is a scanned PDF, upload a text-based export instead.',
+                    )
+                }
+                toast.success('Resume uploaded. We are reading it now - it will appear here in a minute.')
+                onClose()
+                router.refresh()
+                return
+            }
+
             if (source === 'import') {
                 if (!linkedinUrl && !githubUrl && !pastedText.trim()) {
                     setLoading(false)
                     return toast.error('Provide at least one import source')
                 }
                 result = await importAndCreateDraft({ name, templateSlug: selectedTemplate, linkedinUrl, githubUrl, pastedText })
+            } else if (source === 'blank') {
+                // Actually blank. This used to call createDraftFromProfile, so
+                // "Start from scratch" handed back a resume already full of
+                // profile data with no way to tell it had ignored the choice.
+                result = await createResumeDraft({
+                    name,
+                    templateSlug: selectedTemplate,
+                    content: emptyResumeDraftContent(),
+                })
             } else {
-                // profile or blank - both start from profile data
                 result = await createDraftFromProfile(name, selectedTemplate)
             }
-            if (!result.success) return toast.error(result.error)
+            if (!result.success) return toast.error(creditErrorMessage(result, 'Failed to create resume'))
 
             // Show toasts for missing profile data
             if (result.missingFields?.length) {
@@ -114,7 +156,11 @@ function NewResumeSheet({ templates, open, onClose }: {
                 })
             }
 
-            toast.success('Resume created from your profile!')
+            toast.success(
+                source === 'import' ? 'Resume created from your imported data!'
+                    : source === 'blank' ? 'Blank resume created!'
+                    : 'Resume created from your profile!',
+            )
             onClose()
             router.push(`/ai/resume/draft/${result.draft?.id}`)
         } catch {
@@ -137,7 +183,9 @@ function NewResumeSheet({ templates, open, onClose }: {
                         <div className="flex flex-col items-center justify-center py-20 gap-4">
                             <DotmSquare11 size={48} dotSize={6} speed={1.4} />
                             <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                                {source === 'import' ? 'Scraping & extracting data…' : 'Building your resume…'}
+                                {source === 'import' ? 'Scraping & extracting data…'
+                                    : source === 'upload' ? 'Uploading and reading your file…'
+                                    : 'Building your resume…'}
                             </p>
                             <p className="text-xs text-neutral-500">This takes ~20 seconds</p>
                         </div>
@@ -156,10 +204,11 @@ function NewResumeSheet({ templates, open, onClose }: {
                             {/* Source selection */}
                             <div className="space-y-2">
                                 <Label className="text-sm font-medium">Populate from</Label>
-                                <div className="grid grid-cols-3 gap-2">
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                     {[
                                         { id: 'profile' as const, icon: <FileText className="w-4 h-4" />, label: 'My Profile', desc: 'Use your ShipItHQ data' },
-                                        { id: 'import' as const, icon: <Upload className="w-4 h-4" />, label: 'Import', desc: 'LinkedIn, GitHub, resume' },
+                                        { id: 'upload' as const, icon: <FileUp className="w-4 h-4" />, label: 'Upload', desc: 'PDF or DOCX' },
+                                        { id: 'import' as const, icon: <Upload className="w-4 h-4" />, label: 'Import', desc: 'LinkedIn, GitHub, text' },
                                         { id: 'blank' as const, icon: <Plus className="w-4 h-4" />, label: 'Blank', desc: 'Start from scratch' },
                                     ].map(s => (
                                         <button
@@ -179,6 +228,48 @@ function NewResumeSheet({ templates, open, onClose }: {
                                     ))}
                                 </div>
                             </div>
+
+                            {/* Upload an existing resume */}
+                            {source === 'upload' && (
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-medium">Your existing resume</Label>
+                                    <label
+                                        htmlFor="resume-upload-file"
+                                        className={cn(
+                                            'flex flex-col items-center justify-center gap-2 p-6 rounded-xl border border-dashed cursor-pointer transition-colors',
+                                            uploadFile
+                                                ? 'border-neutral-900 dark:border-white bg-neutral-50 dark:bg-neutral-800'
+                                                : 'border-neutral-300 dark:border-neutral-700 hover:border-neutral-500',
+                                        )}
+                                    >
+                                        <FileUp className="w-5 h-5 text-neutral-500" />
+                                        <span className="text-xs font-medium text-center">
+                                            {uploadFile ? uploadFile.name : 'Click to choose a PDF or DOCX'}
+                                        </span>
+                                        <span className="text-[10px] text-neutral-500">Max 5MB</span>
+                                    </label>
+                                    <input
+                                        id="resume-upload-file"
+                                        type="file"
+                                        accept=".pdf,.doc,.docx,application/pdf"
+                                        className="hidden"
+                                        onChange={e => {
+                                            const file = e.target.files?.[0]
+                                            if (!file) return
+                                            const check = validateResumeFile(file)
+                                            if (!check.valid) {
+                                                toast.error(check.error ?? 'Unsupported file')
+                                                return
+                                            }
+                                            setUploadFile(file)
+                                        }}
+                                    />
+                                    <p className="text-[10px] text-neutral-500">
+                                        We read the text out of your file and let AI structure it into sections you can
+                                        edit. This runs in the background - the resume shows up here when it is done.
+                                    </p>
+                                </div>
+                            )}
 
                             {/* Import sources */}
                             {source === 'import' && (
@@ -207,8 +298,10 @@ function NewResumeSheet({ templates, open, onClose }: {
                                 </div>
                             )}
 
-                            {/* Template selection */}
-                            <div className="space-y-2">
+                            {/* Template selection. Hidden for uploads: the worker writes
+                                the draft itself and always starts it on clean-minimal,
+                                so offering a choice here would be a lie. */}
+                            <div className={cn('space-y-2', source === 'upload' && 'hidden')}>
                                 <Label className="text-sm font-medium">Choose Template</Label>
                                 <div className="grid grid-cols-1 gap-2">
                                     {platformTemplates.map(t => {
@@ -247,10 +340,12 @@ function NewResumeSheet({ templates, open, onClose }: {
                         <Button
                             className="w-full bg-neutral-900 text-white dark:bg-white dark:text-black hover:opacity-90 h-11"
                             onClick={handleCreate}
-                            disabled={!name.trim()}
+                            disabled={!name.trim() || (source === 'upload' && !uploadFile)}
                         >
                             <Sparkles className="w-4 h-4 mr-2" />
-                            {source === 'import' ? 'Import & Create Resume' : 'Create Resume'}
+                            {source === 'import' ? `Import & Create Resume${priceSuffix('resume_import')}`
+                                : source === 'upload' ? 'Upload & Read Resume'
+                                : 'Create Resume'}
                         </Button>
                     </div>
                 )}
@@ -260,11 +355,12 @@ function NewResumeSheet({ templates, open, onClose }: {
 }
 
 // ─── Resume Card ─────────────────────────────────────────────────────────────
-function ResumeCard({ draft, onDelete, onTogglePublic, onDuplicate }: {
+function ResumeCard({ draft, onDelete, onTogglePublic, onDuplicate, onSetDefault }: {
     draft: Draft
     onDelete: (id: string) => void
     onTogglePublic: (id: string, val: boolean) => void
     onDuplicate: (id: string) => void
+    onSetDefault: (id: string) => void
 }) {
     const colorClass = TEMPLATE_COLORS[draft.templateSlug] ?? TEMPLATE_COLORS['clean-minimal']
 
@@ -292,6 +388,11 @@ function ResumeCard({ draft, onDelete, onTogglePublic, onDuplicate }: {
 
             {/* Meta */}
             <div className="flex items-center gap-2 flex-wrap">
+                {draft.isDefault && (
+                    <Badge className="text-[10px] gap-1 bg-neutral-900 text-white dark:bg-white dark:text-black">
+                        <Star className="w-2.5 h-2.5 fill-current" /> Default
+                    </Badge>
+                )}
                 <Badge variant="outline" className="text-[10px] capitalize">{draft.templateSlug.replace(/-/g, ' ')}</Badge>
                 {draft.importedFrom && (
                     <Badge variant="outline" className="text-[10px] capitalize">{draft.importedFrom.split(',').join(' + ')}</Badge>
@@ -323,6 +424,18 @@ function ResumeCard({ draft, onDelete, onTogglePublic, onDuplicate }: {
                     onClick={() => window.open(`/api/resume/pdf/${draft.id}`, '_blank')}
                 >
                     <Download className="w-3 h-3" />
+                </Button>
+                <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 w-7 p-0"
+                    title={draft.isDefault
+                        ? 'This is the resume ShipItHQ AI uses'
+                        : 'Use this resume for AI features'}
+                    disabled={draft.isDefault}
+                    onClick={() => onSetDefault(draft.id)}
+                >
+                    <Star className={cn('w-3 h-3', draft.isDefault && 'fill-current text-neutral-900 dark:text-white')} />
                 </Button>
                 <Button
                     size="sm"
@@ -401,6 +514,20 @@ export function ResumeHub({ drafts: initialDrafts, templates }: Props) {
             await updateResumeDraft(id, { isPublic: val })
             setDrafts(d => d.map(x => x.id === id ? { ...x, isPublic: val } : x))
             toast.success(val ? 'Resume is now public' : 'Resume is now private')
+        })
+    }
+
+    const handleSetDefault = (id: string) => {
+        startTransition(async () => {
+            const res = await setDefaultResumeDraft(id)
+            if (!res.success) {
+                toast.error(res.error ?? 'Could not set the default resume')
+                return
+            }
+            // Exactly one default in the list, mirroring what the action just
+            // wrote, so the badge does not need a refetch to be right.
+            setDrafts(d => d.map(x => ({ ...x, isDefault: x.id === id })))
+            toast.success('ShipItHQ AI will use this resume from now on')
         })
     }
 
@@ -517,6 +644,7 @@ export function ResumeHub({ drafts: initialDrafts, templates }: Props) {
                                         onDelete={handleDelete}
                                         onTogglePublic={handleTogglePublic}
                                         onDuplicate={handleDuplicate}
+                                        onSetDefault={handleSetDefault}
                                     />
                                 ))}
                             </div>

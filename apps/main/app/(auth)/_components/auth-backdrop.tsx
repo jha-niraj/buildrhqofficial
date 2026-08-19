@@ -39,32 +39,20 @@
  * and it must never sit between a user and a password field.
  */
 
+import { AppBackdrop } from "@/components/common/app-backdrop"
+
 const SHARP = "/auth/auth-bg.webp"
 const BLURRED = "/auth/auth-bg-blur.webp"
 
 /**
  * The surround the whole shell sits on.
  *
- * Rendered by the outermost element so it covers the viewport at every size; what
- * varies is how much of it the card leaves visible.
+ * Now shared with the signed-in app shell, which needs the identical layer -
+ * see `components/common/app-backdrop.tsx`. Re-exported under the auth name so
+ * the auth screens read the way they always did, and so there is exactly one
+ * definition to change.
  */
-export function AuthBackdropSurround() {
-    return (
-        <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-            <div
-                className="absolute inset-0 bg-cover bg-center opacity-80 dark:opacity-[0.55]"
-                style={{ backgroundImage: `url(${BLURRED})` }}
-            />
-
-            {/* Scrim. Light mode washes toward white so the surround stays airy and
-                the card's ring still reads against it; dark mode pushes toward black
-                so the card is the brightest thing on screen rather than competing
-                with a mountain. Lighter in the middle than at the edges, which is
-                where the card sits - the gradient frames it. */}
-            <div className="absolute inset-0 bg-gradient-to-b from-white/45 via-white/25 to-white/55 dark:from-neutral-950/55 dark:via-neutral-950/40 dark:to-neutral-950/70" />
-        </div>
-    )
-}
+export const AuthBackdropSurround = AppBackdrop
 
 /**
  * Texture under the brand column (lg and up).

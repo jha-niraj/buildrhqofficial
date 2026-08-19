@@ -6,6 +6,7 @@ import {
     extractJobDescription, generateCoverLetterQuestions, generateAndSaveCoverLetter,
     getCoverLetter, deleteCoverLetter, saveCoverLetterDraft
 } from "@/actions/(main)/ai/cover-letter.action"
+import { creditErrorMessage, priceSuffix } from "@/lib/credits/notify"
 import { Button } from "@repo/ui/components/ui/button"
 import { Input } from "@repo/ui/components/ui/input"
 import { Label } from "@repo/ui/components/ui/label"
@@ -179,7 +180,7 @@ export function CoverLetterClient({
         setIsGeneratingQuestions(true)
         const res = await generateCoverLetterQuestions(jd)
         setIsGeneratingQuestions(false)
-        if (!res.success) return toast.error(res.error)
+        if (!res.success) return toast.error(creditErrorMessage(res, "Could not generate questions"))
         const qs = res.questions as CoverLetterQuestion[]
         setQuestions(qs)
         setStep(2)
@@ -218,7 +219,7 @@ export function CoverLetterClient({
             draftId: draftId ?? undefined,
         })
         setIsGeneratingLetter(false)
-        if (!res.success) return toast.error(res.error)
+        if (!res.success) return toast.error(creditErrorMessage(res, "Could not generate the cover letter"))
         setGeneratedContent(res.content || "")
         setStep(3)
         // Update history: replace draft entry with completed letter
@@ -339,7 +340,7 @@ export function CoverLetterClient({
                                     onClick={() => handleGenerateQuestions(jobDescription)}
                                     disabled={!jobDescription || isLoading}
                                 >
-                                    Use Manual JD
+                                    Use Manual JD{priceSuffix("cover_letter_questions")}
                                 </Button>
                             </div>
                         </div>
@@ -378,7 +379,7 @@ export function CoverLetterClient({
                             </Button>
                             <Button onClick={handleGenerateLetter} disabled={isGeneratingLetter}>
                                 <Wand2 className="w-4 h-4 mr-2" />
-                                Generate Cover Letter
+                                Generate Cover Letter{priceSuffix("cover_letter_generate")}
                             </Button>
                         </div>
                     </div>

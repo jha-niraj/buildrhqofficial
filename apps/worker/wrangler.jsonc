@@ -26,7 +26,8 @@
 			{ "name": "PROJECT_QUIZ", "class_name": "ProjectQuiz" },
 			{ "name": "STANDUP_VOICE", "class_name": "StandupVoice" },
 			{ "name": "MOCK_CONVERSATION", "class_name": "MockConversation" },
-			{ "name": "MOCK_FEEDBACK", "class_name": "MockFeedback" }
+			{ "name": "MOCK_FEEDBACK", "class_name": "MockFeedback" },
+			{ "name": "RESUME_STRUCTURE", "class_name": "ResumeStructure" }
 		]
 	},
 
@@ -46,6 +47,10 @@
 				"MockConversation",
 				"MockFeedback"
 			]
+		},
+		{
+			"tag": "v2",
+			"new_sqlite_classes": ["ResumeStructure"]
 		}
 	],
 

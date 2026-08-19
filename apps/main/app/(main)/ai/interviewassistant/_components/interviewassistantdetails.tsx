@@ -804,7 +804,7 @@ export default function InterviewAssistantDetails({ slug }: { slug: string }) {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-white dark:bg-neutral-900 flex items-center justify-center">
+            <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <div className="w-16 h-16 border-4 border-neutral-800 dark:border-neutral-100 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <p className="text-slate-600 dark:text-slate-400">Loading interview questions...</p>
@@ -855,7 +855,7 @@ export default function InterviewAssistantDetails({ slug }: { slug: string }) {
 
     return (
         <SmoothScroll>
-            <div className="min-h-screen bg-white dark:bg-neutral-900">
+            <div className="min-h-screen">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
