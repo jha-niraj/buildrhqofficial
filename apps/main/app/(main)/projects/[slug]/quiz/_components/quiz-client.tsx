@@ -12,8 +12,9 @@ import {
     Card, CardContent, CardDescription, CardHeader, CardTitle
 } from '@repo/ui/components/ui/card';
 import toast from '@repo/ui/components/ui/sonner';
+import { awaitBackgroundJob } from '@/hooks/use-background-job';
 import {
-    generateProjectQuiz, submitQuizAttempt, getQuizAttempts
+    startProjectQuizGeneration, getProjectQuiz, submitQuizAttempt, getQuizAttempts
 } from '@/actions/(main)/projects/projectv2-quiz.action';
 import {
     type QuizClientProps, type Quiz as ProjectQuiz, type QuizResult as ProjectQuizResult, type QuizAttempt
@@ -45,14 +46,31 @@ export default function QuizClient({ project, existingQuiz, userCredits, previou
         }
 
         setGenerating(true);
-        const res = await generateProjectQuiz(project.slug);
 
-        if (res.success && res.quiz) {
-            setQuiz(res.quiz);
-            setStage('quiz');
-            toast.success('Quiz generated successfully!');
+        // Generation runs on the worker (twenty questions on gpt-4-turbo-preview
+        // is the longest completion in this module). Credits are held for the
+        // job and refunded automatically if it fails.
+        const started = await startProjectQuizGeneration(project.slug);
+
+        if (!started.success || !started.jobId) {
+            toast.error(started.error || 'Failed to generate quiz');
+            setGenerating(false);
+            return;
+        }
+
+        const outcome = await awaitBackgroundJob(started.jobId);
+
+        if (outcome.ok) {
+            const read = await getProjectQuiz(project.slug);
+            if (read.success && read.quiz) {
+                setQuiz(read.quiz);
+                setStage('quiz');
+                toast.success('Quiz generated successfully!');
+            } else {
+                toast.error(read.error || 'Quiz generated but could not be loaded');
+            }
         } else {
-            toast.error(res.error || 'Failed to generate quiz');
+            toast.error(outcome.error);
         }
         setGenerating(false);
     };

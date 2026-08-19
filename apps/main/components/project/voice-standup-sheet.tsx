@@ -16,6 +16,7 @@ import {
 } from '@/components/main/voice'
 import { cn } from '@repo/ui/lib/utils'
 import { createStandupSession, processStandupConversation } from '@/actions/(main)/projects/standup-voice.action'
+import { awaitBackgroundJob } from '@/hooks/use-background-job'
 
 // ElevenLabs Agent configuration for daily standups
 // Use the mock voice agent if standup agent is not configured
@@ -163,11 +164,19 @@ PREVIOUS STANDUP (${previousStandup.date}):
             setProcessingStatus('processing')
 
             try {
-                // Call the server action to process the conversation
+                // Hand off to the worker, then follow the job. The waiting - for
+                // ElevenLabs to finish the transcript, then for the summary -
+                // happens on a Durable Object alarm, so closing this sheet no
+                // longer loses the standup.
                 const result = await processStandupConversation(sessionId || projectId, convId)
 
-                if (!result.success) {
+                if (!result.success || !result.jobId) {
                     throw new Error(result.error || 'Failed to process standup')
+                }
+
+                const outcome = await awaitBackgroundJob(result.jobId)
+                if (!outcome.ok) {
+                    throw new Error(outcome.error)
                 }
 
                 setProcessingStatus('success')

@@ -5,6 +5,7 @@ import { Logo } from "@repo/ui/components/logo"
 import Link from "next/link"
 import { ThemeToggle } from "@repo/ui/components/themetoggle"
 import { AuthVisual, type AuthVisualVariant } from "@repo/ui/components/auth-visual"
+import { AuthBackdropMobile, AuthBackdropPanel, AuthBackdropSurround } from "./auth-backdrop"
 
 /**
  * The two-column shell every auth screen sits in.
@@ -33,6 +34,14 @@ import { AuthVisual, type AuthVisualVariant } from "@repo/ui/components/auth-vis
  * instead of competing for the same space.
  *
  * `variant` selects the motif, so no two auth screens show the same picture.
+ *
+ * ── Backdrop ──
+ * A photographic backdrop sits under all of it - see `auth-backdrop.tsx` for why
+ * it is three layers rather than one. The card itself stays OPAQUE. Frosting it
+ * over the photo was the obvious move and the wrong one: `text-neutral-500` help
+ * text over a translucent panel drops under 4.5:1 against the light parts of the
+ * image, and it fails in exactly the place that matters least to look at and most
+ * to read.
  */
 export function AuthShell({
     children,
@@ -48,10 +57,17 @@ export function AuthShell({
     variant?: AuthVisualVariant
 }) {
     return (
-        <div className="flex h-screen w-full justify-center overflow-hidden bg-neutral-100 dark:bg-neutral-900 xl:p-6">
-            <div className="flex h-full w-full max-w-7xl overflow-hidden bg-white ring-neutral-200 xl:rounded-3xl xl:shadow-sm xl:ring-1 dark:bg-neutral-950 dark:ring-neutral-800">
+        <div className="relative flex h-screen w-full justify-center overflow-hidden bg-neutral-100 dark:bg-neutral-900 xl:p-6">
+            <AuthBackdropSurround />
+
+            {/* `relative` so the card stacks above the backdrop. The shadow is
+                heavier at xl than the flat `shadow-sm` it replaced, because a card
+                floating on a photograph needs to look like it is floating. */}
+            <div className="relative flex h-full w-full max-w-7xl overflow-hidden bg-white ring-neutral-200 xl:rounded-3xl xl:shadow-2xl xl:shadow-neutral-900/10 xl:ring-1 dark:bg-neutral-950 dark:ring-neutral-800 dark:xl:shadow-black/40">
                 {/* ── Brand column ── */}
                 <aside className="auth-stagger relative hidden h-full w-1/2 flex-col overflow-hidden bg-neutral-950 p-10 lg:flex xl:p-12">
+                    <AuthBackdropPanel />
+
                     {/* A soft glow low in the panel, sitting under the artwork rather
                         than under the copy - it lifts the shape off the flat black
                         without washing out the headline above it. */}
@@ -103,8 +119,10 @@ export function AuthShell({
                 </aside>
 
                 {/* ── Form column. Scrolls internally so the shell never grows. ── */}
-                <main className="flex h-full w-full flex-col overflow-y-auto lg:w-1/2">
-                    <div className="flex min-h-full items-center justify-center px-6 py-10 sm:px-10">
+                <main className="relative flex h-full w-full flex-col overflow-y-auto lg:w-1/2">
+                    <AuthBackdropMobile />
+
+                    <div className="relative flex min-h-full items-center justify-center px-6 py-10 sm:px-10">
                         <div className="w-full max-w-md">
                             {/* Mobile brand + theme toggle - the aside is hidden below lg. */}
                             <div className="mb-8 flex items-center justify-between lg:hidden">

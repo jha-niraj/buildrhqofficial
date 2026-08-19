@@ -8,6 +8,7 @@ import {
 } from '@repo/db'
 import { eq, and, desc, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
+import { startBackgroundJob } from '@/actions/(main)/workers/jobs.action'
 
 interface StandupSessionVariables {
     user_name: string
@@ -22,25 +23,6 @@ interface StandupSessionVariables {
     }
 }
 
-interface ConversationDetails {
-    agent_id: string
-    conversation_id: string
-    status: 'initiated' | 'in-progress' | 'processing' | 'done' | 'failed'
-    transcript: Array<{
-        role: string
-        time_in_call_secs: number
-        message: string
-    }>
-    metadata: {
-        start_time_unix_secs: number
-        call_duration_secs: number
-    }
-    has_audio: boolean
-    analysis?: {
-        call_successful: string
-        transcript_summary: string
-    }
-}
 
 /**
  * Create a new standup session for a project
@@ -199,171 +181,36 @@ export async function createStandupSession(projectId: string, projectSlug: strin
 }
 
 /**
- * Process standup conversation completion
+ * Hand the finished call to the worker.
+ *
+ * This used to poll ElevenLabs inline - thirty one-second waits for the
+ * transcript, then a completion to extract the standup items, all on a request
+ * Cloudflare would kill first. Now it inserts a job and returns; the Durable
+ * Object waits, extracts and writes the entry, and the sheet polls the job.
+ *
+ * No credits are held here: the standup was charged for when the session was
+ * created, and the entry row exists either way. A failed job costs the summary,
+ * not the standup.
  */
-export async function processStandupConversation(sessionId: string, conversationId: string) {
-    try {
-        const session = await getSession(headers())
-        if (!session?.user?.id) {
-            return { success: false, error: 'Unauthorized' }
-        }
-
-        let attempts = 0
-        const maxAttempts = 30
-        let conversationData: ConversationDetails | null = null
-
-        while (attempts < maxAttempts) {
-            const response = await fetch(
-                `https://api.elevenlabs.io/v1/convai/conversations/${conversationId}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        'xi-api-key': process.env.ELEVENLABS_API_KEY || process.env.ELEVENLABS_AI_KEY || '',
-                    },
-                    cache: 'no-store'
-                }
-            )
-
-            if (response.ok) {
-                conversationData = await response.json()
-
-                if (conversationData?.status === 'done') {
-                    break
-                } else if (conversationData?.status === 'failed') {
-                    throw new Error('Conversation processing failed')
-                }
-            }
-
-            await new Promise(resolve => setTimeout(resolve, 1000))
-            attempts++
-        }
-
-        if (!conversationData || conversationData.status !== 'done') {
-            await db
-                .update(projectV2StandupEntries)
-                .set({
-                    status: 'SUBMITTED',
-                    submittedAt: new Date(),
-                    recordingUrl: conversationId
-                })
-                .where(eq(projectV2StandupEntries.id, sessionId))
-
-            return { success: true, sessionId }
-        }
-
-        const transcriptText = conversationData.transcript
-            .map(t => `[${t.role.toUpperCase()}] (${t.time_in_call_secs}s): ${t.message}`)
-            .join('\n\n')
-
-        const duration = conversationData.metadata.call_duration_secs
-        const extractedData = await extractStandupItemsFromTranscript(transcriptText)
-
-        await db
-            .update(projectV2StandupEntries)
-            .set({
-                status: 'SUBMITTED',
-                submittedAt: new Date(),
-                durationSeconds: Math.round(duration),
-                recordingUrl: conversationId,
-                whatDidYesterday: extractedData.completedTasks.join('; '),
-                whatDoingToday: extractedData.plannedTasks.join('; '),
-                anyBlockers: extractedData.blockers.join('; '),
-                aiSummary: conversationData.analysis?.transcript_summary || null,
-                aiSuggestions: []
-            })
-            .where(eq(projectV2StandupEntries.id, sessionId))
-
-        const [standupEntry] = await db
-            .select({ configId: projectV2StandupEntries.configId })
-            .from(projectV2StandupEntries)
-            .where(eq(projectV2StandupEntries.id, sessionId))
-            .limit(1)
-
-        if (standupEntry?.configId) {
-            await db
-                .update(projectV2StandupConfigs)
-                .set({
-                    completedStandups: sql`${projectV2StandupConfigs.completedStandups} + 1`,
-                    totalStandups: sql`${projectV2StandupConfigs.totalStandups} + 1`,
-                })
-                .where(eq(projectV2StandupConfigs.id, standupEntry.configId))
-        }
-
-        return {
-            success: true,
-            sessionId,
-            transcript: transcriptText,
-            duration,
-            summary: conversationData.analysis?.transcript_summary,
-            extractedData
-        }
-
-    } catch (error) {
-        console.error('Error processing standup conversation:', error)
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : 'Failed to process standup'
-        }
-    }
-}
-
-/**
- * Extract standup items from transcript using AI
- */
-async function extractStandupItemsFromTranscript(transcript: string): Promise<{
-    completedTasks: string[]
-    plannedTasks: string[]
-    blockers: string[]
+export async function processStandupConversation(sessionId: string, conversationId: string): Promise<{
+    success: boolean
+    jobId?: string
+    error?: string
 }> {
-    try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-            },
-            body: JSON.stringify({
-                model: 'gpt-4o-mini',
-                messages: [
-                    {
-                        role: 'system',
-                        content: 'You are an assistant that extracts structured information from standup meeting transcripts. Extract the tasks that were completed (yesterday), tasks planned (for today), and any blockers mentioned.'
-                    },
-                    {
-                        role: 'user',
-                        content: `Extract the standup items from this transcript:\n\n${transcript}\n\nProvide your response in this JSON format:
-{
-  "completedTasks": ["task 1", "task 2"],
-  "plannedTasks": ["task 1", "task 2"],
-  "blockers": ["blocker 1", "blocker 2"]
-}
+    const session = await getSession(headers())
+    if (!session?.user?.id) return { success: false, error: 'Unauthorized' }
 
-If no items are found for a category, return an empty array.`
-                    }
-                ],
-                response_format: { type: 'json_object' },
-                temperature: 0.3
-            })
-        })
+    // Scoped to the caller: an entry id alone must not let anyone attach a
+    // transcript to somebody else's standup.
+    const [entry] = await db
+        .select({ id: projectV2StandupEntries.id })
+        .from(projectV2StandupEntries)
+        .innerJoin(projectV2StandupConfigs, eq(projectV2StandupEntries.configId, projectV2StandupConfigs.id))
+        .where(and(eq(projectV2StandupEntries.id, sessionId), eq(projectV2StandupConfigs.userId, session.user.id)))
+        .limit(1)
+    if (!entry) return { success: false, error: 'Standup not found' }
 
-        if (!response.ok) {
-            console.error('Failed to extract standup items')
-            return { completedTasks: [], plannedTasks: [], blockers: [] }
-        }
-
-        const aiResponse = await response.json()
-        const extracted = JSON.parse(aiResponse.choices[0].message.content)
-
-        return {
-            completedTasks: extracted.completedTasks || [],
-            plannedTasks: extracted.plannedTasks || [],
-            blockers: extracted.blockers || []
-        }
-
-    } catch (error) {
-        console.error('Error extracting standup items:', error)
-        return { completedTasks: [], plannedTasks: [], blockers: [] }
-    }
+    return startBackgroundJob('standup_voice', { entryId: sessionId, conversationId })
 }
 
 /**

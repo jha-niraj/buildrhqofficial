@@ -35,7 +35,7 @@ pathfinder. Where one blocks the other it is stated explicitly on both sides.
 
 **1. Long-running work goes to a Worker. No exceptions.**
 
-The pattern already exists and is proven — `apps/generationworker` runs project
+The pattern already exists and is proven — `apps/worker` runs project
 generation as a Durable Object that schedules an Alarm, executes off the request
 path, and writes progress to the `background_job` table. The app polls. Copy that
 shape; do not invent a second one.
@@ -51,7 +51,7 @@ client polls getStatus(jobId)  ←  writes status/progress/result to background_
 ```
 
 Reference implementation:
-- Worker: `apps/generationworker/src/project-generator.ts`
+- Worker: `apps/worker/src/jobs/project-generation.ts`
 - Client: `appsts/main/actions/(main)/workers/projectsworker.action.ts`
 - UI: `apps/main/components/projects/project-generate-sheet.tsx` (polls at :103)
 

@@ -9,7 +9,7 @@ schemas move verbatim. `subgoals.action.ts` pins `gpt-4o-mini` at `:348` and
 
 Pattern and non-negotiables: see `../README.md` and
 `../projects/02-worker-migration.md`. Reference implementation is
-`apps/generationworker/src/project-generator.ts`.
+`apps/worker/src/jobs/project-generation.ts`.
 
 **Blocked by `SHARED-1`** (a `type` column on `background_job`) — every task
 below writes job rows and cannot be told apart without it.
@@ -160,8 +160,8 @@ Shipped. What exists now:
 
 | piece | file |
 |---|---|
-| Durable Object | `apps/generationworker/src/verification-generator.ts` |
-| Worker route | `apps/generationworker/src/index.ts` → `POST /api/v1/generateverification` |
+| Durable Object | `apps/worker/src/jobs/verification-generation.ts` |
+| Worker route | `apps/worker/src/index.ts` → `POST /api/v1/generateverification` |
 | Binding + migration | `wrangler.jsonc` → `VERIFICATION_GENERATOR`, migration tag `v2` |
 | App dispatch/poll | `actions/(main)/workers/verificationworker.action.ts` |
 | UI | `pathfinder/[slug]/verify/_components/verification-page-client.tsx` |

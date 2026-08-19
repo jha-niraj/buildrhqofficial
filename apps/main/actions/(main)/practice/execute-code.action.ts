@@ -2,6 +2,22 @@
 
 import { getSession } from '@repo/auth'
 import { headers } from 'next/headers'
+import { callExecutorWorker } from '@/lib/workers/client'
+import { isAbortError, toErrorMessage } from '@/lib/errors'
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Running user code.
+//
+// This is the one worker call in the product that is NOT a background job: the
+// code-execution worker owns a Cloudflare Container (a real Linux sandbox with
+// node/tsx/python3/gcc/g++/jdk), runs the submission, and answers on the same
+// request. A five-second program does not want an alarm, a job row and a poll
+// loop between the user pressing Run and seeing output.
+//
+// In production it is reached over the CODE_EXECUTOR service binding, so the
+// request never leaves Cloudflare's network and the executor does not have to be
+// publicly reachable. Locally it falls back to NEXT_PUBLIC_WORKER_URL.
+// ─────────────────────────────────────────────────────────────────────────────
 
 export type SupportedLanguage = 'javascript' | 'typescript' | 'python' | 'java' | 'cpp' | 'c'
 
@@ -30,6 +46,9 @@ export interface ExecuteCodeResult {
     error?: string
 }
 
+/** Wall-clock ceiling on the app side. The container enforces its own too. */
+const EXECUTION_TIMEOUT_MS = 15_000
+
 export async function executeCode(
     code: string,
     language: SupportedLanguage,
@@ -40,32 +59,18 @@ export async function executeCode(
         return { success: false, error: 'Unauthorized. Please sign in to run code.' }
     }
 
-    const workerUrl = process.env.NEXT_PUBLIC_WORKER_URL
-    if (!workerUrl) {
-        return {
-            success: true,
-            stdout: '⚠️ Code execution is not configured. Set NEXT_PUBLIC_WORKER_URL to enable.',
-            stderr: '',
-            exitCode: 0,
-            executionTimeMs: 0,
-        }
+    const secret = process.env.WORKER_SECRET
+    if (!secret) {
+        return { success: false, error: 'Code execution is not configured.' }
     }
 
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 15_000)
+    const timeoutId = setTimeout(() => controller.abort(), EXECUTION_TIMEOUT_MS)
 
     try {
-        const response = await fetch(`${workerUrl}/api/v1/execute`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${process.env.WORKER_SECRET || ''}`,
-            },
-            body: JSON.stringify({
-                code,
-                language,
-                testCases: testCases || [],
-            }),
+        const response = await callExecutorWorker('/api/v1/execute', {
+            token: secret,
+            body: { code, language, testCases: testCases || [] },
             signal: controller.signal,
         })
 
@@ -79,18 +84,18 @@ export async function executeCode(
             }
         }
 
-        const data = await response.json()
+        const data = (await response.json()) as Record<string, unknown>
 
         const result: ExecuteCodeResult = {
-            success: data.success ?? true,
-            stdout: data.stdout ?? '',
-            stderr: data.stderr ?? '',
-            exitCode: data.exitCode ?? 0,
-            executionTimeMs: data.executionTimeMs ?? data.execution_time_ms ?? 0,
+            success: (data.success as boolean) ?? true,
+            stdout: (data.stdout as string) ?? '',
+            stderr: (data.stderr as string) ?? '',
+            exitCode: (data.exitCode as number) ?? 0,
+            executionTimeMs: (data.executionTimeMs as number) ?? (data.execution_time_ms as number) ?? 0,
         }
 
         if (data.testResults || data.test_results) {
-            const rawResults: Array<Record<string, unknown>> = data.testResults ?? data.test_results ?? []
+            const rawResults = (data.testResults ?? data.test_results ?? []) as Array<Record<string, unknown>>
             result.testResults = rawResults.map((r) => ({
                 passed: Boolean(r.passed),
                 input: String(r.input ?? ''),
@@ -99,8 +104,8 @@ export async function executeCode(
                 description: r.description ? String(r.description) : undefined,
             }))
             result.allTestsPassed =
-                data.allTestsPassed ??
-                data.all_tests_passed ??
+                (data.allTestsPassed as boolean) ??
+                (data.all_tests_passed as boolean) ??
                 result.testResults.every((t) => t.passed)
         }
 
@@ -108,17 +113,11 @@ export async function executeCode(
     } catch (err: unknown) {
         clearTimeout(timeoutId)
 
-        if (err instanceof Error && err.name === 'AbortError') {
-            return {
-                success: false,
-                error: 'Code execution timed out after 15 seconds.',
-            }
+        if (isAbortError(err)) {
+            return { success: false, error: 'Code execution timed out after 15 seconds.' }
         }
 
-        console.error('[executeCode] fetch error:', err)
-        return {
-            success: false,
-            error: 'Code execution service unavailable',
-        }
+        console.error('[executeCode] failed:', toErrorMessage(err))
+        return { success: false, error: 'Code execution service unavailable' }
     }
 }

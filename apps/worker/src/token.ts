@@ -5,6 +5,10 @@
 
 export interface WorkerTokenPayload {
 	userId: string
+	/**
+	 * `start_job` for the generic dispatch route; `generate_project` and
+	 * `generate_verification` for the two legacy aliases the uni app still uses.
+	 */
 	action: string
 	jobId?: string
 	iat: number

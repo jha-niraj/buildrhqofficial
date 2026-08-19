@@ -18,7 +18,7 @@ import { Progress } from '@repo/ui/components/ui/progress'
 import { Checkbox } from '@repo/ui/components/ui/checkbox'
 import toast from '@repo/ui/components/ui/sonner'
 import {
-    createProjectAssignment, finalizeProjectAssignment, getTeacherClasses,
+    createProjectAssignment, finalizeProjectAssignment, getProjectAssignmentJobStatus, getTeacherClasses,
 } from '@/actions/assignments/project-assignments.action'
 import { cn } from '@repo/ui/lib/utils'
 
@@ -249,12 +249,11 @@ export default function TeacherProjectGenerateSheet({
             pollCount++
 
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_WORKER_URL}/api/v1/job/${jobId}`, {
-                    method: 'GET',
-                    cache: 'no-store',
-                })
+                // Reads background_job through a server action; the worker's
+                // Durable Object is what writes to it.
+                const result = await getProjectAssignmentJobStatus(jobId)
 
-                if (!response.ok) {
+                if (!result.success) {
                     if (pollCount >= maxPolls) {
                         stopPolling()
                         toast.error('Generation timeout')
@@ -263,11 +262,10 @@ export default function TeacherProjectGenerateSheet({
                     return
                 }
 
-                const result = await response.json()
-                const { status, progress, data, failedReason } = result
+                const { status, progress, data, error: failedReason } = result
 
-                setProgressPercent(progress)
-                setJobStatus(status)
+                setProgressPercent(progress ?? 0)
+                setJobStatus(status ?? 'waiting')
 
                 if (status === 'completed' && data) {
                     stopPolling()

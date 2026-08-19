@@ -36,6 +36,21 @@
 		}
 	],
 
+	// ── Service binding: the background job worker ────────────────────────────
+	// Teachers generate project assignments here, which is the same Durable
+	// Object job apps/main dispatches. Over a binding rather than a public fetch:
+	// the request stays inside Cloudflare's network and there is no URL to keep
+	// in sync per environment.
+	//
+	// `service` is the deployed Worker name, so apps/worker must be deployed
+	// before this app is.
+	"services": [
+		{
+			"binding": "WORKER",
+			"service": "shipithq-worker"
+		}
+	],
+
 	"vars": {
 		// Namespaces this app's entries inside the shared bucket so the apps never
 		// collide in the keyspace.

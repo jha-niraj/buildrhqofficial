@@ -2,13 +2,12 @@
 
 import { getSession } from '@repo/auth'
 import { headers } from 'next/headers'
-import { db, users, backgroundJobs } from '@repo/db'
+import { db, users } from '@repo/db'
 import { eq } from 'drizzle-orm'
 import { z } from "zod"
 import { ProjectEchoSchema } from "../schemas/projects.schema"
 import crypto from 'crypto'
-import { callGenerationWorker } from '@/lib/workers/generation-worker'
-
+import { startBackgroundJob, getBackgroundJobStatus } from './jobs.action'
 
 async function getCurrentUser() {
     const session = await getSession(await headers())
@@ -18,7 +17,13 @@ async function getCurrentUser() {
     return user
 }
 
-// Signed HMAC token the generation worker verifies (Web Crypto on the worker side).
+/**
+ * Signed HMAC token the workers verify (Web Crypto on the worker side).
+ *
+ * Still exported because the code editor and apps/uni issue their own tokens for
+ * the legacy routes. Anything dispatching a background job should go through
+ * `startBackgroundJob`, which issues its own job-scoped token.
+ */
 export async function issueWorkerToken(action: 'generate_project' | 'generate_verification' | 'check_job' | 'run_code' | 'check_execution', jobId?: string) {
     const user = await getCurrentUser()
     const secret = process.env.WORKER_SECRET
@@ -33,10 +38,15 @@ export async function issueWorkerToken(action: 'generate_project' | 'generate_ve
 }
 
 /**
- * Start a project-generation job on the Cloudflare generation worker.
- * The worker's Durable Object schedules an Alarm and runs the 1-1.5 min pipeline,
- * writing status/progress to the BackgroundJob table server-side. The client just
- * polls `getGenerationStatus(jobId)`.
+ * Start a project-generation job on the worker.
+ *
+ * The Durable Object schedules an Alarm and runs the 1-1.5 min pipeline off the
+ * request path, writing status/progress to `background_job`. The client polls
+ * `getGenerationStatus(jobId)`.
+ *
+ * Credits for this one are deducted inside the pipeline, at the point the
+ * project row is written, rather than held here - see `apps/worker/src/pipeline.ts`.
+ * That is why no `cost` is passed below; passing one would charge twice.
  */
 export async function startProjectGeneration(
     input: z.infer<typeof ProjectEchoSchema>,
@@ -50,35 +60,12 @@ export async function startProjectGeneration(
             return { success: false, error: `Insufficient credits. You need ${cost} credits to generate this project.` }
         }
 
-        const jobId = crypto.randomUUID()
-
-        // Persist the job first so the UI can poll immediately.
-        await db.insert(backgroundJobs).values({
-            jobId,
-            status: 'waiting',
-            progress: 0,
-            userId: user.id,
-            input: validated as unknown as Record<string, unknown>,
-        })
-
-        const now = Math.floor(Date.now() / 1000)
-        const tokenPayload = JSON.stringify({ userId: user.id, action: 'generate_project', jobId, iat: now, exp: now + 300 })
-        const signature = crypto.createHmac('sha256', process.env.WORKER_SECRET!).update(tokenPayload).digest('base64url')
-        const token = `${Buffer.from(tokenPayload).toString('base64url')}.${signature}`
-
-        // Service binding on Workers, HTTP locally — see lib/workers/generation-worker.ts.
-        const res = await callGenerationWorker('/api/v1/generateproject', {
-            token,
-            body: { jobId, input: validated },
-        })
-
-        if (!res.ok) {
-            const err = await res.text()
-            await db.update(backgroundJobs).set({ status: 'failed', error: `Worker error: ${err}` }).where(eq(backgroundJobs.jobId, jobId))
-            return { success: false, error: 'Failed to start generation. Please try again.' }
+        const started = await startBackgroundJob('project_generation', validated as unknown as Record<string, unknown>)
+        if (!started.success) {
+            return { success: false, error: started.error ?? 'Failed to start generation. Please try again.' }
         }
 
-        return { success: true, jobId }
+        return { success: true, jobId: started.jobId }
     } catch (error) {
         console.error('startProjectGeneration failed:', error)
         return { success: false, error: error instanceof Error ? error.message : 'Failed to start generation' }
@@ -86,7 +73,7 @@ export async function startProjectGeneration(
 }
 
 /**
- * Read the current generation status from the DB (written server-side by the worker's DO).
+ * Read the current generation status (written server-side by the worker's DO).
  */
 export async function getGenerationStatus(jobId: string): Promise<{
     success: boolean
@@ -96,20 +83,15 @@ export async function getGenerationStatus(jobId: string): Promise<{
     slug?: string
     error?: string
 }> {
-    try {
-        const [job] = await db.select().from(backgroundJobs).where(eq(backgroundJobs.jobId, jobId)).limit(1)
-        if (!job) return { success: false, error: 'Job not found' }
+    const res = await getBackgroundJobStatus<{ slug?: string }>(jobId)
+    if (!res.success) return { success: false, error: res.error }
 
-        const result = (job.result ?? {}) as { slug?: string; phaseLabel?: string }
-        return {
-            success: true,
-            status: job.status,
-            progress: job.progress,
-            phaseLabel: result.phaseLabel,
-            slug: result.slug,
-            error: job.error ?? undefined,
-        }
-    } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : 'Failed to read status' }
+    return {
+        success: true,
+        status: res.status,
+        progress: res.progress,
+        phaseLabel: res.phaseLabel,
+        slug: res.result?.slug,
+        error: res.error,
     }
 }

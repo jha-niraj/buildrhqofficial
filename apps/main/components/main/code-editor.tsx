@@ -12,7 +12,7 @@ import {
 import { useTheme } from '@repo/ui/components/themeprovider';
 import toast from '@repo/ui/components/ui/sonner';
 import { cn } from "@repo/ui/lib/utils";
-import { issueWorkerToken } from '@/actions/(main)/workers/projectsworker.action';
+import { executeCode as runCodeOnWorker } from '@/actions/(main)/practice/execute-code.action';
 
 // Dynamically import Monaco to avoid SSR issues
 const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
@@ -203,13 +203,15 @@ export default function CodeEditor({
         }
     }, [currentCode]);
 
+    // Execution goes through the server action, which reaches the code-execution
+    // worker over a service binding (and its Cloudflare Container beyond that).
+    //
+    // What was here before pointed at `/api/v1/run` and `/api/v1/execution/:id`
+    // on NEXT_PUBLIC_WORKER_URL and polled for a submission id. That worker has
+    // no such routes and never had - it exposes one synchronous
+    // `POST /api/v1/execute` - so every Run in this editor 404'd, then timed out
+    // after ten seconds of polling nothing.
     const executeCode = useCallback(async () => {
-        if (!process.env.NEXT_PUBLIC_WORKER_URL) {
-            toast.error("Worker URL not configured");
-            return;
-        }
-
-        // Check if language is supported for execution
         if (!EXECUTABLE_LANGUAGES.includes(currentLanguage as ExecutableLanguage)) {
             toast.error(`${currentLanguage} execution is not supported. Supported languages: JavaScript, TypeScript, Python, Java, C, C++`);
             return;
@@ -217,70 +219,24 @@ export default function CodeEditor({
 
         setInternalIsRunning(true);
         try {
-            // Get token
-            const token = await issueWorkerToken('run_code');
+            const result = await runCodeOnWorker(currentCode, currentLanguage as ExecutableLanguage);
 
-            // Send execution request
-            const response = await fetch(`${process.env.NEXT_PUBLIC_WORKER_URL}/api/v1/run`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    code: currentCode,
-                    language: currentLanguage,
-                })
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText || "Failed to submit code");
+            if (!result.success && result.error) {
+                toast.error(result.error);
             }
 
-            const { submissionId } = await response.json();
-
-            // Poll for results
-            let polls = 0;
-            const maxPolls = 20; // 20 * 500ms = 10s
-
-            const pollInterval = setInterval(async () => {
-                polls++;
-                try {
-                    const token = await issueWorkerToken('check_execution', submissionId); // Reuse logic or new token? simpler to get new one? Or check_job? 
-                    // Actually 'check_execution' action was added.
-
-                    const res = await fetch(`${process.env.NEXT_PUBLIC_WORKER_URL}/api/v1/execution/${submissionId}`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (data.status !== 'running' && data.status !== 'pending') {
-                            clearInterval(pollInterval);
-                            setInternalIsRunning(false);
-                            onExecutionComplete?.(data);
-                        }
-                    }
-                } catch (e) {
-                    console.error("Polling error", e);
-                }
-
-                if (polls >= maxPolls) {
-                    clearInterval(pollInterval);
-                    setInternalIsRunning(false);
-                    toast.error("Execution timed out");
-                }
-            }, 1000);
-
+            onExecutionComplete?.({
+                ...result,
+                output: result.stdout,
+                error: result.error ?? result.stderr,
+            });
         } catch (error) {
             console.error("Execution error:", error);
-            const errorMessage = error instanceof Error ? error.message : "Failed to submit code";
+            const errorMessage = error instanceof Error ? error.message : "Failed to run code";
             toast.error(errorMessage);
-            setInternalIsRunning(false);
             onExecutionComplete?.({ success: false, error: errorMessage });
+        } finally {
+            setInternalIsRunning(false);
         }
     }, [currentCode, currentLanguage, onExecutionComplete]);
 

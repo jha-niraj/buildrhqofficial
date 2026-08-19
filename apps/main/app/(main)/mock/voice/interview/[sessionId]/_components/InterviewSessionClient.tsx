@@ -18,6 +18,7 @@ import {
     Loader2, CheckCircle2, AlertCircle
 } from 'lucide-react'
 import toast from '@repo/ui/components/ui/sonner'
+import { awaitBackgroundJob } from '@/hooks/use-background-job'
 import {
     saveConversationData, updateSessionStatus, getSessionDetails,
     getElevenLabsToken
@@ -75,14 +76,21 @@ export default function MockInterviewPage({ params }: { params: Promise<{ sessio
         setProcessingStatus('processing')
 
         try {
-            // Process the conversation and get transcript
+            // Hand the transcript off to the worker and follow the job. The
+            // wait for ElevenLabs to finish processing happens on a Durable
+            // Object alarm, so it no longer dies with this request.
             const result = await processConversationCompletion(
                 resolvedParams.sessionId,
                 conversationIdRef.current
             )
 
-            if (!result.success) {
+            if (!result.success || !result.jobId) {
                 throw new Error(result.error ?? 'Failed to process interview')
+            }
+
+            const outcome = await awaitBackgroundJob(result.jobId)
+            if (!outcome.ok) {
+                throw new Error(outcome.error)
             }
 
             setProcessingStatus('success')

@@ -53,7 +53,7 @@ On Cloudflare Workers via OpenNext this will be killed under load, and because o
 `PF-B1` the user is already charged when it is.
 
 The proven fix is sitting one directory away, unused by this module:
-`apps/generationworker/src/project-generator.ts`.
+`apps/worker/src/jobs/project-generation.ts`.
 
 ### Do
 

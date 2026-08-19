@@ -17,6 +17,7 @@ import {
 import toast from '@repo/ui/components/ui/sonner'
 import { getSessionDetails } from '@/actions/(main)/mockvoice/session.action'
 import { generateAIFeedback } from '@/actions/(main)/mockvoice/conversation.action'
+import { awaitBackgroundJob } from '@/hooks/use-background-job'
 import { ReviewSheet } from '../../../../_components/review-sheet'
 
 interface SessionData {
@@ -90,12 +91,21 @@ export default function ResultsPage({
                 if (transformedSession.aiAnalysis) {
                     setFeedback(transformedSession.aiAnalysis)
                 } else {
-                    // Generate AI feedback
+                    // Score the interview on the worker and follow the job.
+                    // The scoring completion runs long enough that it used to
+                    // die on the request that started it.
                     setIsGeneratingFeedback(true)
-                    const feedbackResult = await generateAIFeedback(resolvedParams.sessionId)
+                    const started = await generateAIFeedback(resolvedParams.sessionId)
 
-                    if (feedbackResult.success) {
-                        setFeedback(feedbackResult.analysis)
+                    if (started.success && started.jobId) {
+                        const outcome = await awaitBackgroundJob<{ analysis?: AIFeedback }>(started.jobId)
+                        if (outcome.ok && outcome.result?.analysis) {
+                            setFeedback(outcome.result.analysis)
+                        } else if (!outcome.ok) {
+                            toast.error(outcome.error)
+                        }
+                    } else {
+                        toast.error(started.error ?? 'Could not generate feedback')
                     }
                     setIsGeneratingFeedback(false)
                 }

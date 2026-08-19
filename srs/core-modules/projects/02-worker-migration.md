@@ -2,11 +2,36 @@
 
 Moving every long-running operation off the request path and onto a Durable
 Object + Alarm, following the pattern already proven by
-`apps/generationworker/src/project-generator.ts`.
+`apps/worker/src/jobs/project-generation.ts`.
 
 **AI generation must stay intact.** Prompts, model IDs, temperatures and output
 schemas move verbatim. A migration that also changes the prompt cannot be
 verified, because there is no way to tell a migration bug from a prompt change.
+
+## Status
+
+| task | state |
+|---|---|
+| `SHARED-1` `type` column | done |
+| `SHARED-2` polling hook | done - `apps/main/hooks/use-background-job.ts` (`useBackgroundJob` and `awaitBackgroundJob`) |
+| `SHARED-3` credit hold | done - `apps/main/lib/credits/hold.ts` |
+| `PRJ-W1` sprint generation | done - `apps/worker/src/jobs/sprint-generation.ts` |
+| `PRJ-W2` project assessments | **not started** - still blocked on whether assessments survive the narrowing |
+| `PRJ-W3` project mock | **not started** - still blocked on the overlap decision with the standalone `mock` module |
+| `PRJ-W4` quiz generation | done - `apps/worker/src/jobs/project-quiz.ts` |
+| `PRJ-W5` task details | **not started** - deliberately, per "migrate on measurement" below |
+| `PRJ-W6` standup voice | done - `apps/worker/src/jobs/standup-voice.ts`, and simpler than planned: see below |
+
+`PRJ-W6` did not need R2. The implementation never uploaded audio - ElevenLabs
+holds the recording and exposes the transcript through its conversations API, so
+the job polls for the transcript and runs the extraction. No blob ever crosses
+the job boundary, so steps 1, 2 and 4 of the plan below do not apply.
+
+The generic parts of every migration now live in one place:
+`startBackgroundJob` / `getBackgroundJobStatus` in
+`actions/(main)/workers/jobs.action.ts`, and `JobDurableObject` in
+`apps/worker/src/jobs/base.ts`. A new job type is four small edits - see
+`apps/worker/README.md`.
 
 ## What is already correct — do not rebuild it
 
@@ -14,8 +39,8 @@ Project generation is done and is the template:
 
 | piece | file |
 |---|---|
-| Durable Object + alarm | `apps/generationworker/src/project-generator.ts` |
-| Pipeline | `apps/generationworker/src/pipeline.ts` |
+| Durable Object + alarm | `apps/worker/src/jobs/project-generation.ts` |
+| Pipeline | `apps/worker/src/pipeline.ts` |
 | HMAC token issue | `actions/(main)/workers/projectsworker.action.ts:21` |
 | Job insert before dispatch | same file, `startProjectGeneration` |
 | UI polling | `components/projects/project-generate-sheet.tsx:103` |
@@ -60,7 +85,7 @@ Generating a sprint plan for a whole project is a multi-thousand-token completio
 
 ### Do
 
-1. Add a `sprint_generation` DO to `apps/generationworker` (or a sibling class in
+1. Add a `sprint_generation` DO to `apps/worker` (or a sibling class in
    the same worker — same binding, separate namespace).
 2. Move the prompt **verbatim**. Record the model ID and temperature in the task
    PR so the before/after is checkable.

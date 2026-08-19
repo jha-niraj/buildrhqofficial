@@ -135,7 +135,7 @@ export async function getVerificationStatus(slugOrId: string) {
 //
 // It now runs on a Durable Object with an Alarm:
 //   dispatch/poll  actions/(main)/workers/verificationworker.action.ts
-//   worker         apps/generationworker/src/verification-generator.ts
+//   worker         apps/worker/src/jobs/verification-generation.ts
 //
 // Verified 2026-08-02 against the deployed worker: the client disconnected 45s
 // in and never polled again; the run still completed and wrote a 22-question

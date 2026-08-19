@@ -34,6 +34,12 @@ export const JOB_TYPES = [
     "goal_creation",
     "resource_generation",
     "voice_transcription",
+    // The two halves of a mock interview: waiting for ElevenLabs to produce the
+    // transcript, then scoring it. Separate job types because they are separate
+    // waits with separate failure modes - a transcript can arrive and the
+    // scoring still fail, and the user should be told which.
+    "mock_conversation",
+    "mock_feedback",
 ] as const;
 
 export type JobType = (typeof JOB_TYPES)[number];

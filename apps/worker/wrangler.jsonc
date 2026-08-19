@@ -1,0 +1,58 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "shipithq-worker",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-05-07",
+	"compatibility_flags": ["nodejs_compat"],
+	"observability": {
+		"enabled": true
+	},
+
+	// ── One Durable Object per job type ───────────────────────────────────────
+	// Each class owns the jobs of one type: `/start` persists the input and
+	// schedules an Alarm, `alarm()` runs the work off the request path and writes
+	// progress to `background_job`. The instance is addressed by jobId, so two
+	// dispatches of the same job land on the same object and the second is
+	// refused.
+	//
+	// The binding names here MUST match `JOB_BINDINGS` in src/env.ts. Adding a
+	// job type means: the class, the entry in JOB_BINDINGS, a binding here, and a
+	// migration tag below. All four or none.
+	"durable_objects": {
+		"bindings": [
+			{ "name": "PROJECT_GENERATION", "class_name": "ProjectGeneration" },
+			{ "name": "VERIFICATION_GENERATION", "class_name": "VerificationGeneration" },
+			{ "name": "SPRINT_GENERATION", "class_name": "SprintGeneration" },
+			{ "name": "PROJECT_QUIZ", "class_name": "ProjectQuiz" },
+			{ "name": "STANDUP_VOICE", "class_name": "StandupVoice" },
+			{ "name": "MOCK_CONVERSATION", "class_name": "MockConversation" },
+			{ "name": "MOCK_FEEDBACK", "class_name": "MockFeedback" }
+		]
+	},
+
+	// This worker is deployed under a new script name (it was `shipithq-generation`
+	// while it only did project generation), so its migration history starts here
+	// rather than renaming the old classes. The old script keeps its own Durable
+	// Objects until it is deleted - see DEPLOYMENT.md for the cutover order.
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": [
+				"ProjectGeneration",
+				"VerificationGeneration",
+				"SprintGeneration",
+				"ProjectQuiz",
+				"StandupVoice",
+				"MockConversation",
+				"MockFeedback"
+			]
+		}
+	],
+
+	// Non-secret vars only. Secrets (DATABASE_URL, OPENAI_API_KEY, WORKER_SECRET,
+	// ELEVENLABS_API_KEY, PATHFINDER_ASSISTANT_ID) are uploaded by `pnpm release`
+	// from .env.production.
+	"vars": {
+		"NODE_ENV": "production"
+	}
+}

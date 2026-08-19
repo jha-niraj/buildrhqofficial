@@ -9,6 +9,7 @@ import { Button } from '@repo/ui/components/ui/button';
 import {
     Card, CardContent, CardDescription, CardHeader, CardTitle
 } from '@repo/ui/components/ui/card';
+import { AuthBackdropSurround } from '../../_components/auth-backdrop';
 
 function ErrorContent() {
     const searchParams = useSearchParams();
@@ -94,14 +95,17 @@ function ErrorContent() {
     const displayError = errorInfo || defaultError;
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 px-4">
+        <div className="relative min-h-screen flex items-center justify-center bg-neutral-100 dark:bg-neutral-900 px-4">
+            {/* Same backdrop as every other auth screen. This page did not use
+                AuthShell, so it gets the surround layer directly. */}
+            <AuthBackdropSurround />
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="w-full max-w-md"
+                className="relative w-full max-w-md"
             >
-                <Card className="shadow-lg">
+                <Card className="shadow-xl shadow-neutral-900/10 dark:shadow-black/40">
                     <CardHeader className="text-center pb-4">
                         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
                             <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400" />

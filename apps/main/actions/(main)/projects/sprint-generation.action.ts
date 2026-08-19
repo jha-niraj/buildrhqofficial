@@ -12,7 +12,7 @@ import {
     withTransaction
 } from "@repo/db";
 import { eq, and } from "drizzle-orm";
-import { openai } from '@/lib/openai-client'
+import { startBackgroundJob } from '@/actions/(main)/workers/jobs.action'
 
 // ============================================================================
 // Helper Functions
@@ -66,127 +66,33 @@ interface GeneratedSprint {
 // ============================================================================
 
 /**
- * Generate a sprint with tasks using AI
+ * Start sprint generation on the worker.
+ *
+ * This was a multi-thousand-token completion running inline: a whole sprint with
+ * three to six fully specified tasks, on a request that Cloudflare kills first.
+ * It now runs on a Durable Object alarm and the sheet polls the job.
+ *
+ * The generated sprint comes back as the job result and stays a preview - it is
+ * only written to the project when the user accepts it via `addSprintToProject`,
+ * exactly as before.
  */
-export async function generateSprintWithAI(
+export async function startSprintGeneration(
     projectId: string,
     sprintDescription: string
-): Promise<ActionResult<GeneratedSprint>> {
+): Promise<{ success: boolean; jobId?: string; error?: string }> {
     try {
-        const _user = await getCurrentUser()
+        await getCurrentUser()
 
         const project = await db.query.projectsV2.findFirst({
             where: eq(projectsV2.id, projectId),
-            with: {
-                sprints: {
-                    orderBy: (sprints: any, { asc }: any) => [asc(sprints.orderIndex)],
-                    with: { tasks: true }
-                }
-            }
-        });
-
-        if (!project) {
-            return { success: false, error: 'Project not found' }
-        }
-
-        const existingSprintsContext = project.sprints.map((s: any) => ({
-            name: s.name,
-            goal: s.goal,
-            tasksCount: s.tasks.length
-        }))
-
-        const nextSprintNumber = project.sprints.length + 1
-
-        const systemPrompt = `You are an expert software development coach helping create project sprints with detailed tasks.
-
-Given a sprint description, generate a comprehensive sprint structure with 3-6 actionable tasks.
-
-Project Context:
-- Title: ${project.title}
-- Description: ${project.shortDescription || 'Not specified'}
-- Technologies: ${project.technologies?.join(', ') || 'Not specified'}
-- Tech Stack: ${JSON.stringify(project.stacks || {})}
-- Existing Sprints: ${existingSprintsContext.length > 0 ? JSON.stringify(existingSprintsContext) : 'None yet'}
-
-Generate a sprint that:
-1. Has a clear, actionable name
-2. Has a specific goal that describes what will be accomplished
-3. Has a realistic duration (e.g., "1-2 days", "3-4 hours", "1 week")
-4. Contains 3-6 well-structured tasks
-
-Each task should have:
-- Clear, descriptive title
-- Step-by-step description (3-7 steps)
-- Measurable success criteria (2-4 items)
-- Helpful hints for learners (2-3 hints)
-- Appropriate difficulty (BEGINNER, INTERMEDIATE, ADVANCED)
-- Category (e.g., "setup", "frontend", "backend", "database", "api", "testing", "deployment")
-- Estimated time (e.g., "30 mins", "1 hour", "2-3 hours")
-- Checkpoints to verify progress (2-4 items)
-- Related pages/routes if applicable
-- Task dependencies (reference to other task titles if needed)
-- Relevant badges/achievements
-- Tags for categorization
-- Terminal command if applicable (for setup/build tasks)
-
-Respond with valid JSON only, no markdown or explanation.`
-
-        const userPrompt = `Generate Sprint #${nextSprintNumber}: "${sprintDescription}"
-
-Return a JSON object with this exact structure:
-{
-  "name": "Sprint Name",
-  "goal": "What this sprint accomplishes",
-  "duration": "Estimated time",
-  "tasks": [
-    {
-      "title": "Task Title",
-      "description": ["Step 1", "Step 2", "Step 3"],
-      "successCriteria": ["Criterion 1", "Criterion 2"],
-      "hints": ["Hint 1", "Hint 2"],
-      "estimatedMinutes": 60,
-      "difficulty": "BEGINNER",
-      "category": "frontend",
-      "estimatedTime": "1 hour",
-      "checkpoints": ["Checkpoint 1", "Checkpoint 2"],
-      "relatedPages": ["/dashboard", "/profile"],
-      "dependencies": [],
-      "badges": ["UI Master"],
-      "tags": ["react", "components"],
-      "terminalCommand": null,
-      "orderIndex": 0
-    }
-  ]
-}`
-
-        const completion = await openai.chat.completions.create({
-            model: 'gpt-4o-mini',
-            messages: [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: userPrompt }
-            ],
-            temperature: 0.7,
-            max_tokens: 3000,
-            response_format: { type: 'json_object' }
+            columns: { id: true },
         })
+        if (!project) return { success: false, error: 'Project not found' }
 
-        const responseContent = completion.choices[0]?.message?.content
-
-        if (!responseContent) {
-            return { success: false, error: 'Failed to generate sprint content' }
-        }
-
-        const generatedSprint: GeneratedSprint = JSON.parse(responseContent)
-
-        generatedSprint.tasks = generatedSprint.tasks.map((task, idx) => ({
-            ...task,
-            orderIndex: idx
-        }))
-
-        return { success: true, data: generatedSprint }
+        return await startBackgroundJob('sprint_generation', { projectId, sprintDescription })
     } catch (error) {
-        console.error('Error generating sprint:', error)
-        return { success: false, error: 'Failed to generate sprint' }
+        console.error('Error starting sprint generation:', error)
+        return { success: false, error: 'Failed to start sprint generation' }
     }
 }
 

@@ -14,7 +14,8 @@ import {
     withTransaction
 } from "@repo/db";
 import { eq, and, sql } from "drizzle-orm";
-import { openai } from '@/lib/openai-client'
+import { startBackgroundJob } from '@/actions/(main)/workers/jobs.action'
+import { type Quiz } from '@/types/project'
 
 const QUIZ_CREDIT_COST = 25
 
@@ -26,218 +27,114 @@ interface QuizQuestion {
     explanation: string
 }
 
+/** Read a project's quiz, or null if it has not been generated yet. */
+async function readQuiz(projectId: string): Promise<Quiz | null> {
+    const quiz = await db.query.projectV2Quizzes.findFirst({
+        where: eq(projectV2Quizzes.projectId, projectId),
+        with: {
+            questions: {
+                orderBy: (questions: any, { asc }: any) => [asc(questions.orderIndex)]
+            }
+        }
+    });
+    if (!quiz) return null
+
+    return {
+        id: quiz.id,
+        totalQuestions: quiz.totalQuestions,
+        questions: quiz.questions.map((q: any) => ({
+            id: q.id,
+            difficulty: q.difficulty,
+            prompt: q.prompt,
+            options: q.options,
+            correctAnswer: q.correctAnswer,
+            explanation: q.explanation ?? "",
+            orderIndex: q.orderIndex
+        }))
+    }
+}
+
 /**
- * Generate quiz questions for a project using AI
+ * The quiz for a project, if it already exists.
+ *
+ * Split out from generation because the two have completely different costs: a
+ * read is instant and free, generating twenty questions on gpt-4-turbo-preview
+ * takes the better part of a minute and 25 credits. Bundling them meant every
+ * page load of an ungenerated quiz silently started a paid job.
  */
-export async function generateProjectQuiz(projectSlug: string) {
+export async function getProjectQuiz(projectSlug: string): Promise<{
+    success: boolean
+    quiz?: Quiz | null
+    error?: string
+}> {
     try {
         const session = await getSession(headers());
-        if (!session?.user?.id) {
-            return { success: false, error: "Not authenticated" }
-        }
+        if (!session?.user?.id) return { success: false, error: "Not authenticated" }
 
         const project = await db.query.projectsV2.findFirst({
             where: eq(projectsV2.slug, projectSlug),
-            with: {
-                quiz: {
-                    with: {
-                        questions: {
-                            orderBy: (questions: any, { asc }: any) => [asc(questions.orderIndex)]
-                        }
-                    }
-                },
-            }
+            columns: { id: true, includeAssessment: true },
         });
-
-        if (!project) {
-            return { success: false, error: "Project not found" }
-        }
-
+        if (!project) return { success: false, error: "Project not found" }
         if (!project.includeAssessment) {
             return { success: false, error: "This project does not include assessments" }
         }
 
-        if (project.quiz) {
-            return {
-                success: true,
-                quiz: {
-                    id: project.quiz.id,
-                    totalQuestions: project.quiz.totalQuestions,
-                    questions: project.quiz.questions.map((q: any) => ({
-                        id: q.id,
-                        difficulty: q.difficulty,
-                        prompt: q.prompt,
-                        options: q.options,
-                        correctAnswer: q.correctAnswer,
-                        explanation: q.explanation,
-                        orderIndex: q.orderIndex
-                    }))
-                }
-            }
-        }
-
-        const [user] = await db.select({ credits: users.credits })
-            .from(users)
-            .where(eq(users.id, session.user.id));
-
-        if (!user || user.credits < QUIZ_CREDIT_COST) {
-            return { success: false, error: "Insufficient credits", requiredCredits: QUIZ_CREDIT_COST }
-        }
-
-        const stacks = project.stacks as any
-        const prompt = `You are an expert technical interviewer. Generate 20 multiple-choice quiz questions for a coding project with the following details:
-
-Project Title: ${project.title}
-Description: ${project.description}
-Technologies: ${project.technologies.join(', ')}
-Tech Stack:
-- Frontend: ${stacks?.frontend || 'N/A'}
-- Backend: ${stacks?.backend || 'N/A'}
-- Database: ${stacks?.database || 'N/A'}
-
-Create questions that test understanding of:
-1. Core Learns and best practices
-2. Technology-specific knowledge
-3. Implementation patterns
-4. Problem-solving approaches
-
-Distribute the questions as follows:
-- 7 EASY questions (fundamental Learns)
-- 8 MEDIUM questions (practical application)
-- 5 HARD questions (advanced topics and edge cases)
-
-For each question, provide:
-- difficulty: "EASY", "MEDIUM", or "HARD"
-- prompt: The question text
-- options: Exactly 4 answer options (array of strings)
-- correctAnswer: Index of the correct option (0-3)
-- explanation: Brief explanation of the correct answer (1-2 sentences)
-
-Return ONLY a valid JSON array with 20 questions following this exact structure:
-[
-  {
-    "difficulty": "EASY",
-    "prompt": "Question text here?",
-    "options": ["Option A", "Option B", "Option C", "Option D"],
-    "correctAnswer": 0,
-    "explanation": "Explanation of why this is correct."
-  }
-]`
-
-        const completion = await openai.chat.completions.create({
-            model: "gpt-4-turbo-preview",
-            messages: [
-                {
-                    role: "system",
-                    content: "You are an expert technical interviewer who creates high-quality quiz questions. Always return valid JSON arrays."
-                },
-                {
-                    role: "user",
-                    content: prompt
-                }
-            ],
-            temperature: 0.7,
-            response_format: { type: "json_object" }
-        })
-
-        const content = completion.choices[0]?.message?.content
-        if (!content) {
-            return { success: false, error: "Failed to generate quiz questions" }
-        }
-
-        let questions: QuizQuestion[]
-        try {
-            const parsed = JSON.parse(content)
-            questions = Array.isArray(parsed) ? parsed : parsed.questions || []
-        } catch (e) {
-            console.error("Failed to parse OpenAI response:", e)
-            return { success: false, error: "Invalid response format from AI" }
-        }
-
-        if (!Array.isArray(questions) || questions.length !== 20) {
-            return { success: false, error: `Expected 20 questions, got ${questions?.length || 0}` }
-        }
-
-        for (const q of questions) {
-            if (!q.difficulty || !["EASY", "MEDIUM", "HARD"].includes(q.difficulty)) {
-                return { success: false, error: "Invalid question difficulty" }
-            }
-            if (!q.prompt || !Array.isArray(q.options) || q.options.length !== 4) {
-                return { success: false, error: "Invalid question structure" }
-            }
-            if (typeof q.correctAnswer !== 'number' || q.correctAnswer < 0 || q.correctAnswer > 3) {
-                return { success: false, error: "Invalid correct answer index" }
-            }
-        }
-
-        await withTransaction(async (tx) => {
-            await tx.update(users)
-                .set({ credits: sql`${users.credits} - ${QUIZ_CREDIT_COST}` })
-                .where(eq(users.id, session.user.id));
-
-            await tx.insert(creditTransactions).values({
-                userId: session.user.id,
-                currency: "INR",
-                // Negative: SPEND rows debit. Seven other sites already write
-                // `-amount`; these two wrote it positive, so summing the ledger
-                // added the charge instead of subtracting it and any net-balance
-                // reconciliation came out wrong.
-                amount: -QUIZ_CREDIT_COST,
-                type: "SPEND",
-                description: `Quiz assessment generated for project: ${project.title}`
-            });
-
-            const [quiz] = await tx.insert(projectV2Quizzes).values({
-                projectId: project.id,
-                totalQuestions: questions.length,
-            }).returning();
-
-            await tx.insert(projectV2QuizQuestions).values(
-                questions.map((q, index) => ({
-                    quizId: quiz!.id,
-                    orderIndex: index,
-                    difficulty: q.difficulty as any,
-                    prompt: q.prompt,
-                    options: q.options,
-                    correctAnswer: q.correctAnswer,
-                    explanation: q.explanation
-                }))
-            );
-        });
-
-        const createdQuiz = await db.query.projectV2Quizzes.findFirst({
-            where: eq(projectV2Quizzes.projectId, project.id),
-            with: {
-                questions: {
-                    orderBy: (questions: any, { asc }: any) => [asc(questions.orderIndex)]
-                }
-            }
-        });
-
-        if (!createdQuiz) {
-            return { success: false, error: "Quiz created but could not be retrieved" }
-        }
-
-        return {
-            success: true,
-            quiz: {
-                id: createdQuiz.id,
-                totalQuestions: createdQuiz.totalQuestions,
-                questions: createdQuiz.questions.map((q: any) => ({
-                    id: q.id,
-                    difficulty: q.difficulty,
-                    prompt: q.prompt,
-                    options: q.options,
-                    correctAnswer: q.correctAnswer,
-                    explanation: q.explanation,
-                    orderIndex: q.orderIndex
-                }))
-            }
-        }
-
+        return { success: true, quiz: await readQuiz(project.id) }
     } catch (error) {
-        console.error("Error generating project quiz:", error)
-        return { success: false, error: "Failed to generate quiz" }
+        console.error("Error reading project quiz:", error)
+        return { success: false, error: "Failed to load quiz" }
+    }
+}
+
+/**
+ * Start quiz generation on the worker.
+ *
+ * Twenty questions with options and explanations - routinely the longest
+ * completion in the projects module, and one that used to run inline on a
+ * request Cloudflare would kill first, after debiting the credits.
+ *
+ * The credits are now HELD (`cost` below), not debited: the hold settles when
+ * the app sees the job complete and is refunded automatically if it fails. The
+ * worker never touches credits.
+ */
+export async function startProjectQuizGeneration(projectSlug: string): Promise<{
+    success: boolean
+    jobId?: string
+    error?: string
+    requiredCredits?: number
+}> {
+    try {
+        const session = await getSession(headers());
+        if (!session?.user?.id) return { success: false, error: "Not authenticated" }
+
+        const project = await db.query.projectsV2.findFirst({
+            where: eq(projectsV2.slug, projectSlug),
+            columns: { id: true, title: true, includeAssessment: true },
+            with: { quiz: { columns: { id: true } } },
+        });
+        if (!project) return { success: false, error: "Project not found" }
+        if (!project.includeAssessment) {
+            return { success: false, error: "This project does not include assessments" }
+        }
+        if (project.quiz) return { success: false, error: "This quiz has already been generated" }
+
+        const started = await startBackgroundJob(
+            'project_quiz',
+            { projectId: project.id },
+            {
+                cost: QUIZ_CREDIT_COST,
+                reason: `Quiz assessment generated for project: ${project.title}`,
+            },
+        )
+        if (!started.success) {
+            return { success: false, error: started.error, requiredCredits: started.required ?? QUIZ_CREDIT_COST }
+        }
+
+        return { success: true, jobId: started.jobId }
+    } catch (error) {
+        console.error("Error starting quiz generation:", error)
+        return { success: false, error: "Failed to start quiz generation" }
     }
 }
 

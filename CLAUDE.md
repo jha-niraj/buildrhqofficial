@@ -1,7 +1,23 @@
 # ShipItHQ - working agreement
 
-Turborepo. `apps/{main,web,uni,hiring,admin,shipitworker,generationworker}` and
+Turborepo. `apps/{main,web,uni,hiring,admin,shipitworker,worker}` and
 `packages/{auth,db,email,ui,eslint-config,typescript-config}`.
+
+## Long-running work
+
+Anything that calls an LLM, or sleeps waiting on someone else's API, runs in
+`apps/worker` as a Durable Object + Alarm - never in a server action. A Worker
+request has a hard budget and a 60-second completion is killed long before it
+finishes, usually after the user has been charged.
+
+Dispatch with `startBackgroundJob(type, input, { cost })` from
+`actions/(main)/workers/jobs.action.ts`; follow it with `useBackgroundJob` /
+`awaitBackgroundJob`. Credits are held on dispatch and settled or refunded when
+the app sees a terminal status - the worker never touches credits.
+`apps/worker/README.md` has the four edits needed to add a job type.
+
+`apps/shipitworker` is the exception and is NOT a job worker: it owns a
+Cloudflare Container that runs user code synchronously. Leave it alone.
 
 ## Verification: what to run, and when
 

@@ -12,8 +12,29 @@ through `@opennextjs/cloudflare`; the two background workers are plain Workers.
 | `apps/admin` | Next | `shipithq-admin` | 3005 |
 | `apps/hiring` | Next | `shipithq-hiring` | 3002 |
 | `apps/uni` | Next | `shipithq-uni` | 3003 |
-| `apps/shipitworker` | Cloudflare Worker | `shipithq-shipitworker` | - |
-| `apps/generationworker` | Cloudflare Worker | `shipithq-generation` | - |
+| `apps/shipitworker` | Cloudflare Worker + Container | `shipithq-shipitworker` | - |
+| `apps/worker` | Cloudflare Worker (Durable Objects + Alarms) | `shipithq-worker` | - |
+
+### Deploy order matters
+
+`apps/main` and `apps/uni` declare **service bindings** to both workers by name. A binding
+to a Worker script that does not exist yet fails the deploy, so:
+
+```bash
+cd apps/shipitworker && pnpm release     # 1. code executor  (shipithq-shipitworker)
+cd apps/worker       && pnpm release     # 2. job worker     (shipithq-worker)
+cd apps/main         && pnpm release     # 3. apps that bind to them
+cd apps/uni          && pnpm release
+```
+
+The workers can be redeployed on their own afterwards; the bindings survive.
+
+> **`apps/worker` was renamed.** It used to be `apps/generationworker`, deployed as
+> `shipithq-generation`. It is now `shipithq-worker` - a different Worker script, with its own
+> Durable Object namespaces. Deploy the new one, deploy `apps/main` and `apps/uni` against it,
+> let any in-flight generation jobs on the old script finish (they take minutes, not hours),
+> then delete `shipithq-generation` in the dashboard. Do not delete it first: its Durable
+> Objects are still holding jobs that users are polling.
 
 Each Next app owns two config files:
 
@@ -52,6 +73,77 @@ pnpm cf-typegen       # regenerate cloudflare-env.d.ts from the wrangler binding
 `deploy:secrets`, which reads `secrets.json` (admin, hiring, uni, main) or `.env.production`
 (web). Both are gitignored. Setting secrets once via the Cloudflare dashboard or
 `wrangler secret put` and then using plain `deploy` is equally valid.
+
+## Deploying `apps/shipitworker` (the code executor)
+
+This one is different from every other app here: it ships a **Cloudflare Container**, not
+just a Worker. `wrangler deploy` builds the `Dockerfile`, pushes the image to Cloudflare's
+own registry, and rolls the Container application - so it has requirements the others do not.
+
+**Prerequisites**
+
+1. A **paid Workers plan**. Containers are not on the free plan; the deploy fails at the
+   container step, not at the Worker step, so it looks like a build error.
+2. A **running Docker daemon** on the machine doing the deploy. Wrangler builds the image
+   locally and pushes it. `docker info` is the check.
+3. `wrangler` v4 (already pinned in the app's `devDependencies`).
+
+**The deploy**
+
+```bash
+cd apps/shipitworker
+cp .env.production.example .env.production   # fill in WORKER_SECRET
+pnpm release                                 # wrangler deploy --secrets-file .env.production
+```
+
+`WORKER_SECRET` must be byte-identical to `apps/main`'s, because that is the bearer token the
+executor checks. Note the trap `--secrets-file` shares with every other app here: a key
+present with an **empty** value overwrites the live secret with an empty string. Delete the
+line instead of blanking it.
+
+**What the deploy actually does**
+
+- builds `Dockerfile` (node 20 + tsx + python3 + gcc/g++ + JDK) for **linux/amd64**
+- pushes it to the Cloudflare container registry under `shipithq-code-executor`
+- provisions the container application with `max_instances: 5`
+- deploys the Worker + the `CodeExecutor` Durable Object that owns the container lifecycle
+
+The first deploy is slow (a few minutes - the image carries a JDK). Later deploys only push
+changed layers, so keep the `apt-get` layer above the `COPY`, which it already is.
+
+**On Apple Silicon**, the image must still be amd64. Wrangler asks Docker for the right
+platform, but if a cached local build was made natively the push can fail with an
+architecture error. `docker builder prune` and redeploy, or build explicitly:
+
+```bash
+docker build --platform linux/amd64 -t shipithq-code-executor .
+```
+
+**Verifying**
+
+```bash
+curl https://shipithq-shipitworker.<subdomain>.workers.dev/health
+# {"ok":true}
+
+curl -X POST https://shipithq-shipitworker.<subdomain>.workers.dev/api/v1/execute \
+  -H "Authorization: Bearer $WORKER_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"code":"print(1+1)","language":"python"}'
+```
+
+The first request after a deploy (or after `sleepAfter: "3m"` has elapsed) pays a container
+cold start of a few seconds. That is why `src/index.ts` spreads requests over a pool of five
+warm instances rather than one.
+
+**Cost shape.** Containers bill for the time an instance is awake, not per request. The
+`sleepAfter = "3m"` in `src/executor-container.ts` is the knob: longer keeps runs fast and
+costs more, shorter is cheaper and colder. `max_instances: 5` is the ceiling on concurrency -
+past it, requests queue.
+
+**How apps/main reaches it.** Over the `CODE_EXECUTOR` service binding, so the executor does
+not need a public route at all and the request never leaves Cloudflare's network. The
+`NEXT_PUBLIC_WORKER_URL` fallback is only for local `next dev`, where there is no binding.
+Once bound, you can remove the worker's public workers.dev route entirely.
 
 ## Rules that are easy to get wrong
 

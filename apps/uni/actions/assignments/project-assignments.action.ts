@@ -6,6 +6,7 @@ import { getSession } from "@repo/auth"
 import { headers } from "next/headers"
 import crypto from 'crypto';
 import type { UniversityPermission } from "@/types";
+import { callWorker } from "@/lib/workers/client";
 
 // ============================================
 // TYPES
@@ -145,35 +146,16 @@ export async function createProjectAssignment(payload: CreateProjectAssignmentPa
             isUniversityProject: true,
         };
 
-        const workerToken = await issueWorkerToken('generate_project');
+        // The job id is minted HERE, and the row is inserted BEFORE dispatch.
+        // The previous version posted the payload bare and then read a `jobId`
+        // out of the response - but the worker requires `{ jobId, input }` and
+        // has never minted ids, so every dispatch from this app got a 400 and
+        // then failed on a jobId that was undefined.
+        const jobId = crypto.randomUUID();
 
-        const response = await fetch(`${process.env.WORKER_API_URL}/api/v1/generateproject`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${workerToken}`,
-            },
-            body: JSON.stringify(workerPayload),
-        });
-
-        if (!response.ok) {
-            const error = await response.text();
-            throw new Error(`Worker API error: ${error}`);
-        }
-
-        const result = await response.json() as {
-            success: boolean;
-            jobId: string;
-            message: string;
-        };
-
-        if (!result.success || !result.jobId) {
-            throw new Error('Failed to create job in worker');
-        }
-
-        // Create job record in database
         await db.insert(backgroundJobs).values({
-            jobId: result.jobId,
+            jobId,
+            type: 'project_generation',
             status: 'waiting',
             progress: 0,
             userId: member.userId,
@@ -185,14 +167,79 @@ export async function createProjectAssignment(payload: CreateProjectAssignmentPa
             } as Record<string, unknown>,
         });
 
+        const workerToken = await issueWorkerToken('generate_project', jobId);
+
+        const response = await callWorker('/api/v1/generateproject', {
+            token: workerToken,
+            body: { jobId, input: workerPayload },
+        });
+
+        if (!response.ok) {
+            const error = await response.text();
+            await db.update(backgroundJobs)
+                .set({ status: 'failed', error: `Worker error: ${error}` })
+                .where(eq(backgroundJobs.jobId, jobId));
+            throw new Error(`Worker API error: ${error}`);
+        }
+
         return {
             success: true,
-            jobId: result.jobId,
+            jobId,
             message: "Project generation started",
         };
     } catch (error: unknown) {
         console.error("Create project assignment error:", error);
         return { success: false, error: (error as Error).message || "Failed to create project assignment" };
+    }
+}
+
+/**
+ * Poll a generation job.
+ *
+ * Reads `background_job`, which the worker's Durable Object writes to as it goes.
+ * The sheet used to fetch `NEXT_PUBLIC_WORKER_URL/api/v1/job/:id` directly from
+ * the browser - an unauthenticated call, to a route that does not exist, on the
+ * code-execution worker's URL rather than the job worker's. It could only ever
+ * time out.
+ */
+export async function getProjectAssignmentJobStatus(jobId: string): Promise<{
+    success: boolean
+    status?: string
+    progress?: number
+    phaseLabel?: string
+    data?: { projectId: string; slug: string; title: string }
+    error?: string
+}> {
+    try {
+        const member = await getCurrentMember();
+
+        const job = await db.query.backgroundJobs.findFirst({
+            where: eq(backgroundJobs.jobId, jobId),
+        });
+        if (!job) return { success: false, error: 'Job not found' };
+        // Scoped to the teacher who started it.
+        if (job.userId !== member.userId) return { success: false, error: 'Job not found' };
+
+        const result = (job.result ?? {}) as {
+            phaseLabel?: string
+            projectId?: string
+            slug?: string
+            title?: string
+        };
+
+        return {
+            success: true,
+            status: job.status,
+            progress: job.progress,
+            phaseLabel: result.phaseLabel,
+            data: result.projectId && result.slug
+                ? { projectId: result.projectId, slug: result.slug, title: result.title ?? '' }
+                : undefined,
+            error: job.error ?? undefined,
+        };
+    } catch (error: unknown) {
+        console.error("Read project assignment job status error:", error);
+        return { success: false, error: "Failed to read job status" };
     }
 }
 

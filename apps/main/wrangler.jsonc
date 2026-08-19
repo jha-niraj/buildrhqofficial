@@ -44,18 +44,26 @@
 		}
 	],
 
-	// ── Service binding: generation worker ────────────────────────────────────
-	// Both this app and the generation worker run on Cloudflare, so they talk over
-	// a service binding rather than a public fetch to workers.dev. That means the
-	// request never leaves Cloudflare's network, there is no URL to keep in sync
-	// across environments, and the generation worker does not have to be publicly
-	// reachable at all.
+	// ── Service bindings: the two workers ─────────────────────────────────────
+	// This app and both workers run on Cloudflare, so they talk over service
+	// bindings rather than public fetches to workers.dev. The request never leaves
+	// Cloudflare's network, there is no URL to keep in sync across environments,
+	// and neither worker has to be publicly reachable at all.
 	//
-	// `service` is the deployed Worker name (see apps/generationworker/wrangler.jsonc).
+	// `service` is the deployed Worker name, so BOTH workers must be deployed
+	// before this app is - a binding to a script that does not exist fails the
+	// deploy. See DEPLOYMENT.md for the order.
+	//
+	//   WORKER         apps/worker        background jobs (Durable Object + Alarm)
+	//   CODE_EXECUTOR  apps/shipitworker  runs user code in a Cloudflare Container
 	"services": [
 		{
-			"binding": "GENERATION_WORKER",
-			"service": "shipithq-generation"
+			"binding": "WORKER",
+			"service": "shipithq-worker"
+		},
+		{
+			"binding": "CODE_EXECUTOR",
+			"service": "shipithq-shipitworker"
 		}
 	],
 

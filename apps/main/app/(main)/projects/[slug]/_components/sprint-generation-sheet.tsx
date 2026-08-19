@@ -16,8 +16,9 @@ import {
     Card, CardContent, CardHeader, CardTitle
 } from '@repo/ui/components/ui/card'
 import toast from '@repo/ui/components/ui/sonner'
+import { awaitBackgroundJob } from '@/hooks/use-background-job'
 import {
-    generateSprintWithAI, addSprintToProject
+    startSprintGeneration, addSprintToProject
 } from '@/actions/(main)/projects/sprint-generation.action'
 import { Label } from '@repo/ui/components/ui/label'
 
@@ -74,6 +75,7 @@ export function SprintGenerationSheet({
     const [isAdding, setIsAdding] = useState(false)
     const [generatedSprint, setGeneratedSprint] = useState<GeneratedSprint | null>(null)
     const [step, setStep] = useState<'input' | 'generating' | 'preview'>('input')
+    const [generationPhase, setGenerationPhase] = useState<string>('')
 
     const difficultyColors = {
         BEGINNER: 'bg-neutral-100 text-neutral-800 dark:bg-neutral-800/30 dark:text-neutral-100',
@@ -91,14 +93,27 @@ export function SprintGenerationSheet({
         setStep('generating')
 
         try {
-            const result = await generateSprintWithAI(projectId, sprintDescription.trim())
+            // Generation runs on the worker; this follows the job. The sprint is
+            // still only a preview until the user adds it below.
+            const started = await startSprintGeneration(projectId, sprintDescription.trim())
 
-            if (result.success && result.data) {
-                setGeneratedSprint(result.data)
+            if (!started.success || !started.jobId) {
+                toast.error(started.error || 'Failed to generate sprint')
+                setStep('input')
+                return
+            }
+
+            const outcome = await awaitBackgroundJob<{ sprint?: GeneratedSprint }>(
+                started.jobId,
+                (progress, phaseLabel) => setGenerationPhase(phaseLabel ? `${phaseLabel}…` : `${progress}%`),
+            )
+
+            if (outcome.ok && outcome.result?.sprint) {
+                setGeneratedSprint(outcome.result.sprint)
                 setStep('preview')
                 toast.success('Sprint generated! Review and add it to your project.')
             } else {
-                toast.error(result.error || 'Failed to generate sprint')
+                toast.error(outcome.ok ? 'Failed to generate sprint' : outcome.error)
                 setStep('input')
             }
         } catch (error) {
@@ -261,8 +276,16 @@ export function SprintGenerationSheet({
                                             Generating Your Sprint
                                         </h3>
                                         <div className="space-y-1">
+                                            {/* The real phase reported by the
+                                                worker, once there is one. Until
+                                                the first status write lands, the
+                                                rotating copy below stands in. */}
                                             {
-                                                [
+                                                generationPhase ? (
+                                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                                        {generationPhase}
+                                                    </p>
+                                                ) : [
                                                     'Analyzing project context...',
                                                     'Creating task breakdown...',
                                                     'Adding success criteria...',

@@ -49,7 +49,7 @@ from the code, with file and line references, not estimation.
 **Project generation is correctly offloaded.** This is the reference
 implementation for everything else:
 
-- `apps/generationworker/src/project-generator.ts` — a Durable Object that
+- `apps/worker/src/jobs/project-generation.ts` — a Durable Object that
   persists input, schedules an immediate Alarm, and runs the ~1–1.5 min pipeline
   off the request path. It guards against duplicate runs when the DO is evicted
   mid-alarm (`:44`) and deliberately catches rather than rethrows so the alarm
