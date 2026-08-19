@@ -53,11 +53,6 @@ export function resumeShareUrl(shareSlug: string): string {
     return absoluteUrl(`/r/${encodeURIComponent(shareSlug)}`);
 }
 
-/** A project's shareable leaderboard - app/(main)/projects/[slug]/leaderboard. */
-export function projectLeaderboardUrl(slug: string, username: string): string {
-    const params = new URLSearchParams({ username, showProgress: "true" });
-    return absoluteUrl(`/projects/${encodeURIComponent(slug)}/leaderboard?${params}`);
-}
 
 /**
  * Whether a `callbackUrl` from the query string is safe to navigate to.

@@ -48,31 +48,6 @@ export const quizV2DifficultyEnum = pgEnum("quiz_v2_difficulty", [
     "MEDIUM",
     "HARD",
 ]);
-
-export const featureSuggestionTypeEnum = pgEnum("feature_suggestion_type", [
-    "FEATURE",
-    "IMPROVEMENT",
-    "BUG_FIX",
-    "UI_UX",
-    "PERFORMANCE",
-    "DOCUMENTATION",
-    "OTHER",
-]);
-
-export const featureSuggestionStatusEnum = pgEnum("feature_suggestion_status", [
-    "PENDING",
-    "UNDER_REVIEW",
-    "APPROVED",
-    "REJECTED",
-    "IMPLEMENTED",
-]);
-
-export const suggestionSourceEnum = pgEnum("suggestion_source", [
-    "CREATOR",
-    "ENROLLED_USER",
-    "VISITOR",
-]);
-
 export const projectErrorSeverityEnum = pgEnum("project_error_severity", [
     "HIGH",
     "MEDIUM",
@@ -119,12 +94,6 @@ export const mockSessionTypeEnum = pgEnum("mock_session_type", [
     "PROJECT_FINAL",
     "SPRINT_REVIEW",
 ]);
-
-export const projectV2MemberRoleEnum = pgEnum("project_v2_member_role", [
-    "ADMIN",
-    "MEMBER",
-]);
-
 export const projectV2InvitationStatusEnum = pgEnum("project_v2_invitation_status", [
     "PENDING",
     "ACCEPTED",
@@ -569,36 +538,6 @@ export const userTaskV2Assessments = pgTable(
         index("idx_user_task_v2_assessment_passed").on(table.passed),
     ],
 );
-
-export const projectV2FeatureSuggestions = pgTable(
-    "project_v2_feature_suggestion",
-    {
-        id: text("id").primaryKey().$defaultFn(() => createId()),
-        userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-        projectId: text("project_id").notNull().references(() => projectsV2.id, { onDelete: "cascade" }),
-        title: text("title").notNull(),
-        description: text("description").notNull(),
-        type: featureSuggestionTypeEnum("type").notNull().default("FEATURE"),
-        tags: text("tags").array().notNull().default([]),
-        imageUrl: text("image_url"),
-        status: featureSuggestionStatusEnum("status").notNull().default("PENDING"),
-        suggestedBy: suggestionSourceEnum("suggested_by").notNull().default("VISITOR"),
-        addedByUsers: text("added_by_users").array().notNull().default([]),
-        addedToTasks: boolean("added_to_tasks").notNull().default(false),
-        taskId: text("task_id"),
-        createdAt: timestamp("created_at").notNull().defaultNow(),
-        updatedAt: timestamp("updated_at").notNull().$onUpdateFn(() => new Date()),
-    },
-    (table) => [
-        index("idx_project_v2_feature_suggestion_user_id").on(table.userId),
-        index("idx_project_v2_feature_suggestion_project_id").on(table.projectId),
-        index("idx_project_v2_feature_suggestion_status").on(table.status),
-        index("idx_project_v2_feature_suggestion_type").on(table.type),
-        index("idx_project_v2_feature_suggestion_suggested_by").on(table.suggestedBy),
-        index("idx_project_v2_feature_suggestion_created_at").on(table.createdAt),
-    ],
-);
-
 export const projectV2Resources = pgTable(
     "project_v2_resource",
     {
@@ -624,55 +563,6 @@ export const projectV2Resources = pgTable(
         index("idx_project_v2_resource_helpful_count").on(table.helpfulCount),
     ],
 );
-
-export const projectV2Leaderboards = pgTable(
-    "project_v2_leaderboard",
-    {
-        id: text("id").primaryKey().$defaultFn(() => createId()),
-        userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-        projectId: text("project_id").notNull().references(() => projectsV2.id, { onDelete: "cascade" }),
-        rank: integer("rank").notNull(),
-        score: real("score").notNull(),
-        tasksCompleted: integer("tasks_completed").notNull().default(0),
-        totalTasks: integer("total_tasks").notNull().default(0),
-        progressPercent: real("progress_percent").notNull().default(0),
-        tasksScore: real("tasks_score").notNull().default(0),
-        quizScore: real("quiz_score").notNull().default(0),
-        mockScore: real("mock_score").notNull().default(0),
-        lastUpdated: timestamp("last_updated").notNull().defaultNow(),
-        createdAt: timestamp("created_at").notNull().defaultNow(),
-    },
-    (table) => [
-        uniqueIndex("uq_project_v2_leaderboard_user_id_project_id").on(table.userId, table.projectId),
-        index("idx_project_v2_leaderboard_project_id_rank").on(table.projectId, table.rank),
-        index("idx_project_v2_leaderboard_project_id_score").on(table.projectId, table.score),
-        index("idx_project_v2_leaderboard_user_id").on(table.userId),
-    ],
-);
-
-export const projectV2GlobalLeaderboards = pgTable(
-    "project_v2_global_leaderboard",
-    {
-        id: text("id").primaryKey().$defaultFn(() => createId()),
-        userId: text("user_id").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
-        rank: integer("rank").notNull(),
-        totalScore: real("total_score").notNull().default(0),
-        projectsStarted: integer("projects_started").notNull().default(0),
-        projectsCompleted: integer("projects_completed").notNull().default(0),
-        averageScore: real("average_score").notNull().default(0),
-        totalTasksCompleted: integer("total_tasks_completed").notNull().default(0),
-        totalQuizzesCompleted: integer("total_quizzes_completed").notNull().default(0),
-        totalMocksCompleted: integer("total_mocks_completed").notNull().default(0),
-        lastUpdated: timestamp("last_updated").notNull().defaultNow(),
-        createdAt: timestamp("created_at").notNull().defaultNow(),
-    },
-    (table) => [
-        index("idx_project_v2_global_leaderboard_rank").on(table.rank),
-        index("idx_project_v2_global_leaderboard_total_score").on(table.totalScore),
-        index("idx_project_v2_global_leaderboard_average_score").on(table.averageScore),
-    ],
-);
-
 export const projectV2TaskDetails = pgTable(
     "project_v2_task_detail",
     {
@@ -795,7 +685,6 @@ export const projectIdeas = pgTable(
         status: projectIdeaStatusEnum("status").notNull().default("PENDING"),
         submittedById: text("submitted_by_id").references(() => users.id),
         isUserSubmitted: boolean("is_user_submitted").notNull().default(false),
-        upvotes: integer("upvotes").notNull().default(0),
         // Denormalised for the same reason `upvotes` is: the ideas grid renders a
         // count on every card and must not pay for a join per card. Kept in step
         // inside the same transaction as the comment insert/soft-delete.
@@ -811,28 +700,11 @@ export const projectIdeas = pgTable(
         index("idx_project_idea_difficulty").on(table.difficulty),
         index("idx_project_idea_submitted_by_id").on(table.submittedById),
         index("idx_project_idea_created_at").on(table.createdAt),
-        index("idx_project_idea_upvotes").on(table.upvotes),
         index("idx_project_idea_has_blueprint_generated").on(table.hasBlueprintGenerated),
         index("idx_project_idea_idea_type").on(table.ideaType),
         index("idx_project_idea_is_platform_curated").on(table.isPlatformCurated),
     ],
 );
-
-export const projectIdeaUpvotes = pgTable(
-    "project_idea_upvote",
-    {
-        id: text("id").primaryKey().$defaultFn(() => createId()),
-        projectIdeaId: text("project_idea_id").notNull().references(() => projectIdeas.id, { onDelete: "cascade" }),
-        userId: text("user_id").notNull(),
-        createdAt: timestamp("created_at").notNull().defaultNow(),
-    },
-    (table) => [
-        uniqueIndex("uq_project_idea_upvote_project_idea_id_user_id").on(table.projectIdeaId, table.userId),
-        index("idx_project_idea_upvote_project_idea_id").on(table.projectIdeaId),
-        index("idx_project_idea_upvote_user_id").on(table.userId),
-    ],
-);
-
 export const projectV2Errors = pgTable(
     "project_v2_error",
     {
@@ -867,92 +739,6 @@ export const projectV2Errors = pgTable(
         index("idx_project_v2_error_created_at").on(table.createdAt),
     ],
 );
-
-export const projectV2ErrorVotes = pgTable(
-    "project_v2_error_vote",
-    {
-        id: text("id").primaryKey().$defaultFn(() => createId()),
-        errorId: text("error_id").notNull().references(() => projectV2Errors.id, { onDelete: "cascade" }),
-        userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-        voteType: text("vote_type").notNull(),
-        createdAt: timestamp("created_at").notNull().defaultNow(),
-    },
-    (table) => [
-        uniqueIndex("uq_project_v2_error_vote_error_id_user_id_vote_type").on(table.errorId, table.userId, table.voteType),
-        index("idx_project_v2_error_vote_error_id").on(table.errorId),
-        index("idx_project_v2_error_vote_user_id").on(table.userId),
-    ],
-);
-
-export const projectV2Members = pgTable(
-    "project_v2_member",
-    {
-        id: text("id").primaryKey().$defaultFn(() => createId()),
-        projectId: text("project_id").notNull().references(() => projectsV2.id, { onDelete: "cascade" }),
-        userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-        role: projectV2MemberRoleEnum("role").notNull().default("MEMBER"),
-        joinedAt: timestamp("joined_at").notNull().defaultNow(),
-        invitedBy: text("invited_by"),
-    },
-    (table) => [
-        uniqueIndex("uq_project_v2_member_project_id_user_id").on(table.projectId, table.userId),
-        index("idx_project_v2_member_project_id").on(table.projectId),
-        index("idx_project_v2_member_user_id").on(table.userId),
-    ],
-);
-
-export const projectV2SprintSuggestions = pgTable(
-    "project_v2_sprint_suggestion",
-    {
-        id: text("id").primaryKey().$defaultFn(() => createId()),
-        projectId: text("project_id").notNull().references(() => projectsV2.id, { onDelete: "cascade" }),
-        suggestedById: text("suggested_by_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-        sprintNumber: integer("sprint_number").notNull(),
-        name: text("name").notNull(),
-        goal: text("goal").notNull(),
-        duration: text("duration").notNull(),
-        suggestedTasks: jsonb("suggested_tasks"),
-        status: sprintSuggestionStatusEnum("status").notNull().default("PENDING"),
-        reviewedById: text("reviewed_by_id").references(() => users.id, { onDelete: "set null" }),
-        reviewedAt: timestamp("reviewed_at"),
-        reviewNote: text("review_note"),
-        createdSprintId: text("created_sprint_id"),
-        createdAt: timestamp("created_at").notNull().defaultNow(),
-        updatedAt: timestamp("updated_at").notNull().$onUpdateFn(() => new Date()),
-    },
-    (table) => [
-        index("idx_project_v2_sprint_suggestion_project_id").on(table.projectId),
-        index("idx_project_v2_sprint_suggestion_suggested_by_id").on(table.suggestedById),
-        index("idx_project_v2_sprint_suggestion_status").on(table.status),
-    ],
-);
-
-export const projectV2Invitations = pgTable(
-    "project_v2_invitation",
-    {
-        id: text("id").primaryKey().$defaultFn(() => createId()),
-        projectId: text("project_id").notNull().references(() => projectsV2.id, { onDelete: "cascade" }),
-        invitedUserId: text("invited_user_id").references(() => users.id, { onDelete: "cascade" }),
-        invitedEmail: text("invited_email"),
-        invitedById: text("invited_by_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-        role: projectV2MemberRoleEnum("role").notNull().default("MEMBER"),
-        status: projectV2InvitationStatusEnum("status").notNull().default("PENDING"),
-        inviteToken: text("invite_token").unique(),
-        expiresAt: timestamp("expires_at"),
-        respondedAt: timestamp("responded_at"),
-        createdAt: timestamp("created_at").notNull().defaultNow(),
-    },
-    (table) => [
-        uniqueIndex("uq_project_v2_invitation_project_id_invited_user_id").on(table.projectId, table.invitedUserId),
-        uniqueIndex("uq_project_v2_invitation_project_id_invited_email").on(table.projectId, table.invitedEmail),
-        index("idx_project_v2_invitation_project_id").on(table.projectId),
-        index("idx_project_v2_invitation_invited_user_id").on(table.invitedUserId),
-        index("idx_project_v2_invitation_invited_email").on(table.invitedEmail),
-        index("idx_project_v2_invitation_invite_token").on(table.inviteToken),
-        index("idx_project_v2_invitation_status").on(table.status),
-    ],
-);
-
 export const projectV2GuidedSessions = pgTable(
     "project_v2_guided_session",
     {
@@ -1006,14 +792,9 @@ export const projectsV2Relations = relations(projectsV2, ({ one, many }) => ({
     submissions: many(projectV2Submissions),
     quizAttempts: many(projectV2QuizAttempts),
     mockSessions: many(projectV2MockSessions),
-    featureSuggestions: many(projectV2FeatureSuggestions),
     resources: many(projectV2Resources),
-    leaderboard: many(projectV2Leaderboards),
     blueprintIdea: one(projectIdeas),
     errors: many(projectV2Errors),
-    members: many(projectV2Members),
-    sprintSuggestions: many(projectV2SprintSuggestions),
-    invitations: many(projectV2Invitations),
     guidedSessions: many(projectV2GuidedSessions),
     standupConfigs: many(projectV2StandupConfigs),
 }));
@@ -1173,18 +954,6 @@ export const userTaskV2AssessmentsRelations = relations(userTaskV2Assessments, (
         references: [projectV2Tasks.id],
     }),
 }));
-
-export const projectV2FeatureSuggestionsRelations = relations(projectV2FeatureSuggestions, ({ one }) => ({
-    user: one(users, {
-        fields: [projectV2FeatureSuggestions.userId],
-        references: [users.id],
-    }),
-    project: one(projectsV2, {
-        fields: [projectV2FeatureSuggestions.projectId],
-        references: [projectsV2.id],
-    }),
-}));
-
 export const projectV2ResourcesRelations = relations(projectV2Resources, ({ one }) => ({
     user: one(users, {
         fields: [projectV2Resources.userId],
@@ -1197,28 +966,6 @@ export const projectV2ResourcesRelations = relations(projectV2Resources, ({ one 
         relationName: "ProjectV2Resources",
     }),
 }));
-
-export const projectV2LeaderboardsRelations = relations(projectV2Leaderboards, ({ one }) => ({
-    user: one(users, {
-        fields: [projectV2Leaderboards.userId],
-        references: [users.id],
-        relationName: "ProjectV2Leaderboard",
-    }),
-    project: one(projectsV2, {
-        fields: [projectV2Leaderboards.projectId],
-        references: [projectsV2.id],
-        relationName: "ProjectV2Leaderboard",
-    }),
-}));
-
-export const projectV2GlobalLeaderboardsRelations = relations(projectV2GlobalLeaderboards, ({ one }) => ({
-    user: one(users, {
-        fields: [projectV2GlobalLeaderboards.userId],
-        references: [users.id],
-        relationName: "ProjectV2GlobalLeaderboard",
-    }),
-}));
-
 export const projectV2TaskDetailsRelations = relations(projectV2TaskDetails, ({ one, many }) => ({
     task: one(projectV2Tasks, {
         fields: [projectV2TaskDetails.taskId],
@@ -1265,17 +1012,7 @@ export const projectIdeasRelations = relations(projectIdeas, ({ one, many }) => 
         references: [projectsV2.id],
         relationName: "IdeaBlueprint",
     }),
-    upvotes: many(projectIdeaUpvotes),
 }));
-
-export const projectIdeaUpvotesRelations = relations(projectIdeaUpvotes, ({ one }) => ({
-    projectIdea: one(projectIdeas, {
-        fields: [projectIdeaUpvotes.projectIdeaId],
-        references: [projectIdeas.id],
-        relationName: "ProjectIdeaUpvotes",
-    }),
-}));
-
 export const projectV2ErrorsRelations = relations(projectV2Errors, ({ one, many }) => ({
     project: one(projectsV2, {
         fields: [projectV2Errors.projectId],
@@ -1292,71 +1029,7 @@ export const projectV2ErrorsRelations = relations(projectV2Errors, ({ one, many 
         references: [users.id],
         relationName: "SubmittedProjectErrors",
     }),
-    votes: many(projectV2ErrorVotes),
 }));
-
-export const projectV2ErrorVotesRelations = relations(projectV2ErrorVotes, ({ one }) => ({
-    error: one(projectV2Errors, {
-        fields: [projectV2ErrorVotes.errorId],
-        references: [projectV2Errors.id],
-        relationName: "ProjectErrorVotes",
-    }),
-    user: one(users, {
-        fields: [projectV2ErrorVotes.userId],
-        references: [users.id],
-        relationName: "ProjectErrorVotes",
-    }),
-}));
-
-export const projectV2MembersRelations = relations(projectV2Members, ({ one }) => ({
-    project: one(projectsV2, {
-        fields: [projectV2Members.projectId],
-        references: [projectsV2.id],
-        relationName: "ProjectMembers",
-    }),
-    user: one(users, {
-        fields: [projectV2Members.userId],
-        references: [users.id],
-        relationName: "ProjectMemberships",
-    }),
-}));
-
-export const projectV2SprintSuggestionsRelations = relations(projectV2SprintSuggestions, ({ one }) => ({
-    project: one(projectsV2, {
-        fields: [projectV2SprintSuggestions.projectId],
-        references: [projectsV2.id],
-        relationName: "SprintSuggestions",
-    }),
-    suggestedBy: one(users, {
-        fields: [projectV2SprintSuggestions.suggestedById],
-        references: [users.id],
-        relationName: "SprintSuggestor",
-    }),
-    reviewedBy: one(users, {
-        fields: [projectV2SprintSuggestions.reviewedById],
-        references: [users.id],
-        relationName: "SprintReviewer",
-    }),
-}));
-
-export const projectV2InvitationsRelations = relations(projectV2Invitations, ({ one }) => ({
-    project: one(projectsV2, {
-        fields: [projectV2Invitations.projectId],
-        references: [projectsV2.id],
-        relationName: "ProjectInvitations",
-    }),
-    invitedUser: one(users, {
-        fields: [projectV2Invitations.invitedUserId],
-        references: [users.id],
-        relationName: "ReceivedProjectInvitations",
-    }),
-    invitedBy: one(users, {
-        fields: [projectV2Invitations.invitedById],
-        references: [users.id],
-        relationName: "SentProjectInvitations",
-    }),
-}));
-
 export const projectV2GuidedSessionsRelations = relations(projectV2GuidedSessions, ({ one }) => ({
     user: one(users, {
         fields: [projectV2GuidedSessions.userId],

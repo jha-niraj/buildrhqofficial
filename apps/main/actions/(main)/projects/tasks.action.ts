@@ -7,7 +7,6 @@ import {
     projectV2Tasks,
     userProjectV2Progress,
     userTaskV2Statuses,
-    projectV2FeatureSuggestions,
 } from "@repo/db";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from 'next/cache'
@@ -96,7 +95,6 @@ export async function addTaskToSprint(
         estimatedTime?: string
         category?: string
     },
-    addToSuggestions: boolean = false,
     path?: string
 ): Promise<ActionResult> {
     try {
@@ -123,19 +121,6 @@ export async function addTaskToSprint(
             estimatedTime: data.estimatedTime,
             category: data.category
         });
-
-        if (addToSuggestions) {
-            await db.insert(projectV2FeatureSuggestions).values({
-                projectId,
-                userId: session.user.id,
-                title: data.title,
-                description: data.description,
-                type: 'FEATURE',
-                status: 'APPROVED',
-                suggestedBy: 'ENROLLED_USER',
-                tags: data.category ? [data.category] : []
-            });
-        }
 
         if (path) revalidatePath(path)
         return { success: true }

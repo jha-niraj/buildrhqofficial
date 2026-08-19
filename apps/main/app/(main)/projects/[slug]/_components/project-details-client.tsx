@@ -51,16 +51,10 @@ import { SetupGuideTab } from './setup-guide-tab'
 // Team Members components removed
 
 
-import { ProjectSettingsTab, TeamMember, ProjectInvitation } from './project-settings-tab'
 
-import {
-    inviteToProject, cancelInvitation, removeMember, updateMemberRole,
-    getProjectMembers, getProjectInvitations, updateProjectVisibility
-} from '@/actions/(main)/projects/team-collaboration.action'
 
 
 import { TaskItem } from '@/components/projects/task-list-progress'
-import { projectLeaderboardUrl } from '@/lib/urls'
 
 function MilestoneTracker({ progressPercentage }: { progressPercentage: number, includeAssessment?: boolean }) {
     const milestones = [
@@ -199,16 +193,6 @@ function QuickActions({
                 )
             }
 
-            {
-                isPublic && (
-                    <Link href={`/projects/${projectSlug}/leaderboard`}>
-                        <Button variant="outline" className="w-full h-auto py-4 flex-col gap-1 hover:bg-neutral-50 dark:hover:bg-neutral-800/20 hover:border-neutral-300">
-                            <Trophy className="w-5 h-5 text-neutral-800" />
-                            <span className="text-xs">Leaderboard</span>
-                        </Button>
-                    </Link>
-                )
-            }
         </div>
     )
 }
@@ -243,121 +227,11 @@ export default function ProjectDetailsClient({
         notes: ''
     })
 
-    const [copied, setCopied] = useState(false)
     const [standupSheetOpen, setStandupSheetOpen] = useState(false)
     const [activeTab, setActiveTab] = useState('overview')
 
 
 
-    // Project Settings State & Handlers
-    const [projectMembers, setProjectMembers] = useState<TeamMember[]>([])
-    const [projectInvitations, setProjectInvitations] = useState<ProjectInvitation[]>([])
-    const [isTeamMode, setIsTeamMode] = useState(false)
-    const [, setIsSettingsLoading] = useState(false)
-
-    // Fetch settings data when tab is active
-    useEffect(() => {
-        if (activeTab === 'settings' && isCreator) {
-            const fetchSettings = async () => {
-                setIsSettingsLoading(true)
-                try {
-                    const [membersRes, invitationsRes] = await Promise.all([
-                        getProjectMembers(project.id),
-                        getProjectInvitations(project.id)
-                    ])
-
-                    if (membersRes.success && membersRes.data) {
-                        setProjectMembers(membersRes.data)
-                        // Enable team mode if there are members other than creator
-                        if (membersRes.data.length > 1) setIsTeamMode(true)
-                    }
-
-                    if (invitationsRes.success && invitationsRes.data) {
-                        setProjectInvitations(invitationsRes.data)
-                        // Enable team mode if there are pending invitations
-                        if (invitationsRes.data.length > 0) setIsTeamMode(true)
-                    }
-                } catch (error) {
-                    console.error('Failed to load settings:', error)
-                    toast.error('Failed to load project settings')
-                } finally {
-                    setIsSettingsLoading(false)
-                }
-            }
-            fetchSettings()
-        }
-    }, [activeTab, isCreator, project.id])
-
-    const handleInviteMember = async (email: string) => {
-        try {
-            const result = await inviteToProject(project.id, email)
-            if (result.success) {
-                const res = await getProjectInvitations(project.id)
-                if (res.success && res.data) setProjectInvitations(res.data)
-                toast.success('Invitation sent')
-            } else {
-                toast.error(result.error || 'Failed to send invitation')
-            }
-        } catch {
-            toast.error('An unexpected error occurred')
-        }
-    }
-
-    const handleRemoveMember = async (memberId: string) => {
-        try {
-            const result = await removeMember(project.id, memberId)
-            if (result.success) {
-                const res = await getProjectMembers(project.id)
-                if (res.success && res.data) setProjectMembers(res.data)
-                toast.success('Member removed')
-            } else {
-                toast.error(result.error || 'Failed to remove member')
-            }
-        } catch {
-            toast.error('Failed to remove member')
-        }
-    }
-
-    const handleUpdateMemberRole = async (memberId: string, role: 'ADMIN' | 'MEMBER') => {
-        try {
-            const result = await updateMemberRole(memberId, role)
-            if (result.success) {
-                const res = await getProjectMembers(project.id)
-                if (res.success && res.data) setProjectMembers(res.data)
-                toast.success('Role updated')
-            } else {
-                toast.error(result.error || 'Failed to update role')
-            }
-        } catch {
-            toast.error('Failed to update role')
-        }
-    }
-
-    const handleCancelInvitation = async (invitationId: string) => {
-        try {
-            const result = await cancelInvitation(invitationId)
-            if (result.success) {
-                const res = await getProjectInvitations(project.id)
-                if (res.success && res.data) setProjectInvitations(res.data)
-                toast.success('Invitation canceled')
-            } else {
-                toast.error(result.error || 'Failed to cancel invitation')
-            }
-        } catch {
-            toast.error('Failed to cancel invitation')
-        }
-    }
-
-    const handleUpdateVisibility = async (visibility: 'PUBLIC' | 'PRIVATE') => {
-        try {
-            const result = await updateProjectVisibility(project.id, visibility)
-            if (!result.success) {
-                toast.error(result.error || 'Failed to update visibility')
-            }
-        } catch {
-            toast.error('Failed to update project visibility')
-        }
-    }
 
 
 
@@ -466,23 +340,6 @@ export default function ProjectDetailsClient({
         }
     }
 
-    // The path here was already correct; the origin was not. `window.location.origin`
-    // is whatever host the AUTHOR is on, so a link copied from a preview deploy or
-    // localhost was unopenable for the recipient. See lib/urls.ts.
-    const getShareableLink = () =>
-        projectLeaderboardUrl(project.slug, currentUser?.username || 'user')
-
-    const handleCopyLink = async () => {
-        try {
-            await navigator.clipboard.writeText(getShareableLink())
-            setCopied(true)
-            toast.success('Link copied to clipboard!')
-            setTimeout(() => setCopied(false), 2000)
-        } catch (error) {
-            console.log("Error occurred while copying link: " + error);
-            toast.error('Failed to copy link')
-        }
-    }
 
 
 
@@ -622,14 +479,6 @@ export default function ProjectDetailsClient({
                                                     >
                                                         <Target className="w-4 h-4 mr-1" />
                                                         Standup
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        className="flex-1"
-                                                        onClick={() => setShareDialogOpen(true)}
-                                                    >
-                                                        <Share2 className="w-4 h-4 mr-1" />
-                                                        Share
                                                     </Button>
                                                 </div>
 
@@ -774,14 +623,6 @@ export default function ProjectDetailsClient({
                             <TabsTrigger value="setup">
                                 Setup Guide
                             </TabsTrigger>
-                            {
-                                isCreator && (
-                                    <TabsTrigger value="settings">
-                                        <Settings className="w-4 h-4 mr-1" />
-                                        Settings
-                                    </TabsTrigger>
-                                )
-                            }
                         </TabsList>
                         <TabsContent value="overview" className="mt-6">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -966,27 +807,6 @@ export default function ProjectDetailsClient({
                                 } : null}
                             />
                         </TabsContent>
-                        {
-                            isCreator && (
-                                <TabsContent value="settings" className="mt-6">
-                                    <ProjectSettingsTab
-                                        projectId={project.id}
-                                        projectTitle={project.title}
-                                        isCreator={isCreator}
-                                        visibility={project.visibility as 'PUBLIC' | 'PRIVATE'}
-                                        members={projectMembers}
-                                        pendingInvitations={projectInvitations}
-                                        isTeamProject={isTeamMode}
-                                        onInviteMember={handleInviteMember}
-                                        onRemoveMember={handleRemoveMember}
-                                        onUpdateMemberRole={handleUpdateMemberRole}
-                                        onCancelInvitation={handleCancelInvitation}
-                                        onUpdateVisibility={handleUpdateVisibility}
-                                        onToggleTeamMode={async (enabled) => setIsTeamMode(enabled)}
-                                    />
-                                </TabsContent>
-                            )
-                        }
                     </Tabs>
                 </motion.div>
             </div >
@@ -999,27 +819,6 @@ export default function ProjectDetailsClient({
                 tasksCount={totalTasks}
                 userCredits={userCredits}
             />
-            <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle>Share Your Progress</DialogTitle>
-                        <DialogDescription>
-                            Share your project progress with others
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                            <Label>Shareable Link</Label>
-                            <div className="flex gap-2">
-                                <Input value={getShareableLink()} readOnly className="flex-1" />
-                                <Button size="icon" variant="outline" onClick={handleCopyLink}>
-                                    {copied ? <Check className="h-4 w-4 text-neutral-800" /> : <Copy className="h-4 w-4" />}
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                </DialogContent>
-            </Dialog>
             <Sheet open={submitDialogOpen} onOpenChange={setSubmitDialogOpen}>
                 <SheetContent className="sm:max-w-md">
                     <SheetHeader>

@@ -226,7 +226,7 @@ export async function submitQuizAttempt(
         });
 
         try {
-            const { updateProjectScore } = await import("./leaderboard.action")
+            const { updateProjectScore } = await import("./project-score.action")
             await updateProjectScore(project.id, session.user.id)
         } catch (error) {
             console.error("Failed to update leaderboard scores:", error)

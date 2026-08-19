@@ -314,12 +314,11 @@ const searchProjectIdeas: Handler = async (args) => {
             difficulty: projectIdeas.difficulty,
             technologies: projectIdeas.technologies,
             recruiterSignal: projectIdeas.recruiterSignal,
-            upvotes: projectIdeas.upvotes,
             buildCount: projectIdeas.buildCount,
         })
         .from(projectIdeas)
         .where(and(...filters))
-        .orderBy(desc(projectIdeas.upvotes))
+        .orderBy(desc(projectIdeas.buildCount))
         .limit(limit);
 
     return { count: rows.length, ideas: rows };

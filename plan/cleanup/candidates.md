@@ -134,7 +134,7 @@ if it is superseded, trivially recreatable, or has no product intent behind it.*
 | ID | File | Why it stayed |
 |---|---|---|
 | CLN-8 | `components/projects/project-analytics.tsx` | 664 lines of designed dashboard. No data source, so it is a shell - but the expensive part (deciding the metrics and the layout) is done, project analytics is a plausible thing to want, and recreating it is real work. |
-| CLN-10 | `actions/(main)/projects/sprint-suggestions.action.ts` | The **only** code that reads or writes `projectV2SprintSuggestions`, a live table with relations declared in `packages/db/src/schema/projects.ts:904`. Deleting it strands the table with nothing able to reach it. |
+| CLN-10 | `actions/(main)/projects/sprint-suggestions.action.ts` | ~~Kept~~ - **superseded 2026-08-20.** The reasoning was that deleting it would strand a live table. `PRJ-2` then dropped the table too, as third-party sprint suggestions are exactly the multi-user machinery being removed. Both are gone. |
 | CLN-15 | `actions/(main)/user/newsletter.action.ts` | Same reason: sole bridge to the live `newsletter` table (`profile.ts:230`). Small, but deleting it orphans schema. |
 | CLN-16 | `actions/(main)/pathfinder/practice-mock.action.ts` | Sits in `pathfinder`, a core module per `srs/core-modules/`. It is the join between `pathfinderSubGoals` and `mockInterviewVoice` and composes a live action - small, but the integration logic is not obvious to re-derive. |
 

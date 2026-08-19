@@ -35,7 +35,6 @@ import { SprintGenerationSheet } from '../../_components/sprint-generation-sheet
 import DailyStandupTab from '../../_components/daily-standup-tab'
 import SprintMockInterview from '../../_components/sprint-mock-interview'
 import ResourcesList from '@/components/projects/resources-list'
-import { FeatureSuggestionsList } from '@/components/projects/feature-suggestions-list'
 import ErrorsTab from '@/components/projects/errors-tab'
 import Quiz, { QuizQuestion, QuizResult } from '@/components/main/quiz'
 import CodeEditor from '@/components/main/code-editor'
@@ -43,14 +42,10 @@ import {
     addTaskToSprint, updateTaskStatus
 } from '@/actions/(main)/projects/tasks.action'
 import {
-    getFeatureSuggestions
-} from '@/actions/(main)/projects/feature-suggestions.action'
-import {
     generateTaskQuizQuestions, submitTaskQuizAnswers,
     getCodeChallengeInstructions, submitCodeForValidation,
     getTaskAssessmentStatus, getSprintCompletionStatus,
 } from '@/actions/(main)/projects/projectassessments.action'
-import { Suggestion } from '@/types/project'
 
 interface TaskLearn {
     title: string
@@ -151,7 +146,6 @@ export default function SprintsPageClient({
     const [newTaskDiff, setNewTaskDiff] = useState<'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'>('BEGINNER')
     const [newTaskTime, setNewTaskTime] = useState('')
     const [newTaskCategory, setNewTaskCategory] = useState('')
-    const [addToSuggestions, setAddToSuggestions] = useState(false)
     const [isSubmittingTask, setIsSubmittingTask] = useState(false)
 
     // Selected Task - for Task Details tab
@@ -160,10 +154,6 @@ export default function SprintsPageClient({
     // Right Panel Tab State
     const [activeTab, setActiveTab] = useState('taskDetails')
 
-    // Assistant State
-    const [suggestions, setSuggestions] = useState<Suggestion[]>([])
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [loadingSuggestions, setLoadingSuggestions] = useState(false)
 
     // Mock Interview State - when a sprint mock is selected
     const [selectedMockSprintId, setSelectedMockSprintId] = useState<string | null>(null)
@@ -314,23 +304,6 @@ export default function SprintsPageClient({
         }
     }, [project.progress])
 
-    useEffect(() => {
-        const fetchSuggestions = async () => {
-            setLoadingSuggestions(true)
-            try {
-                const result = await getFeatureSuggestions(project.id)
-                if (result.success && result.data) {
-                    setSuggestions(result.data as unknown as Suggestion[])
-                }
-            } catch (error) {
-                console.error('Error fetching suggestions:', error)
-            } finally {
-                setLoadingSuggestions(false)
-            }
-        }
-        fetchSuggestions()
-    }, [project.id])
-
     // Fetch assessment status when task is selected
     useEffect(() => {
         const fetchAssessmentStatus = async () => {
@@ -385,8 +358,7 @@ export default function SprintsPageClient({
                     difficulty: newTaskDiff as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED',
                     estimatedTime: newTaskTime || undefined,
                     category: newTaskCategory || undefined
-                },
-                addToSuggestions
+                }
             )
             if (result.success) {
                 toast.success('Task added successfully')
@@ -396,7 +368,6 @@ export default function SprintsPageClient({
                 setNewTaskDiff('BEGINNER')
                 setNewTaskTime('')
                 setNewTaskCategory('')
-                setAddToSuggestions(false)
                 router.refresh()
             } else {
                 toast.error(result.error || 'Failed to add task')
@@ -823,16 +794,6 @@ export default function SprintsPageClient({
                                                     placeholder="e.g., Backend, Frontend"
                                                 />
                                             </div>
-                                            <div className="flex items-center space-x-2 pt-2">
-                                                <Checkbox
-                                                    id="suggestion"
-                                                    checked={addToSuggestions}
-                                                    onCheckedChange={(c) => setAddToSuggestions(c === true)}
-                                                />
-                                                <Label htmlFor="suggestion" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                                    Also add to Project Suggestions list
-                                                </Label>
-                                            </div>
                                         </div>
                                         <DialogFooter>
                                             <Button variant="outline" onClick={() => setIsTaskDialogOpen(false)}>Cancel</Button>
@@ -997,13 +958,6 @@ export default function SprintsPageClient({
                                     >
                                         <Book className="h-4 w-4" />
                                         <span className="hidden sm:inline">Resources</span>
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                        value="suggestions"
-                                        className="flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800"
-                                    >
-                                        <Users className="h-4 w-4" />
-                                        <span className="hidden sm:inline">Suggestions</span>
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="errors"
@@ -1489,16 +1443,6 @@ export default function SprintsPageClient({
                                                 projectId={project.id}
                                                 currentUserId={currentUserId}
                                                 isCreator={isCreator}
-                                            />
-                                        </TabsContent>
-                                        <TabsContent value="suggestions" className="mt-0">
-                                            <FeatureSuggestionsList
-                                                suggestions={suggestions}
-                                                projectId={project.id}
-                                                projectSlug={project.slug}
-                                                isCreator={isCreator}
-                                                isEnrolled={isEnrolled}
-                                                currentUserId={currentUserId}
                                             />
                                         </TabsContent>
                                         <TabsContent value="errors" className="mt-0">

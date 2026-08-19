@@ -434,7 +434,7 @@ export async function updateTaskStatus(
 
         // Update score if task was completed
         if (newStatus === "COMPLETED") {
-            const { updateProjectScore } = await import("./leaderboard.action");
+            const { updateProjectScore } = await import("./project-score.action");
             await updateProjectScore(projectId);
         }
 

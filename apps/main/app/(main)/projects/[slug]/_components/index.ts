@@ -5,8 +5,6 @@ export { PageOverviewCard } from './page-overview-card'
 
 export { SetupGuideTab } from './setup-guide-tab'
 
-export { ProjectSettingsTab } from './project-settings-tab'
-export type { TeamMember, ProjectInvitation } from './project-settings-tab'
 
 export { SprintGenerationSheet } from './sprint-generation-sheet'
 

@@ -206,13 +206,6 @@ export default function ProjectsHomePage() {
 									>
 										Explore All
 									</Button>
-									<span className="hidden sm:block text-neutral-300 dark:text-neutral-700 py-2">|</span>
-									<Link href="/projects/leaderboard">
-										<Button variant="ghost" className="text-neutral-800 hover:text-neutral-700 dark:text-neutral-200 dark:hover:text-neutral-100 hover:bg-neutral-50 dark:hover:bg-neutral-800/20 px-3">
-											<Trophy className="mr-1.5 h-4 w-4" />
-											Leaderboard
-										</Button>
-									</Link>
 								</div>
 							</motion.div>
 						</motion.div>
@@ -402,7 +395,6 @@ export default function ProjectsHomePage() {
 						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 							{
 								[
-									{ icon: Trophy, title: "Leaderboard", desc: "Compete with builders worldwide", link: "/projects/leaderboard" },
 									{ icon: Brain, title: "AI Mock Interviews", desc: "Practice with AI-powered interviews", link: null },
 									{ icon: Briefcase, title: "Portfolio Ready", desc: "Build projects that impress employers", link: null },
 									{ icon: Star, title: "Community Submissions", desc: "See what others have built", link: "/projects/submissions" },
@@ -456,12 +448,6 @@ export default function ProjectsHomePage() {
 							</p>
 							<div className="flex flex-col sm:flex-row gap-4 justify-center">
 								<ProjectGenerateSheet />
-								<Link href="/projects/leaderboard">
-									<Button variant="outline" size="lg" className="border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 px-8 py-6 text-lg font-semibold rounded-xl bg-white dark:bg-neutral-900">
-										<Trophy className="mr-2 h-5 w-5" />
-										View Leaderboard
-									</Button>
-								</Link>
 							</div>
 						</motion.div>
 					</div>

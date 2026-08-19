@@ -27,7 +27,7 @@ import {
 import { cn } from '@repo/ui/lib/utils'
 import toast from '@repo/ui/components/ui/sonner'
 import {
-    getProjectErrors, createProjectError, voteOnError,
+    getProjectErrors, createProjectError,
     getProjectErrorStats
 } from '@/actions/(main)/projects/project-errors.action'
 
@@ -47,8 +47,6 @@ interface ProjectError {
     tags: string[]
     helpfulCount: number
     encounteredCount: number
-    hasVotedHelpful: boolean
-    hasVotedEncountered: boolean
     submittedBy: {
         id: string
         name: string | null
@@ -97,10 +95,8 @@ const severityConfig = {
 
 function ErrorCard({
     error,
-    onVote
 }: {
     error: ProjectError
-    onVote: (errorId: string, voteType: 'helpful' | 'encountered') => void
 }) {
     const [isExpanded, setIsExpanded] = useState(false)
     const CategoryIcon = categoryConfig[error.category]?.icon || Bug
@@ -147,30 +143,6 @@ function ErrorCard({
                         }
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => onVote(error.id, 'helpful')}
-                                    className={cn(
-                                        'flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-colors',
-                                        error.hasVotedHelpful
-                                            ? 'bg-neutral-100 dark:bg-neutral-800/30 text-neutral-700 dark:text-neutral-100'
-                                            : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800/30'
-                                    )}
-                                >
-                                    <ThumbsUp className="w-3 h-3" />
-                                    {error.helpfulCount}
-                                </button>
-                                <button
-                                    onClick={() => onVote(error.id, 'encountered')}
-                                    className={cn(
-                                        'flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-colors',
-                                        error.hasVotedEncountered
-                                            ? 'bg-neutral-100 dark:bg-neutral-800/30 text-neutral-700 dark:text-neutral-100'
-                                            : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800/30'
-                                    )}
-                                >
-                                    <AlertCircle className="w-3 h-3" />
-                                    {error.encounteredCount} faced this
-                                </button>
                             </div>
                             <button
                                 onClick={() => setIsExpanded(!isExpanded)}
@@ -506,28 +478,6 @@ export default function ErrorsTab({ projectId, isEnrolled, isCreator }: ErrorsTa
         fetchErrors()
     }, [fetchErrors])
 
-    const handleVote = async (errorId: string, voteType: 'helpful' | 'encountered') => {
-        const result = await voteOnError(errorId, voteType)
-        if (result.success) {
-            // Optimistic update
-            setErrors(prev => prev.map(err => {
-                if (err.id === errorId) {
-                    return {
-                        ...err,
-                        hasVotedHelpful: voteType === 'helpful' ? !err.hasVotedHelpful : err.hasVotedHelpful,
-                        hasVotedEncountered: voteType === 'encountered' ? !err.hasVotedEncountered : err.hasVotedEncountered,
-                        helpfulCount: voteType === 'helpful'
-                            ? (err.hasVotedHelpful ? err.helpfulCount - 1 : err.helpfulCount + 1)
-                            : err.helpfulCount,
-                        encounteredCount: voteType === 'encountered'
-                            ? (err.hasVotedEncountered ? err.encounteredCount - 1 : err.encounteredCount + 1)
-                            : err.encounteredCount,
-                    }
-                }
-                return err
-            }))
-        }
-    }
 
     return (
         <div className="space-y-6">
@@ -638,7 +588,6 @@ export default function ErrorsTab({ projectId, isEnrolled, isCreator }: ErrorsTa
                                 <ErrorCard
                                     key={error.id}
                                     error={error}
-                                    onVote={handleVote}
                                 />
                             ))
                         }

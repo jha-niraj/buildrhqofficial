@@ -18,9 +18,6 @@ import {
     Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter
 } from '@repo/ui/components/ui/sheet'
 import {
-    SubmitProjectIdeaSheet
-} from '@/components/projects/submit-project-idea-sheet'
-import {
     getProblemStatements
 } from '@/actions/(main)/projects/project-ideas.action'
 import {
@@ -67,13 +64,12 @@ interface ProblemStatement {
     id: string; projectTitle: string; projectDescription: string;
     difficulty: string; overview: string | null; coreRequirements: string[];
     engineeringConstraints: string[]; suggestedStacks: Record<string, string[]> | null;
-    recruiterSignal: string | null; upvotes: number; views: number; buildCount: number;
+    recruiterSignal: string | null; views: number; buildCount: number;
     commentCount: number;
     createdAt: Date; submittedBy?: { id: string; name: string | null; username: string | null; image: string | null } | null;
 }
 
 export default function ProjectIdeasPage() {
-    const [submitSheetOpen, setSubmitSheetOpen] = useState(false)
     const [activeView, setActiveView] = useState<'categories' | 'problems'>('categories')
 
     // DB-driven data
@@ -221,15 +217,6 @@ export default function ProjectIdeasPage() {
                                     Problem First
                                 </button>
                             </div>
-                            <Button
-                                onClick={() => setSubmitSheetOpen(true)}
-                                variant="outline"
-                                size="sm"
-                                className="hidden sm:flex"
-                            >
-                                <Lightbulb className="w-3.5 h-3.5 mr-1.5" />
-                                Submit Idea
-                            </Button>
                         </div>
                     </div>
                 </div>
@@ -504,11 +491,7 @@ export default function ProjectIdeasPage() {
                                             </div>
                                             <div className="text-center py-8 rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800">
                                                 <Target className="w-6 h-6 text-neutral-300 dark:text-neutral-700 mx-auto mb-2" />
-                                                <p className="text-sm text-neutral-500 mb-3">No community ideas for this technology yet.</p>
-                                                <Button size="sm" variant="outline" onClick={() => setSubmitSheetOpen(true)}>
-                                                    <Lightbulb className="w-3.5 h-3.5 mr-1.5" />
-                                                    Submit an Idea
-                                                </Button>
+                                                <p className="text-sm text-neutral-500">No ideas for this technology yet.</p>
                                             </div>
                                         </div>
                                     </div>
@@ -558,11 +541,7 @@ export default function ProjectIdeasPage() {
                             <div className="text-center py-16 border border-dashed border-neutral-200 dark:border-neutral-800 rounded-xl bg-neutral-50/50 dark:bg-neutral-900/50">
                                 <Target className="w-10 h-10 text-neutral-300 dark:text-neutral-700 mx-auto mb-3" />
                                 <h3 className="text-base font-medium text-neutral-900 dark:text-white mb-1">No problem statements found</h3>
-                                <p className="text-sm text-neutral-500 mb-4">Be the first to submit a technology-agnostic challenge!</p>
-                                <Button onClick={() => setSubmitSheetOpen(true)} size="sm">
-                                    <Lightbulb className="w-3.5 h-3.5 mr-1.5" />
-                                    Submit a Problem
-                                </Button>
+                                <p className="text-sm text-neutral-500">Nothing here yet - check back soon.</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -578,7 +557,7 @@ export default function ProjectIdeasPage() {
                                             <Badge className={getDifficultyColor(problem.difficulty)}>{problem.difficulty}</Badge>
                                             <div className="flex items-center gap-2 text-xs text-neutral-400">
                                                 <span className="flex items-center gap-0.5"><Eye className="w-3 h-3" />{problem.views || 0}</span>
-                                                <span className="flex items-center gap-0.5"><Heart className="w-3 h-3" />{problem.upvotes || 0}</span>
+                                                
                                                 {/* Reads the denormalised counter - no join per card. */}
                                                 <span className="flex items-center gap-0.5"><MessageSquare className="w-3 h-3" />{problem.commentCount || 0}</span>
                                             </div>
@@ -622,7 +601,7 @@ export default function ProjectIdeasPage() {
                                     <Badge className={getDifficultyColor(selectedProblem.difficulty)}>{selectedProblem.difficulty}</Badge>
                                     <div className="flex items-center gap-3 text-sm text-neutral-400">
                                         <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" />{selectedProblem.views || 0}</span>
-                                        <span className="flex items-center gap-1"><Heart className="w-3.5 h-3.5" />{selectedProblem.upvotes || 0}</span>
+                                        
                                         <span className="flex items-center gap-1"><MessageSquare className="w-3.5 h-3.5" />{selectedProblem.commentCount || 0}</span>
                                     </div>
                                 </div>
@@ -699,7 +678,6 @@ export default function ProjectIdeasPage() {
                 </SheetContent>
             </Sheet>
 
-            <SubmitProjectIdeaSheet open={submitSheetOpen} onOpenChange={setSubmitSheetOpen} />
 
             <ProjectGenerateSheet
                 trigger={<></>}

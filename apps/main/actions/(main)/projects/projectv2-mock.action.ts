@@ -437,7 +437,7 @@ Return JSON: {"overallScore": 0-100, "communication": {"score": 0-100, "feedback
                             columns: { projectId: true }
                         });
                         if (mockSessionRow) {
-                            const { updateProjectScore } = await import("./leaderboard.action")
+                            const { updateProjectScore } = await import("./project-score.action")
                             await updateProjectScore(mockSessionRow.projectId, session.user.id)
                         }
                     } catch (e) {

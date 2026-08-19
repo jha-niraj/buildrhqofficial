@@ -3,7 +3,7 @@
 import { getSession } from "@repo/auth";
 import { headers } from "next/headers";
 import {
-    db, projectV2Errors, projectV2ErrorVotes, projectsV2, userProjectV2Progress, projectV2Tasks,
+    db, projectV2Errors, projectsV2, userProjectV2Progress, projectV2Tasks,
     withTransaction
 } from "@repo/db";
 import { eq, and, desc, asc, sql } from "drizzle-orm";
@@ -132,10 +132,6 @@ export async function getProjectErrors(
                     },
                     task: {
                         columns: { id: true, title: true }
-                    },
-                    votes: {
-                        where: (votes, { eq }) => eq(votes.userId, user.id),
-                        columns: { voteType: true }
                     }
                 }
             }),
@@ -144,19 +140,12 @@ export async function getProjectErrors(
 
         const total = Number(countResult[0]?.count ?? 0);
 
-        const errorsWithVoteStatus = errors.map(error => ({
-            ...error,
-            hasVotedHelpful: error.votes.some(v => v.voteType === "helpful"),
-            hasVotedEncountered: error.votes.some(v => v.voteType === "encountered"),
-            votes: undefined,
-        }));
-
         const totalPages = Math.ceil(total / limit);
 
         return {
             success: true,
             data: {
-                errors: errorsWithVoteStatus,
+                errors,
                 pagination: {
                     page,
                     limit,
@@ -191,10 +180,6 @@ export async function getErrorById(errorId: string): Promise<ActionResponse> {
                 },
                 project: {
                     columns: { id: true, slug: true, title: true, createdBy: true }
-                },
-                votes: {
-                    where: (votes, { eq }) => eq(votes.userId, user.id),
-                    columns: { voteType: true }
                 }
             }
         });
@@ -213,12 +198,7 @@ export async function getErrorById(errorId: string): Promise<ActionResponse> {
 
         return {
             success: true,
-            data: {
-                ...error,
-                hasVotedHelpful: error.votes.some(v => v.voteType === "helpful"),
-                hasVotedEncountered: error.votes.some(v => v.voteType === "encountered"),
-                votes: undefined,
-            }
+            data: error
         };
     } catch (error: unknown) {
         console.error("[GET ERROR BY ID]:", error);
@@ -430,203 +410,9 @@ export async function deleteProjectError(errorId: string): Promise<ActionRespons
 // VOTING
 // ========================================
 
-/**
- * Vote on an error (helpful or encountered)
- */
-export async function voteOnError(
-    errorId: string,
-    voteType: "helpful" | "encountered"
-): Promise<ActionResponse> {
-    try {
-        const user = await getCurrentUser();
-
-        const error = await db.query.projectV2Errors.findFirst({
-            where: eq(projectV2Errors.id, errorId),
-            columns: {
-                id: true,
-                status: true,
-                helpfulCount: true,
-                encounteredCount: true,
-            },
-            with: {
-                project: {
-                    columns: { slug: true }
-                }
-            }
-        });
-
-        if (!error) {
-            return { success: false, error: "Error not found" };
-        }
-
-        if (error.status !== "APPROVED") {
-            return { success: false, error: "Cannot vote on unapproved errors" };
-        }
-
-        const [existingVote] = await db
-            .select({ id: projectV2ErrorVotes.id })
-            .from(projectV2ErrorVotes)
-            .where(
-                and(
-                    eq(projectV2ErrorVotes.errorId, errorId),
-                    eq(projectV2ErrorVotes.userId, user.id),
-                    eq(projectV2ErrorVotes.voteType, voteType)
-                )
-            )
-            .limit(1);
-
-        if (existingVote) {
-            // Remove vote
-            await withTransaction(async (tx) => {
-                await tx.delete(projectV2ErrorVotes).where(eq(projectV2ErrorVotes.id, existingVote.id));
-                await tx
-                    .update(projectV2Errors)
-                    .set({
-                        [voteType === "helpful" ? "helpfulCount" : "encounteredCount"]:
-                            sql`${voteType === "helpful" ? projectV2Errors.helpfulCount : projectV2Errors.encounteredCount} - 1`
-                    })
-                    .where(eq(projectV2Errors.id, errorId));
-            });
-
-            revalidatePath(`/projects/${error.project.slug}`);
-
-            return {
-                success: true,
-                data: {
-                    action: "removed",
-                    helpfulCount: error.helpfulCount - (voteType === "helpful" ? 1 : 0),
-                    encounteredCount: error.encounteredCount - (voteType === "encountered" ? 1 : 0),
-                }
-            };
-        }
-
-        // Add vote
-        await withTransaction(async (tx) => {
-            await tx.insert(projectV2ErrorVotes).values({
-                errorId,
-                userId: user.id,
-                voteType,
-            });
-            await tx
-                .update(projectV2Errors)
-                .set({
-                    [voteType === "helpful" ? "helpfulCount" : "encounteredCount"]:
-                        sql`${voteType === "helpful" ? projectV2Errors.helpfulCount : projectV2Errors.encounteredCount} + 1`
-                })
-                .where(eq(projectV2Errors.id, errorId));
-        });
-
-        revalidatePath(`/projects/${error.project.slug}`);
-
-        return {
-            success: true,
-            data: {
-                action: "added",
-                helpfulCount: error.helpfulCount + (voteType === "helpful" ? 1 : 0),
-                encounteredCount: error.encounteredCount + (voteType === "encountered" ? 1 : 0),
-            }
-        };
-    } catch (error: unknown) {
-        console.error("[VOTE ON ERROR]:", error);
-        return { success: false, error: toErrorMessage(error) };
-    }
-}
-
 // ========================================
 // MODERATION (Admin/Owner)
 // ========================================
-
-/**
- * Approve or reject a pending error
- */
-export async function moderateError(
-    errorId: string,
-    action: "approve" | "reject"
-): Promise<ActionResponse> {
-    try {
-        const user = await getCurrentUser();
-
-        const error = await db.query.projectV2Errors.findFirst({
-            where: eq(projectV2Errors.id, errorId),
-            with: {
-                project: {
-                    columns: { slug: true, createdBy: true }
-                }
-            }
-        });
-
-        if (!error) {
-            return { success: false, error: "Error not found" };
-        }
-
-        const canModerate = error.project.createdBy === user.id || user.role === "Admin";
-
-        if (!canModerate) {
-            return { success: false, error: "Unauthorized" };
-        }
-
-        const newStatus = action === "approve" ? "APPROVED" : "REJECTED";
-
-        await db
-            .update(projectV2Errors)
-            .set({
-                status: newStatus,
-                approvedAt: action === "approve" ? new Date() : null,
-            })
-            .where(eq(projectV2Errors.id, errorId));
-
-        revalidatePath(`/projects/${error.project.slug}`);
-
-        return { success: true };
-    } catch (error: unknown) {
-        console.error("[MODERATE ERROR]:", error);
-        return { success: false, error: toErrorMessage(error) };
-    }
-}
-
-/**
- * Get pending errors for moderation
- */
-export async function getPendingErrors(projectId: string): Promise<ActionResponse> {
-    try {
-        const user = await getCurrentUser();
-
-        const [project] = await db
-            .select({ createdBy: projectsV2.createdBy })
-            .from(projectsV2)
-            .where(eq(projectsV2.id, projectId))
-            .limit(1);
-
-        if (!project) {
-            return { success: false, error: "Project not found" };
-        }
-
-        if (project.createdBy !== user.id && user.role !== "Admin") {
-            return { success: false, error: "Unauthorized" };
-        }
-
-        const errors = await db.query.projectV2Errors.findMany({
-            where: and(
-                eq(projectV2Errors.projectId, projectId),
-                eq(projectV2Errors.status, "PENDING")
-            ),
-            orderBy: [asc(projectV2Errors.createdAt)],
-            with: {
-                submittedBy: {
-                    columns: { id: true, name: true, image: true }
-                },
-                task: {
-                    columns: { id: true, title: true }
-                }
-            }
-        });
-
-        return { success: true, data: errors };
-    } catch (error: unknown) {
-        console.error("[GET PENDING ERRORS]:", error);
-        return { success: false, error: toErrorMessage(error) };
-    }
-}
 
 // ========================================
 // STATS

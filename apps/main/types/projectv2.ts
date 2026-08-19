@@ -5,18 +5,12 @@ import {
     projectV2DifficultyEnum,
     userProjectV2StatusEnum,
     taskKanbanStatusEnum,
-    featureSuggestionTypeEnum,
-    featureSuggestionStatusEnum,
-    suggestionSourceEnum,
 } from '@repo/db';
 
 type ProjectV2Visibility = typeof projectV2VisibilityEnum.enumValues[number];
 type ProjectV2Difficulty = typeof projectV2DifficultyEnum.enumValues[number];
 type UserProjectV2Status = typeof userProjectV2StatusEnum.enumValues[number];
 type TaskKanbanStatus = typeof taskKanbanStatusEnum.enumValues[number];
-type FeatureSuggestionType = typeof featureSuggestionTypeEnum.enumValues[number];
-type FeatureSuggestionStatus = typeof featureSuggestionStatusEnum.enumValues[number];
-type SuggestionSource = typeof suggestionSourceEnum.enumValues[number];
 
 // Database return types
 export interface UserFromDB {
@@ -70,24 +64,6 @@ export interface UserProjectV2ProgressFromDB {
     startedAt?: Date | null;
     submittedAt?: Date | null;
     completedAt?: Date | null;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-export interface ProjectV2FeatureSuggestionFromDB {
-    id: string;
-    userId: string;
-    projectId: string;
-    title: string;
-    description: string;
-    type: FeatureSuggestionType;
-    tags: string[];
-    imageUrl?: string | null;
-    status: FeatureSuggestionStatus;
-    suggestedBy: SuggestionSource;
-    addedByUsers: string[];
-    addedToTasks: boolean;
-    taskId?: string | null;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -156,15 +132,6 @@ export interface LeaderboardEntry {
         name?: string | null;
         image?: string | null;
     };
-}
-
-export interface FeatureSuggestionWithUser extends ProjectV2FeatureSuggestionFromDB {
-    user: UserFromDB;
-    task?: {
-        id: string;
-        title: string;
-    } | null;
-    adoptedByCurrentUser?: boolean;
 }
 
 export interface ProjectInfo {

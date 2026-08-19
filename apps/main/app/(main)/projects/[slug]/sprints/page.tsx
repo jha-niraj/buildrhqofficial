@@ -1,7 +1,7 @@
 import { getProjectBySlug } from '@/actions/(main)/projects/project.action'
 import { getSession } from '@repo/auth'
 import { headers } from 'next/headers'
-import { db, users, projectV2Members } from '@repo/db'
+import { db, users, userProjectV2Progress } from '@repo/db'
 import { eq, and } from 'drizzle-orm'
 import { redirect } from 'next/navigation'
 import SprintsPageClient from './_components/sprints-page-client'
@@ -20,19 +20,21 @@ export default async function ProjectSprintsPage({ params }: { params: Promise<{
     const currentUserId = session?.user?.id
 
     if (currentUserId) {
-        // Verify enrollment/membership
-        const membershipRows = await db
-            .select({ id: projectV2Members.id })
-            .from(projectV2Members)
+        // Enrolment is the gate now that projects have no members: you either
+        // created this project or you started it, and starting it is what writes
+        // the progress row.
+        const enrolmentRows = await db
+            .select({ id: userProjectV2Progress.id })
+            .from(userProjectV2Progress)
             .where(and(
-                eq(projectV2Members.projectId, project.id),
-                eq(projectV2Members.userId, currentUserId)
+                eq(userProjectV2Progress.projectId, project.id),
+                eq(userProjectV2Progress.userId, currentUserId)
             ))
             .limit(1)
 
         const isCreator = project.createdBy === currentUserId
 
-        if (!isCreator && !membershipRows[0]) {
+        if (!isCreator && !enrolmentRows[0]) {
             redirect(`/projects/${slug}`)
         }
     } else {
