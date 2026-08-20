@@ -12,7 +12,7 @@ import {
     ArrowLeft, KeyRound, Loader2, Mail
 } from "lucide-react";
 import Link from "next/link";
-import { AuthShell } from "../../_components/auth-shell";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState<string>("");
@@ -58,12 +58,7 @@ export default function ForgotPassword() {
     }
 
     return (
-        <AuthShell
-            variant="otp-mail"
-            headline={<>Locked out? <span className="text-white/50">Happens.</span></>}
-            sub="Enter the address you signed up with and we'll send a six-digit code."
-            quote="Resetting a password is not a setback - it is a two-minute detour."
-        >
+        <>
             <div className="mb-8">
                 <span className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-neutral-100 text-neutral-900 dark:bg-neutral-900 dark:text-white">
                     <KeyRound className="h-5 w-5" />
@@ -101,7 +96,7 @@ export default function ForgotPassword() {
                 >
                     {sending ? (
                         <span className="flex items-center gap-2">
-                            <Loader2 className="h-4 w-4 animate-spin" /> Sending…
+                            <InlineLoader size="sm" /> Sending…
                         </span>
                     ) : "Send reset code"}
                 </Button>
@@ -116,6 +111,6 @@ export default function ForgotPassword() {
                     Back to sign in
                 </Link>
             </div>
-        </AuthShell>
+        </>
     );
 }

@@ -17,7 +17,7 @@ import { useAppContext } from "@/app/context/usercontext";
 import toast from "@repo/ui/components/ui/sonner";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
 import { finalizeSignup } from "@/actions/(auth)/auth/signup.actions";
-import { AuthShell } from "../../_components/auth-shell";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 const RESEND_COOLDOWN_SECONDS = 30;
 
@@ -298,12 +298,7 @@ function SignUpForm() {
     };
 
     return (
-        <AuthShell
-            variant="commit-graph"
-            headline={<>Join the <span className="text-white/50">community</span>.</>}
-            sub="Build projects, learn from peers, and grow your skills with thousands of developers."
-            quote="Every expert was once a beginner."
-        >
+        <>
                     <AnimatePresence mode="wait">
                         {phase === "details" ? (
                             <motion.div
@@ -353,7 +348,7 @@ function SignUpForm() {
                                         disabled={isGoogleLoading || isGitHubLoading}
                                     >
                                         {isGoogleLoading ? (
-                                            <div className="h-5 w-5 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin" />
+                                            <InlineLoader size="md" />
                                         ) : (
                                             <>
                                                 <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" aria-hidden="true">
@@ -374,7 +369,7 @@ function SignUpForm() {
                                         disabled={isGoogleLoading || isGitHubLoading}
                                     >
                                         {isGitHubLoading ? (
-                                            <div className="h-5 w-5 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin" />
+                                            <InlineLoader size="md" />
                                         ) : (
                                             <>
                                                 <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
@@ -505,7 +500,7 @@ function SignUpForm() {
                                     >
                                         {isLoading ? (
                                             <div className="flex items-center gap-2">
-                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                <InlineLoader size="sm" />
                                                 Creating account...
                                             </div>
                                         ) : (
@@ -606,7 +601,7 @@ function SignUpForm() {
                                         className="mt-2 h-12 w-full bg-neutral-900 font-medium text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
                                     >
                                         {isMagicLoading
-                                            ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sending link…</>
+                                            ? <><InlineLoader size="sm" className="mr-2" />Sending link…</>
                                             : magicSent ? "Send another link" : "Email me a sign-up link"}
                                     </Button>
 
@@ -683,7 +678,7 @@ function SignUpForm() {
                                 >
                                     {isVerifying ? (
                                         <div className="flex items-center gap-2">
-                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            <InlineLoader size="sm" />
                                             Verifying...
                                         </div>
                                     ) : (
@@ -718,7 +713,7 @@ function SignUpForm() {
                             </motion.div>
                         )}
                     </AnimatePresence>
-        </AuthShell>
+        </>
     );
 }
 
@@ -742,7 +737,7 @@ export default function RegisterPage() {
         <Suspense
             fallback={
                 <div className="min-h-screen flex items-center justify-center bg-white dark:bg-zinc-900">
-                    <div className="h-8 w-8 border-2 border-neutral-900 border-t-transparent rounded-full animate-spin" />
+                    <InlineLoader size="lg" />
                 </div>
             }
         >

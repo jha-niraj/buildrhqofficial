@@ -11,7 +11,13 @@ import { startBackgroundJob } from "@/actions/(main)/workers/jobs.action"
 async function extractTextFromPDFBuffer(buffer: ArrayBuffer): Promise<string> {
     try {
         const { extractText } = await import("unpdf")
-        const uint8 = new Uint8Array(buffer)
+        // `.slice(0)` is a COPY, and it is load-bearing. unpdf hands the array to
+        // pdf.js, which takes ownership of it and DETACHES the underlying
+        // ArrayBuffer. The caller still needs those bytes to upload the file to
+        // R2 afterwards, and on a detached buffer `new Uint8Array(buffer)` throws
+        // "Cannot perform Construct on a detached ArrayBuffer" - which is exactly
+        // how every PDF resume upload failed after its text had been extracted.
+        const uint8 = new Uint8Array(buffer.slice(0))
         const { text } = await extractText(uint8, { mergePages: true })
         return text?.trim() ?? ""
     } catch (error) {

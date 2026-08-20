@@ -10,6 +10,7 @@ import {
     Card, CardContent, CardDescription, CardHeader, CardTitle
 } from '@repo/ui/components/ui/card';
 import { AuthBackdropSurround } from '../../_components/auth-backdrop';
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 function ErrorContent() {
     const searchParams = useSearchParams();
@@ -171,7 +172,7 @@ export default function AuthErrorPage() {
         <Suspense fallback={
             <div className="min-h-screen flex items-center justify-center">
                 <div className="flex items-center space-x-2">
-                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    <InlineLoader size="sm" />
                     <span>Loading...</span>
                 </div>
             </div>

@@ -11,7 +11,7 @@ import {
 import { emailOtp } from "@repo/auth/client";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
 import toast from '@repo/ui/components/ui/sonner';
-import { AuthShell } from '../../_components/auth-shell';
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 const ResetPassword = (): JSX.Element | null => {
     const [password, setPassword] = useState<string>("");
@@ -152,12 +152,7 @@ const ResetPassword = (): JSX.Element | null => {
     }
 
     return (
-        <AuthShell
-            variant="shield"
-            headline={<>Set a new <span className="text-white/50">password</span>.</>}
-            sub="Enter the code we emailed you, then choose something you have not used before."
-            quote="A password you can remember beats a clever one you cannot."
-        >
+        <>
             <div>
                 <div className="mb-8">
                     <span className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-neutral-100 text-neutral-900 dark:bg-neutral-900 dark:text-white">
@@ -218,7 +213,7 @@ const ResetPassword = (): JSX.Element | null => {
                             className="w-full h-11 bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 rounded-xl font-medium transition-all"
                             disabled={isLoading || otp.join("").length !== 6}
                         >
-                            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Reset Password"}
+                            {isLoading ? <InlineLoader size="sm" /> : "Reset Password"}
                         </Button>
                         <div className="text-center pt-2">
                             <Button
@@ -228,13 +223,15 @@ const ResetPassword = (): JSX.Element | null => {
                                 disabled={!canResend}
                                 className="text-xs text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
                             >
+                                {/* Not a loader: this is the resend cooldown, and the icon spinning
+                                    is what tells the user the timer is running rather than stuck. */}
                                 <RefreshCw className={`mr-2 h-3 w-3 ${!canResend && "animate-spin"}`} />
                                 {canResend ? "Resend Verification Code" : `Resend available in ${timer}s`}
                             </Button>
                         </div>
                 </form>
             </div>
-        </AuthShell>
+        </>
     );
 };
 

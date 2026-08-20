@@ -131,6 +131,24 @@ secret and only needs a redeploy.
 - Shareable URLs come from `apps/main/lib/urls.ts`, never from
   `window.location.origin` - that is the author's host, not the recipient's.
 - Palette is monochrome black/neutral. No orange, yellow, blue, indigo or purple.
+- **Text must be legible on the surface it actually lands on.** Check the
+  rendered contrast, not the class name. The trap is type over a
+  theme-independent surface - a photo, a gradient, a video: `text-white` on the
+  auth brand panel measured **1.1:1** because the panel reads light in both
+  themes, and no `dark:` variant helps when the surface never changes. If a
+  surface is constant across themes, its ink must be constant too. AA is 4.5:1
+  for body, 3:1 for large text.
+- **No spinners.** Full page: `ShipItHQLoader` from
+  `@repo/ui/components/ui/shipithq-loader`. Buttons and inline:
+  `InlineLoader` from `@repo/ui/components/ui/inline-loader` (`sm` in a button,
+  `md` in a row, `lg` in a panel). Inside an already-rendered page a skeleton
+  matching the real layout still beats both. A rotating ring is the one loading
+  affordance every product uses, which makes it the one that says nothing about
+  this one - and at button size it is a grey smudge.
+- Images go to **R2**, never Cloudinary. Public objects (avatars) live under the
+  `avatars/` prefix and are served by `r2PublicUrl()`; everything else stays
+  private behind a signed URL. `/api/media` will only serve the public prefix,
+  because the same bucket holds every user's resume.
 - **No em dashes or en dashes anywhere.** Use a plain hyphen `-` instead. This
   applies to everything: UI copy, blog content, code comments, commit messages
   and docs. `—` and `–` are non-ASCII, they are hard to type on a normal

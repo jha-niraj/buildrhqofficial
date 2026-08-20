@@ -11,10 +11,11 @@ import { signOut, useSession } from "@repo/auth/client"
 import toast from "@repo/ui/components/ui/sonner"
 import { checkUsernameAvailability, completeOnboarding } from "@/actions/(main)/user/onboarding.action"
 import { uploadResume } from "@/actions/(main)/user/resume.action"
-import { uploadImageToCloudinary } from "@/actions/(common)/shared/upload.action"
+import { uploadProfileImage } from "@/actions/(common)/shared/upload.action"
 import { finalizeSignup } from "@/actions/(auth)/auth/signup.actions"
 import { OnboardingSidePanel } from "./onboarding-side-panel"
 import { OnboardingShaderBg } from "./onboarding-shader-bg"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 const SEMESTERS = [
 	"1st Semester", "2nd Semester", "3rd Semester", "4th Semester",
@@ -161,7 +162,7 @@ export default function OnboardingClient() {
 			try {
 				const fd = new FormData()
 				fd.append("file", avatarFile)
-				const result = await uploadImageToCloudinary(fd)
+				const result = await uploadProfileImage(fd)
 				if (result.success && result.url) imageUrl = result.url
 			} catch {
 				toast.warning("Profile photo upload failed - you can add one later from your profile.")
@@ -257,7 +258,7 @@ export default function OnboardingClient() {
 					className="inline-flex items-center gap-1.5 rounded-xl border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-600 transition-colors hover:bg-neutral-100 disabled:opacity-60 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800 cursor-pointer"
 				>
 					{loggingOut
-						? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Logging out…</>
+						? <><InlineLoader size="sm" /> Logging out…</>
 						: <><LogOut className="h-3.5 w-3.5" /> Log out</>}
 				</button>
 			}
