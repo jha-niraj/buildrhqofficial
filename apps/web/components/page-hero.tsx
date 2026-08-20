@@ -85,7 +85,11 @@ function Cta({ cta, primary }: { cta: PageHeroCta; primary: boolean }) {
         "inline-flex min-h-11 items-center gap-2 rounded-full px-5 text-sm font-semibold transition-colors",
         primary
             ? "bg-neutral-900 text-white hover:bg-neutral-800"
-            : "border border-neutral-900/20 text-neutral-800 hover:border-neutral-900/40 hover:bg-neutral-900/5",
+            // The border is the ONLY thing marking this as a button, so it owes WCAG 1.4.11's
+            // 3:1 rather than being exempt as decoration. Measured against the darkest pixel of
+            // the photograph it can sit on: /20 was 1.45:1, /40 is 2.20:1, /55 is where it
+            // crosses, /60 is 3.50:1. Solved against the composited pixel, not eyeballed.
+            : "border border-neutral-900/60 text-neutral-800 hover:border-neutral-900/80 hover:bg-neutral-900/5",
     )
     const inner = (
         <>
@@ -130,7 +134,17 @@ function Surface({ children }: { children: ReactNode }) {
 }
 
 /** Shared type scale. Fixed across variants - this is half of what makes them one site. */
-const EYEBROW = "text-xs font-semibold uppercase tracking-[0.18em] text-neutral-600"
+// neutral-700, not neutral-600. Measured against the DARKEST pixel anywhere in the ridge
+// photograph (bg-cover means any part of it can end up behind any part of the type, so the
+// honest worst case is the whole image, not one breakpoint's crop): neutral-600 lands at
+// 3.64:1, under the 4.5:1 floor for text this small. neutral-700 is 4.84:1.
+//
+// Fixing it in the wash instead was tried and rejected - lightening the gradient enough to
+// carry neutral-600 takes it to 4.48:1 at best and washes the ridge out to nearly nothing,
+// which spends the whole point of the surface to save one shade of grey. Uppercase at
+// text-xs with 0.18em tracking is the hardest thing on the hero to read; it should not also
+// be the faintest.
+const EYEBROW = "text-xs font-semibold uppercase tracking-[0.18em] text-neutral-700"
 // Steps down hard on mobile: a 7xl title on a 360px line wins a fight with the page
 // it is introducing and should not.
 const TITLE = "text-4xl font-bold leading-[1.05] tracking-tight text-neutral-900 sm:text-5xl lg:text-6xl"
@@ -176,8 +190,11 @@ export function PageHero({
                     {sub && <p className={cn(SUB, "mt-6")}>{sub}</p>}
                     {ctaRow}
                 </div>
+                {/* The rule above the facts is genuinely decorative - the list structure and
+                    the spacing already separate them from the copy - so 1.4.11's 3:1 does not
+                    apply. It went /10 -> /25 only because /10 was invisible on the photograph. */}
                 {facts.length > 0 && (
-                    <dl className="mt-12 grid grid-cols-2 gap-x-6 gap-y-8 border-t border-neutral-900/10 pt-8 sm:grid-cols-4">
+                    <dl className="mt-12 grid grid-cols-2 gap-x-6 gap-y-8 border-t border-neutral-900/25 pt-8 sm:grid-cols-4">
                         {facts.map((f) => (
                             <div key={f.label}>
                                 {/* Numbers step type down rather than truncating. A
@@ -186,7 +203,7 @@ export function PageHero({
                                 <dt className="text-2xl font-bold tabular-nums text-neutral-900 sm:text-3xl">
                                     {f.value}
                                 </dt>
-                                <dd className="mt-1 text-xs font-medium uppercase tracking-wide text-neutral-600">
+                                <dd className="mt-1 text-xs font-medium uppercase tracking-wide text-neutral-700">
                                     {f.label}
                                 </dd>
                             </div>
@@ -211,7 +228,10 @@ export function PageHero({
                         {ctaRow}
                     </div>
                     <div className="min-w-0 lg:col-span-5">
-                        {sub && <p className={cn(SUB, "border-l-2 border-neutral-900/15 pl-5")}>{sub}</p>}
+                        {/* /50 not /15: this rule is the only separation between the aside and the
+                            title, so it carries meaning and owes 3:1. /15 was 1.31:1, /50 is 2.76:1,
+                            /60 is 3.50:1. */}
+                        {sub && <p className={cn(SUB, "border-l-2 border-neutral-900/60 pl-5")}>{sub}</p>}
                         {aside && <div className="mt-6">{aside}</div>}
                     </div>
                 </div>

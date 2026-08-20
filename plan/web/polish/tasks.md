@@ -28,7 +28,7 @@ is not started.
 | WEB-20 | Build `PageHero` - fixed surface, variant composition | 4 | **done (2026-08-20)** |
 | WEB-21 | Adopt it on aboutus, pricing | 4 | **done (2026-08-20)** |
 | WEB-22 | Adopt it on Features, Compare | 4 | not started |
-| WEB-23 | Contrast audit across every public page | 8 | not started |
+| WEB-23 | Contrast audit across every public page | 8 | **hero + OG card done (2026-08-20); landing/blog open** |
 | **Landing composition** | | | |
 | WEB-30 | Port `reveal.tsx` and `lazy-mount.tsx` | 7 | **done (2026-08-20)** |
 | WEB-31 | Port `problem-scroll` as the Problem section | 6 | not started |
@@ -38,7 +38,7 @@ is not started.
 | WEB-35 | Reorder the landing page | 6 | not started |
 | WEB-36 | Compare section on the landing page | 6 | not started |
 | **Blog images** | | | |
-| WEB-40 | Confirm the OG generator does not read `heroImage` | 5 | not started (gate) |
+| WEB-40 | Confirm the OG generator does not read `heroImage` | 5 | **done (2026-08-20) - GATE OPEN** |
 | WEB-41 | Build the topic glyph set | 5 | not started |
 | WEB-42 | Replace inline images with HTML | 5 | not started |
 | WEB-43 | Drop `heroImage` from the post pipeline | 5 | not started |
@@ -272,14 +272,52 @@ page and blog are deliberately excluded.
 
 ### WEB-23 - Contrast audit
 
-**Status:** not started
+**Status:** done for the `PageHero` surface and the blog OG card (2026-08-20).
+Landing page and blog article body still open.
 **Serves:** DoD 8
 
-Measured, not eyeballed, on the *rendered* surface. The auth panel measured
-**1.1:1** because type sat on a photograph that read light in both themes; the
-same failure is available on any hero with a shader or image behind it.
+**Method - composited, not screenshotted.** A screenshot only measures the crop the
+viewport happened to produce. The hero photograph is `bg-cover`, so ANY part of it
+can end up behind any part of the type depending on aspect ratio. So the surface
+was rebuilt in Python from the real `ridge-blur.webp` through the exact stack the
+browser composites -
 
-**Verification:** a number per text/surface pair. 4.5:1 body, 3:1 large.
+  `bg-neutral-100` -> photo at 70% -> `from-white/60 via-white/45 to-white/75` -> grid at `#8080800f`
+
+- and every pixel of the photograph sampled. The worst case is **rgb(177,177,177)**.
+Every ratio below is against that pixel, so they hold at every viewport.
+
+**Three real failures, all fixed.**
+
+| pair | was | now | floor |
+|---|---|---|---|
+| eyebrow `text-neutral-600` -> `700` | 3.64:1 FAIL | 4.84:1 | 4.5 |
+| fact label `text-neutral-600` -> `700` | 3.64:1 FAIL | 4.84:1 | 4.5 |
+| secondary CTA border `/20` -> `/60` | 1.45:1 FAIL | 3.50:1 | 3.0 |
+| `versus` rule `/15` -> `/60` | 1.31:1 FAIL | 3.50:1 | 3.0 |
+| title `neutral-900` | 8.36:1 | 8.36:1 | 3.0 |
+| sub `neutral-700` | 4.84:1 | 4.84:1 | 4.5 |
+| fact value `neutral-900` | 8.36:1 | 8.36:1 | 4.5 |
+| secondary CTA text `neutral-800` | 7.06:1 | 7.06:1 | 4.5 |
+| primary CTA white on `neutral-900` | 17.93:1 | 17.93:1 | 4.5 |
+| ledger divider `/10` -> `/25` | 1.10:1 | 1.60:1 | exempt |
+
+Two judgement calls worth keeping:
+
+**Fixing it in the wash was tried and rejected.** Lightening the gradient enough to
+carry `neutral-600` reaches 4.48:1 at best - still short - and washes the ridge out
+to almost nothing. That spends the entire point of the surface to save one shade of
+grey. Darkening two labels is the cheaper correct fix.
+
+**The two borders are not decoration.** The secondary CTA's border is the ONLY thing
+marking it as a button, and the `versus` rule is the only separation between the
+aside and the title, so both fall under WCAG 1.4.11 at 3:1 rather than being exempt.
+The `ledger` divider above the facts genuinely IS decoration - the list structure and
+spacing already do that job - so it is listed as exempt rather than quietly counted
+as a pass.
+
+**Still open:** the landing page sections and the blog article body. Features and
+Compare cannot be audited until WEB-10/WEB-11 build them.
 
 ---
 
@@ -425,13 +463,35 @@ A summary that links to the full pages. Same sourcing rule.
 
 ### WEB-40 - GATE: does the OG generator read `heroImage`?
 
-**Status:** not started
+**Status:** done (2026-08-20). **The gate is OPEN - WEB-41 through WEB-45 may start.**
 **Serves:** DoD 5
-**Blocks:** WEB-41 through WEB-45
 
-Read `app/(home)/blogs/[slug]/opengraph-image.tsx`. If it composes the social card
-from the hero raster, removing rasters breaks every social card - the opposite of
-the intent. **Do not start any other blog task until this is answered.**
+**No.** `app/(home)/blogs/[slug]/opengraph-image.tsx` never touches `post.heroImage`.
+It reads `title`, `category`, `author` and `readingTime` and composes the card out of
+type and CSS on a dark gradient. Deleting every hero raster cannot break a single
+social card, because no social card has ever looked at one.
+
+That is exactly the property that makes the blog-image work safe, so it is now
+written into the file's header comment rather than living only here.
+
+**Two real defects found while reading it, both fixed.**
+
+The logo tile was the letter **"B"** - the wrong initial for ShipItHQ - set in
+`#0a0a0a` on a `#171717` tile. Measured on the rendered PNG that is **1.10:1**: an
+invisible wrong letter, on every social card the blog has ever produced. It is now
+the actual mark from `public/logo.svg`, the 3x3 ascending staircase, rebuilt out of
+six divs at **19.44:1**.
+
+It is rebuilt rather than imported because `logo.svg` is `fill="currentColor"` so
+one file can serve black-on-light and white-on-dark, and satori resolves neither
+`currentColor` nor an external file at build time. Six divs beats a second,
+colour-baked copy of the logo that would silently drift from the first.
+
+The byline rule was `#171717` on a near-black ground (1.2:1, a rule nobody could
+see) and the reading time was `#737373` at 3.7:1. Now 3.85:1 and 6.97:1.
+
+All numbers measured with Pillow on the actual rendered 1200x630 PNG fetched from
+the dev server, not computed from the source colours.
 
 ### WEB-41 - Topic glyphs
 
