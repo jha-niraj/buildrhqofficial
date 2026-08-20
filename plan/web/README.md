@@ -11,16 +11,35 @@ product's database or auth.
 ```
 plan/web/
 ├── README.md              <- you are here
-└── polish/                the current body of work
-    ├── overview.md        what "done" means for the site
-    ├── tasks.md           the master numbered list with status
-    ├── 01-content-truth.md    the site describes a product that no longer exists
-    ├── 02-navigation.md       navbar: Features, Compare, hover dropdowns
-    ├── 03-page-hero.md        one header for every public page
-    ├── 04-landing-composition.md  which gurukul components to port, and which not to
-    ├── 05-blog-images.md      1.7MB of raster art the blog does not need
-    └── 06-performance.md      the budget everything above has to fit inside
+│
+├── polish/                design, content and composition
+│   ├── overview.md            what "done" means for the site
+│   ├── tasks.md               the master numbered list with status
+│   ├── 01-content-truth.md    the site describes a product that no longer exists
+│   ├── 02-navigation.md       navbar: Features, Compare, hover dropdowns
+│   ├── 03-page-hero.md        one header for every public page
+│   ├── 04-landing-composition.md  which gurukul components to port, and which not
+│   ├── 05-blog-images.md      1.7MB of raster art the blog does not need
+│   └── 06-performance.md      the budget everything above has to fit inside
+│
+└── seo/                   discoverability
+    ├── overview.md            what "done" means for discoverability
+    ├── tasks.md               the master numbered list with status
+    ├── 01-technical-audit.md  what is already right, and the one live error
+    ├── 02-structured-data.md  one entity graph, and the type that fails validation
+    ├── 03-aeo.md              being CITED by AI engines, not only ranked
+    ├── 04-keyword-strategy.md method, not answers - the research is a task
+    ├── 05-content-clusters.md pillars, clusters, internal linking
+    └── 06-measurement.md      baseline first, or none of it is checkable
 ```
+
+The two run in parallel and cross-reference each other. Three places they meet:
+
+- `polish/WEB-1` (content truth) blocks `seo/SEO-23` - there is no point sourcing
+  a statistic about a feature that is being deleted.
+- `polish/WEB-11` (Compare pages) blocks `seo/SEO-22` - comparison schema needs
+  comparison pages.
+- `polish/WEB-50` and `seo/SEO-50` share one Lighthouse run. Do it once.
 
 Read `overview.md` first. The numbered files are the detail behind the task list;
 `tasks.md` is the thing to check progress against.
