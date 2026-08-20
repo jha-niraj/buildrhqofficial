@@ -24,9 +24,17 @@ const ROTATE_WORDS = ["career", "portfolio", "resume", "skillset", "interviews",
 // pointed at the same logo - five identical logos behind dot navigation, which reads as
 // broken. Until real product screenshots exist, showing what each surface actually does
 // is both honest and more informative than a repeated logo.
+//
+// FOUR slides, not five, and the set is the nav in `apps/main/lib/navigation.ts` minus
+// Jobs. The "Open Source" slide was removed because that module has no route - its
+// tables are still in the schema, which is exactly why someone will be tempted to put
+// the slide back. Check for a reachable page before doing so.
+//
+// "Project Studio" was renamed to "Projects" for the same reason: the Studio module was
+// deleted from the product, and the copy underneath it was describing Projects anyway.
 const SLIDES = [
     {
-        label: "Project Studio",
+        label: "Projects",
         headline: "Build something you can defend in an interview.",
         body: "Guided projects broken into real tasks, with reviewed output and a deployable result at the end.",
         points: ["Architecture planning", "Task-level review", "Proof of completion"],
@@ -48,12 +56,6 @@ const SLIDES = [
         headline: "Get past the keyword search, then past the human.",
         body: "Paste a job description and get bullets tailored to it, with the formatting an ATS can actually parse.",
         points: ["ATS parsing check", "Keyword gap analysis", "Tailored per role"],
-    },
-    {
-        label: "Open Source",
-        headline: "Turn contributions into a hiring signal.",
-        body: "Beginner-appropriate issues matched to your stack, with your contribution history tracked in one place.",
-        points: ["Issue matching", "Contribution tracking", "Maintainer activity"],
     },
 ]
 

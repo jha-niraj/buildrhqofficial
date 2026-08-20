@@ -8,9 +8,12 @@ import { Button } from "@repo/ui/components/ui/button"
 import { Badge } from "@repo/ui/components/ui/badge"
 import { APP_URL } from "@/lib/site"
 
+// Checked against the product on 2026-08-20. "Gain credits by merging PRs" was removed:
+// the opensource tables exist in the schema but the module has no route, so there is no
+// way for a user to earn that way.
 const benefits = [
     { title: "No Expiration", desc: "Credits stay in your wallet forever." },
-    { title: "Earn via Merit", desc: "Gain credits by merging PRs and solving challenges." },
+    { title: "Start With 100", desc: "Every new account gets 100 credits - no card needed." },
     { title: "Transparent Usage", desc: "See exactly how much each AI query costs." }
 ]
 

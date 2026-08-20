@@ -9,52 +9,60 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+// Rewritten 2026-08-20. The previous set described a DIFFERENT PRODUCT - courses,
+// lessons, videos, "new languages added regularly", certificates for completing a
+// course. None of that exists here and none of it ever did on this platform; it is
+// inherited from an earlier language-tutorial site. See plan/web/polish/01-content-truth.md.
+//
+// Every answer below is checked against a route in apps/main. Answers are written
+// ANSWER-FIRST - the first sentence answers the question and stands on its own -
+// because that is the form AI Overviews and assistants quote.
 const faqData = [
     {
         id: "item-1",
-        question: "How do I start learning a programming language on ShipItHQ?",
-        answer: "To get started, simply create an account, choose a language you want to learn, and explore our resources. We offer beginner-friendly content for C, C++, Java, Python, and more. You can start with foundational topics and progress to advanced materials."
+        question: "What is ShipItHQ?",
+        answer: "ShipItHQ is an interview-preparation and portfolio platform for computer-science students and software engineers. It gives you four things in one place: pattern-based practice across DSA, system design, frontend and backend; guided portfolio projects broken into real tasks; voice mock interviews with scored feedback; and AI tools for your resume and cover letters."
     },
     {
         id: "item-2",
-        question: "Are the resources on ShipItHQ suitable for beginners?",
-        answer: "Yes! Our resources are designed to cater to all levels, from beginners to advanced learners. For each language, we provide structured content with easy-to-follow explanations, practical examples, and exercises to reinforce your learning."
+        question: "How is this different from LeetCode?",
+        answer: "LeetCode gives you problems; ShipItHQ gives you the whole loop from practice to portfolio to interview. Practice is organised by pattern rather than by problem count, hints nudge rather than reveal, and the same account also builds the projects you talk about in an interview and runs the mock interview where you talk about them."
     },
     {
         id: "item-3",
-        question: "Do I get a certificate after completing a course?",
-        answer: "Currently, we do not offer certificates for completing individual lessons or resources. However, you can track your progress and gain skills that are highly valuable in the industry. We're working on integrating certifications in the future."
+        question: "Does my code actually run?",
+        answer: "Yes - in a real Linux container, not a browser emulator. JavaScript, TypeScript, Python, Java, C and C++ execute server-side with the real toolchain, so your program behaves the way it would on your own machine rather than in a simulated subset."
     },
     {
         id: "item-4",
-        question: "Can I ask questions or get help if I am stuck?",
-        answer: "Yes - you can reach our support team any time, and the AI tools (mock interviews, resume, project mentor) give you personalized, on-demand guidance as you build."
+        question: "What are the mock interviews like?",
+        answer: "They are spoken conversations with an AI interviewer, not multiple-choice quizzes. You talk through the round, the interviewer asks follow-up questions, and afterwards you get a transcript plus scored feedback on communication, technical depth and problem-solving with specific moments quoted back to you."
     },
     {
         id: "item-5",
-        question: "Is there a way to practice coding on ShipItHQ?",
-        answer: "Absolutely! Many of our lessons include coding exercises you can complete directly on the platform. We also provide project-based exercises to help you apply what you've learned to real-world scenarios."
+        question: "How do credits work?",
+        answer: "ShipItHQ is credit-based and every new account starts with 100 free credits, no card required. Credits are spent on AI operations - generating a project, tailoring a resume, running a mock interview - and each operation shows its cost before you confirm. Credits never expire, and if an AI operation fails, the credits are refunded automatically."
     },
     {
         id: "item-6",
-        question: "How often are new resources or courses added?",
-        answer: "We frequently update and expand our content based on industry trends and user feedback. New courses, languages, and topics are added regularly, so check back often for the latest resources."
+        question: "Can it tailor my resume to a specific job?",
+        answer: "Yes. Paste a job description and ShipItHQ writes a tailored copy of your existing resume rather than asking you to re-enter your experience. Your original is never overwritten - the tailored version is saved as a separate resume - and it will not invent employers, dates or skills you have not listed."
     },
     {
         id: "item-7",
-        question: "Do I need any prior experience to start learning on ShipItHQ?",
-        answer: "No prior experience is needed! We offer beginner-friendly tutorials and step-by-step guides for every programming language. If you're new to coding, you can start with our foundational courses and work your way up."
+        question: "Do I need experience to start?",
+        answer: "No, but this is a platform for people who already write some code. If you are learning your first language, start with a language course elsewhere and come back when you can solve a basic problem unaided - practice here assumes you can read and write code, and the projects assume you can run a development environment."
     },
     {
         id: "item-8",
-        question: "Are there any costs associated with using ShipItHQ?",
-        answer: "ShipItHQ is credit-based - new accounts start with free credits, and you can top up whenever you want to run more AI generations, mock interviews, or assessments. See the pricing page for details."
+        question: "Do I get a certificate?",
+        answer: "No, and that is deliberate. What you get instead is evidence a hiring manager can check: deployed projects with commit history, a public profile, and a record of what you have actually solved. A certificate from a platform nobody has heard of does less for you than one project you can explain in detail."
     },
     {
         id: "item-9",
-        question: "Can I access ShipItHQ on mobile devices?",
-        answer: "Yes, ShipItHQ is accessible on mobile devices, so you can learn on the go. The website is optimized for mobile, allowing you to access resources, watch tutorials, and even participate in coding exercises from your smartphone or tablet."
-    },
+        question: "Does it work on a phone?",
+        answer: "Most of it does. Reading problems, reviewing projects, running mock interviews and editing your resume all work on a phone. Writing and running code is a desktop job - a code editor on a 360px screen is a worse experience than we are willing to ship."
+    }
 ];
 
 export default function FaqsAccrodian() {

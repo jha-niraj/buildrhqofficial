@@ -16,8 +16,8 @@ import { APP_URL } from "@/lib/site"
 const securityFeatures = [
     {
         icon: Lock,
-        title: "Encrypted Transactions",
-        desc: "AES-256 encryption for all payment data."
+        title: "Secure Checkout",
+        desc: "Card details go straight to our payment provider and never touch our servers."
     },
     {
         icon: Infit,
@@ -26,8 +26,8 @@ const securityFeatures = [
     },
     {
         icon: Server,
-        title: "Instant Provisioning",
-        desc: "Compute resources allocated immediately upon payment."
+        title: "Instant Top-Up",
+        desc: "Credits land on your account the moment payment clears."
     }
 ]
 

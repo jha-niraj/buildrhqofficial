@@ -3,20 +3,21 @@
 Derived from `overview.md`. Every task traces to a line in its definition of done;
 a task that traces to nothing is scope creep and gets deleted.
 
-**Nothing here has been started.** This directory is the plan; the work is
-sequenced below and waiting on a go-ahead.
+**Content truth (WEB-1, 3, 4, 5, 6) is done** - see the per-task records below.
+WEB-2 is blocked on a decision only Niraj can make. Everything from WEB-10 onward
+is not started.
 
 ## Status at a glance
 
 | ID | Task | Serves | Status |
 |---|---|---|---|
 | **Content truth** - blocks everything in the 30s | | | |
-| WEB-1 | Audit every product claim on the site against the codebase | 1 | not started |
-| WEB-2 | Resolve the testimonials question | 2 | not started |
-| WEB-3 | Reconcile pricing copy against `packages/pricing` | 1, 2 | not started |
-| WEB-4 | Delete the Studio section | 1 | not started |
-| WEB-5 | Strip multiplayer language from the projects section | 1 | not started |
-| WEB-6 | Audit the FAQ answers | 1 | not started |
+| WEB-1 | Audit every product claim on the site against the codebase | 1 | **done (2026-08-20)** |
+| WEB-2 | Resolve the testimonials question | 2 | **blocked - needs Niraj** |
+| WEB-3 | Reconcile pricing copy against `packages/pricing` | 1, 2 | **done (2026-08-20)** |
+| WEB-4 | Delete the Studio section | 1 | **done (2026-08-20)** |
+| WEB-5 | Strip multiplayer language from the projects section | 1 | **done (2026-08-20)** |
+| WEB-6 | Audit the FAQ answers | 1 | **done (2026-08-20)** |
 | **Navigation** | | | |
 | WEB-10 | Write the Features page | 1, 3 | not started |
 | WEB-11 | Research + write the Compare pages | 2, 3 | not started |
@@ -55,83 +56,135 @@ sequenced below and waiting on a go-ahead.
 
 ### WEB-1 - Audit every product claim
 
-**Status:** not started
+**Status:** done (2026-08-20)
 **Serves:** DoD 1
-**Blocks:** WEB-4, WEB-5, WEB-6, WEB-10, WEB-32, WEB-35
 
-Work through the table in `01-content-truth.md`. For each claim, find the route,
-action or table implementing it and **write the path into this task as evidence**.
-Empty search = the claim is deleted.
+The real product, read from `apps/main/lib/navigation.ts` - which carries its own
+note: *"KnowMe & Pathfinder are parked (code kept, hidden from nav). Chat/Inbox,
+University, and the stub mock modes were removed."*
 
-Known already, from the audit:
-- Studio: `apps/main/app/(main)/studios` does not exist -> WEB-4
-- Projects: stripped to a single user in `cfdb356`; members, invitations,
-  leaderboards, feature suggestions dropped in migration `0011` -> WEB-5
-- "Skill Certification": nothing in the product -> delete
-- "cloud-based sandboxes": TRUE, `apps/shipitworker` -> keep and promote (WEB-34)
+| module | sub-items | reachable |
+|---|---|---|
+| Home | - | yes |
+| Practice | DSA, System Design, Web Frontend, Web Backend | yes |
+| Projects | Ideas, My Projects, All Projects | yes |
+| Mock Interview | Voice Mock | yes |
+| AI Tools | Job Interview, Resume, Cover Letter | yes |
+| Jobs | - | yes (`app/(jobs)`) |
+| KnowMe, Pathfinder | - | **parked** - routes exist, hidden from nav |
+| Studio, Open Source, University, Chat | - | **gone** |
 
-Still to check: adaptive difficulty, coding-velocity analytics, "roadmaps designed
-by Senior Engineers", the project cards in `projects-section`.
+**Verdicts.** Every claim checked against a route or an action:
 
-**Verification:** a written list, claim by claim, each marked keep / rewrite /
-delete with a file path or a deletion reason.
+| claim | verdict | evidence |
+|---|---|---|
+| Studio: notes, spaced repetition, "40+ languages in your notes" | **deleted** | no `studios` route; and the executor supports 6 languages, not 40+ |
+| Hero slide "Project Studio" | **renamed** to Projects | copy underneath already described Projects |
+| Hero slide "Open Source" | **deleted** | `opensource.ts` has 20 tables and no route - unreachable |
+| "Adaptive Learning - AI adjusts difficulty on real-time performance" | **deleted** | no adaptive-difficulty code in the practice module |
+| "Skill Telemetry - coding velocity, error rates, algorithmic efficiency" | **deleted** | no such analytics exist |
+| "Polyglot Sandbox - execute in the browser" | **rewritten** | execution is server-side in a container (`apps/shipitworker`), not in the browser |
+| "Skill Certification" | **deleted** | nothing issues a certificate |
+| "Roadmaps designed by Senior Engineers" | **rewritten** | unverifiable authorship claim |
+| "Earn credits by merging PRs" | **deleted** | opensource module unreachable, no PR-merge grant exists |
+| "cloud-based sandboxes" | **kept and promoted** | TRUE - `apps/shipitworker`, real Linux container |
+| "Credits never expire" | **kept** | TRUE - no expiry logic anywhere |
+| Project showcase cards | **labelled** | invented briefs sitting beside real DB counts - now labelled "Example briefs" |
+| FAQ (all 9) | **rewritten** | described a language-tutorial product - see WEB-6 |
+| Pricing trust claims | **rewritten** | see WEB-3 |
+
+**One correction made during the work, worth recording.** The replacement credits
+copy first said "200 credits" from a dashboard screenshot. `SIGNUP_GRANT_CREDITS`
+in `apps/main/lib/credits/grant.ts:28` is **100**. Caught before commit by checking
+the constant - which is the entire point of the research gate, and it nearly failed
+on the person applying it.
 
 ### WEB-2 - Testimonials
 
-**Status:** not started
+**Status:** BLOCKED - needs Niraj
 **Serves:** DoD 2
 
-For each testimonial: is this a real person, and did they agree to be quoted?
-Anything without both is deleted. Not softened, not made anonymous - deleted.
+Not actionable from the repo. `testimonials-section.tsx` renders named quotes and
+nothing in the codebase says whether those people are real or consented.
 
-This is called out separately from WEB-1 because it carries legal weight the other
-claims do not, and because "it is obviously placeholder" stops being obvious the
-moment the site is live.
+**The question:** for each testimonial, is this a real person, and did they agree to
+be quoted? Anything without both gets deleted - not softened, not anonymised.
 
-**Blocks:** any port of `testimonials.tsx`.
-**Verification:** every remaining testimonial has a name and a recorded consent.
+Kept separate from WEB-1 because it carries legal weight the other claims do not.
+**Blocks** any port of the reference's `testimonials.tsx`.
 
 ### WEB-3 - Pricing copy vs code
 
-**Status:** not started
+**Status:** done (2026-08-20)
 **Serves:** DoD 1, 2
 
-Reconcile every price and inclusion in `pricing-section.tsx` and `/pricing`
-against `packages/pricing` and `apps/main/lib/credits/pricing.ts`. Credit costs
-are in code and are the source of truth.
+Plan and price data already come from `@repo/pricing` via `pricing-bento`, so the
+numbers are structurally correct - nothing to reconcile there.
 
-**Verification:** each row traces to a constant.
+Three trust claims below the table were not:
+
+- "Encrypted Transactions / AES-256 encryption for all payment data" - an
+  unverifiable security claim about infrastructure we do not own. Now "Secure
+  Checkout / card details go straight to our payment provider and never touch our
+  servers", which is true of the hosted Razorpay checkout the app loads.
+- "Instant Provisioning / compute resources allocated immediately upon payment" -
+  jargon that overstates. Nothing is provisioned; credits land. Now "Instant
+  Top-Up".
+- "Perpetual Credits / credits never expire" - **verified true**, no expiry logic
+  exists. Kept.
 
 ### WEB-4 - Delete the Studio section
 
-**Status:** not started
+**Status:** done (2026-08-20)
 **Serves:** DoD 1
-**Blocked by:** WEB-1
 
-Delete `studio-section.tsx` and its import. Not a rewrite - there is no adjacent
-true claim to rewrite it into.
+`studio-section.tsx` deleted, import and `<section id="studio">` removed from
+`app/page.tsx`. The hero's "Project Studio" slide was renamed rather than deleted -
+its copy described Projects, which exists.
 
-**Verification:** no reference to studio, notes or spaced repetition on the site.
+**Verification:** no reference to studio, notes or spaced repetition remains in
+`apps/web/app` or `apps/web/components`.
 
 ### WEB-5 - Strip multiplayer language
 
-**Status:** not started
+**Status:** done (2026-08-20)
 **Serves:** DoD 1
-**Blocked by:** WEB-1
 
-Projects are single-user now. Remove every team, collaboration, leaderboard and
-invite implication.
+**This one found less than expected, and the reason matters.** The grep for
+collaborate / team / leaderboard / invite returned four hits and none was a false
+product claim:
 
-**Verification:** grep the site for collaborate / team / leaderboard / invite;
-every hit is either gone or true.
+- "Open source projects built by the community" and "Shipped by our community"
+  describe the **public registry** (`projects/allprojects`), which exists. Projects
+  being single-user means you cannot have teammates on YOUR project; it does not
+  mean other people's projects are invisible. Kept.
+- "Realtime Collab Editor" is a project a USER builds, not a platform feature.
+  Kept, now under an "Example briefs" label.
+
+The real defect in that section was different: six invented project titles rendered
+directly beside counts that are read from the database, so a visitor reads them as
+six shipped projects. Labelled, with a comment explaining why it must stay labelled.
 
 ### WEB-6 - FAQ audit
 
-**Status:** not started
+**Status:** done (2026-08-20)
 **Serves:** DoD 1
-**Blocked by:** WEB-1
 
-Every answer is a claim and gets the same treatment.
+Not an audit in the end - a rewrite. All nine questions described **a different
+product**: courses, lessons, videos, certificates for completing a course, "new
+languages added regularly", "beginner-friendly tutorials for every programming
+language". None of that exists here; it is inherited from an earlier
+language-tutorial site (the Cloudinary folder was still called `thecoderz`).
+
+Replaced with nine answers checked against routes, written **answer-first** - the
+first sentence answers the question and stands alone, which is the form AI
+Overviews and assistants quote. That also serves `../seo/SEO-21` before it starts.
+
+The new set answers what a visitor actually asks: what is this, how is it different
+from LeetCode, does my code really run, what are the mock interviews like, how do
+credits work, can it tailor my resume, do I need experience, do I get a certificate
+(no - and why that is deliberate), does it work on a phone (mostly - and which part
+does not).
 
 ---
 

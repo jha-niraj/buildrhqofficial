@@ -3,6 +3,16 @@
 **Serves:** definition of done 1, 2
 **Blocks:** everything in `04-landing-composition.md`
 
+> **STATUS: complete as of 2026-08-20**, except the testimonials question (WEB-2),
+> which needs a decision only Niraj can make. The audit results and every verdict
+> are recorded in `tasks.md` under WEB-1. This file is kept as the reasoning behind
+> that work, not as an open to-do list.
+>
+> Two findings the audit added that were not predicted here: the FAQ described a
+> different product entirely (nine answers about courses, lessons and videos), and
+> the "Earn credits by merging PRs" claim was unreachable because the opensource
+> module has tables but no route.
+
 ## The finding
 
 The landing page renders a `StudioSection` selling a notes product with spaced

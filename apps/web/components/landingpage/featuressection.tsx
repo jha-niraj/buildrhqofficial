@@ -7,21 +7,25 @@ import {
 import { Button } from '@repo/ui/components/ui/button';
 import Link from 'next/link';
 
+// Every line here is checked against a route in apps/main. Three claims were removed
+// on 2026-08-20 because nothing implemented them: adaptive difficulty, coding-velocity
+// analytics, and "execute in the browser" (the executor is a server-side container).
+// If a claim goes in, find the code first - see plan/web/polish/01-content-truth.md.
 const features = [
     {
         icon: BrainCircuit,
-        title: "Adaptive Learning",
-        description: "AI that adjusts problem difficulty based on your real-time performance metrics."
+        title: "Pattern-First Practice",
+        description: "DSA, system design, frontend and backend sets organised by pattern, with hints that nudge instead of hand over the answer."
     },
     {
         icon: Code2,
-        title: "Polyglot Sandbox",
-        description: "Execute Python, Java, C++, and JS code directly in the browser with near-native performance."
+        title: "Real Linux Sandbox",
+        description: "Your code runs in an actual Linux container - JavaScript, TypeScript, Python, Java, C and C++ - not a browser emulator."
     },
     {
         icon: BarChart3,
-        title: "Skill Telemetry",
-        description: "Detailed analytics on your coding velocity, error rates, and algorithmic efficiency."
+        title: "Progress You Can See",
+        description: "Solved counts, streaks and XP across every track, so you know what you have actually covered."
     },
     {
         icon: GitMerge,

@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { cn } from "@repo/ui/lib/utils";
 
 import Navbar from "@/components/landingpage/homepagenavbar";
-import StudioSection from "@/components/landingpage/studio-section";
 import FeaturesSection from "@/components/landingpage/featuressection";
 import AIToolsSection from "@/components/landingpage/aitoolssection";
 import ProjectsSection from "@/components/landingpage/projects-section";
@@ -32,9 +31,6 @@ export default function LandingPage() {
             <main className={cn("relative bg-white dark:bg-neutral-900")}>
                 <section id="hero">
                     <HeroSection />
-                </section>
-                <section id="studio">
-                    <StudioSection />
                 </section>
                 <section id="mainfeatures">
                     <FeaturesSection />

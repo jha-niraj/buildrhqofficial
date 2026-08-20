@@ -12,7 +12,7 @@ const features = [
     {
         icon: BookOpen,
         title: "Structured Paths",
-        description: "Curated roadmaps designed by Senior Engineers, not content creators."
+        description: "Every project arrives as sprints and tasks with acceptance criteria, not a blank repo."
     },
     {
         icon: Terminal,
@@ -26,8 +26,8 @@ const features = [
     },
     {
         icon: Trophy,
-        title: "Skill Certification",
-        description: "Validate your expertise with rigorous, project-based assessments."
+        title: "Project Assessments",
+        description: "Finish a project and answer a generated quiz on what you actually built."
     }
 ]
 

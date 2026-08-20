@@ -11,8 +11,14 @@ import { Skeleton } from "@repo/ui/components/ui/skeleton"
 import { getProjectsPageStats } from "@/actions/stats.action"
 import { APP_URL } from "@/lib/site"
 
-// Marketing showcase - a static, curated preview of the kind of projects the
-// community ships. The live, data-backed registry lives in the app (main).
+// Marketing showcase - EXAMPLE briefs, not real user projects.
+//
+// These sit directly beside counts that ARE real (getProjectsPageStats reads the
+// database), so without the "Example briefs" label above the grid a visitor reads
+// six invented titles as six shipped projects. Either label them or replace them
+// with real registry rows; do not quietly un-label them.
+//
+// The live, data-backed registry lives in the app (main).
 const SHOWCASE = [
     { title: "Realtime Collab Editor", stack: "Next.js · WebSockets · Postgres", tag: "Full-stack" },
     { title: "Distributed Rate Limiter", stack: "Go · Redis · gRPC", tag: "Systems" },
@@ -182,6 +188,9 @@ export default function ProjectsSection() {
                     </div>
                 </motion.div>
 
+                <p className="mb-4 text-xs font-medium uppercase tracking-[0.14em] text-neutral-400 dark:text-neutral-500">
+                    Example briefs
+                </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {SHOWCASE.map((p) => (
                         <div
