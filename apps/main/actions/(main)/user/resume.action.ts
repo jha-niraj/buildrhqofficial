@@ -23,9 +23,25 @@ async function extractTextFromPDFBuffer(buffer: ArrayBuffer): Promise<string> {
 async function extractTextFromDOCXBuffer(buffer: ArrayBuffer): Promise<string> {
     try {
         const mammoth = await import("mammoth")
-        const result = await mammoth.extractRawText({ arrayBuffer: buffer })
+
+        // `{ arrayBuffer }` is the BROWSER build's input. The server build wants
+        // `{ buffer: Buffer }` and rejects an ArrayBuffer with "Could not find
+        // file in options" - which the catch below then swallowed, so every DOCX
+        // upload extracted nothing, dispatched no structuring job, and told the
+        // user we could not read their file.
+        //
+        // Buffer exists here (the Worker runs with nodejs_compat), so prefer it
+        // and keep the arrayBuffer form as the fallback for a browser bundle.
+        const result = typeof Buffer !== "undefined"
+            ? await mammoth.extractRawText({ buffer: Buffer.from(buffer) })
+            : await mammoth.extractRawText({ arrayBuffer: buffer })
+
         return result.value?.trim() ?? ""
-    } catch {
+    } catch (error: unknown) {
+        // Logged rather than silent: an extractor that returns "" is
+        // indistinguishable from a scanned PDF, and that ambiguity is exactly
+        // what hid the bug above.
+        console.error("mammoth extraction error:", error)
         return ""
     }
 }

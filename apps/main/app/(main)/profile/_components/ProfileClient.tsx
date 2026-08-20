@@ -24,6 +24,7 @@ import { AddWorkExperienceSheet } from "@/components/profile/sheets/add-work-exp
 import { AddEducationSheet } from "@/components/profile/sheets/add-education-sheet";
 import { AddProjectSheet } from "@/components/profile/sheets/add-project-sheet";
 import { getOwnProfile, getUserProfileStats } from "@/actions/(main)/user/profile.action";
+import { uploadResume, deleteResume, getResumeSignedUrl } from "@/actions/(main)/user/resume.action";
 import { ProfileSkeleton } from "@/components/profile/profile-view-skeleton";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -170,6 +171,7 @@ export default function ProfilePage() {
     const [experienceOpen, setExperienceOpen] = useState(false);
     const [educationOpen, setEducationOpen] = useState(false);
     const [projectOpen, setProjectOpen] = useState(false);
+    const [resumeBusy, setResumeBusy] = useState(false);
 
     const loadProfile = useCallback(async () => {
         setIsLoading(true);
@@ -210,6 +212,64 @@ export default function ProfilePage() {
     }, []);
 
     useEffect(() => { loadProfile(); }, [loadProfile]);
+
+    // ── Resume ────────────────────────────────────────────────────────────────
+    // The SAME pipeline onboarding uses: `uploadResume` stores the file on R2,
+    // extracts its text with unpdf (PDF) or mammoth (DOCX), and dispatches the
+    // `resume_structure` worker job that turns that text into a structured,
+    // editable draft - defaulted if the user has none yet.
+    //
+    // The third argument is what names that draft. Omitting it is not an error,
+    // it just produces "Imported resume" instead of something recognisable.
+    const handleUploadResume = useCallback(async (file: File) => {
+        setResumeBusy(true);
+        try {
+            const result = await uploadResume(file, undefined, { draftName: "My resume" });
+            if (!result.success) {
+                toast.error(result.message ?? "Could not upload that file");
+                return;
+            }
+            if (result.structureJobId) {
+                // The parse runs off the request path and lands minutes later. Say
+                // so, or the structured draft appearing at /ai/resume looks like
+                // something the user did not ask for.
+                toast.success("Resume uploaded. We're reading it now - an editable version will appear in your Resume Builder shortly.");
+            } else {
+                // Stored and viewable, but no text came out of it - almost always a
+                // scanned or image-only PDF. Silently succeeding here is how a user
+                // ends up wondering why their AI resume never showed up.
+                toast.warning("Resume saved, but we could not read any text from it. If it is a scanned PDF, upload a text-based export to use the AI features.");
+            }
+            await refreshProfileData();
+        } catch {
+            toast.error("Failed to upload resume");
+        } finally {
+            setResumeBusy(false);
+        }
+    }, [refreshProfileData]);
+
+    // Fetched on click rather than held on the page: the URL is time-limited and
+    // would expire while an open tab sat idle.
+    const handleViewResume = useCallback(async () => {
+        const res = await getResumeSignedUrl();
+        if (res?.url) window.open(res.url, "_blank");
+        else toast.error("Could not open your resume");
+    }, []);
+
+    const handleDeleteResume = useCallback(async () => {
+        // Removes the stored file AND the extracted text, and is not undoable.
+        if (!window.confirm("Delete your resume? This removes the file and the text we extracted from it.")) return;
+        setResumeBusy(true);
+        try {
+            await deleteResume();
+            toast.success("Resume deleted");
+            await refreshProfileData();
+        } catch {
+            toast.error("Failed to delete resume");
+        } finally {
+            setResumeBusy(false);
+        }
+    }, [refreshProfileData]);
 
     const onSheetSuccess = useCallback(() => {
         void refreshProfileData();
@@ -321,6 +381,10 @@ export default function ProfilePage() {
                 onAddExperience={() => setExperienceOpen(true)}
                 onAddEducation={() => setEducationOpen(true)}
                 onAddProject={() => setProjectOpen(true)}
+                onUploadResume={handleUploadResume}
+                onViewResume={handleViewResume}
+                onDeleteResume={handleDeleteResume}
+                resumeBusy={resumeBusy}
             />
 
             {/* ── Modals & sheets ── */}

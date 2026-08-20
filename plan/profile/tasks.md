@@ -9,6 +9,7 @@ Derived from `overview.md`.
 | PRF-3 | Rebuild `/profile/[username]` on it | 1, 2, 5 | done (2026-08-20) |
 | PRF-4 | Match the loading skeletons to the new layout | 4 | done (2026-08-20) |
 | PRF-5 | List the superseded tabbed generation for Niraj | - | done (2026-08-20) |
+| PRF-6 | Resume upload on the profile page | 2 | done (2026-08-20) |
 
 ---
 
@@ -164,6 +165,85 @@ Loading and loaded states have the same silhouette on both routes.
 Group E exists in `candidates.md` with an accurate line count, and the barrel
 exports only what the live pages use.
 
+
+---
+
+## PRF-6 - Resume upload on the profile page
+
+**Status:** done (2026-08-20)
+**Serves:** definition-of-done 2 (nothing a user could do before is gone)
+
+**Why.** The profile shows "Resume on file" and links to `/ai/resume`, but there
+is no way to put a resume there from this page. The control existed in
+`resume-tab.tsx`, which was already unreachable before this session - so the gap
+predates the rewrite, but the rewrite is the moment to close it.
+
+It must be the **same pipeline as onboarding**, not a second one: file ->
+`uploadResume` -> R2 + `unpdf`/`mammoth` text extraction -> `resume_structure`
+worker job -> structured draft, defaulted if the user has none.
+
+**Files**
+- edit: `components/profile/profile-view.tsx` - the control
+- edit: `app/(main)/profile/_components/ProfileClient.tsx` - the handlers
+
+**Steps**
+1. `ProfileView` gains `onUploadResume(file)`, `onDeleteResume()`,
+   `onViewResume()` and their pending flags. The view owns the input and the
+   client-side validation; it does not call a server action itself.
+2. `ProfileClient` implements them against the existing
+   `uploadResume` / `deleteResume` / `getResumeSignedUrl` actions.
+
+**Edge cases**
+- **Exactly the onboarding call.** `uploadResume(file, undefined, { draftName })`
+  - the third argument is what names the draft the worker creates. Omitting it
+  silently produces "Imported resume" instead.
+- **Validate before upload** with `validateResumeFile` (5MB, pdf/doc/docx). It is
+  a pure client function, so it does not break the view's presentation-only rule.
+- **A scanned PDF yields no text**, so `uploadResume` returns no
+  `structureJobId`. Say so - the file is stored and viewable, but nothing will be
+  parsed from it. Silently succeeding here is how a user ends up wondering why
+  their AI resume never appeared.
+- **The parse lands minutes later**, off the request path. The success toast has
+  to set that expectation or the structured draft showing up at `/ai/resume`
+  looks like something they did not ask for.
+- **`hasResume` is on the profile row**, so the section only flips to "on file"
+  after a refresh. Call the existing `refreshProfileData` on success.
+- **Replacing** is the same call as uploading - no separate path. The worker is
+  `singleFlight`, and it re-reads the newest text at alarm time, so a quick
+  re-upload structures the latest file rather than racing two jobs.
+- **Deleting must confirm.** It removes the R2 object and the extracted text, and
+  it is not undoable.
+- **`getResumeSignedUrl` is async and time-limited**; fetch it on click rather
+  than holding a URL that expires while the page sits open.
+- **Owner only.** The whole section is already behind `isOwn`; the upload control
+  must not leak into the public view.
+
+**Done when**
+A user with no resume can upload one from `/profile`, sees it become "Resume on
+file", can view and delete it, and the structured draft appears at `/ai/resume`
+shortly after - the same outcome as uploading during onboarding.
+
+**Outcome.** `ProfileClient` calls
+`uploadResume(file, undefined, { draftName: "My resume" })` - byte-identical to
+onboarding's call - so both go through the one pipeline: R2 + `unpdf`/`mammoth`
+-> `resume_structure` Durable Object -> structured draft, defaulted if the user
+has none. View and Delete use the existing `getResumeSignedUrl` / `deleteResume`.
+
+**A production bug found while testing this.** `extractTextFromDOCXBuffer`
+called `mammoth.extractRawText({ arrayBuffer })`. That is the BROWSER build's
+input; the server build wants `{ buffer: Buffer }` and rejects an ArrayBuffer
+with "Could not find file in options" - which the surrounding `catch { return "" }`
+swallowed. So **every DOCX upload extracted nothing**, dispatched no structuring
+job, and told the user their file was unreadable. It affected every upload
+surface: onboarding, the resume hub, the interview assistant, and now this page.
+
+Fixed to prefer `{ buffer }` with the arrayBuffer form as a browser fallback, and
+the catch now logs instead of failing silently - an extractor returning `""` was
+indistinguishable from a genuinely scanned PDF, which is exactly what hid this.
+
+**Verified** by running both branches against a generated PDF and a generated
+DOCX: 251 and 257 characters extracted, both over the worker's 200-character
+floor, so both dispatch the structuring job.
 
 ---
 

@@ -195,16 +195,10 @@ barrel (`components/profile/index.ts`) no longer exports them.
 
 ## Two notes before you decide
 
-- **CLN-39 (`resume-tab.tsx`) was edited earlier this session** - it carries the
-  resume-upload wiring that dispatches the `resume_structure` worker job. That
-  work is not lost: the same upload path exists in
-  `components/profile/tabs/work-experience-tab.tsx`... which is also on this
-  list. **The live upload surfaces are `/ai/resume` (the hub's Upload source) and
-  onboarding**, both of which call the same `uploadResume` action. So the
-  profile page currently has no resume UPLOAD control, only a "Resume on file"
-  readout linking to `/ai/resume`. If you want upload back on the profile page
-  itself, say so and I will add it to the shared view - it is a small addition,
-  not a reason to keep 555 lines.
+- **CLN-39 (`resume-tab.tsx`) carried the resume-upload control.** That control
+  now lives in the shared `profile-view.tsx` (upload, view, replace, delete),
+  wired to the same `uploadResume` pipeline as onboarding - see
+  `plan/profile/tasks.md:PRF-6`. Nothing is lost by removing this file.
 
 - **`components/profile/sheets/*` are all still live** and are NOT on this list:
   `add-skills-sheet`, `add-work-experience-sheet`, `add-education-sheet`,

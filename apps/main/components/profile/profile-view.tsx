@@ -1,16 +1,19 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import {
     Pencil, Share2, Settings, Plus, MapPin, Building2, Globe, GraduationCap,
     Briefcase, Sparkles, Zap, FolderKanban, Users, ExternalLink, Calendar,
-    FileText, ArrowRight, UserPlus, UserCheck, Loader2,
+    FileText, ArrowRight, UserPlus, UserCheck, Loader2, Upload, Eye, Trash2,
 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { cn } from "@repo/ui/lib/utils";
+import toast from "@repo/ui/components/ui/sonner";
+import { validateResumeFile } from "@/lib/resume-extractor.client";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // The profile page. Both of them.
@@ -99,6 +102,14 @@ export interface ProfileViewProps {
     onAddEducation?: () => void;
     onAddProject?: () => void;
 
+    // ── Resume. Owner only. The view owns the input and the client-side size /
+    //    type check; the actual upload is the caller's, so this component stays
+    //    free of server actions.
+    onUploadResume?: (file: File) => void | Promise<void>;
+    onViewResume?: () => void | Promise<void>;
+    onDeleteResume?: () => void | Promise<void>;
+    resumeBusy?: boolean;
+
     // ── Visitor actions.
     isFollowing?: boolean;
     followPending?: boolean;
@@ -166,8 +177,24 @@ function dateRange(start: Date | string | null | undefined, end: Date | string |
 export function ProfileView({
     profile, stats, isOwn,
     onEdit, onShare, onAddSkills, onAddExperience, onAddEducation, onAddProject,
+    onUploadResume, onViewResume, onDeleteResume, resumeBusy,
     isFollowing, followPending, onFollow,
 }: ProfileViewProps) {
+    const resumeInputRef = useRef<HTMLInputElement>(null);
+
+    const handleResumeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        // Reset immediately so picking the SAME file twice still fires a change
+        // event - the usual "I fixed the file and re-picked it" case.
+        e.target.value = "";
+        if (!file || !onUploadResume) return;
+        const check = validateResumeFile(file);
+        if (!check.valid) {
+            toast.error(check.error ?? "Unsupported file");
+            return;
+        }
+        void onUploadResume(file);
+    };
     // XP inside the current level. Levels are 1000 XP wide, so the bar shows the
     // remainder - a lifetime total would sit at ~100% forever and say nothing.
     const xpIntoLevel = stats.xp % 1000;
@@ -496,18 +523,97 @@ export function ProfileView({
                         business. */}
                     {isOwn && (
                         <Section title="Resume" icon={FileText}>
+                            {/* One input for both upload and replace - replacing IS
+                                uploading, and the worker re-reads the newest text
+                                when its alarm fires. */}
+                            <input
+                                ref={resumeInputRef}
+                                type="file"
+                                accept=".pdf,.doc,.docx,application/pdf"
+                                className="hidden"
+                                onChange={handleResumeFile}
+                            />
+
                             {profile.hasResume ? (
-                                <div className="flex items-center justify-between gap-3 rounded-xl border border-neutral-100 p-3.5 dark:border-neutral-800">
-                                    <div className="flex items-center gap-2.5">
-                                        <FileText className="h-4 w-4 text-neutral-900 dark:text-white" />
-                                        <span className="text-sm text-neutral-700 dark:text-neutral-300">Resume on file</span>
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between gap-3 rounded-xl border border-neutral-100 p-3.5 dark:border-neutral-800">
+                                        <div className="flex min-w-0 items-center gap-2.5">
+                                            <FileText className="h-4 w-4 shrink-0 text-neutral-900 dark:text-white" />
+                                            <span className="truncate text-sm text-neutral-700 dark:text-neutral-300">
+                                                Resume on file
+                                            </span>
+                                        </div>
+                                        {onViewResume && (
+                                            <button
+                                                type="button"
+                                                onClick={() => void onViewResume()}
+                                                className="inline-flex shrink-0 cursor-pointer items-center gap-1 text-sm font-medium text-neutral-900 hover:underline dark:text-white"
+                                            >
+                                                <Eye className="h-3.5 w-3.5" /> View
+                                            </button>
+                                        )}
                                     </div>
-                                    <Link
-                                        href="/ai/resume"
-                                        className="inline-flex items-center gap-1 text-sm font-medium text-neutral-900 hover:underline dark:text-white"
+
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        {onUploadResume && (
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="gap-1.5"
+                                                disabled={resumeBusy}
+                                                onClick={() => resumeInputRef.current?.click()}
+                                            >
+                                                {resumeBusy
+                                                    ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                    : <Upload className="h-3.5 w-3.5" />}
+                                                Replace
+                                            </Button>
+                                        )}
+                                        {onDeleteResume && (
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="gap-1.5 text-neutral-500 hover:text-red-600"
+                                                disabled={resumeBusy}
+                                                onClick={() => void onDeleteResume()}
+                                            >
+                                                <Trash2 className="h-3.5 w-3.5" /> Delete
+                                            </Button>
+                                        )}
+                                        <Link
+                                            href="/ai/resume"
+                                            className="ml-auto inline-flex items-center gap-1 text-sm font-medium text-neutral-900 hover:underline dark:text-white"
+                                        >
+                                            Resume Builder <ArrowRight className="h-3 w-3" />
+                                        </Link>
+                                    </div>
+                                </div>
+                            ) : onUploadResume ? (
+                                <div className="space-y-3">
+                                    <button
+                                        type="button"
+                                        disabled={resumeBusy}
+                                        onClick={() => resumeInputRef.current?.click()}
+                                        className={cn(
+                                            "flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed p-6 text-center transition-colors",
+                                            "border-neutral-300 hover:border-neutral-500 dark:border-neutral-700 dark:hover:border-neutral-500",
+                                            resumeBusy && "cursor-not-allowed opacity-60",
+                                        )}
                                     >
-                                        Open <ArrowRight className="h-3 w-3" />
-                                    </Link>
+                                        {resumeBusy
+                                            ? <Loader2 className="h-5 w-5 animate-spin text-neutral-500" />
+                                            : <Upload className="h-5 w-5 text-neutral-500" />}
+                                        <span className="text-sm font-medium text-neutral-900 dark:text-white">
+                                            {resumeBusy ? "Uploading…" : "Upload your resume"}
+                                        </span>
+                                        <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                                            PDF or DOCX, up to 5MB
+                                        </span>
+                                    </button>
+                                    <p className="text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+                                        We read the text out of your file and let AI structure it into sections you
+                                        can edit. It powers the AI resume builder, cover letters and interview prep.
+                                    </p>
                                 </div>
                             ) : (
                                 <Empty text="No resume uploaded. It powers the AI resume builder, cover letters and interview prep." />
