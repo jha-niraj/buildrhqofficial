@@ -1,84 +1,30 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Resume Draft Content - the JSON stored in ResumeDraft.content
+// Resume Draft Content
+//
+// The content types and the text renderer now live in @repo/db, because
+// apps/worker reads and writes `resume_draft.content` too and the column is jsonb -
+// this contract is the only thing enforcing its shape, so a second copy of it is a
+// copy that will drift.
+//
+// Re-exported here so the existing `@/types/resume-draft` imports keep working.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export interface ResumeHeader {
-    name: string
-    email: string
-    phone?: string
-    location?: string
-    title?: string
-    summary?: string
-    website?: string
-    linkedin?: string
-    github?: string
-    portfolio?: string
-}
+export type {
+    ResumeHeader,
+    ResumeExperienceEntry,
+    ResumeProjectEntry,
+    ResumeEducationEntry,
+    ResumeSkillGroup,
+    ResumeCertificationEntry,
+    ResumeDraftContent,
+} from "@repo/db/resume"
 
-export interface ResumeExperienceEntry {
-    id: string
-    company: string
-    role: string
-    location?: string
-    startDate: string   // ISO date string
-    endDate?: string
-    current: boolean
-    bullets: string[]
-}
-
-export interface ResumeProjectEntry {
-    id: string
-    name: string
-    description?: string
-    technologies: string[]
-    github?: string
-    liveUrl?: string
-    bullets: string[]
-}
-
-export interface ResumeEducationEntry {
-    id: string
-    institution: string
-    degree?: string
-    field?: string
-    startDate: string
-    endDate?: string
-    bullets: string[]
-}
-
-export interface ResumeSkillGroup {
-    category: string
-    items: string[]
-}
-
-export interface ResumeCertificationEntry {
-    id: string
-    name: string
-    issuer?: string
-    date?: string
-    url?: string
-}
-
-export interface ResumeDraftContent {
-    header: ResumeHeader
-    experience: ResumeExperienceEntry[]
-    projects: ResumeProjectEntry[]
-    education: ResumeEducationEntry[]
-    skills: ResumeSkillGroup[]
-    certifications: ResumeCertificationEntry[]
-}
-
-// Blank content to start a new resume
-export function emptyResumeDraftContent(): ResumeDraftContent {
-    return {
-        header: { name: "", email: "" },
-        experience: [],
-        projects: [],
-        education: [],
-        skills: [],
-        certifications: [],
-    }
-}
+export {
+    emptyResumeDraftContent,
+    isResumeDraftContent,
+    coerceResumeDraftContent,
+    renderResumeText,
+} from "@repo/db/resume"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Template config for user-customised or platform templates

@@ -8,6 +8,8 @@ export { StandupVoice } from "./standup-voice"
 export { MockConversation } from "./mock-conversation"
 export { MockFeedback } from "./mock-feedback"
 export { ResumeStructure } from "./resume-structure"
+export { ResumeTailor } from "./resume-tailor"
+export { CoverLetter } from "./cover-letter"
 
 /**
  * Resolve the Durable Object that owns a job type.

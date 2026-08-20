@@ -81,9 +81,32 @@ export async function getResumeDrafts() {
     const session = await getSession(headers())
     if (!session?.user?.id) return { success: false, error: 'Unauthorized' }
 
+    // Explicit columns, and NOT `content`. This selected every column, which meant
+    // the full resume JSON of every draft was serialised into the page payload for
+    // cards that show a name, a badge and a date. With six resumes that is a lot of
+    // bytes nobody renders.
+    //
+    // Primaries sort first so the resume every other feature reads is the one at the
+    // top of the list.
     const drafts = await db.query.resumeDraft.findMany({
         where: eq(resumeDraft.userId, session.user.id),
-        orderBy: [desc(resumeDraft.updatedAt)],
+        columns: {
+            id: true,
+            name: true,
+            templateSlug: true,
+            isPublic: true,
+            shareSlug: true,
+            viewCount: true,
+            isDefault: true,
+            sourceDraftId: true,
+            tailoredFor: true,
+            tailoredForCompany: true,
+            atsScore: true,
+            importedFrom: true,
+            createdAt: true,
+            updatedAt: true,
+        },
+        orderBy: [desc(resumeDraft.isDefault), desc(resumeDraft.updatedAt)],
     })
     return { success: true, drafts }
 }
@@ -489,6 +512,21 @@ export async function scoreResumeAgainstJD(draftId: string, jobDescription: stri
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AI: Tailor resume bullets for a specific JD
+//
+// SUPERSEDED by `createTailoredResume` in `resume-primary.action.ts`. Do not call
+// this from new code, and do not reintroduce it in the editor.
+//
+// Two reasons it was replaced rather than fixed in place:
+//
+//   1. It rewrites the draft it is given - see the comment at the update below.
+//      Tailoring for one job therefore destroyed the user's master resume, and
+//      tailoring again ran against the already-narrowed copy, compounding it.
+//   2. It is an inline `gpt-4o` completion over a whole resume plus a whole job
+//      description, which is one of the longest calls in the product and does not
+//      survive a Cloudflare request.
+//
+// Kept, not deleted, per the "nothing is deleted" rule in
+// `srs/core-modules/README.md` - the decision on what to cut is Niraj's.
 // ─────────────────────────────────────────────────────────────────────────────
 export async function tailorResumeForJD(draftId: string, jobDescription: string, jobTitle: string) {
     const session = await getSession(headers())

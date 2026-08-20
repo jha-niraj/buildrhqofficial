@@ -138,5 +138,11 @@ secret and only needs a redeploy.
   machine-written. Search for them before committing:
 
   ```bash
-  grep -rn $'—\|–' apps packages --include="*.ts" --include="*.tsx" --include="*.md"
+  grep -rn -e "—" -e "–" apps packages --include="*.ts" --include="*.tsx" --include="*.md"
   ```
+
+  Use `-e` twice. The `$'—\|–'` form that was here before does NOT work: `\|`
+  alternation is a GNU extension, and macOS ships BSD grep, which reads it as the
+  literal string `—|–` and matches nothing. The check silently passed on every
+  run, which is how 13 source files acquired em dashes while the rule was in
+  force.

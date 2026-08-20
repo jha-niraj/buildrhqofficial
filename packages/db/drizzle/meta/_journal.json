@@ -85,6 +85,13 @@
       "when": 1787174675996,
       "tag": "0011_grey_sunspot",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1787210930458,
+      "tag": "0012_aberrant_random",
+      "breakpoints": true
     }
   ]
 }

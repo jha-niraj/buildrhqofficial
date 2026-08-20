@@ -8,8 +8,9 @@ import {
     index,
     uniqueIndex,
     real,
+    type AnyPgColumn,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { createId } from "@paralleldrive/cuid2";
 import { users } from "./schema";
 
@@ -205,7 +206,17 @@ export const coverLetter = pgTable(
     {
         id: text("id").primaryKey().$defaultFn(() => createId()),
         userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-        jobUrl: text("job_url").notNull(),
+        // Which resume this letter was written against.
+        //
+        // Cover letters used to be generated from the raw profile tables while the
+        // user's actual resume said something else - so the letter could contradict
+        // the document it was attached to, and it ignored every curation decision
+        // the user had made in the resume builder. `set null` because losing the
+        // resume must not delete a letter the user may already have sent.
+        resumeDraftId: text("resume_draft_id").references((): AnyPgColumn => resumeDraft.id, { onDelete: "set null" }),
+        // Nullable: a JD is just as often pasted as text as it is linked. This was
+        // NOT NULL, which meant "paste a job description" had no way to save.
+        jobUrl: text("job_url"),
         companyName: text("company_name"),
         jobTitle: text("job_title"),
         jobDescription: text("job_description"),
@@ -225,6 +236,12 @@ export const coverLetterRelations = relations(coverLetter, ({ one }) => ({
     user: one(users, {
         fields: [coverLetter.userId],
         references: [users.id],
+    }),
+    // The resume this letter was written against, so a reader can open both and
+    // see that they say the same thing.
+    resumeDraft: one(resumeDraft, {
+        fields: [coverLetter.resumeDraftId],
+        references: [resumeDraft.id],
     }),
 }));
 
@@ -308,7 +325,17 @@ export const resumeDraft = pgTable(
         name: text("name").notNull(),
         templateSlug: text("template_slug").notNull().default("clean-minimal"),
         content: jsonb("content").notNull(),
+        // Which resume this one was tailored FROM. Set when a JD-specific resume is
+        // spun off the primary, so the lineage is visible in the UI and a tailored
+        // copy can be re-tailored from its source rather than from itself.
+        //
+        // Deliberately NOT a foreign key: a self-reference would need a cascade
+        // policy, and the honest policy is "none" - deleting the master must not
+        // delete or blank the tailored copies someone already sent out. A dangling
+        // pointer on a provenance field costs nothing.
+        sourceDraftId: text("source_draft_id"),
         tailoredFor: text("tailored_for"),
+        tailoredForCompany: text("tailored_for_company"),
         jdSnapshot: text("jd_snapshot"),
         atsScore: integer("ats_score"),
         isPublic: boolean("is_public").notNull().default(false),
@@ -331,6 +358,16 @@ export const resumeDraft = pgTable(
         index("resume_draft_user_id_is_default_idx").on(t.userId, t.isDefault),
         index("resume_draft_share_slug_idx").on(t.shareSlug),
         index("resume_draft_is_public_idx").on(t.isPublic),
+        // At most one primary per user. Partial, so the thousands of non-primary
+        // drafts do not all collide on `false`.
+        // At most one default per user, enforced in the database rather than by
+        // convention. Upstream added `is_default` with a plain index, so two rows
+        // could both claim it and every consumer that does
+        // `orderBy(desc(isDefault))` would pick between them arbitrarily.
+        // Partial, so the thousands of non-default drafts do not collide on `false`.
+        uniqueIndex("resume_draft_one_default_per_user")
+            .on(t.userId)
+            .where(sql`${t.isDefault}`),
     ]
 );
 

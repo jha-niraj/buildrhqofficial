@@ -3,7 +3,7 @@
 import { getSession } from "@repo/auth"
 import { headers } from "next/headers"
 import { db, backgroundJobs, isTerminalJobStatus, type JobType } from "@repo/db"
-import { and, eq } from "drizzle-orm"
+import { and, eq, inArray } from "drizzle-orm"
 import crypto from "crypto"
 import { reserveCredits, releaseCredits, settleCredits } from "@/lib/credits/hold"
 import { toErrorMessage } from "@/lib/errors"
@@ -87,6 +87,14 @@ export async function startBackgroundJob(
         if (options.singleFlight) {
             // Refuse a second run while one is in flight rather than charging
             // twice and racing two Durable Objects at the same rows.
+            //
+            // BOTH non-terminal statuses, not just `active`. The row is inserted
+            // `waiting` and only becomes `active` when the Durable Object writes
+            // its first status - a round trip to the worker later. Checking only
+            // for `active` left that window wide open, and a double-click lands
+            // inside it comfortably: two rows, two dispatches, and for a job with
+            // a `cost` two credit holds. A double charge is precisely what this
+            // guard exists to prevent.
             const [inFlight] = await db
                 .select({ jobId: backgroundJobs.jobId })
                 .from(backgroundJobs)
@@ -94,7 +102,7 @@ export async function startBackgroundJob(
                     and(
                         eq(backgroundJobs.userId, userId),
                         eq(backgroundJobs.type, type),
-                        eq(backgroundJobs.status, "active"),
+                        inArray(backgroundJobs.status, ["waiting", "active"]),
                     ),
                 )
                 .limit(1)

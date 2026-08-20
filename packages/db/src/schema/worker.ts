@@ -45,6 +45,11 @@ export const JOB_TYPES = [
     // is not watching - at onboarding they have already moved on by the time it
     // finishes.
     "resume_structure",
+    // Resume and cover letter. Both were inline `gpt-4o` calls over a whole resume
+    // plus a whole job description - among the longest completions in the product,
+    // on request paths that could not hold them.
+    "resume_tailor",
+    "cover_letter",
 ] as const;
 
 export type JobType = (typeof JOB_TYPES)[number];

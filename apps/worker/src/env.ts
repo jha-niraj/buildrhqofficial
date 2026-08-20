@@ -21,6 +21,8 @@ export const JOB_BINDINGS = {
 	mock_conversation: "MOCK_CONVERSATION",
 	mock_feedback: "MOCK_FEEDBACK",
 	resume_structure: "RESUME_STRUCTURE",
+	resume_tailor: "RESUME_TAILOR",
+	cover_letter: "COVER_LETTER",
 } as const satisfies Partial<Record<JobType, string>>
 
 export type RunnableJobType = keyof typeof JOB_BINDINGS

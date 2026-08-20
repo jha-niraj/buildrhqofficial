@@ -12,6 +12,8 @@ export {
 	StandupVoice,
 	MockConversation,
 	MockFeedback,
+	ResumeTailor,
+	CoverLetter,
 } from "./jobs"
 
 // ─────────────────────────────────────────────────────────────────────────────

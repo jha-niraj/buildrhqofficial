@@ -2,6 +2,7 @@
 import Link from "next/link";
 
 import { useState, useCallback, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/components/ui/button'
 import { Input } from '@repo/ui/components/ui/input'
 import { Label } from '@repo/ui/components/ui/label'
@@ -20,7 +21,9 @@ import {
 } from 'lucide-react'
 import { DotmSquare11 } from '@repo/ui/components/ui/dotm-square-11'
 import toast from '@repo/ui/components/ui/sonner'
-import { updateResumeDraft, scoreResumeAgainstJD, tailorResumeForJD } from '@/actions/(main)/ai/resume-draft.action'
+import { updateResumeDraft, scoreResumeAgainstJD } from '@/actions/(main)/ai/resume-draft.action'
+import { createTailoredResume } from '@/actions/(main)/ai/resume-primary.action'
+import { awaitBackgroundJob } from '@/hooks/use-background-job'
 import { syncProfileToResumeDraft } from '@/actions/(main)/ai/resume-profile-sync.action'
 import { extractJobDescription } from '@/actions/(main)/ai/cover-letter.action'
 import { creditErrorMessage, priceSuffix } from '@/lib/credits/notify'
@@ -216,9 +219,12 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
     draftId: string; open: boolean; onClose: () => void
     onContentUpdated: (content: ResumeDraftContent) => void
 }) {
+    const router = useRouter()
     const [jd, setJd] = useState('')
     const [jobUrl, setJobUrl] = useState('')
     const [jobTitle, setJobTitle] = useState('')
+    const [company, setCompany] = useState('')
+    const [phase, setPhase] = useState('')
     const [loading, setLoading] = useState<'score' | 'tailor' | 'fetch' | null>(null)
     const [scoreResult, setScoreResult] = useState<{ score: number; missing_keywords: string[]; matched_keywords: string[]; suggestions: string[] } | null>(null)
     const [tailorResult, setTailorResult] = useState<{ suggestions: string[]; keywordsAdded: string[]; summary: string } | null>(null)
@@ -257,20 +263,46 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
         setTailorResult(null)
     }
 
+    // Tailoring makes a COPY and opens it.
+    //
+    // `tailorResumeForJD` rewrote THIS draft in place, so tailoring for a job
+    // destroyed the honest resume you had built - and tailoring again ran against
+    // the already-narrowed copy, compounding it. The generation also runs on the
+    // worker now: it is a gpt-4o pass over a whole resume plus a whole JD, which
+    // is not a call a request can hold open.
     const handleTailor = async () => {
         if (!jd.trim() || !jobTitle.trim()) return toast.error('Enter job title and paste JD')
         setLoading('tailor')
-        const res = await tailorResumeForJD(draftId, jd, jobTitle)
-        setLoading(null)
-        if (!res.success) return toast.error(creditErrorMessage(res, 'Failed to tailor'))
-        if (res.updatedContent) {
-            onContentUpdated(res.updatedContent as ResumeDraftContent)
-            // Auto-save the tailored content so changes persist without manual Save click
-            await updateResumeDraft(draftId, { content: res.updatedContent as ResumeDraftContent })
+
+        const started = await createTailoredResume({
+            sourceDraftId: draftId,
+            jobTitle: jobTitle.trim(),
+            company: company.trim() || undefined,
+            jobDescription: jd,
+        })
+        if (!started.success || !started.jobId) {
+            setLoading(null)
+            return toast.error(started.error ?? 'Could not start tailoring')
         }
-        setTailorResult({ suggestions: res.suggestions ?? [], keywordsAdded: res.keywordsAdded ?? [], summary: res.summary ?? '' })
+
+        const outcome = await awaitBackgroundJob<{
+            suggestions?: string[]
+            keywordsAdded?: string[]
+            summary?: string
+        }>(started.jobId, (_p, phaseLabel) => { if (phaseLabel) setPhase(phaseLabel) })
+
+        setLoading(null)
+        setPhase('')
+        if (!outcome.ok) return toast.error(outcome.error)
+
+        setTailorResult({
+            suggestions: outcome.result?.suggestions ?? [],
+            keywordsAdded: outcome.result?.keywordsAdded ?? [],
+            summary: outcome.result?.summary ?? '',
+        })
         setScoreResult(null)
-        toast.success('Resume tailored and saved!')
+        toast.success('Tailored copy created - your original is untouched')
+        if (started.draftId) router.push(`/ai/resume/draft/${started.draftId}`)
     }
 
     return (
@@ -283,6 +315,10 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
                     <div className="space-y-1.5">
                         <Label className="text-sm font-medium">Job Title</Label>
                         <Input placeholder="e.g. Senior Frontend Engineer" value={jobTitle} onChange={e => setJobTitle(e.target.value)} />
+                    </div>
+                    <div className="space-y-1.5">
+                        <Label className="text-sm font-medium">Company <span className="text-neutral-400">(optional)</span></Label>
+                        <Input placeholder="e.g. Stripe" value={company} onChange={e => setCompany(e.target.value)} />
                     </div>
                     <div className="space-y-1.5">
                         <Label className="text-sm font-medium">Job Posting URL</Label>
@@ -310,7 +346,7 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
                     {loading ? (
                         <div className="flex flex-col items-center gap-3 py-6">
                             <DotmSquare11 size={40} dotSize={5} speed={1.4} />
-                            <p className="text-xs text-neutral-500">{loading === 'score' ? 'Scoring your resume…' : 'Tailoring bullets in place…'}</p>
+                            <p className="text-xs text-neutral-500">{loading === 'score' ? 'Scoring your resume…' : (phase || 'Creating your tailored copy…')}</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 gap-2">

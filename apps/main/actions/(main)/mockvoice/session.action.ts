@@ -5,6 +5,7 @@ import { headers } from "next/headers"
 import { db, users, mockInterviewVoice, mockVoiceSession, creditTransactions } from "@repo/db"
 import { eq, and, inArray, count } from "drizzle-orm"
 import { revalidatePath } from 'next/cache'
+import { resolveUserResume } from "@/lib/resume/primary"
 
 interface CreateSessionInput {
     mockId: string
@@ -84,10 +85,15 @@ export async function createMockVoiceSession(input: CreateSessionInput) {
             }
         }
 
-        const resumeContent =
-            input.includesResume && user.hasResume && user.resumeText
-                ? user.resumeText
-                : null
+        // Resolved through `lib/resume/primary.ts` rather than read straight off
+        // `users.resumeText`. That column only ever holds text extracted from an
+        // uploaded PDF, so an interviewer was quizzing the candidate on a file they
+        // may have uploaded months ago while their curated resume in the builder
+        // said something else. The resolver prefers the primary resume and falls
+        // back to the PDF, so this keeps working for users who only ever uploaded.
+        const resumeContent = input.includesResume
+            ? (await resolveUserResume(userId)).text || null
+            : null
 
         const variables: SessionVariables = {
             username: user.name?.split(' ')[0] || user.username || 'there',

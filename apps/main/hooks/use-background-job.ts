@@ -22,6 +22,30 @@ const FIRST_POLL_MS = 1_000
 const MAX_POLL_MS = 5_000
 const BACKOFF = 1.4
 
+/**
+ * Wall-clock ceiling on following a job.
+ *
+ * Needed because "the job reaches a terminal status" is NOT guaranteed. The
+ * worker's status writes are best-effort by design - `writeStatus` in
+ * `apps/worker/src/jobs/base.ts` swallows its errors so a failed progress write
+ * can never abort a run the user paid for. The consequence is that a job can
+ * genuinely finish while the row still says `active`, and a poller with no
+ * deadline then spins forever behind a spinner the user cannot dismiss.
+ *
+ * Ten minutes is past the slowest job in the product (the 90s Assistants poll,
+ * plus two retries) with room to spare.
+ */
+const DEADLINE_MS = 10 * 60 * 1000
+
+/**
+ * How many consecutive failed reads to tolerate before giving up.
+ *
+ * A read failing once is a blip worth ignoring - the job is running on the worker
+ * regardless. Failing this many times in a row is a signed-out session or a dead
+ * database, and continuing to poll just hides it.
+ */
+const MAX_CONSECUTIVE_READ_FAILURES = 8
+
 export interface BackgroundJobState<TResult> {
     status: "idle" | "waiting" | "active" | "completed" | "failed"
     progress: number
@@ -62,20 +86,38 @@ export function useBackgroundJob<TResult = Record<string, unknown>>(
         let cancelled = false
         let timer: ReturnType<typeof setTimeout> | undefined
         let delay = FIRST_POLL_MS
+        let failures = 0
+        const deadline = Date.now() + DEADLINE_MS
 
         setState({ status: "waiting", progress: 0, done: false })
 
+        const giveUp = (error: string) => {
+            setState((prev) => ({ ...prev, status: "failed", done: true, error }))
+            onFailed.current?.(error)
+        }
+
         const poll = async () => {
+            if (Date.now() > deadline) {
+                giveUp("This is taking longer than expected. It may still finish - check back in a few minutes.")
+                return
+            }
+
             const res = await getBackgroundJobStatus<TResult>(jobId)
             if (cancelled) return
 
             if (!res.success) {
                 // A transient read failure is not a failed job. Keep polling;
-                // the job itself is running on the worker regardless.
+                // the job itself is running on the worker regardless - but stop
+                // eventually, or a signed-out session polls silently forever.
+                if (++failures >= MAX_CONSECUTIVE_READ_FAILURES) {
+                    giveUp(res.error ?? "Lost track of this job. Please refresh.")
+                    return
+                }
                 timer = setTimeout(poll, delay)
                 delay = Math.min(delay * BACKOFF, MAX_POLL_MS)
                 return
             }
+            failures = 0
 
             const status = (res.status ?? "waiting") as BackgroundJobState<TResult>["status"]
             setState({
@@ -121,15 +163,33 @@ export async function awaitBackgroundJob<TResult = Record<string, unknown>>(
     signal?: AbortSignal,
 ): Promise<{ ok: true; result: TResult } | { ok: false; error: string }> {
     let delay = FIRST_POLL_MS
+    let failures = 0
+    const deadline = Date.now() + DEADLINE_MS
 
     for (;;) {
         if (signal?.aborted) return { ok: false, error: "Cancelled" }
         await new Promise((r) => setTimeout(r, delay))
         delay = Math.min(delay * BACKOFF, MAX_POLL_MS)
 
+        if (Date.now() > deadline) {
+            return {
+                ok: false,
+                error: "This is taking longer than expected. It may still finish - check back in a few minutes.",
+            }
+        }
+
         const res = await getBackgroundJobStatus<TResult>(jobId)
         if (signal?.aborted) return { ok: false, error: "Cancelled" }
-        if (!res.success) continue
+
+        if (!res.success) {
+            // A transient read failure is not a failed job. Keep going, but not
+            // forever - see MAX_CONSECUTIVE_READ_FAILURES.
+            if (++failures >= MAX_CONSECUTIVE_READ_FAILURES) {
+                return { ok: false, error: res.error ?? "Lost track of this job. Please refresh." }
+            }
+            continue
+        }
+        failures = 0
 
         onProgress?.(res.progress ?? 0, res.phaseLabel)
 

@@ -27,7 +27,9 @@
 			{ "name": "STANDUP_VOICE", "class_name": "StandupVoice" },
 			{ "name": "MOCK_CONVERSATION", "class_name": "MockConversation" },
 			{ "name": "MOCK_FEEDBACK", "class_name": "MockFeedback" },
-			{ "name": "RESUME_STRUCTURE", "class_name": "ResumeStructure" }
+			{ "name": "RESUME_STRUCTURE", "class_name": "ResumeStructure" },
+			{ "name": "RESUME_TAILOR", "class_name": "ResumeTailor" },
+			{ "name": "COVER_LETTER", "class_name": "CoverLetter" }
 		]
 	},
 
@@ -51,6 +53,13 @@
 		{
 			"tag": "v2",
 			"new_sqlite_classes": ["ResumeStructure"]
+		},
+		{
+			// v3, not more classes on v2: migration tags are append-only. Editing a
+			// tag that has already been applied leaves the deployed Worker and this
+			// config disagreeing about what v2 created.
+			"tag": "v3",
+			"new_sqlite_classes": ["ResumeTailor", "CoverLetter"]
 		}
 	],
 

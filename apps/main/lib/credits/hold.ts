@@ -190,7 +190,7 @@ export async function releaseCredits(
                 userId: hold.userId,
                 amount: hold.amount,
                 type: "REWARD",
-                description: `Refund (failed): ${hold.reason} — ${releaseReason}`,
+                description: `Refund (failed): ${hold.reason} - ${releaseReason}`,
                 currency: "INR",
             });
 
