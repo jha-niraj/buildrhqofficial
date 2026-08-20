@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache"
 import { toErrorMessage } from "@/lib/errors"
 import { resolveUserResume, buildContentFromProfile, type ResumeSource } from "@/lib/resume/primary"
 import { startBackgroundJob } from "@/actions/(main)/workers/jobs.action"
+import { priceOf } from "@/lib/credits/pricing"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // JD-tailored resumes.
@@ -102,6 +103,9 @@ export async function createTailoredResume(input: CreateTailoredResumeInput): Pr
     jobId?: string
     sourceLabel?: string
     error?: string
+    code?: string
+    required?: number
+    available?: number
 }> {
     try {
         const session = await getSession(await headers())
@@ -205,21 +209,42 @@ export async function createTailoredResume(input: CreateTailoredResumeInput): Pr
             .returning({ id: resumeDraft.id })
         if (!target) return { success: false, error: "Could not create the tailored resume" }
 
-        const started = await startBackgroundJob("resume_tailor", {
-            sourceDraftId,
-            targetDraftId: target.id,
-            jobTitle,
-            company: input.company?.trim() || undefined,
-            jobDescription,
-        })
+        // Same price the inline `tailorResumeForJD` charged. Rewiring the editor
+        // to this action without it silently turned a 20-credit feature free.
+        // The hold is taken here and settled or released by
+        // `getBackgroundJobStatus` on the first terminal status, so a failed
+        // tailoring refunds - which the inline version could not do once the
+        // request had been killed.
+        const started = await startBackgroundJob(
+            "resume_tailor",
+            {
+                sourceDraftId,
+                targetDraftId: target.id,
+                jobTitle,
+                company: input.company?.trim() || undefined,
+                jobDescription,
+            },
+            {
+                cost: priceOf("resume_tailor_jd"),
+                reason: `Resume: tailored for ${jobTitle || "a job description"}`,
+            },
+        )
 
         if (!started.success) {
             // The draft exists and holds the untailored content, which is still
             // useful - so it is kept rather than rolled back, and the error says so.
+            // `code`/`required`/`available` are passed through so the editor can
+            // offer a route to /purchase on INSUFFICIENT_CREDITS instead of a
+            // dead-end toast.
             return {
                 success: false,
                 draftId: target.id,
-                error: "Your resume was copied but tailoring could not start. Open it and try again.",
+                error: started.code === "INSUFFICIENT_CREDITS"
+                    ? (started.error ?? "Not enough credits to tailor this resume.")
+                    : "Your resume was copied but tailoring could not start. Open it and try again.",
+                code: started.code,
+                required: started.required,
+                available: started.available,
             }
         }
 

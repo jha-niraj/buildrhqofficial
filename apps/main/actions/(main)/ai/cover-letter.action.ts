@@ -8,6 +8,8 @@ import Exa from "exa-js";
 import { openai, zodResponseFormat } from '@/lib/openai-client'
 import { z } from "zod";
 import { CoverLetterGenerationData } from "@/types/aitools/cover-letter";
+import { startBackgroundJob } from "@/actions/(main)/workers/jobs.action";
+import { priceOf } from "@/lib/credits/pricing";
 import { withCredits, OperationFailed } from "@/lib/credits/charge";
 
 // ── Exa client (lazy singleton) ──────────────────────────────────────────────
@@ -217,171 +219,166 @@ function formatResumeForPrompt(raw: unknown): string {
     return out.length ? out.join("\n") + "\n" : "";
 }
 
-export async function generateAndSaveCoverLetter(data: CoverLetterGenerationData) {
+/**
+ * Assemble everything the model should know about the applicant.
+ *
+ * Pulled out of the generator so the composition happens in the app, where the
+ * profile tables and the resume live, and the worker receives one finished
+ * string. The ORDER is load-bearing and unchanged: hand-entered profile rows
+ * first as the confirmed account, the resume last as the fuller one. Whichever
+ * of the two the user actually maintains, the letter has something concrete.
+ *
+ * Not exported - a `"use server"` module may only export async functions, and
+ * this is called from one place.
+ */
+async function buildApplicantProfile(userId: string): Promise<string | null> {
+    const dbUser = await db.query.users.findFirst({ where: eq(users.id, userId) });
+    if (!dbUser) return null;
+
+    const [userSkills, userExperiences, userProjects, defaultResume] = await Promise.all([
+        db.query.skills.findMany({ where: eq(skills.userId, userId) }),
+        db.query.workExperiences.findMany({ where: eq(workExperiences.userId, userId), orderBy: [desc(workExperiences.startDate)] }),
+        db.query.portfolioProjects.findMany({ where: eq(portfolioProjects.userId, userId), orderBy: [desc(portfolioProjects.startDate)] }),
+        // The resume the user marked as default, else their newest. A cover
+        // letter written from an empty profile is the single most common way
+        // this feature disappoints: most people upload a resume and never
+        // re-type its contents into the profile tabs.
+        db.query.resumeDraft.findFirst({
+            where: eq(resumeDraft.userId, userId),
+            orderBy: [desc(resumeDraft.isDefault), desc(resumeDraft.updatedAt)],
+        }),
+    ]);
+
+    let out = `Name: ${dbUser.name || ''}\nEmail: ${dbUser.email || ''}\n\n`;
+
+    if (userSkills.length > 0) {
+        out += "Skills:\n";
+        userSkills.forEach((s) => out += `- ${s.name} (${s.level})\n`);
+        out += "\n";
+    }
+
+    if (userExperiences.length > 0) {
+        out += "Work Experience:\n";
+        userExperiences.forEach((e) => {
+            out += `- ${e.roleTitle} at ${e.companyName} (${e.startDate} to ${e.isCurrentlyWorking ? 'Present' : e.endDate ?? ''})\n`;
+            if (e.bulletPoints && (e.bulletPoints as string[]).length > 0) {
+                (e.bulletPoints as string[]).forEach((b) => out += `  * ${b}\n`);
+            }
+        });
+        out += "\n";
+    }
+
+    if (userProjects.length > 0) {
+        out += "Projects:\n";
+        userProjects.forEach((p) => {
+            out += `- ${p.projectName} (${(p.technologies as string[]).join(', ')})\n`;
+            if (p.bulletPoints && (p.bulletPoints as string[]).length > 0) {
+                (p.bulletPoints as string[]).forEach((b) => out += `  * ${b}\n`);
+            }
+        });
+        out += "\n";
+    }
+
+    out += formatResumeForPrompt(defaultResume?.content);
+    return out;
+}
+
+/**
+ * Start cover letter generation on the worker.
+ *
+ * This was an inline `gpt-4o` completion over a whole job description plus a
+ * whole profile - one of the longest calls in the product, on a request
+ * Cloudflare kills before a long letter finishes. The user watched a spinner
+ * until it did.
+ *
+ * The prompt, the model and the temperature are UNCHANGED; only where the call
+ * runs has moved.
+ *
+ * Credits move with it. `withCredits` settled or refunded around the inline
+ * call; the hold is now taken by `startBackgroundJob` and settled or released by
+ * `getBackgroundJobStatus` when the app first sees a terminal status. Same
+ * `cover_letter_generate` price, same one place that decides
+ * (`lib/credits/hold.ts`), and a job that dies mid-flight now refunds - which the
+ * inline version could not do, because nothing was left running to notice.
+ *
+ * Returns a `jobId`; the client polls it and renders when it completes.
+ */
+export async function generateAndSaveCoverLetter(data: CoverLetterGenerationData): Promise<{
+    success: boolean
+    coverLetterId?: string
+    jobId?: string
+    error?: string
+    code?: string
+    required?: number
+    available?: number
+}> {
     try {
         const user = await currentUser();
-        if (!user) {
-            return { success: false, error: "Unauthorized" };
+        if (!user?.id) return { success: false, error: "Unauthorized" };
+
+        if (!data.jobDescription?.trim()) {
+            return { success: false, error: "Add the job description first" };
         }
 
-        // Fetch User profile
-        const dbUser = await db.query.users.findFirst({
-            where: eq(users.id, user.id!),
-        });
+        const applicantProfile = await buildApplicantProfile(user.id);
+        if (applicantProfile === null) return { success: false, error: "User not found" };
 
-        if (!dbUser) {
-            return { success: false, error: "User not found" };
-        }
-
-        const [userSkills, userExperiences, userProjects, defaultResume] = await Promise.all([
-            db.query.skills.findMany({ where: eq(skills.userId, user.id!) }),
-            db.query.workExperiences.findMany({ where: eq(workExperiences.userId, user.id!), orderBy: [desc(workExperiences.startDate)] }),
-            db.query.portfolioProjects.findMany({ where: eq(portfolioProjects.userId, user.id!), orderBy: [desc(portfolioProjects.startDate)] }),
-            // The resume the user marked as default, else their newest. A cover
-            // letter written from an empty profile is the single most common way
-            // this feature disappoints: most people upload a resume and never
-            // re-type its contents into the profile tabs.
-            db.query.resumeDraft.findFirst({
-                where: eq(resumeDraft.userId, user.id!),
-                orderBy: [desc(resumeDraft.isDefault), desc(resumeDraft.updatedAt)],
-            }),
-        ]);
-
-        // Format user info
-        let userInfoStr = `Name: ${dbUser.name || ''}\nEmail: ${dbUser.email || ''}\n\n`;
-
-        if (userSkills.length > 0) {
-            userInfoStr += "Skills:\n";
-            userSkills.forEach((s) => userInfoStr += `- ${s.name} (${s.level})\n`);
-            userInfoStr += "\n";
-        }
-
-        if (userExperiences.length > 0) {
-            userInfoStr += "Work Experience:\n";
-            userExperiences.forEach((e) => {
-                userInfoStr += `- ${e.roleTitle} at ${e.companyName} (${e.startDate} to ${e.isCurrentlyWorking ? 'Present' : e.endDate ?? ''})\n`;
-                if (e.bulletPoints && (e.bulletPoints as string[]).length > 0) {
-                    (e.bulletPoints as string[]).forEach((b) => userInfoStr += `  * ${b}\n`);
-                }
-            });
-            userInfoStr += "\n";
-        }
-
-        if (userProjects.length > 0) {
-            userInfoStr += "Projects:\n";
-            userProjects.forEach((p) => {
-                userInfoStr += `- ${p.projectName} (${(p.technologies as string[]).join(', ')})\n`;
-                if (p.bulletPoints && (p.bulletPoints as string[]).length > 0) {
-                    (p.bulletPoints as string[]).forEach((b) => userInfoStr += `  * ${b}\n`);
-                }
-            });
-            userInfoStr += "\n";
-        }
-
-        // The resume goes in last so the model reads it as the fuller account and
-        // the hand-entered profile rows above as the confirmed one. Whichever the
-        // user maintains, the letter has something concrete to work from.
-        userInfoStr += formatResumeForPrompt(defaultResume?.content);
-
-        // Format Q&A
-        let qaStr = "Applicant Responses to Targeted Questions:\n";
-        data.questions.forEach((q: any) => {
-            let answer = data.answers[q.id] || "No answer provided.";
-            if (Array.isArray(answer)) {
-                answer = answer.join(", ");
-            }
-            qaStr += `Q: ${q.text}\nA: ${answer}\n\n`;
-        });
-
-        const prompt = `
-            You are an expert career coach writing a highly compelling, professional, yet personalized cover letter.
-            Write a cover letter using markdown format.
-
-            Context:
-            Job Title: ${data.jobTitle}
-            Company: ${data.companyName}
-            Tone: ${data.tone}
-
-            Job Description:
-            ${data.jobDescription}
-
-            Applicant Profile:
-            ${userInfoStr}
-
-            ${qaStr}
-
-            Instructions:
-            1. Do not include placeholders like "[Your Name]" if possible, use the applicant profile.
-            2. Structure it well: header, greeting, strong opening, well-articulated body paragraphs highlighting specific relevant achievements based on the applicant profile and their answers, and a call-to-action closing.
-            3. Be concise (max 3-4 paragraphs) and directly map the applicant's experience to the specific needs found in the job description.
-            4. Include relevant links (e.g. to projects) if they are in the profile or answers.
-            5. Return ONLY markdown content. No preamble.
-            `;
-
-        // Only the model call is inside the hold. The letter is returned to the
-        // user in this response, so a later failure to SAVE it must not refund -
-        // they received what they paid for, and refunding delivered work would
-        // make the letter free on every retry.
-        const charged = await withCredits(
-            { userId: user.id!, operation: "cover_letter_generate", reason: `Cover letter: ${data.jobTitle || "generation"}` },
-            async () => {
-                const completion = await openai.chat.completions.create({
-                    model: "gpt-4o",
-                    messages: [
-                        {
-                            role: "system",
-                            content: "You are an expert copywriter and career coach."
-                        },
-                        {
-                            role: "user",
-                            content: prompt
-                        }
-                    ],
-                    temperature: 0.7,
-                });
-
-                const text = completion?.choices?.[0]?.message?.content?.trim() || "";
-                // A completion can succeed with empty content. Keeping the charge
-                // for a blank letter is exactly the failure holds exist to stop.
-                if (!text) throw new OperationFailed("The cover letter came back empty.");
-                return text;
-            },
-        );
-
-        if (!charged.success) {
-            return { success: false, error: charged.error, code: charged.code, required: charged.required, available: charged.available };
-        }
-        const generatedContent = charged.data;
-
-        // Save to DB - update draft if draftId provided, otherwise create new
-        let letter;
+        // The row exists before the job so the client has something to poll and
+        // to open, exactly as with every other job type.
+        let coverLetterId: string;
         if (data.draftId) {
             const [updated] = await db.update(coverLetters)
                 .set({
-                    answers: data.answers as any,
-                    generatedContent,
+                    jobUrl: data.jobUrl || null,
+                    companyName: data.companyName,
+                    jobTitle: data.jobTitle,
+                    jobDescription: data.jobDescription,
+                    tone: data.tone,
+                    questions: data.questions as unknown as object,
+                    answers: data.answers as unknown as object,
                 })
-                .where(and(eq(coverLetters.id, data.draftId), eq(coverLetters.userId, user.id!)))
-                .returning();
-            letter = updated!;
+                .where(and(eq(coverLetters.id, data.draftId), eq(coverLetters.userId, user.id)))
+                .returning({ id: coverLetters.id });
+            if (!updated) return { success: false, error: "That draft was not found" };
+            coverLetterId = updated.id;
         } else {
             const [created] = await db.insert(coverLetters).values({
-                userId: user.id!,
-                jobUrl: data.jobUrl,
+                userId: user.id,
+                jobUrl: data.jobUrl || null,
                 companyName: data.companyName,
                 jobTitle: data.jobTitle,
                 jobDescription: data.jobDescription,
                 tone: data.tone,
-                questions: data.questions as any,
-                answers: data.answers as any,
-                generatedContent,
-            }).returning();
-            letter = created!;
+                questions: data.questions as unknown as object,
+                answers: data.answers as unknown as object,
+            }).returning({ id: coverLetters.id });
+            if (!created) return { success: false, error: "Could not create the cover letter" };
+            coverLetterId = created.id;
         }
 
-        return { success: true, coverLetterId: letter.id, content: generatedContent };
+        const started = await startBackgroundJob(
+            "cover_letter",
+            { coverLetterId, applicantProfile },
+            {
+                cost: priceOf("cover_letter_generate"),
+                reason: `Cover letter: ${data.jobTitle || "generation"}`,
+            },
+        );
 
+        if (!started.success) {
+            return {
+                success: false,
+                coverLetterId,
+                error: started.error ?? "Could not start generation",
+                code: started.code,
+                required: started.required,
+                available: started.available,
+            };
+        }
+
+        return { success: true, coverLetterId, jobId: started.jobId };
     } catch (e: unknown) {
+        console.error("[coverLetter] generate failed:", e);
         return { success: false, error: e instanceof Error ? e.message : "Failed to generate cover letter." };
     }
 }

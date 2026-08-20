@@ -33,17 +33,16 @@ const { coverLetter, resumeDraft } = schema
 
 interface CoverLetterInput {
     coverLetterId: string
-    /** Set when the resume came from a `resume_draft`; re-read for freshness. */
-    resumeDraftId?: string | null
-    /** The resolved rendering, used when there is no structured draft behind it. */
-    resumeText: string
-    /** How the resume was resolved, recorded in the result for the UI. */
-    resumeSource: string
-}
-
-interface StoredQuestion {
-    id: string
-    text: string
+    /**
+     * Everything the model should know about the applicant, composed by the app.
+     *
+     * A deliberate exception to the pointer-not-payload rule. The composition
+     * reads the profile tables AND the default resume and orders them a specific
+     * way; duplicating that in the worker would be a second copy of a prompt
+     * detail that has to stay identical, and re-deriving it here would let the
+     * letter be written from something other than what the app decided.
+     */
+    applicantProfile: string
 }
 
 export class CoverLetter extends JobDurableObject<CoverLetterInput> {
@@ -54,7 +53,7 @@ export class CoverLetter extends JobDurableObject<CoverLetterInput> {
 
     protected async run(job: StoredJob<CoverLetterInput>, progress: ProgressFn): Promise<unknown> {
         const db = this.db()
-        const { coverLetterId, resumeDraftId } = job.input
+        const { coverLetterId, applicantProfile } = job.input
 
         // Scoped to the job's userId, which came from the signed token.
         const letter = await db.query.coverLetter.findFirst({
@@ -63,28 +62,13 @@ export class CoverLetter extends JobDurableObject<CoverLetterInput> {
         if (!letter) throw new Error("This cover letter no longer exists")
         if (!letter.jobDescription?.trim()) throw new Error("This cover letter has no job description to work from")
 
-        // Prefer the live draft over the snapshot the app sent: minutes can pass
-        // before this alarm fires, and if the user fixed a typo in their resume in
-        // between, the letter should use the fix.
-        let resumeText = job.input.resumeText
-        if (resumeDraftId) {
-            const draft = await db.query.resumeDraft.findFirst({
-                where: and(eq(resumeDraft.id, resumeDraftId), eq(resumeDraft.userId, job.userId)),
-            })
-            if (draft) resumeText = renderResumeText(draft.content)
-        }
-        if (!resumeText.trim()) {
-            throw new Error("Add a resume or fill in your profile first - there is nothing to write from")
-        }
-
         await progress(35, "Writing your letter")
 
-        const questions = (letter.questions ?? []) as StoredQuestion[]
+        const questions = (letter.questions ?? []) as Array<{ id: string; text: string }>
         const answers = (letter.answers ?? {}) as Record<string, string | string[]>
 
-        let qaStr = ""
-        if (Array.isArray(questions) && questions.length) {
-            qaStr = "Applicant Responses to Targeted Questions:\n"
+        let qaStr = "Applicant Responses to Targeted Questions:\n"
+        if (Array.isArray(questions)) {
             for (const q of questions) {
                 const a = answers[q.id]
                 const answer = Array.isArray(a) ? a.join(", ") : (a || "No answer provided.")
@@ -92,6 +76,9 @@ export class CoverLetter extends JobDurableObject<CoverLetterInput> {
             }
         }
 
+        // Prompt, model and temperature verbatim from the inline version. A
+        // migration that also changes the prompt cannot be verified, because
+        // there is no way to tell a migration bug from a prompt change.
         const prompt = `
             You are an expert career coach writing a highly compelling, professional, yet personalized cover letter.
             Write a cover letter using markdown format.
@@ -104,18 +91,17 @@ export class CoverLetter extends JobDurableObject<CoverLetterInput> {
             Job Description:
             ${letter.jobDescription}
 
-            Applicant Resume:
-            ${resumeText}
+            Applicant Profile:
+            ${applicantProfile}
 
             ${qaStr}
 
             Instructions:
-            1. Do not include placeholders like "[Your Name]" if possible, use the applicant resume.
-            2. Structure it well: header, greeting, strong opening, well-articulated body paragraphs highlighting specific relevant achievements based on the applicant resume and their answers, and a call-to-action closing.
+            1. Do not include placeholders like "[Your Name]" if possible, use the applicant profile.
+            2. Structure it well: header, greeting, strong opening, well-articulated body paragraphs highlighting specific relevant achievements based on the applicant profile and their answers, and a call-to-action closing.
             3. Be concise (max 3-4 paragraphs) and directly map the applicant's experience to the specific needs found in the job description.
-            4. Include relevant links (e.g. to projects) if they are in the resume or answers.
-            5. Every claim must be supported by the resume. Do NOT invent employers, titles, dates, metrics or skills - if the job asks for something the resume does not show, do not claim it.
-            6. Return ONLY markdown content. No preamble.
+            4. Include relevant links (e.g. to projects) if they are in the profile or answers.
+            5. Return ONLY markdown content. No preamble.
             `
 
         const generatedContent = await chatText({
@@ -126,22 +112,22 @@ export class CoverLetter extends JobDurableObject<CoverLetterInput> {
             temperature: 0.7,
         })
 
-        if (!generatedContent.trim()) throw new Error("The model returned an empty letter")
+        // A completion can succeed with empty content. Failing here is what makes
+        // the app release the credit hold instead of settling it - keeping the
+        // charge for a blank letter is exactly what holds exist to stop.
+        if (!generatedContent.trim()) throw new Error("The cover letter came back empty.")
 
         await progress(90, "Saving")
 
         await db
             .update(coverLetter)
-            .set({ generatedContent, resumeDraftId: resumeDraftId ?? null })
+            .set({ generatedContent })
             .where(eq(coverLetter.id, coverLetterId))
 
         return {
             coverLetterId,
-            resumeSource: job.input.resumeSource,
-            resumeDraftId: resumeDraftId ?? null,
-            // The letter itself is persisted on the row; returning it here too lets
-            // the client render the moment the poll completes, without a second
-            // round trip.
+            // Returned as well as persisted so the client can render the moment
+            // the poll completes, without a second round trip.
             content: generatedContent,
         }
     }

@@ -6,6 +6,7 @@ import {
     extractJobDescription, generateCoverLetterQuestions, generateAndSaveCoverLetter,
     getCoverLetter, deleteCoverLetter, saveCoverLetterDraft
 } from "@/actions/(main)/ai/cover-letter.action"
+import { awaitBackgroundJob } from "@/hooks/use-background-job"
 import { creditErrorMessage, priceSuffix } from "@/lib/credits/notify"
 import { Button } from "@repo/ui/components/ui/button"
 import { Input } from "@repo/ui/components/ui/input"
@@ -101,6 +102,7 @@ export function CoverLetterClient({
     const [questions, setQuestions] = useState<CoverLetterQuestion[]>([])
     const [answers, setAnswers] = useState<Record<string, string | string[]>>({})
     const [isGeneratingLetter, setIsGeneratingLetter] = useState(false)
+    const [generationPhase, setGenerationPhase] = useState("")
     const [draftId, setDraftId] = useState<string | null>(null)
 
     // Step 3
@@ -218,9 +220,25 @@ export function CoverLetterClient({
             answers,
             draftId: draftId ?? undefined,
         })
+        if (!res.success || !res.jobId) {
+            setIsGeneratingLetter(false)
+            return toast.error(creditErrorMessage(res, "Could not generate the cover letter"))
+        }
+
+        // Writing the letter runs on the worker now - a gpt-4o pass over a whole
+        // JD and profile does not fit in a request. Follow the job instead. The
+        // credit hold settles or refunds when this poll first sees a terminal
+        // status, so closing the tab no longer charges for nothing.
+        const outcome = await awaitBackgroundJob<{ content?: string }>(
+            res.jobId,
+            (_progress, phaseLabel) => { if (phaseLabel) setGenerationPhase(phaseLabel) },
+        )
         setIsGeneratingLetter(false)
-        if (!res.success) return toast.error(creditErrorMessage(res, "Could not generate the cover letter"))
-        setGeneratedContent(res.content || "")
+        setGenerationPhase("")
+
+        if (!outcome.ok) return toast.error(outcome.error)
+
+        setGeneratedContent(outcome.result?.content || "")
         setStep(3)
         // Update history: replace draft entry with completed letter
         setHistory(prev => [{

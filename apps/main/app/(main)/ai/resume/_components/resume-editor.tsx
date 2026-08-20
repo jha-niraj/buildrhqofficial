@@ -282,7 +282,7 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
         })
         if (!started.success || !started.jobId) {
             setLoading(null)
-            return toast.error(started.error ?? 'Could not start tailoring')
+            return toast.error(creditErrorMessage(started, 'Could not start tailoring'))
         }
 
         const outcome = await awaitBackgroundJob<{
