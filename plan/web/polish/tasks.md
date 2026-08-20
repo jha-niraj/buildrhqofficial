@@ -19,15 +19,15 @@ is not started.
 | WEB-5 | Strip multiplayer language from the projects section | 1 | **done (2026-08-20)** |
 | WEB-6 | Audit the FAQ answers | 1 | **done (2026-08-20)** |
 | **Navigation** | | | |
-| WEB-10 | Write the Features page | 1, 3 | not started |
-| WEB-11 | Research + write the Compare pages | 2, 3 | not started |
-| WEB-12 | Port the dropdown mechanics into the existing navbar | 3 | not started |
-| WEB-13 | Mobile accordion nav | 3 | not started |
-| WEB-14 | Keyboard + a11y pass on the nav | 3 | not started |
+| WEB-10 | Write the Features page | 1, 3 | **done (2026-08-20)** |
+| WEB-11 | Research + write the Compare pages | 2, 3 | **done, scope changed (2026-08-20)** |
+| WEB-12 | Port the dropdown mechanics into the existing navbar | 3 | **done (2026-08-20)** |
+| WEB-13 | Mobile accordion nav | 3 | **done (2026-08-20)** |
+| WEB-14 | Keyboard + a11y pass on the nav | 3 | **done (2026-08-20)** |
 | **Page hero** | | | |
 | WEB-20 | Build `PageHero` - fixed surface, variant composition | 4 | **done (2026-08-20)** |
 | WEB-21 | Adopt it on aboutus, pricing | 4 | **done (2026-08-20)** |
-| WEB-22 | Adopt it on Features, Compare | 4 | not started |
+| WEB-22 | Adopt it on Features, Compare | 4 | **done (2026-08-20)** |
 | WEB-23 | Contrast audit across every public page | 8 | **hero + OG card done (2026-08-20); landing/blog open** |
 | **Landing composition** | | | |
 | WEB-30 | Port `reveal.tsx` and `lazy-mount.tsx` | 7 | **done (2026-08-20)** |
@@ -192,60 +192,129 @@ does not).
 
 ### WEB-10 - Features page
 
-**Status:** not started
+**Status:** done (2026-08-20)
 **Serves:** DoD 1, 3
-**Blocked by:** WEB-1
 
-**Research first:** the page can only list what WEB-1 confirmed. One section per
-real module with an honest scope line.
+`/features`. Six modules, one section each, every one reachable in the app today.
 
-**Verification:** every feature named maps to a route in `apps/main`.
+**The facts live in `_components/feature-modules.ts`, with the evidence beside them.**
+Each module carries an `evidence` field naming the route, Dockerfile or constant it was
+read from, so a claim and its proof cannot drift apart. Verified this pass:
+
+| claim | read from |
+|---|---|
+| Four practice tracks | `apps/main/app/(main)/practice/{dsa,system-design,web-frontend,web-backend}` |
+| Six languages: JS, TS, Python 3, C, C++, Java | `apps/shipitworker`'s Dockerfile - `python3 gcc g++ default-jdk`, node base image, `tsx` installed globally |
+| Practice set 5 credits, exam set 10 | `CREDIT_PRICES` in `apps/main/lib/credits/pricing.ts` |
+| Project quiz 25, project mock 30 | same |
+| Resume parse free, ATS 5, tailor 20, cover letter 15, questions 5 | same |
+| 100 credits at signup, no expiry | `SIGNUP_GRANT_CREDITS` in `apps/main/lib/credits/grant.ts`; no expiry logic exists |
+| Jobs: browse, saved, applications, following | `apps/main/app/(jobs)/jobs/*` |
+
+**KnowMe and Pathfinder are deliberately absent.** Their routes exist but they are hidden
+from the app's own navigation. A feature page that lists something the app will not show
+you is the Studio failure with a new name.
+
+**Every module states what it is NOT.** That is the honest scope line, and it is the most
+useful sentence in each section - a reader deciding between this and a course needs to know
+it is a practice environment before signing up, not after.
+
+**Layout:** `split` hero, then a two-column reading layout with a sticky index. About is a
+`statement` hero over centred grids and pricing is a `ledger` hero over column grids; a
+third stack of centred sections would have made three pages read as one template. The index
+is `position: sticky` with no scrollspy - a highlighted current section would cost a client
+component on a page whose argument is that the product is fast.
 
 ### WEB-11 - Compare pages
 
-**Status:** not started
+**Status:** done, but **the scope changed and the reason matters**
 **Serves:** DoD 2, 3
 
-**Research first, and this one is the strictest.** Every competitor statement must
-be checkable against something they publish, **dated, with the source URL recorded
-next to the claim**. A comparison table that overstates is a comparison table that
-gets screenshotted.
+`/compare`, `/compare/leetcode`, `/compare/interviewing-io`.
 
-Start with the two most-searched: LeetCode, and one interview-prep service.
-One page per competitor; the dropdown lists them.
+**The research gate did its job by failing.** This task's own bar was: *every competitor
+statement checkable against something they publish, dated, with the source URL recorded
+next to the claim*. Applied honestly:
 
-**Verification:** every cell has a source URL and a date.
+- **LeetCode serves HTTP 403 to automated fetches across their entire domain** - the
+  subscribe page, the support articles, `/explore`, all of it. Every price figure available
+  for them comes from third-party SEO blogs, several of which sell competing products, and
+  those figures disagreed with each other on the day this was written.
+- **interviewing.io does not publish prices at all.** Their own front page offers a free AI
+  interviewer and paid human sessions and says to sign up to see what those cost
+  (accessed 2026-08-20).
 
-### WEB-12 - Dropdown mechanics
+So the pages state **no competitor price**. Not approximate, not hedged. That is a real
+narrowing of what this task originally imagined, and it is the correct one: an out-of-date
+figure that happens to favour us is the most dishonest thing a comparison page can carry
+and the easiest to acquire by accident.
 
-**Status:** not started
+**What they compare instead is the SHAPE of the approach**, which is stable and publicly
+visible. Every cell is one of three kinds, and a cell needing a fourth was cut - which is
+why some rows read "not compared":
+
+1. a fact about ShipItHQ, naming the file it was read from
+2. a property of the category, argued rather than asserted
+3. a quote from the competitor's own page, with the URL and the date
+
+**The source column is printed on the page**, not hidden in a comment. A claim nobody can
+check is a claim we should not have made.
+
+**Two structural guards against this becoming an advert.** What the alternative is good at
+comes FIRST, before any argument for us - enforced by the data model, which puts
+`creditWhereDue` before `argument`. And there is a "pick them if" section the same size as
+"pick us if"; if that one is ever quietly shortened, the page has stopped being a
+comparison.
+
+**Not shipped:** any page whose claims could not be sourced. That is why there are two
+comparisons and not six.
+
+### WEB-12 / WEB-13 / WEB-14 - Navigation
+
+**Status:** all three done (2026-08-20)
 **Serves:** DoD 3
-**Blocked by:** WEB-10, WEB-11 (do not point the nav at pages that do not exist)
 
-Port from the reference, keeping the existing navbar's look:
-- 120ms close delay so a diagonal mouse can cross the gap
-- Escape closes; listener mounted only while open
-- `DropdownItem` with icon + title + description
-- `overflow-visible` on the pill so the open tab meets the panel
-- keep `z-40` so modals still open above the navbar
+The design did not change. The floating pill, its scroll behaviour, the brand mark and the
+CTA are as they were - the complaint was navigation depth, not appearance.
 
-**Verification:** see `02-navigation.md`.
+**Structure.** Features (6 rows), Compare (2 rows), Resources (4 rows), Pricing as a
+top-level link because it is the second most-clicked item on a marketing site.
 
-### WEB-13 - Mobile accordion
+**The four mechanics, all ported:**
 
-**Status:** not started
-**Serves:** DoD 3
+1. **120ms close delay.** The gap between tab and panel is crossed by a diagonal mouse.
+   The panel's `pt-3` also means the pointer is still inside the group while travelling, so
+   the timer is rarely needed and reliable when it is.
+2. **Escape closes, and focus returns to the trigger.** Listener mounted only while open,
+   so the page carries no global keydown handler at rest.
+3. **Rows are titled and described.** Copy in `nav-links.ts`, shared by the desktop
+   dropdown and the mobile accordion - they were going to be two literal arrays and drift,
+   which is exactly what the three blog cards did.
+4. **`overflow-visible` on the pill**, so the open tab meets the panel instead of being
+   clipped into a floating rectangle.
 
-Hover is meaningless on touch. Panels become accordions in the mobile sheet;
-outside-click closes.
+**`z-50` -> `z-40`.** `@repo/ui`'s Sheet and Dialog are both `z-50`; a navbar at the same
+level competes with them on DOM order alone, which resolves differently depending on when
+the portal mounts.
 
-### WEB-14 - Keyboard and a11y
+**The trigger is a `Link`, not a `button`.** It was first written as a button with an
+onClick setting `window.location.href`, which throws away client-side navigation, is not
+middle-clickable, and is not crawlable. Hover or focus opens the panel; Enter navigates.
 
-**Status:** not started
-**Serves:** DoD 3
+**Mobile (WEB-13):** hover is meaningless on touch, so panels are accordions in the sheet,
+with a `min-h-12` tap floor. Fixed a live dark-mode bug while in there: the mobile links
+carried `dark:bg-white` next to `dark:hover:bg-neutral-900`, and both `dark:text-neutral-400`
+and `dark:text-neutral-900` on the same element.
 
-Tab reaches every item in an open panel, Escape closes and returns focus, focus is
-visible throughout.
+**Verification (WEB-12):** crawled every internal link on nine pages - **43 distinct
+links, all 200**. No dead ends from the nav.
+
+**The footer changed too, and it was a real bug.** Its Platform column linked to
+`${APP_URL}/practice` and friends, so a signed-out visitor clicking "Practice" in the
+footer - the place a not-yet-convinced reader goes looking - was bounced to a sign-in wall.
+It points at `/features#practice` now, and a Compare column was added.
+
+---
 
 ---
 

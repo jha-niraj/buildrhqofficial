@@ -1,0 +1,221 @@
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import { ArrowRight, Check } from 'lucide-react'
+import { PageHero } from '@/components/page-hero'
+import { Reveal } from '@/components/reveal'
+import { SITE, BRAND, APP_LINKS } from '@/lib/site'
+import { FEATURE_MODULES } from './_components/feature-modules'
+
+/**
+ * The "what do I actually get" page.
+ *
+ * ── Its layout is deliberately not the other pages' layout ──
+ *
+ * About is a `statement` hero over centred grids. Pricing is a `ledger` hero over column
+ * grids. If this page were a third stack of centred sections, six public pages would read
+ * as one template with the words swapped, which is the specific complaint this work
+ * started from.
+ *
+ * So: a `split` hero, and then a body that is a two-column reading layout with a sticky
+ * index. That shape is not decoration - it is the right one for a page of six anchored
+ * sections that the navbar dropdown deep-links into, because the index doubles as the
+ * "you are here" the dropdown cannot show.
+ *
+ * The sticky column is CSS `position: sticky`. No scrollspy, no observer, no
+ * `use client` - a highlighted current section would cost a client component on a page
+ * whose whole argument is that the product is fast.
+ *
+ * ── Everything factual is in `_components/feature-modules.ts` ──
+ *
+ * Including where each claim was verified. This file is layout; that file is the
+ * contract. See the note at the top of it.
+ */
+
+export const metadata: Metadata = {
+    title: 'Features - Practice, Projects, Mock Interviews and AI Tools',
+    description:
+        'Everything ShipItHQ does: DSA and system design practice with code that runs in a real Linux container, project briefs with interviews written from your own build, voice mock interviews, ATS resume tooling and a job tracker.',
+    alternates: { canonical: `${SITE}/features` },
+    openGraph: {
+        type: 'website',
+        url: `${SITE}/features`,
+        siteName: BRAND.name,
+        title: `Features | ${BRAND.name}`,
+        description:
+            'Practice on real infrastructure, projects you can be interviewed about, voice mocks, ATS resume tooling and a job tracker.',
+        images: [{ url: '/og/home.webp', width: 1200, height: 630 }],
+    },
+}
+
+// ItemList rather than SoftwareApplication. `SoftwareApplication` requires an
+// `aggregateRating` or a `review` to be eligible for a rich result, and there are no real
+// reviews on this page - inventing one risks a manual action, which is why apps/web's own
+// CLAUDE.md forbids it.
+const featureSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `${BRAND.name} features`,
+    itemListElement: FEATURE_MODULES.map((m, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: m.name,
+        description: m.summary,
+        url: `${SITE}/features#${m.id}`,
+    })),
+}
+
+export default function FeaturesPage() {
+    return (
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(featureSchema) }}
+            />
+
+            <PageHero
+                variant="split"
+                eyebrow="Features"
+                title={<>Six things, and each one does what it says.</>}
+                sub="No module on this page is coming soon, in beta, or a route you cannot reach after signing up. Where something has a limit, the limit is written next to it."
+                ctas={[
+                    { text: 'Start free', href: APP_LINKS.signup, external: true },
+                    { text: 'See pricing', href: '/pricing' },
+                ]}
+                aside={
+                    <ul className="grid gap-px overflow-hidden rounded-2xl border border-neutral-900/15 bg-neutral-900/15">
+                        {FEATURE_MODULES.map((m) => (
+                            <li key={m.id} className="bg-white/70 backdrop-blur-sm">
+                                <a
+                                    href={`#${m.id}`}
+                                    className="flex min-h-11 items-center justify-between gap-4 px-5 py-3 transition-colors hover:bg-white"
+                                >
+                                    <span className="text-sm font-semibold text-neutral-900">{m.name}</span>
+                                    <span className="hidden text-xs text-neutral-700 sm:block">{m.summary.split(',')[0]}</span>
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                }
+            />
+
+            <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-24">
+                <div className="grid gap-12 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-16">
+                    {/* The index. `hidden lg:block` because below lg it would push the first
+                        section a full screen down, and the hero already lists the same six
+                        as tappable links - so nothing is lost on a phone. */}
+                    <nav aria-label="On this page" className="hidden lg:block">
+                        <div className="sticky top-28">
+                            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400">
+                                On this page
+                            </p>
+                            <ul className="space-y-1 border-l border-neutral-200 dark:border-neutral-800">
+                                {FEATURE_MODULES.map((m) => (
+                                    <li key={m.id}>
+                                        <a
+                                            href={`#${m.id}`}
+                                            className="-ml-px block border-l border-transparent py-1.5 pl-4 text-sm text-neutral-600 transition-colors hover:border-neutral-900 hover:text-neutral-900 dark:text-neutral-400 dark:hover:border-white dark:hover:text-white"
+                                        >
+                                            {m.name}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </nav>
+
+                    <div className="min-w-0">
+                        {FEATURE_MODULES.map((m, i) => (
+                            <Reveal
+                                as="section"
+                                key={m.id}
+                                // scroll-mt clears the floating navbar. Without it an anchor
+                                // from the nav dropdown lands with the heading under the pill.
+                                className={`scroll-mt-28 ${i > 0 ? 'mt-20 border-t border-neutral-200 pt-20 dark:border-neutral-800' : ''}`}
+                            >
+                                <div id={m.id} />
+                                <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400">
+                                    {String(i + 1).padStart(2, '0')}
+                                </p>
+                                <h2 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-4xl">
+                                    {m.name}
+                                </h2>
+                                <p className="mt-4 max-w-2xl text-lg leading-relaxed text-neutral-700 dark:text-neutral-300">
+                                    {m.summary}
+                                </p>
+
+                                <div className="mt-8 grid gap-10 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+                                    <div className="min-w-0 space-y-4">
+                                        {m.body.map((para) => (
+                                            <p key={para.slice(0, 32)} className="text-[15px] leading-relaxed text-neutral-600 dark:text-neutral-400">
+                                                {para}
+                                            </p>
+                                        ))}
+                                    </div>
+
+                                    <div className="min-w-0">
+                                        <ul className="space-y-2.5">
+                                            {m.points.map((p) => (
+                                                <li key={p} className="flex gap-3 text-[15px] leading-relaxed text-neutral-700 dark:text-neutral-300">
+                                                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400 dark:text-neutral-500" aria-hidden />
+                                                    {p}
+                                                </li>
+                                            ))}
+                                        </ul>
+
+                                        {m.costs && (
+                                            <dl className="mt-6 space-y-2 rounded-xl border border-neutral-200 p-4 dark:border-neutral-800">
+                                                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-neutral-500 dark:text-neutral-400">
+                                                    What it costs
+                                                </p>
+                                                {m.costs.map((c) => (
+                                                    <div key={c.label} className="flex items-baseline justify-between gap-4 text-sm">
+                                                        <dt className="text-neutral-600 dark:text-neutral-400">{c.label}</dt>
+                                                        <dd className="shrink-0 font-medium tabular-nums text-neutral-900 dark:text-white">
+                                                            {c.credits === 0 ? 'Free' : `${c.credits} credits`}
+                                                        </dd>
+                                                    </div>
+                                                ))}
+                                            </dl>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* The scope line gets its own block rather than a footnote,
+                                    because it is the most useful sentence in the section and a
+                                    reader deciding between this and a course needs it before
+                                    they sign up, not after. */}
+                                <p className="mt-8 border-l-2 border-neutral-900 py-1 pl-5 text-[15px] leading-relaxed text-neutral-600 dark:border-white dark:text-neutral-400">
+                                    <span className="font-semibold text-neutral-900 dark:text-white">What it is not. </span>
+                                    {m.scope}
+                                </p>
+                            </Reveal>
+                        ))}
+                    </div>
+                </div>
+
+                <Reveal className="mt-24 rounded-2xl border border-neutral-200 bg-neutral-50 px-6 py-12 text-center dark:border-neutral-800 dark:bg-neutral-900/40">
+                    <h2 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-3xl">
+                        100 credits, no card, nothing to cancel.
+                    </h2>
+                    <p className="mx-auto mt-3 max-w-xl text-[15px] leading-relaxed text-neutral-600 dark:text-neutral-400">
+                        Enough to run a few practice sets, score a resume and generate a cover letter before you decide whether any of this is for you.
+                    </p>
+                    <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+                        <a
+                            href={APP_LINKS.signup}
+                            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-neutral-900 px-6 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
+                        >
+                            Start free <ArrowRight className="h-4 w-4" aria-hidden />
+                        </a>
+                        <Link
+                            href="/pricing"
+                            className="inline-flex min-h-11 items-center rounded-full border border-neutral-300 px-6 text-sm font-semibold text-neutral-800 transition-colors hover:border-neutral-500 dark:border-neutral-700 dark:text-neutral-200 dark:hover:border-neutral-500"
+                        >
+                            What credits cost
+                        </Link>
+                    </div>
+                </Reveal>
+            </div>
+        </>
+    )
+}

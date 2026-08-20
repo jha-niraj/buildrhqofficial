@@ -3,7 +3,7 @@ import { Logo } from "@repo/ui/components/logo"
 import { Linkedin, Github } from "lucide-react";
 import { FaXTwitter } from "react-icons/fa6";
 import { NewsletterSubscription } from "../homepage/newslettersubscription";
-import { APP_LINKS, APP_URL, BRAND } from "@/lib/site";
+import { APP_LINKS, BRAND } from "@/lib/site";
 
 // Marketing footer. Two kinds of destination and no third:
 //   - internal Next <Link>s for pages that exist on THIS site
@@ -14,14 +14,31 @@ const LINK_GROUPS: {
     title: string;
     links: { name: string; href: string; external?: boolean }[];
 }[] = [
+        // These point at /features, NOT at the app origin.
+        //
+        // They used to be absolute links to the app origin, so a signed-out visitor
+        // clicking "Practice" in the footer was bounced to a sign-in wall - the footer is
+        // where a reader who is not yet convinced goes looking, which is exactly the wrong
+        // moment to ask them to log in. It also spent the site's internal links on pages a
+        // crawler is redirected away from.
         {
             title: "Platform",
             links: [
-                { name: "Projects", href: `${APP_URL}/projects`, external: true },
-                { name: "Practice", href: `${APP_URL}/practice`, external: true },
-                { name: "Mock Interviews", href: `${APP_URL}/mock`, external: true },
-                { name: "AI Tools", href: `${APP_URL}/ai`, external: true },
+                { name: "Features", href: "/features" },
+                { name: "Practice", href: "/features#practice" },
+                { name: "Projects", href: "/features#projects" },
+                { name: "Mock Interviews", href: "/features#mock" },
+                { name: "AI Tools", href: "/features#ai" },
                 { name: "Pricing", href: "/pricing" },
+            ],
+        },
+        {
+            title: "Compare",
+            links: [
+                { name: "All comparisons", href: "/compare" },
+                { name: "vs LeetCode", href: "/compare/leetcode" },
+                { name: "vs interviewing.io", href: "/compare/interviewing-io" },
+                { name: "Open a free account", href: APP_LINKS.signup, external: true },
             ],
         },
         {

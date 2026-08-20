@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { SITE } from '@/lib/site'
 import { BLOG_POSTS, BLOG_CATEGORY_KEYS, getPostsByCategory, publishedPosts } from '@/content/blog'
+import { COMPARISON_SLUGS } from './(home)/compare/_components/comparisons'
 
 // Every public/SEO URL lives on this marketing deploy. Product pages (/ai, /practice,
 // /projects…) belong to the app and are excluded - they 307 away from here anyway.
@@ -14,8 +15,13 @@ const STATIC_LAST_MODIFIED = '2026-07-30'
 
 const ROUTES: Record<string, [number, MetadataRoute.Sitemap[number]['changeFrequency']]> = {
     '': [1.0, 'weekly'],
+    // Features and pricing are the two pages a buyer asks for before signing up, which is
+    // why they sit above the blog. Compare is below them because its individual pages
+    // carry the search intent and they are enumerated separately below.
+    'features': [0.9, 'monthly'],
     'pricing': [0.9, 'monthly'],
     'blogs': [0.8, 'weekly'],
+    'compare': [0.7, 'monthly'],
     'aboutus': [0.6, 'monthly'],
     'termsofservice': [0.3, 'yearly'],
     'privacypolicy': [0.3, 'yearly'],
@@ -57,5 +63,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
             }
         })
 
-    return [...staticEntries, ...postEntries, ...topicEntries]
+    // One entry per comparison. Enumerated from the same array the pages are generated
+    // from, so a new comparison cannot be shipped without appearing here.
+    const compareEntries: MetadataRoute.Sitemap = COMPARISON_SLUGS.map((slug) => ({
+        url: `${SITE}/compare/${slug}`,
+        lastModified: STATIC_LAST_MODIFIED,
+        changeFrequency: 'monthly' as const,
+        priority: 0.7,
+    }))
+
+    return [...staticEntries, ...postEntries, ...topicEntries, ...compareEntries]
 }
