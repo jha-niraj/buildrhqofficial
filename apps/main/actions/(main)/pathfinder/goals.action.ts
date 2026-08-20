@@ -196,16 +196,18 @@ export async function createPathfinderGoal(input: CreateGoalInput) {
 
         if (!isPublic) {
             const required = PATHFINDER_CREDITS.privateGoalCreation
-            await db.update(users)
-                .set({ credits: sql`${users.credits} - ${required}` })
-                .where(eq(users.id, session.user.id))
-            await db.insert(creditTransactions).values({
+            // Was a read-then-write debit plus a separate ledger insert: two
+            // concurrent creates both passed the check, and a failure between the
+            // two writes left the balance and the ledger permanently disagreeing.
+            // `debitCredits` does both in one guarded transaction.
+            const charge = await debitCredits({
                 userId: session.user.id,
-                amount: -required,
-                type: 'SPEND',
+                amount: required,
                 description: `Pathfinder Private Goal: ${input.title}`,
-                currency: 'INR',
             })
+            if (!charge.ok) {
+                return { success: false, error: insufficientCreditsMessage(charge), code: charge.code }
+            }
         }
 
         // Create verification record
@@ -387,6 +389,7 @@ export async function deletePathfinderGoal(goalId: string) {
 // ================================================================================
 
 import { openai } from '@/lib/openai-client'
+import { debitCredits, insufficientCreditsMessage } from '@/lib/credits/debit'
 
 interface StudyPlanTopic {
     title: string

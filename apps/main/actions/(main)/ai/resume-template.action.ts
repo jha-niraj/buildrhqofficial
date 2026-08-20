@@ -14,6 +14,7 @@ import {
 } from '@repo/db'
 import { eq, and, desc, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
+import { debitCredits, insufficientCreditsMessage } from '@/lib/credits/debit'
 
 // ========================================
 // HELPERS
@@ -28,27 +29,11 @@ async function getCurrentUser() {
 }
 
 async function deductCredits(userId: string, amount: number, description: string) {
-    const user = await db.query.users.findFirst({
-        where: eq(users.id, userId),
-        columns: { credits: true },
-    })
-
-    if (!user || (user.credits ?? 0) < amount) {
-        throw new Error("Insufficient credits")
-    }
-
-    await withTransaction(async (tx) => {
-        await tx.update(users)
-            .set({ credits: sql`${users.credits} - ${amount}` })
-            .where(eq(users.id, userId));
-        await tx.insert(creditTransactions).values({
-            userId,
-            amount: -amount,
-            type: "SPEND",
-            currency: "INR",
-            description,
-        });
-    })
+    const result = await debitCredits({ userId, amount, description });
+    // Same contract the callers already rely on: throw when the balance is short.
+    // What changed is that the check and the write are now one guarded statement,
+    // so two concurrent calls cannot both pass it.
+    if (!result.ok) throw new Error(insufficientCreditsMessage(result));
 }
 
 // ========================================

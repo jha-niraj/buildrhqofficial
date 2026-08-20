@@ -142,10 +142,16 @@ export async function createStandupSession(projectId: string, projectSlug: strin
                 })
                 .returning()
 
-            await tx
+            // Guarded in SQL, not by the balance read above: two concurrent requests
+                // both pass a read-then-write check and both debit. Zero rows updated
+                // means the balance moved under us, and throwing rolls the whole
+                // transaction back - so nothing is created that was not paid for.
+            const debited = await tx
                 .update(users)
                 .set({ credits: sql`${users.credits} - ${creditsRequired}` })
-                .where(eq(users.id, userId))
+                .where(and(eq(users.id, userId), sql`${users.credits} >= ${creditsRequired}`))
+                .returning({ credits: users.credits })
+            if (debited.length === 0) throw new Error("Insufficient credits")
 
             await tx.insert(creditTransactions).values({
                 userId,

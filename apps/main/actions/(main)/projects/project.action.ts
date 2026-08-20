@@ -20,6 +20,7 @@ import {
 import { eq, and, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { toErrorMessage } from "@/lib/errors"
+import { debitCredits, insufficientCreditsMessage } from '@/lib/credits/debit'
 
 interface ActionResponse {
     success: boolean;
@@ -37,22 +38,11 @@ async function getCurrentUser() {
 
 // Helper functions for credits and XP
 async function _deductCredits(userId: string, amount: number, description: string) {
-    const [user] = await db.select({ credits: users.credits }).from(users).where(eq(users.id, userId));
-
-    if (!user || user.credits < amount) {
-        throw new Error("Insufficient credits");
-    }
-
-    await withTransaction(async (tx) => {
-        await tx.update(users).set({ credits: sql`${users.credits} - ${amount}` }).where(eq(users.id, userId));
-        await tx.insert(creditTransactions).values({
-            userId,
-            amount: -amount,
-            type: "SPEND",
-            currency: "INR",
-            description,
-        });
-    });
+    const result = await debitCredits({ userId, amount, description });
+    // Same contract the callers already rely on: throw when the balance is short.
+    // What changed is that the check and the write are now one guarded statement,
+    // so two concurrent calls cannot both pass it.
+    if (!result.ok) throw new Error(insufficientCreditsMessage(result));
 }
 
 async function _refundCredits(userId: string, amount: number, description: string) {
@@ -1076,8 +1066,16 @@ export async function enrollInProject(projectId: string): Promise<ActionResponse
         const allTasks = project.sprints.flatMap((s: any) => s.tasks);
 
         const result = await withTransaction(async (tx) => {
-            // 1. Deduct credits
-            await tx.update(users).set({ credits: sql`${users.credits} - ${enrollmentCost}` }).where(eq(users.id, user.id));
+            // 1. Deduct credits.
+            // Guarded in SQL, not by the balance read above: two concurrent enrols
+            // both pass a read-then-write check and both debit. Zero rows updated
+            // means the balance moved under us, and throwing rolls the whole
+            // enrolment back rather than seating someone who did not pay.
+            const debited = await tx.update(users)
+                .set({ credits: sql`${users.credits} - ${enrollmentCost}` })
+                .where(and(eq(users.id, user.id), sql`${users.credits} >= ${enrollmentCost}`))
+                .returning({ credits: users.credits });
+            if (debited.length === 0) throw new Error("Insufficient credits");
 
             // 2. Create credit transaction
             await tx.insert(creditTransactions).values({

@@ -168,9 +168,15 @@ ${knowledgeBase.practicalScenarios.map((s, i) => `${i + 1}. ${s}`).join('\n')}
 `
 
         await withTransaction(async (tx) => {
-            await tx.update(users)
+            // Guarded in SQL, not by the balance read above: two concurrent requests
+                // both pass a read-then-write check and both debit. Zero rows updated
+                // means the balance moved under us, and throwing rolls the whole
+                // transaction back - so nothing is created that was not paid for.
+            const debited = await tx.update(users)
                 .set({ credits: sql`${users.credits} - ${MOCK_CREDIT_COST}` })
-                .where(eq(users.id, session.user.id));
+                .where(and(eq(users.id, session.user.id), sql`${users.credits} >= ${MOCK_CREDIT_COST}`))
+                .returning({ credits: users.credits });
+            if (debited.length === 0) throw new Error("Insufficient credits");
 
             await tx.insert(creditTransactions).values({
                 userId: session.user.id,

@@ -526,10 +526,18 @@ export async function triggerManualUpdate(): Promise<
 			return { success: false, error: "Insufficient credits" };
 		}
 
-		// Deduct credit
-		await db.update(users)
+		// Guarded in SQL rather than by the balance read above, which two
+		// concurrent requests both pass. This one still writes its own
+		// knowMeCreditTransactions row below, so it takes the guard directly
+		// rather than going through `debitCredits`, which writes to the shared
+		// creditTransactions ledger instead.
+		const debited = await db.update(users)
 			.set({ credits: sql`${users.credits} - 1` })
-			.where(eq(users.id, session.user.id));
+			.where(and(eq(users.id, session.user.id), sql`${users.credits} >= 1`))
+			.returning({ credits: users.credits });
+		if (debited.length === 0) {
+			return { success: false, error: "Insufficient credits" };
+		}
 
 		// Log credit transaction
 		await db.insert(knowMeCreditTransactions).values({

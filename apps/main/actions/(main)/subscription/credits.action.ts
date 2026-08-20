@@ -9,7 +9,7 @@ import {
     creditTransfers,
     withTransaction
 } from "@repo/db"
-import { eq, sql, desc } from "drizzle-orm"
+import { and, eq, sql, desc } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import cuid from "cuid"
 
@@ -121,12 +121,22 @@ export async function transferCredits(senderId: string, receiverId: string, amou
     if (sender.credits < amount) throw new Error("Insufficient credits")
 
     const result = await withTransaction(async (tx) => {
-        await tx.update(users)
+        // Guarded in SQL, not by the balance read above. This is the one debit in
+        // the product where losing the race does more than overdraw an account:
+        // two concurrent transfers from the same sender both pass a read-then-write
+        // check, both debit the sender and both credit a receiver, so the sender
+        // goes negative AND credits that never existed enter circulation. Zero rows
+        // updated means someone else got there first; throwing rolls the transfer
+        // back before any receiver is credited.
+        const debited = await tx.update(users)
             .set({
                 credits: sql`${users.credits} - ${amount}`,
                 creditsShared: sql`${users.creditsShared} + ${amount}`,
             })
-            .where(eq(users.id, senderId))
+            .where(and(eq(users.id, senderId), sql`${users.credits} >= ${amount}`))
+            .returning({ credits: users.credits })
+
+        if (debited.length === 0) throw new Error("Insufficient credits")
 
         await tx.update(users)
             .set({ credits: sql`${users.credits} + ${amount}` })

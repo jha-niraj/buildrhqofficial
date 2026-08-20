@@ -581,9 +581,14 @@ export async function generateJobInterviewQuestions(
 		// Save to database and handle credits in a transaction
 		const result = await withTransaction(async (tx) => {
 			// Deduct credits
-			await tx.update(users)
+			// Guarded in SQL, not by the balance read above: two concurrent requests
+			// both pass a read-then-write check and both debit. Zero rows updated means
+			// the balance moved under us, and throwing rolls the transaction back.
+			const debited = await tx.update(users)
 				.set({ credits: sql`${users.credits} - ${requiredCredits}` })
-				.where(eq(users.id, session.user.id));
+				.where(and(eq(users.id, session.user.id), sql`${users.credits} >= ${requiredCredits}`))
+				.returning({ credits: users.credits });
+			if (debited.length === 0) throw new Error("Insufficient credits");
 
 			console.log('Credits deducted:', requiredCredits);
 
@@ -2087,9 +2092,14 @@ export async function purchaseInterviewPlan(planId: string) {
 
 		const result = await withTransaction(async (tx) => {
 			// Deduct credits from buyer
-			await tx.update(users)
+			// Guarded in SQL, not by the balance read above: two concurrent requests
+			// both pass a read-then-write check and both debit. Zero rows updated means
+			// the balance moved under us, and throwing rolls the transaction back.
+			const debitedBuyer = await tx.update(users)
 				.set({ credits: sql`${users.credits} - ${cost}` })
-				.where(eq(users.id, session.user.id));
+				.where(and(eq(users.id, session.user.id), sql`${users.credits} >= ${cost}`))
+				.returning({ credits: users.credits });
+			if (debitedBuyer.length === 0) throw new Error("Insufficient credits");
 
 			// Create credit transaction
 			await tx.insert(creditTransactions).values({
