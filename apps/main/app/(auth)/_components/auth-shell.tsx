@@ -81,13 +81,30 @@ export function AuthShell({ children }: { children: ReactNode }) {
                     {/* Copy block - high in the panel, left aligned. Keyed on the
                         pathname so React cross-fades the text when the route changes
                         instead of the browser repainting the whole panel. */}
-                    <div key={pathname} className="auth-copy-enter relative z-10 mt-10 max-w-sm shrink-0 xl:mt-12 xl:max-w-md">
-                        <h2 className="text-3xl font-bold leading-tight tracking-tight text-neutral-900 xl:text-4xl">
+                    <div key={pathname} className="relative z-10 mt-10 max-w-sm shrink-0 xl:mt-12 xl:max-w-md">
+                        {/* Each line enters a beat after the one above it. The
+                            wrapper used to animate as a single block, which is what
+                            made the change feel abrupt - the whole panel's text
+                            appeared at once rather than composing itself. */}
+                        <h2
+                            className="auth-copy-enter text-3xl font-bold leading-tight tracking-tight text-neutral-900 xl:text-4xl"
+                            style={{ ["--enter-delay" as string]: "0ms" }}
+                        >
                             {headline}
                         </h2>
-                        {sub && <p className="mt-4 text-base leading-relaxed text-neutral-700">{sub}</p>}
+                        {sub && (
+                            <p
+                                className="auth-copy-enter mt-4 text-base leading-relaxed text-neutral-700"
+                                style={{ ["--enter-delay" as string]: "70ms" }}
+                            >
+                                {sub}
+                            </p>
+                        )}
                         {quote && (
-                            <p className="mt-6 border-l border-neutral-900/20 pl-4 text-sm italic leading-relaxed text-neutral-600">
+                            <p
+                                className="auth-copy-enter mt-6 border-l border-neutral-900/20 pl-4 text-sm italic leading-relaxed text-neutral-600"
+                                style={{ ["--enter-delay" as string]: "140ms" }}
+                            >
                                 {quote}
                             </p>
                         )}
@@ -97,11 +114,19 @@ export function AuthShell({ children }: { children: ReactNode }) {
                         lets it shrink inside the flex column on short viewports rather
                         than pushing the footer off the bottom. */}
                     <div className="relative z-0 flex min-h-0 flex-1 items-center justify-center py-6">
-                        <AuthVisual
+                        {/* Wrapped rather than styled directly: AuthVisual takes only
+                            `variant` and `className`, and the delay has to ride on a
+                            custom property. */}
+                        <div
                             key={variant}
-                            variant={variant}
-                            className="auth-copy-enter h-full max-h-[340px] w-full max-w-[420px] text-neutral-900/70"
-                        />
+                            className="auth-art-enter flex h-full w-full items-center justify-center"
+                            style={{ ["--enter-delay" as string]: "180ms" }}
+                        >
+                            <AuthVisual
+                                variant={variant}
+                                className="h-full max-h-[340px] w-full max-w-[420px] text-neutral-900/70"
+                            />
+                        </div>
                     </div>
 
                     <div className="relative z-10 flex shrink-0 items-center justify-between">

@@ -441,10 +441,13 @@ html[data-theme-transition] .theme-vt-glass {
 
 
 /* ── Typography ───────────────────────────────────────────────────────────────
-   Every h1-h3 and the sidebar use the display face. Done here rather than by
+   Every h1-h6 and the sidebar use the display face. h4-h6 were missing, so a
+   card title or a small section label rendered in the body face while the h2
+   above it did not - the inconsistency showed up most on dense pages, which are
+   exactly the ones built out of small headings. Done here rather than by
    adding `font-display` to hundreds of call sites, so a future face swap is a
    one-line change and no heading can be accidentally left behind. */
-h1, h2, h3,
+h1, h2, h3, h4, h5, h6,
 .font-display {
     font-family: var(--font-display-family);
     letter-spacing: -0.02em;
@@ -699,17 +702,60 @@ h1, h2, h3,
     height: 14px;
 }
 
-/* The brand panel's copy fades in when the auth route changes.
+/* ── Auth brand panel entrance ────────────────────────────────────────────────
    The panel itself no longer remounts - it lives in the (shell) layout - so this
-   animates the ONLY thing that actually changed, instead of the whole column
-   blinking the way it did when each page owned its own shell. */
+   animates only what actually changed when the route did: the copy and the
+   artwork.
+
+   Staggered rather than one flat fade. Everything arriving at once reads as a
+   single block appearing, which is the thing that felt abrupt; letting the
+   headline lead and the rest follow a beat behind reads as the panel composing
+   itself. The steps are small (70ms) because a stagger you can count is a
+   stagger that is too slow.
+
+   The curve is a soft overshoot-free ease-out over 520ms - long enough to feel
+   unhurried, short enough that a fast navigator is never waiting on it. The
+   translate is 10px and paired with a whisper of blur: the blur is what makes it
+   read as "settling into place" rather than "sliding in", and it costs nothing
+   on an element this size.
+
+   `--enter-delay` lets each child opt into its own place in the sequence without
+   a separate class per slot. */
 .auth-copy-enter {
-    animation: auth-copy-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: auth-copy-in 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: var(--enter-delay, 0ms);
 }
+
 @keyframes auth-copy-in {
-    from { opacity: 0; transform: translateY(6px); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+        filter: blur(3px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+        filter: blur(0);
+    }
+}
+
+/* The artwork is the largest thing on the panel, so it gets a longer, gentler
+   arrival than the text - a big shape moving at text speed reads as jumpy. It
+   scales rather than translates, because a 420px illustration sliding 10px is a
+   wobble; growing 1.5% is a breath. */
+.auth-art-enter {
+    animation: auth-art-in 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: var(--enter-delay, 0ms);
+}
+
+@keyframes auth-art-in {
+    from { opacity: 0; transform: scale(0.985); }
     to   { opacity: 1; transform: none; }
 }
+
 @media (prefers-reduced-motion: reduce) {
-    .auth-copy-enter { animation: none; }
+    .auth-copy-enter,
+    .auth-art-enter {
+        animation: none;
+    }
 }

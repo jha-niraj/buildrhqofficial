@@ -26,7 +26,21 @@ const geistMono = Geist_Mono({
 
 const bricolage = Bricolage_Grotesque({
 	subsets: ["latin"],
-	weight: ["200", "300", "400", "500", "600", "700", "800"],
+	// NO `weight` array, deliberately. Bricolage is a variable face (wght 200-800);
+	// naming the seven weights pins next/font to those instances instead of
+	// letting one variable file cover the range.
+	//
+	// `axes` is the other half, and the reason this face was chosen: Bricolage
+	// carries an optical-size axis, and next/font only requests axes you name.
+	// Without opsz the large headings lose the automatic optical sizing that makes
+	// them look right at display size.
+	//
+	// Worth knowing when checking this: a .woff2 is Brotli-compressed, so grepping
+	// the file for "fvar" or "opsz" finds nothing whether or not the axes are
+	// there. The table DIRECTORY is uncompressed, so `fvar` is detectable from it;
+	// the axis tags are not, without decompressing. Confirm opsz in DevTools
+	// (Network -> the font -> the request URL Google was asked for).
+	axes: ["opsz"],
 	display: "swap",
 	// Registered as --font-display, which globals.css maps to the `font-display`
 	// utility - so every h1/h2 and the sidebar pick it up without each app
