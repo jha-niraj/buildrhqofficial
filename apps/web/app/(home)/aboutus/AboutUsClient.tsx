@@ -10,8 +10,9 @@ import { Button } from "@repo/ui/components/ui/button"
 import { Badge } from "@repo/ui/components/ui/badge"
 import nirajjha from "./images/nirajjha.jpeg"
 import harsh from "./images/harsh.jpeg"
-import { APP_LINKS, BRAND } from "@/lib/site"
+import { APP_LINKS, BRAND, APP_URL } from "@/lib/site"
 import ContactClient from "./_components/contact-client"
+import { PageHero } from "@/components/page-hero"
 
 // Filtered Team Data
 interface Leader {
@@ -56,28 +57,20 @@ const stats = [
 export default function AboutUs() {
     return (
         <div className="min-h-screen bg-white dark:bg-neutral-950 font-sans selection:bg-neutral-100 dark:selection:bg-neutral-800">
-            <section className="relative pt-32 pb-20 border-b border-neutral-100 dark:border-neutral-800">
-                <div className="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
-                <div className="max-w-7xl mx-auto px-6">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                        className="max-w-3xl"
-                    >
-                        <Badge variant="outline" className="mb-6 px-4 py-1.5 rounded-full border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 font-medium text-sm">
-                            Since 2024
-                        </Badge>
-                        <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-neutral-900 dark:text-white mb-8">
-                            We are building the <br />
-                            <span className="text-neutral-500 dark:text-neutral-400">operating system</span> for students.
-                        </h1>
-                        <p className="text-xl text-neutral-600 dark:text-neutral-400 leading-relaxed font-light">
-                            The Coder&apos;z is not just an ed-tech platform. It is an engineering ecosystem designed to bridge the gap between academic theory and production-grade software development.
-                        </p>
-                    </motion.div>
-                </div>
-            </section>
+            {/* `statement` variant: About is an argument, not a list, so the header is
+                one claim and nothing else. See components/page-hero.tsx for why the
+                surface is fixed and only the composition varies. */}
+            <PageHero
+                variant="statement"
+                eyebrow="Since 2024"
+                title={<>Nobody gets hired for<br className="hidden sm:block" /> finishing a tutorial.</>}
+                sub="ShipItHQ exists for the gap between passing a course and passing an interview - the part where you have to build something real, explain it out loud, and prove you can do it again."
+                ctas={[
+                    { text: "Start building", href: `${APP_URL}/register`, external: true },
+                    { text: "See what it costs", href: "/pricing" },
+                ]}
+            />
+
             <section className="py-24 border-b border-neutral-100 dark:border-neutral-800">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">

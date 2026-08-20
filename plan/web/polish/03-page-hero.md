@@ -3,6 +3,30 @@
 **Serves:** definition of done 4, 8
 **Reference:** `gurukulhq/apps/web/components/page-hero.tsx` (500 lines)
 
+> **STATUS: WEB-20 and WEB-21 done (2026-08-20).** WEB-22 waits on the Features and
+> Compare pages existing; WEB-23 (the measured contrast audit) is still open.
+>
+> **DECISION CHANGED during implementation, on Niraj's instruction.** This file
+> originally specified ONE fixed hero for every page. He asked for the opposite -
+> "different layout per page ... should not share the layout same which makes it
+> boring" - and he is right about the symptom. The resolution splits the two things
+> this file had conflated:
+>
+> - the **surface** (colour, texture, type scale, spacing rhythm) stays FIXED, with
+>   no escape hatch. That is what makes six pages read as one product.
+> - the **composition** becomes a `variant`. That is what stops them reading as one
+>   template with the words swapped.
+>
+> Four variants exist: `statement`, `ledger`, `split`, `versus`. Adding a fifth is a
+> change to `page-hero.tsx`, which is deliberate - it forces a look at the other
+> four first.
+>
+> **The surface is also not the reference's.** Gurukul uses a warm pearl ground
+> behind a photographic tile mosaic. This uses the monochrome ridge photograph
+> already behind the auth screens and the app shell, so a visitor moving marketing
+> -> sign-in -> product never sees the ground change. Continuity with the product
+> was judged worth more than a bespoke mosaic on a site with a handful of pages.
+
 ## The finding
 
 `apps/web` has **no shared header component**. Grepping for one returns nothing;

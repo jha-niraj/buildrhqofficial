@@ -59,6 +59,10 @@ export interface PlatformTemplate {
     previewColor: string   // accent color shown in card preview
 }
 
+// Swatches are NEUTRAL. The palette is monochrome black/neutral - these carried
+// indigo, pink and emerald, and they are the swatches a user sees while choosing a
+// template, so they were the most visible violation in the product. A template that
+// wants to differentiate does it with layout and type, not hue.
 export const PLATFORM_TEMPLATES: PlatformTemplate[] = [
     {
         slug: "clean-minimal",
@@ -67,7 +71,7 @@ export const PLATFORM_TEMPLATES: PlatformTemplate[] = [
         tags: ["ATS-friendly", "minimal", "general"],
         sectionOrder: ["header", "summary", "experience", "education", "skills", "projects"],
         config: { primaryColor: "#1a1a1a", fontFamily: "inter", layout: "single", showPhoto: false, fontSize: "medium" },
-        previewColor: "#6366f1",
+        previewColor: "#404040",
     },
     {
         slug: "developer-pro",
@@ -75,8 +79,8 @@ export const PLATFORM_TEMPLATES: PlatformTemplate[] = [
         description: "Two-column layout with skills and tech stack front and centre. Built for engineers.",
         tags: ["developer", "two-column", "tech"],
         sectionOrder: ["header", "skills", "experience", "projects", "education", "certifications"],
-        config: { primaryColor: "#0f172a", accentColor: "#6366f1", fontFamily: "inter", layout: "two-column", showPhoto: false, fontSize: "small" },
-        previewColor: "#6366f1",
+        config: { primaryColor: "#171717", accentColor: "#404040", fontFamily: "inter", layout: "two-column", showPhoto: false, fontSize: "small" },
+        previewColor: "#404040",
     },
     {
         slug: "executive-classic",
@@ -94,7 +98,7 @@ export const PLATFORM_TEMPLATES: PlatformTemplate[] = [
         tags: ["ATS-friendly", "simple", "safe"],
         sectionOrder: ["header", "experience", "skills", "education", "projects"],
         config: { primaryColor: "#000000", fontFamily: "roboto", layout: "single", showPhoto: false, fontSize: "small" },
-        previewColor: "#10b981",
+        previewColor: "#525252",
     },
     {
         slug: "modern-creative",
@@ -102,7 +106,7 @@ export const PLATFORM_TEMPLATES: PlatformTemplate[] = [
         description: "Subtle accent colours and strong visual hierarchy. Stand out from the pile.",
         tags: ["creative", "modern", "visual"],
         sectionOrder: ["header", "summary", "experience", "projects", "skills", "education"],
-        config: { primaryColor: "#0f172a", accentColor: "#ec4899", fontFamily: "inter", layout: "single", showPhoto: false, fontSize: "medium" },
-        previewColor: "#ec4899",
+        config: { primaryColor: "#171717", accentColor: "#171717", fontFamily: "inter", layout: "single", showPhoto: false, fontSize: "medium" },
+        previewColor: "#171717",
     },
 ]

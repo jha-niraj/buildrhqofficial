@@ -4,7 +4,6 @@ import { useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { ArrowRight, Lock, Infinity as Infit, Server, Sparkles } from "lucide-react"
-import { ShaderHeroBg, SHADER_PALETTES } from "@repo/ui/components/hero-shader-bg"
 import {
 	Accordion,
 	AccordionContent,
@@ -13,6 +12,7 @@ import {
 } from "@repo/ui/components/ui/accordion"
 import { PricingBento } from "@repo/ui/components/pricing-bento"
 import { checkoutUrl } from "@repo/pricing"
+import { PageHero } from "@/components/page-hero"
 import { pricingFaqs } from "./pricing-faqs"
 import { APP_LINKS, APP_URL } from "@/lib/site"
 
@@ -28,49 +28,43 @@ export default function PricingClient() {
 	return (
 		<main className="bg-white dark:bg-neutral-950">
 			{/* ── Hero ─────────────────────────────────────────────────────────── */}
-			<section className="relative overflow-hidden bg-[#faf7f2] dark:bg-black pt-32 pb-20">
-				<ShaderHeroBg colors={SHADER_PALETTES.pearl} light className="dark:hidden" />
-				<div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
-					<motion.div
-						initial={{ opacity: 0, y: 16 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.5 }}
-					>
-						<span className="inline-flex items-center gap-2 rounded-full border border-neutral-300 bg-white/80 px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-widest text-neutral-600 backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-white/60">
-							<span className="h-1.5 w-1.5 rounded-full bg-neutral-900" />
-							Pricing
-						</span>
-						<h1 className="mt-7 text-[44px] font-bold leading-[1.05] tracking-[-2px] text-neutral-950 dark:text-white sm:text-[56px]">
-							Pay only for what you{" "}
-							<span className="text-neutral-900 dark:text-white">run.</span>
-						</h1>
-						<p className="mx-auto mt-5 max-w-xl text-[16px] leading-relaxed text-neutral-600 dark:text-white/50">
-							ShipItHQ is credit-based - no subscriptions, no idle-time charges.
-							Buy a pack once, and spend credits only when you build, practice,
-							or interview. Credits never expire.
-						</p>
+			{/* `ledger` variant: someone on this page arrived wanting a number, so the
+			    header states the model and then puts four hard facts under a rule. The
+			    bespoke #faf7f2 ground and its own shader went with the old header - see
+			    components/page-hero.tsx on why the surface is not a prop. */}
+			<PageHero
+				variant="ledger"
+				eyebrow="Pricing"
+				title={<>Pay only for what you run.</>}
+				sub="No subscription, no idle-time charge. Buy a pack once and spend credits when you actually build, practise or interview - and if an AI operation fails, the credits come straight back."
+				facts={[
+					{ value: "100", label: "Free credits on signup" },
+					{ value: "0", label: "Subscriptions" },
+					{ value: "Never", label: "Credits expire" },
+					{ value: "6", label: "Languages that run" },
+				]}
+			/>
 
-						{/* currency toggle */}
-						<div className="mx-auto mt-8 flex w-fit items-center gap-4 rounded-full border border-neutral-200 bg-neutral-100/80 py-2 pl-4 pr-2 backdrop-blur dark:border-neutral-800 dark:bg-neutral-900">
-							<span className={`font-mono text-sm font-bold transition-colors ${currency === "INR" ? "text-neutral-900 dark:text-white" : "text-neutral-600 dark:text-neutral-400"}`}>
-								INR
-							</span>
-							<button
-								onClick={() => setCurrency(currency === "INR" ? "USD" : "INR")}
-								className="relative h-6 w-12 rounded-full bg-neutral-900 transition-colors dark:bg-white"
-								aria-label="Toggle currency"
-							>
-								<span
-									className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all dark:bg-neutral-900 ${currency === "USD" ? "left-6" : "left-0.5"}`}
-								/>
-							</button>
-							<span className={`font-mono text-sm font-bold transition-colors ${currency === "USD" ? "text-neutral-900 dark:text-white" : "text-neutral-600 dark:text-neutral-400"}`}>
-								USD
-							</span>
-						</div>
-					</motion.div>
-				</div>
-			</section>
+			{/* The currency toggle moved out of the header and above the cards it
+			    actually controls. In the header it was a control sitting a screen away
+			    from the prices it changed. */}
+			<div className="mx-auto flex w-fit items-center gap-4 rounded-full border border-neutral-200 bg-neutral-100/80 py-2 pl-4 pr-2 mt-10 dark:border-neutral-800 dark:bg-neutral-900">
+				<span className={`font-mono text-sm font-bold transition-colors ${currency === "INR" ? "text-neutral-900 dark:text-white" : "text-neutral-600 dark:text-neutral-400"}`}>
+					INR
+				</span>
+				<button
+					onClick={() => setCurrency(currency === "INR" ? "USD" : "INR")}
+					className="relative h-6 w-12 rounded-full bg-neutral-900 transition-colors dark:bg-white"
+					aria-label="Toggle currency"
+				>
+					<span
+						className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all dark:bg-neutral-900 ${currency === "USD" ? "left-6" : "left-0.5"}`}
+					/>
+				</button>
+				<span className={`font-mono text-sm font-bold transition-colors ${currency === "USD" ? "text-neutral-900 dark:text-white" : "text-neutral-600 dark:text-neutral-400"}`}>
+					USD
+				</span>
+			</div>
 
 			{/* ── Pricing cards ────────────────────────────────────────────────── */}
 			<section className="relative border-t border-neutral-100 py-20 dark:border-neutral-800">

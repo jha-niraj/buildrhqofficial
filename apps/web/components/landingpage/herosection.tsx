@@ -156,7 +156,7 @@ export default function HeroSection() {
     ]
 
     return (
-        <section className="relative h-screen overflow-hidden bg-[#faf7f2] dark:bg-black">
+        <section className="relative h-screen overflow-hidden bg-neutral-100 dark:bg-black">
             {/* Animated shader backdrop in both themes: warm pearl in light, a
                 premium neutral graphite in dark so the white hero text stays legible. */}
             <ShaderHeroBg colors={SHADER_PALETTES.pearl} light className="dark:hidden" />

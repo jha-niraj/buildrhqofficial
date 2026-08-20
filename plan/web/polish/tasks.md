@@ -13,7 +13,7 @@ is not started.
 |---|---|---|---|
 | **Content truth** - blocks everything in the 30s | | | |
 | WEB-1 | Audit every product claim on the site against the codebase | 1 | **done (2026-08-20)** |
-| WEB-2 | Resolve the testimonials question | 2 | **blocked - needs Niraj** |
+| WEB-2 | Resolve the testimonials question | 2 | **section hidden; decision still needed** |
 | WEB-3 | Reconcile pricing copy against `packages/pricing` | 1, 2 | **done (2026-08-20)** |
 | WEB-4 | Delete the Studio section | 1 | **done (2026-08-20)** |
 | WEB-5 | Strip multiplayer language from the projects section | 1 | **done (2026-08-20)** |
@@ -25,8 +25,8 @@ is not started.
 | WEB-13 | Mobile accordion nav | 3 | not started |
 | WEB-14 | Keyboard + a11y pass on the nav | 3 | not started |
 | **Page hero** | | | |
-| WEB-20 | Build `PageHero` with a fixed surface | 4 | not started |
-| WEB-21 | Adopt it on aboutus, pricing | 4 | not started |
+| WEB-20 | Build `PageHero` - fixed surface, variant composition | 4 | **done (2026-08-20)** |
+| WEB-21 | Adopt it on aboutus, pricing | 4 | **done (2026-08-20)** |
 | WEB-22 | Adopt it on Features, Compare | 4 | not started |
 | WEB-23 | Contrast audit across every public page | 8 | not started |
 | **Landing composition** | | | |

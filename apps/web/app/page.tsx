@@ -7,7 +7,6 @@ import AIToolsSection from "@/components/landingpage/aitoolssection";
 import ProjectsSection from "@/components/landingpage/projects-section";
 import AssessmentsSection from "@/components/landingpage/assessments-section";
 import CreditsSection from "@/components/landingpage/credits-section";
-import Testimonials from "@/components/landingpage/testimonials-section";
 import Footer from "@/components/landingpage/footer";
 import PricingSection from "@/components/landingpage/pricing-section";
 import FaqsAccrodian from "@/components/landingpage/faqs";
@@ -45,7 +44,11 @@ export default function LandingPage() {
                 <section id="credits">
                     <CreditsSection />
                 </section>
-                <Testimonials />
+                {/* Testimonials are HIDDEN, not deleted, pending WEB-2: nothing in the
+                    repo records whether the people quoted are real or consented, and an
+                    unsourced testimonial carries legal weight the other claims do not.
+                    Restore this line once each quote has a name and a recorded consent -
+                    see plan/web/polish/tasks.md. */}
                 <section id="pricing">
                     <PricingSection />
                 </section>
