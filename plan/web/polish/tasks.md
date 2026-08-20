@@ -39,11 +39,11 @@ is not started.
 | WEB-36 | Compare section on the landing page | 6 | not started |
 | **Blog images** | | | |
 | WEB-40 | Confirm the OG generator does not read `heroImage` | 5 | **done (2026-08-20) - GATE OPEN** |
-| WEB-41 | Build the topic glyph set | 5 | not started |
-| WEB-42 | Replace inline images with HTML | 5 | not started |
-| WEB-43 | Drop `heroImage` from the post pipeline | 5 | not started |
-| WEB-44 | Delete the raster files | 5 | not started |
-| WEB-45 | Verify social cards still generate | 5 | not started |
+| WEB-41 | Build the topic glyph set | 5 | **done (2026-08-20)** |
+| WEB-42 | Replace inline images with HTML | 5 | **done (2026-08-20)** |
+| WEB-43 | Drop `heroImage` from the post pipeline | 5 | **done (2026-08-20)** |
+| WEB-44 | Delete the raster files | 5 | **done (2026-08-20)** |
+| WEB-45 | Verify social cards still generate | 5 | **done (2026-08-20)** |
 | **Performance** | | | |
 | WEB-50 | Baseline Lighthouse run | 7 | not started |
 | WEB-51 | Lazily mount every below-fold section | 7 | **deferred - see note** |
@@ -495,37 +495,97 @@ the dev server, not computed from the source colours.
 
 ### WEB-41 - Topic glyphs
 
-**Status:** not started
+**Status:** done (2026-08-20)
 **Serves:** DoD 5
 
-One server-rendered SVG per `BLOG_CATEGORIES` entry. `currentColor`, no
-`use client`, no motion. See the reference's comment on why.
+Seven glyphs in `app/(home)/blogs/_components/topic-glyph.tsx`, one per
+`BLOG_CATEGORIES` entry: a pair of speech bubbles, a rising ladder, a ruled page with a
+tick, a binary tree, a browser frame, a branch merging back, and a terminal caret.
+
+Server-rendered SVG, `currentColor` throughout, `aria-hidden`. No `use client`, no motion.
+They render on the hub `h1`, the "other topics" row, and every card's category line - the
+row of seven identical grey pills is gone from both places it existed.
+
+`aria-hidden` because the glyph always sits beside a text label that already names the
+topic. A screen reader hearing "DSA and Practice, image, binary tree" has been told the
+same thing twice.
 
 ### WEB-42 - Inline images to HTML
 
-**Status:** not started
+**Status:** done (2026-08-20). All 13 converted or deleted.
 **Serves:** DoD 5
 
-13 images across the posts. Comparison -> table, before/after -> two code blocks,
-workflow -> SVG or mermaid, decoration -> deleted. Check `lib/blog-renderer.ts`
-for what the pipeline already supports; `mermaid` is already a dependency.
+Decided per image, not in bulk:
 
-These images contain **information** currently locked in a raster where it cannot
-be read aloud, searched, copied or themed.
+| image | verdict |
+|---|---|
+| `dsa-inline-1` complexity cheat sheet | **table** - 9 structures x access/search/insert/delete, plus when to reach for each |
+| `dsa-inline-2` DP table | **table** - Coin Change `[1,3,4]` to 6, worked cell by cell, with the greedy-vs-DP gap called out |
+| `resume-inline-1` before/after ATS | **two code blocks** - the literal text an ATS extracts from a two-column resume, then from a single-column one |
+| `resume-inline-2` skills section | **deleted** - the code block directly above it already WAS a well-structured skills section |
+| `system-design-inline-1` architecture | **inline SVG** - client, CDN, load balancer, app servers, cache, database, with `<title>` and `<desc>` |
+| `system-design-inline-2` Kafka | **inline SVG** - two producers, three partitions, a consumer group, and the one-partition-one-consumer rule that caps parallelism |
+| `opensource-inline-1` good-first-issue | **table + query** - the five label spellings maintainers actually use, and a GitHub search string with `no:assignee` |
+| `opensource-inline-2` a good PR | **code block** - a real PR description template, with why `Closes #482` is the load-bearing line |
+| `portfolio-inline-2` a good README | **code block** - the README skeleton the prose describes, filled in |
+| `interview-inline-1` person on a video call | **deleted** - stock photograph, no information |
+| `portfolio-inline-1` laptop on a desk | **deleted** - stock photograph, no information |
+| `ai-tools-inline-1` Claude's UI | **deleted** - a screenshot of a third-party interface. Cannot be reproduced honestly as HTML and dates the moment that product last redesigned |
+| `ai-tools-inline-2` tool workflow | **deleted** - it sat immediately above a section called "The AI Developer Stack in Practice" that lists the same workflow in prose |
 
-### WEB-43 / WEB-44 - Drop and delete
+Five deletions is more than the plan predicted, and the reason is consistent: those five
+were duplicating the sentence next to them rather than showing something the text could
+not.
 
-**Status:** not started
+**Two things the conversion needed that the plan did not anticipate.**
+
+The README block contains a nested fenced code block, and three backticks inside three
+backticks closes the outer fence. The outer one is four backticks now, and there is a
+fence-balance check that reads every post.
+
+The complexity table is six columns and cannot fit 360px at a readable size. Tables are
+now wrapped in a `.table-scroll` container by `lib/blog-renderer.ts` after conversion,
+because a markdown table has nowhere to hang a wrapper of its own. Without it the
+document scrolls sideways, which is exactly the failure `docs/responsiveness.md` names.
+
+### WEB-43 / WEB-44 - Drop `heroImage`, delete the rasters
+
+**Status:** done (2026-08-20)
 **Serves:** DoD 5
 
-Remove `heroImage` values, then delete the files. Grep before deleting.
+`heroImage` is gone from `BlogPost` entirely - the optional field and all seven values.
+`public/og/blog/` is deleted: 21 files, **1.7MB**.
 
-### WEB-45 - Verify cards
+Grepped before deleting, not after. That grep found the one reference the plan had not
+listed: `/blogs`'s own `og:image` still pointed at `blog-index-hero.webp`, and it now has
+a generated card of its own from the same builder.
 
-**Status:** not started
+### WEB-45 - Social cards still generate
+
+**Status:** done (2026-08-20)
 **Serves:** DoD 5
 
-Build and confirm a `/blogs/<slug>` OG image still renders.
+Both routes render, both are prerendered, and the numbers are measured rather than
+asserted:
+
+| post | rasters before | generated cover now | change |
+|---|---|---|---|
+| `dsa-study-plan-coding-interview` | 177,826 B | 72,655 B | **-59%** |
+| `system-design-interview-prep` | 223,226 B | 79,253 B | **-64%** |
+| `software-engineering-portfolio-guide` | 244,032 B | 74,895 B | **-69%** |
+
+**The honest counter-entry.** `/blogs` got HEAVIER, not lighter. The cards used to be
+text-only; they lead with a cover now. Mitigated by making every grid cover `lazy` and
+only the featured one `eager` - the initial HTML carries 1 eager and 16 lazy - so the page
+fetches one image before the reader scrolls, and that image is the LCP element anyway.
+
+**A known cost, recorded rather than hidden.** `next/og` emits PNG, and a flat gradient
+with text on it is a case where PNG is a poor format - a webp of the same card would be a
+fraction of the size. The cards are also 1200x630 while a grid card displays at roughly
+400px, so a card ships about three times the pixels it shows. Both are acceptable at this
+count and both are worth revisiting if the blog reaches fifty posts. The reason it is not
+fixed now: `ImageResponse` has no format option, and a second smaller variant doubles the
+build artifacts to save bytes on images that are already lazy.
 
 ---
 

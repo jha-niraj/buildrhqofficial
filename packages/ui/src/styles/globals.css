@@ -328,6 +328,49 @@
     display: block;
 }
 
+/* ── Diagrams ──
+   Article diagrams are inline SVG in the markdown, not rasters. They inherit
+   `.blog-content`'s own colour through `currentColor`, which is why they need no
+   dark-mode rule: the one that sets the body text also sets the diagram.
+
+   Styled here rather than with utility classes in the markdown because Tailwind does
+   not scan the markdown under `content/posts`, so a `class="w-full"` written in a post
+   is a class that never gets generated.
+
+   And note what broke this file the first time it was written: the path was spelled with
+   a glob, and the slash-star inside it CLOSED THIS COMMENT four lines early. A CSS
+   comment has no escape. Do not write a glob in here. */
+.blog-content figure {
+    margin: 2.5rem 0;
+}
+
+.blog-content figure svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* ── Wide content scrolls inside itself, never the page ──
+   The complexity table in the DSA post is six columns wide and cannot fit a 360px
+   screen at a readable size. Without this the whole document scrolls sideways, which
+   is the failure `docs/responsiveness.md` calls out: an overflow that becomes the
+   page's problem rather than the element's.
+
+   The wrapper is added by `lib/blog-renderer.ts` after the markdown is converted,
+   because a markdown table has nowhere to hang a wrapper of its own. */
+.blog-content .table-scroll {
+    overflow-x: auto;
+    margin: 2rem 0;
+    /* Momentum scrolling on iOS, and a visible hint that there is more to the right. */
+    -webkit-overflow-scrolling: touch;
+}
+
+.blog-content .table-scroll > table {
+    margin: 0;
+    /* Below this the columns wrap into unreadable slivers; past it, scroll instead. */
+    min-width: 32rem;
+}
+
 .blog-content hr {
     border: none;
     border-top: 1px solid #e5e5e5;

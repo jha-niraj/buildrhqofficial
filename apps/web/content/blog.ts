@@ -46,12 +46,6 @@ export interface BlogPost {
     /** Target search terms. Emitted as Article `keywords` and page `keywords`. */
     keywords: readonly string[]
     readingTime: number
-    /**
-     * Hero image under /public. Optional: posts without a bespoke image render a
-     * branded cover card instead. Social previews never depend on this - every post
-     * gets a generated OG card from app/(home)/blogs/[slug]/opengraph-image.tsx.
-     */
-    heroImage?: string
     /** Rendered on-page and emitted as FAQPage JSON-LD. Aim for four. */
     faqs: readonly { q: string; a: string }[]
     /** Three hand-picked slugs. Drives the related-posts block and internal linking. */
@@ -73,7 +67,6 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         dateModified: '2026-07-30',
         keywords: ['software engineering portfolio', 'developer portfolio', 'portfolio projects for software engineer', 'github portfolio', 'web developer portfolio'],
         readingTime: 12,
-        heroImage: '/og/blog/portfolio-hero.webp',
         featured: true,
         takeaways: [
             'Three finished, deployed projects beat twelve half-built repos every time.',
@@ -101,7 +94,6 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         dateModified: '2026-07-30',
         keywords: ['system design interview', 'system design interview prep', 'system design roadmap', 'scalability interview', 'distributed systems interview'],
         readingTime: 14,
-        heroImage: '/og/blog/system-design-hero.webp',
         featured: true,
         takeaways: [
             'System design is graded on your process, not on arriving at one correct architecture.',
@@ -128,7 +120,6 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         dateModified: '2026-07-30',
         keywords: ['mock interview practice', 'mock technical interview', 'technical interview practice', 'coding interview practice', 'how to practice for technical interviews'],
         readingTime: 12,
-        heroImage: '/og/blog/interview-hero.webp',
         takeaways: [
             'Solving problems silently is not interview practice - the performance is the skill being tested.',
             'Record yourself. Nearly every fixable weakness is obvious on playback and invisible in the moment.',
@@ -232,7 +223,6 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         dateModified: '2026-07-30',
         keywords: ['dsa study plan', 'dsa roadmap', 'data structures and algorithms plan', 'coding interview preparation', 'leetcode study plan'],
         readingTime: 15,
-        heroImage: '/og/blog/dsa-hero.webp',
         featured: true,
         takeaways: [
             'Pattern coverage beats problem count - 150 problems across 15 patterns outperforms 500 random ones.',
@@ -285,7 +275,6 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         dateModified: '2026-07-30',
         keywords: ['ats resume', 'ats resume checker', 'software engineer resume', 'applicant tracking system resume', 'resume format for software engineer'],
         readingTime: 13,
-        heroImage: '/og/blog/resume-hero.webp',
         featured: true,
         takeaways: [
             'Most ATS platforms do not auto-reject you - recruiters filter by keyword search, which is a different failure mode.',
@@ -466,7 +455,6 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         dateModified: '2026-07-30',
         keywords: ['open source contribution', 'first open source pull request', 'open source for beginners', 'good first issue', 'how to contribute to open source'],
         readingTime: 11,
-        heroImage: '/og/blog/opensource-hero.webp',
         takeaways: [
             'Start with projects you already use - context is the hardest part of contributing, and you already have it.',
             'Read CONTRIBUTING.md before writing any code. Most rejected PRs break a documented rule.',
@@ -493,7 +481,6 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         dateModified: '2026-07-30',
         keywords: ['ai coding tools', 'ai tools for developers', 'best ai for coding', 'ai developer productivity', 'github copilot alternatives'],
         readingTime: 11,
-        heroImage: '/og/blog/ai-tools-hero.webp',
         takeaways: [
             'AI is best at code you could write but do not want to - boilerplate, tests, migrations.',
             'Review every generated line. Reviewing badly is where AI-assisted teams actually lose time.',

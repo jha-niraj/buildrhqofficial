@@ -50,7 +50,26 @@ The right first project has these characteristics:
 
 **Your own dependencies:** Look at the packages you use in your own projects. If you ever hit a limitation or found a bug, there is a contribution waiting for you.
 
-![GitHub repository showing good-first-issue labels with clear, approachable tasks](/og/blog/opensource-inline-1.webp)
+**The labels worth searching for.** Maintainers do not agree on one name, which is why a
+search for a single label misses most of what is out there:
+
+| Label | What it usually means | GitHub search |
+|---|---|---|
+| `good first issue` | Scoped, documented, reserved for newcomers. GitHub surfaces this one specially | `label:"good first issue"` |
+| `good-first-issue` | The same thing, hyphenated. A different label as far as search is concerned | `label:"good-first-issue"` |
+| `help wanted` | The maintainer will not get to it. Not always beginner-sized | `label:"help wanted"` |
+| `beginner friendly` / `E-easy` | Project-specific conventions. Worth checking a repo's label list | `label:"beginner friendly"` |
+| `documentation` | Often the easiest genuine contribution in any repo | `label:documentation` |
+
+Combine one with a language filter and a recency filter, or you will spend an evening on
+issues that were abandoned in 2021:
+
+```text
+is:issue is:open label:"good first issue" language:typescript created:>2026-02-01 no:assignee
+```
+
+`no:assignee` is the one most people leave off. An issue that already has somebody on it is
+not an opportunity, it is a queue.
 
 ## The First Contribution: What to Look For
 
@@ -132,7 +151,34 @@ Make the smallest possible change that fixes the issue or improves the documenta
 
 Read the surrounding code before writing a single line. Match the existing code style. If the project uses tabs, use tabs. If they use `interface` instead of `type`, use `interface`. Reviewers notice inconsistency and it signals carelessness.
 
-![GitHub pull request open with clear title, description, and linked issue](/og/blog/opensource-inline-2.webp)
+**What the PR description should contain.** Reviewers are volunteers reading this between
+other things. Give them everything they need to say yes without opening a second tab:
+
+```markdown
+## What
+
+One sentence. "Adds an API-key example to the authentication docs."
+
+## Why
+
+Closes #482.
+
+The current docs show the header name but not a full request, so a first-time
+reader has to guess whether the key is a bearer token or a raw value. It is raw.
+
+## How I tested
+
+- Ran `pnpm docs:dev` and checked the rendered page
+- Copy-pasted the example into curl against a local server; it returns 200
+
+## Notes for the reviewer
+
+I matched the formatting of the adjacent OAuth example rather than the one in
+the quickstart, because the quickstart's is out of date. Happy to change it.
+```
+
+`Closes #482` is the load-bearing line: GitHub links the PR to the issue and closes it on
+merge. Without it a maintainer has to do that by hand, and often does not.
 
 ### Step 6: Write Tests (If Applicable)
 

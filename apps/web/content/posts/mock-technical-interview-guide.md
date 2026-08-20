@@ -131,8 +131,6 @@ After writing the code, walk through it with a specific example. "Let me trace t
 
 Testing your own code tells the interviewer you care about correctness. Catching your own bugs during this phase is significantly better than having the interviewer point them out.
 
-![Developer in a video call mock interview, writing code on a shared coding environment](/og/blog/interview-inline-1.webp)
-
 ## Handling the Moments When You Freeze
 
 Every developer freezes sometimes. What separates strong interviewers is what they do next.

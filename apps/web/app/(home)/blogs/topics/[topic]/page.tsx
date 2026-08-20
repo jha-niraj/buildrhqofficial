@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { Clock } from 'lucide-react'
 import {
     BLOG_CATEGORIES,
     BLOG_CATEGORY_KEYS,
@@ -11,6 +10,8 @@ import {
 } from '@/content/blog'
 import { SITE, BRAND } from '@/lib/site'
 import { Reveal, RevealGroup, RevealItem } from '@/components/reveal'
+import { PostCard } from '../../_components/post-card'
+import { TopicGlyph } from '../../_components/topic-glyph'
 
 interface Props { params: Promise<{ topic: string }> }
 
@@ -46,6 +47,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             siteName: BRAND.name,
             title: `${name} Articles | ${BRAND.name}`,
             description: BLOG_CATEGORY_INTROS[topic],
+            // The hub had no og:image at all, so every shared topic link rendered as a bare
+            // text preview. It has a generated cover now - same builder as the post cards.
+            images: [{ url: `${url}/cover`, width: 1200, height: 630, alt: `${name} articles` }],
         },
     }
 }
@@ -103,7 +107,8 @@ export default async function TopicPage({ params }: Props) {
                             </ol>
                         </nav>
 
-                        <h1 className="mb-5 text-4xl font-bold tracking-tight text-neutral-900 dark:text-white md:text-5xl">
+                        <h1 className="mb-5 flex items-center gap-4 text-4xl font-bold tracking-tight text-neutral-900 dark:text-white md:text-5xl">
+                            <TopicGlyph category={topic} className="h-10 w-10 shrink-0 text-neutral-400 dark:text-neutral-500 md:h-12 md:w-12" />
                             {name}
                         </h1>
                         <p className="max-w-2xl text-lg leading-relaxed text-neutral-500 dark:text-neutral-400">
@@ -122,21 +127,9 @@ export default async function TopicPage({ params }: Props) {
                         <RevealGroup className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                             {posts.map((post, i) => (
                                 <RevealItem key={post.slug} index={i} className="flex">
-                                <Link
-                                    href={`/blogs/${post.slug}`}
-                                    className="group flex w-full flex-col rounded-2xl border border-neutral-200 p-6 transition-colors hover:border-neutral-400 dark:border-neutral-800 dark:hover:border-neutral-600"
-                                >
-                                    <h2 className="mb-3 text-lg font-semibold leading-snug tracking-tight text-neutral-900 group-hover:text-neutral-800 dark:text-white dark:group-hover:text-neutral-100">
-                                        {post.title}
-                                    </h2>
-                                    <p className="mb-5 line-clamp-3 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
-                                        {post.description}
-                                    </p>
-                                    <span className="mt-auto inline-flex items-center gap-1.5 font-mono text-[11px] text-neutral-500 dark:text-neutral-400">
-                                        <Clock className="h-3 w-3" aria-hidden />
-                                        {post.readingTime} min read
-                                    </span>
-                                </Link>
+                                    {/* The hubs have no featured card, so the first row IS the fold and its
+                                        covers are what LCP measures. Eager for those three only. */}
+                                    <PostCard post={post} priority={i < 3} />
                                 </RevealItem>
                             ))}
                         </RevealGroup>
@@ -151,8 +144,9 @@ export default async function TopicPage({ params }: Props) {
                                 <Link
                                     key={key}
                                     href={`/blogs/topics/${key}`}
-                                    className="rounded-full border border-neutral-200 px-4 py-1.5 text-sm text-neutral-500 transition-colors hover:border-neutral-400 hover:text-neutral-900 dark:border-neutral-800 dark:text-neutral-400 dark:hover:border-neutral-600 dark:hover:text-white"
+                                    className="inline-flex items-center gap-2 rounded-full border border-neutral-200 px-4 py-1.5 text-sm text-neutral-600 transition-colors hover:border-neutral-400 hover:text-neutral-900 dark:border-neutral-800 dark:text-neutral-400 dark:hover:border-neutral-600 dark:hover:text-white"
                                 >
+                                    <TopicGlyph category={key} className="h-4 w-4" />
                                     {BLOG_CATEGORIES[key]}
                                 </Link>
                             ))}

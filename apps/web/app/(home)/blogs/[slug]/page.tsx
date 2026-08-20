@@ -105,7 +105,9 @@ export default async function BlogPostPage({ params }: Props) {
         description: post.description,
         datePublished: post.datePublished,
         dateModified: post.dateModified,
-        image: abs(post.heroImage ?? '/og/home.webp'),
+        // The post's own generated cover, at the stable route-handler URL rather than the
+        // content-hashed metadata one - schema.org `image` has to be a URL that keeps working.
+        image: abs(`/blogs/${slug}/cover`),
         url,
         articleSection: BLOG_CATEGORIES[category],
         keywords: post.keywords.join(', '),
@@ -209,7 +211,7 @@ export default async function BlogPostPage({ params }: Props) {
                 </div>
 
                 <Reveal className="mx-auto mb-12 max-w-5xl px-6">
-                    <PostCover title={post.title} category={category} heroImage={post.heroImage} priority />
+                    <PostCover slug={slug} title={post.title} category={category} priority />
                 </Reveal>
 
                 <div className="mx-auto max-w-5xl px-6 pb-16">

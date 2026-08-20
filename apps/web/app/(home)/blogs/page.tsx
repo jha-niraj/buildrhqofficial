@@ -17,13 +17,11 @@ export const metadata: Metadata = {
         siteName: BRAND.name,
         title: `${TITLE} | ${BRAND.name}`,
         description: DESCRIPTION,
-        images: [{ url: '/og/blog/blog-index-hero.webp', width: 1200, height: 630, alt: `${BRAND.name} blog` }],
     },
     twitter: {
         card: 'summary_large_image',
         title: `${TITLE} | ${BRAND.name}`,
         description: DESCRIPTION,
-        images: ['/og/blog/blog-index-hero.webp'],
     },
 }
 

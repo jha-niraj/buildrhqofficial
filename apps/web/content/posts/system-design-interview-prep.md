@@ -38,7 +38,37 @@ A load balancer distributes traffic across multiple servers. Know the difference
 **Caching**
 Caching is the most impactful optimization in most system designs. Know where caches sit (client, CDN, application, database). Know cache invalidation strategies (TTL, write-through, write-behind, cache-aside). Know what cache eviction policies are (LRU, LFU). Know Redis vs Memcached trade-offs.
 
-![System design components: load balancer, cache, database - architecture diagram](/og/blog/system-design-inline-1.webp)
+<figure>
+<svg viewBox="0 0 800 132" role="img" aria-labelledby="sd-path-title sd-path-desc">
+  <title id="sd-path-title">The path of a single request</title>
+  <desc id="sd-path-desc">A request travels from the client to a CDN, then a load balancer, then one of several stateless app servers. The app server reads the cache first and falls through to the database, which has a primary and a read replica.</desc>
+  <defs>
+    <marker id="sd-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="currentColor"/></marker>
+  </defs>
+  <g fill="none" stroke="currentColor" stroke-width="1.5">
+    <rect x="20" y="44" width="104" height="52" rx="8"/>
+    <rect x="150" y="44" width="104" height="52" rx="8"/>
+    <rect x="280" y="44" width="104" height="52" rx="8"/>
+    <rect x="410" y="44" width="104" height="52" rx="8"/>
+    <rect x="540" y="44" width="104" height="52" rx="8"/>
+    <rect x="670" y="44" width="104" height="52" rx="8"/>
+    <path d="M124 70 H144" marker-end="url(#sd-arrow)"/>
+    <path d="M254 70 H274" marker-end="url(#sd-arrow)"/>
+    <path d="M384 70 H404" marker-end="url(#sd-arrow)"/>
+    <path d="M514 70 H534" marker-end="url(#sd-arrow)"/>
+    <path d="M644 70 H664" marker-end="url(#sd-arrow)"/>
+  </g>
+  <g fill="currentColor" text-anchor="middle" font-size="13" font-weight="600">
+    <text x="72" y="68">Client</text><text x="202" y="68">CDN</text><text x="332" y="68">Load balancer</text>
+    <text x="462" y="68">App servers</text><text x="592" y="68">Cache</text><text x="722" y="68">Database</text>
+  </g>
+  <g fill="currentColor" text-anchor="middle" font-size="11" opacity="0.7">
+    <text x="72" y="86">browser</text><text x="202" y="86">static assets</text><text x="332" y="86">health checks</text>
+    <text x="462" y="86">stateless, N of them</text><text x="592" y="86">Redis, cache-aside</text><text x="722" y="86">primary + replica</text>
+  </g>
+  <text x="400" y="122" fill="currentColor" text-anchor="middle" font-size="11" opacity="0.7">A cache miss is the only request that reaches the database</text>
+</svg>
+</figure>
 
 **Database Fundamentals**
 Know when to use SQL vs NoSQL. The short answer: SQL for structured relational data with ACID requirements, NoSQL for scale, flexibility, or specific access patterns. Know what database sharding, replication, and read replicas mean. Understand eventual consistency vs strong consistency and when each is acceptable.
@@ -110,7 +140,46 @@ Understand why you use a message queue instead of direct service calls. The shor
 
 Know Kafka vs RabbitMQ at a conceptual level. Kafka is a distributed log - messages are retained and can be replayed. RabbitMQ is a traditional message broker - messages are consumed and deleted. Kafka is better for event streaming and audit logs. RabbitMQ is better for task queues and work distribution.
 
-![Kafka message queue architecture: producers, topics, partitions, consumers](/og/blog/system-design-inline-2.webp)
+<figure>
+<svg viewBox="0 0 800 220" role="img" aria-labelledby="kafka-title kafka-desc">
+  <title id="kafka-title">A Kafka topic, its partitions and a consumer group</title>
+  <desc id="kafka-desc">Two producers write to a topic. The topic is split into three partitions, each an append-only log. A consumer group reads from the partitions, with each partition assigned to exactly one consumer in the group. Messages are retained after being read, so a consumer can replay from any offset.</desc>
+  <defs>
+    <marker id="k-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="currentColor"/></marker>
+  </defs>
+  <g fill="none" stroke="currentColor" stroke-width="1.5">
+    <rect x="14" y="52" width="112" height="40" rx="8"/>
+    <rect x="14" y="118" width="112" height="40" rx="8"/>
+    <rect x="230" y="32" width="300" height="152" rx="10"/>
+    <rect x="250" y="66" width="260" height="30" rx="5"/>
+    <rect x="250" y="106" width="260" height="30" rx="5"/>
+    <rect x="250" y="146" width="260" height="30" rx="5"/>
+    <rect x="640" y="52" width="146" height="40" rx="8"/>
+    <rect x="640" y="118" width="146" height="40" rx="8"/>
+    <path d="M126 72 H224" marker-end="url(#k-arrow)"/>
+    <path d="M126 138 H224" marker-end="url(#k-arrow)"/>
+    <path d="M530 81 H634" marker-end="url(#k-arrow)"/>
+    <path d="M530 121 H600 V138 H634" marker-end="url(#k-arrow)"/>
+    <path d="M530 161 H610 V138" stroke-dasharray="4 4"/>
+  </g>
+  <g fill="currentColor" font-size="12" font-weight="600">
+    <text x="70" y="77" text-anchor="middle">Producer A</text>
+    <text x="70" y="143" text-anchor="middle">Producer B</text>
+    <text x="380" y="52" text-anchor="middle">Topic: orders</text>
+    <text x="713" y="70" text-anchor="middle">Consumer 1</text>
+    <text x="713" y="136" text-anchor="middle">Consumer 2</text>
+  </g>
+  <g fill="currentColor" font-size="11" opacity="0.75">
+    <text x="262" y="86">partition 0</text><text x="262" y="126">partition 1</text><text x="262" y="166">partition 2</text>
+    <text x="500" y="86" text-anchor="end">offset 0 &#8594; n</text>
+    <text x="500" y="126" text-anchor="end">offset 0 &#8594; n</text>
+    <text x="500" y="166" text-anchor="end">offset 0 &#8594; n</text>
+    <text x="713" y="86" text-anchor="middle">reads partition 0</text>
+    <text x="713" y="152" text-anchor="middle">reads partitions 1 and 2</text>
+  </g>
+  <text x="400" y="206" fill="currentColor" text-anchor="middle" font-size="11" opacity="0.7">One partition goes to exactly one consumer in the group, which is what caps useful parallelism at the partition count</text>
+</svg>
+</figure>
 
 ### Consistency and Availability
 

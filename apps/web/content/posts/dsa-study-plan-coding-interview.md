@@ -77,7 +77,23 @@ Hash maps are the single most powerful tool in your interview arsenal. When you 
 
 **Key insight:** If you find yourself writing O(n²) for any array problem, ask yourself: "Can I precompute something into a hash map to eliminate the inner loop?" The answer is yes more often than you think.
 
-![Data structure cheat sheet: arrays, hash maps, trees, graphs complexity comparison](/og/blog/dsa-inline-1.webp)
+**The complexity table worth memorising.** Averages, not worst cases, except where the
+worst case is the thing that bites you:
+
+| Structure | Access | Search | Insert | Delete | Reach for it when |
+|---|---|---|---|---|---|
+| Array | O(1) | O(n) | O(n) | O(n) | the index is the thing you have |
+| Dynamic array | O(1) | O(n) | O(1) amortised at the end | O(n) | same, but the size grows |
+| Hash map | - | O(1) avg, O(n) worst | O(1) avg | O(1) avg | counting, grouping, "have I seen this" |
+| Hash set | - | O(1) avg | O(1) avg | O(1) avg | deduplication, membership |
+| Linked list | O(n) | O(n) | O(1) at a known node | O(1) at a known node | splicing without reindexing |
+| Stack | O(n) | O(n) | O(1) | O(1) | matching, undo, iterative DFS |
+| Queue / deque | O(n) | O(n) | O(1) | O(1) | BFS, sliding windows |
+| Binary heap | O(1) for the min or max | O(n) | O(log n) | O(log n) | top-k, schedulers, merging sorted inputs |
+| Balanced BST | O(log n) | O(log n) | O(log n) | O(log n) | ordered data and range queries |
+
+The hash map's O(n) worst case is not a footnote. It is what happens when every key
+collides, and it is why interviewers ask how a hash map resolves collisions.
 
 ### Week 3: Linked Lists and Stacks/Queues
 
@@ -214,7 +230,21 @@ Dynamic programming is where most developers spend too long and learn too little
 7. Word Break
 8. Unique Paths
 
-![Dynamic programming table visualization: grid showing subproblem solutions building toward the final answer](/og/blog/dsa-inline-2.webp)
+**What a DP table actually looks like.** Coin Change with coins `[1, 3, 4]`, target `6`.
+`dp[i]` is the fewest coins that make `i`, and each cell is decided only by cells to its
+left:
+
+| `i` | 0 | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|---|
+| `dp[i]` | 0 | 1 | 2 | 1 | 1 | 2 | 2 |
+| how | base | `dp[0]+1` | `dp[1]+1` | `dp[0]+1` using 3 | `dp[0]+1` using 4 | `dp[4]+1` using 1 | `dp[3]+1` using 3 |
+
+Read `dp[6]`: the greedy answer is 4+1+1, which is three coins. The table finds 3+3,
+which is two. That gap is the entire reason this problem is DP and not greedy.
+
+The recurrence is one line: `dp[i] = min(dp[i - c] + 1)` over every coin `c` that fits.
+Write the table out by hand for a small input before you write the loop. Every DP problem
+you will be given is that table with different arithmetic in the cell.
 
 ## Month 3: Advanced and Interview Simulation (Weeks 9-12)
 

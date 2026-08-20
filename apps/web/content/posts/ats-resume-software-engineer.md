@@ -33,7 +33,41 @@ The most technically skilled engineers often have the worst-performing resumes. 
 
 **They describe responsibilities instead of outcomes.** "Responsible for backend development" does not match the keywords in a job description that says "designed and implemented REST APIs." Specificity matters for both human readers and keyword matching.
 
-![A resume before and after ATS optimization - left version with formatting issues, right version clean and parseable](/og/blog/resume-inline-1.webp)
+**What the parser sees.** Here is the same experience entry twice. The first is a
+two-column layout with a skills bar and an icon; this is what the extracted text looks
+like after the parser has flattened it:
+
+```text
+BEFORE - what the ATS extracted
+EXPERIENCE                     SKILLS
+Senior Engineer  Acme  Python  Docker  React
+2022-Present  ●●●●○  ●●●○○  ●●●●●
+What I Have Built
+Responsible for backend development and
+various infrastructure improvements
+```
+
+The columns merged, the job title and the skills interleaved, the proficiency dots became
+noise, and "What I Have Built" is not a section header the parser recognises. Nothing in
+there is a usable field.
+
+```text
+AFTER - single column, standard headers
+Work Experience
+
+Senior Software Engineer
+Acme Corp | Jan 2022 - Present
+- Designed and implemented REST APIs in Python and FastAPI serving 40M requests/day
+- Cut p95 latency 380ms to 210ms by adding composite indexes and a Redis cache-aside layer
+- Migrated 12 services to Docker and Kubernetes, reducing deploy time from 25 to 4 minutes
+
+Skills
+Languages: Python, TypeScript, Go, SQL
+Infrastructure: Docker, Kubernetes, AWS, Terraform
+```
+
+Same person, same job. The second one parses into fields, and every technology in it is an
+exact keyword match against the job description.
 
 ## The ATS-Optimized Resume Format
 
@@ -116,8 +150,6 @@ Tools:        PostgreSQL, Redis, Kafka, Elasticsearch, Git
 ```
 
 Listing skills this way ensures every technology you know appears as an exact keyword match.
-
-![A well-structured skills section in a software engineering resume](/og/blog/resume-inline-2.webp)
 
 ## The Metrics Problem
 

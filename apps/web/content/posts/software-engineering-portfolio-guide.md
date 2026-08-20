@@ -8,8 +8,6 @@ Recruiters spend an average of 7 seconds on a resume before deciding to move for
 
 A degree says you sat in classes. A portfolio says you built things. In a market where CS graduates are applying to the same 50 companies, a strong portfolio is the single most controllable variable between you and an interview.
 
-![A clean software engineering portfolio displayed on a laptop screen](/og/blog/portfolio-inline-1.webp)
-
 The developers landing jobs at top companies in 2025 are not always the smartest in the room. They are the ones who documented their work, made their GitHub look like they care, and built projects that solve real problems.
 
 ## What Recruiters Actually Look at (And What They Skip)
@@ -87,7 +85,52 @@ Every project README should have these sections in this order:
 
 The architecture decisions section is what separates a junior portfolio from a mid-level one. "I chose Postgres over MongoDB because the data has clear relational structure and I wanted to practice writing raw SQL joins" tells a recruiter far more than listing your tech stack alone.
 
-![A well-structured GitHub README with clear sections and live demo link](/og/blog/portfolio-inline-2.webp)
+Here is that skeleton as an actual file. Copy it, fill it in, delete nothing:
+
+````markdown
+# Splitwise-for-Trips
+
+Splits shared holiday expenses between people in different currencies and settles
+up in the fewest possible transfers.
+
+**[Live demo](https://trips.example.dev)** | **[API docs](https://trips.example.dev/docs)**
+
+## Stack
+
+- Next.js 15, TypeScript, Tailwind
+- Postgres (Neon) with Drizzle
+- Deployed on Cloudflare Workers
+
+## Architecture decisions
+
+Chose Postgres over MongoDB because expenses, people and trips are a genuinely
+relational shape and I wanted to write the settlement query as one recursive CTE
+rather than three round trips.
+
+Settlement runs as a background job rather than in the request, because the
+minimum-transfer calculation is O(n!) in the worst case and I would rather show a
+spinner than hold a connection open.
+
+## Run it locally
+
+```bash
+git clone https://github.com/you/splitwise-for-trips
+pnpm install
+cp .env.example .env      # DATABASE_URL is the only required key
+pnpm db:migrate && pnpm dev
+```
+
+## What I learned
+
+The naive settlement algorithm was correct and unusably slow above nine people.
+Replacing it with a greedy heuristic gets within one transfer of optimal on every
+real trip I tested, which turned out to be the right trade.
+````
+
+The two sections that separate a junior portfolio from a mid-level one are **Architecture
+decisions** and **What I learned**. Anyone can list a stack. Explaining a trade-off you
+made, and one you got wrong, is the part that reads as an engineer rather than a
+tutorial-follower.
 
 ## Making Your GitHub Profile Work for You
 

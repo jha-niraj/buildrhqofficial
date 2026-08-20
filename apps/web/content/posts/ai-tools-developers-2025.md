@@ -40,8 +40,6 @@ Real-time information (knowledge cutoff), and like all models, it can be confide
 
 **Best use case for developers:** Paste your code and ask "what edge cases am I missing?" or "what would make this more idiomatic?" You get better feedback than most code reviews from junior colleagues.
 
-![Claude AI chat interface showing a detailed code review with architecture suggestions](/og/blog/ai-tools-inline-1.webp)
-
 ## 3. Cursor (AI-Native Code Editor)
 
 Cursor is a VS Code fork with AI built into the editor in ways that feel more integrated than Copilot. The standout feature is codebase context - Cursor can index your entire project and answer questions about your specific code.
@@ -135,8 +133,6 @@ Problems where getting the right answer requires following a chain of logic care
 Speed - reasoning models are significantly slower than standard GPT-4. They also cost more per query. Use them for hard problems, not routine code generation.
 
 **Best practice:** Use GPT-4o for everyday coding help, Perplexity for research, and o1/o3 when you have a genuinely hard problem where you need confident accuracy over speed.
-
-![Developer workflow showing multiple AI tools: Cursor for code, Perplexity for research, ShipItHQ for career prep](/og/blog/ai-tools-inline-2.webp)
 
 ## The AI Developer Stack in Practice
 
