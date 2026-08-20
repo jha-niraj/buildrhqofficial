@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-	X, Send, SquarePen, Loader2, Sparkles, History, Trash2, Maximize2, Minimize2,
+	X, Send, SquarePen, Loader2, Sparkles, History, Maximize2, Minimize2,
 	Copy, Check, StopCircle,
 } from "lucide-react";
 import { ScrollArea } from "@repo/ui/components/ui/scroll-area";
@@ -12,6 +11,10 @@ import { cn } from "@repo/ui/lib/utils";
 import toast from "@repo/ui/components/ui/sonner";
 import MarkdownRenderer from "@/components/common/markdown-renderer";
 import { useAIPanelStore, type AIChatMessage } from "@/app/store/aiPanelStore";
+import { createFrameParser } from "@/lib/ai/protocol";
+import { ToolSteps, type ToolStep } from "@/components/ai/tool-steps";
+import { ChatHistoryDialog } from "@/components/ai/chat-history-dialog";
+import { useContextTags, activeContextTags, removePinnedTag } from "@/components/ai/context-tags";
 
 const SUGGESTIONS = [
 	"Review my resume for a backend role",
@@ -123,6 +126,12 @@ export function AIPanel() {
 	const pathname = usePathname();
 	const [input, setInput] = useState("");
 	const [historyOpen, setHistoryOpen] = useState(false);
+	// The agent's activity for the turn in flight. Deliberately NOT in the message
+	// store: these are transient, and persisting them would replay stale
+	// "Reading…" lines every time an old session is reopened.
+	const [steps, setSteps] = useState<ToolStep[]>([]);
+	const tagState = useContextTags();
+	const activeTags = useMemo(() => activeContextTags(tagState), [tagState]);
 	const [isMobile, setIsMobile] = useState(false);
 
 	const scrollRef = useRef<HTMLDivElement>(null);
@@ -168,6 +177,9 @@ export function AIPanel() {
 		addUserMessage(content);
 		addAssistantPlaceholder();
 		setStreaming(true);
+		// Fresh timeline per turn: last turn's completed steps are history, and
+		// leaving them up makes the new reply look like it already did the work.
+		setSteps([]);
 
 		// Read the history AFTER the user message is in the store, so the request
 		// includes the turn we're answering.
@@ -184,7 +196,12 @@ export function AIPanel() {
 			const res = await fetch("/api/ai/chat", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ messages: history, page: buildPageContext(pathname) }),
+				body: JSON.stringify({
+					messages: history,
+					page: buildPageContext(pathname),
+					// What the user pinned, plus whatever page they are on.
+					tags: activeContextTags(tagState),
+				}),
 				signal: controller.signal,
 			});
 
@@ -194,12 +211,44 @@ export function AIPanel() {
 				return;
 			}
 
+			// NDJSON frames, not raw text - see lib/ai/protocol.ts. The parser is
+			// incremental because a chunk boundary lands anywhere, including the
+			// middle of a frame.
 			const reader = res.body.getReader();
 			const decoder = new TextDecoder();
+			const parse = createFrameParser();
+
 			for (;;) {
 				const { done, value } = await reader.read();
 				if (done) break;
-				appendToLastAssistant(decoder.decode(value, { stream: true }));
+				for (const frame of parse(decoder.decode(value, { stream: true }))) {
+					if (frame.t === "text") {
+						appendToLastAssistant(frame.v);
+					} else if (frame.t === "tool") {
+						// Steps live outside the message store: they are transient
+						// UI for the turn in flight, not conversation content, and
+						// persisting them would replay stale "Reading…" lines every
+						// time the session is reopened.
+						setSteps((prev) => {
+							if (frame.phase === "call") {
+								if (prev.some((s) => s.id === frame.id)) return prev;
+								return [...prev, { id: frame.id, name: frame.name, status: "running" as const }];
+							}
+							return prev.map((s) =>
+								s.id === frame.id
+									? {
+										...s,
+										status: frame.phase === "error" ? ("error" as const) : ("done" as const),
+										summary: frame.summary ?? s.summary,
+									}
+									: s,
+							);
+						});
+					} else if (frame.t === "error") {
+						appendToLastAssistant(`\n\n_${frame.message}_`);
+					}
+					// `done` needs no handling - the reader ending is the same signal.
+				}
 			}
 		} catch (error) {
 			// A user-initiated stop is not an error - keep whatever streamed in.
@@ -254,51 +303,17 @@ export function AIPanel() {
 				</div>
 			</header>
 
-			{/* History drawer */}
-			<AnimatePresence>
-				{historyOpen && (
-					<motion.div
-						initial={{ height: 0, opacity: 0 }}
-						animate={{ height: "auto", opacity: 1 }}
-						exit={{ height: 0, opacity: 0 }}
-						className="shrink-0 overflow-hidden border-b border-neutral-200 dark:border-neutral-800"
-					>
-						<div className="max-h-56 overflow-y-auto p-2">
-							{sessions.length === 0 ? (
-								<p className="px-2 py-3 text-center text-sm text-neutral-400">No conversations yet</p>
-							) : (
-								sessions.map((s) => (
-									<div
-										key={s.id}
-										className={cn(
-											"group flex items-center gap-2 rounded-lg px-2 py-1.5",
-											s.id === activeSessionId
-												? "bg-neutral-900/10"
-												: "hover:bg-neutral-100 dark:hover:bg-neutral-900",
-										)}
-									>
-										<button
-											type="button"
-											onClick={() => { selectSession(s.id); setHistoryOpen(false); }}
-											className="min-w-0 flex-1 cursor-pointer truncate text-left text-sm text-neutral-700 dark:text-neutral-300"
-										>
-											{s.title}
-										</button>
-										<button
-											type="button"
-											onClick={() => deleteSession(s.id)}
-											aria-label={`Delete "${s.title}"`}
-											className="shrink-0 cursor-pointer rounded p-1 text-neutral-400 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
-										>
-											<Trash2 className="h-3.5 w-3.5" />
-										</button>
-									</div>
-								))
-							)}
-						</div>
-					</motion.div>
-				)}
-			</AnimatePresence>
+			{/* Past conversations. A dialog rather than the drawer that used to
+				sit here - see chat-history-dialog.tsx for why. */}
+			<ChatHistoryDialog
+				open={historyOpen}
+				onOpenChange={setHistoryOpen}
+				sessions={sessions}
+				activeSessionId={activeSessionId}
+				onSelect={selectSession}
+				onDelete={deleteSession}
+				onNew={newSession}
+			/>
 
 			{/* Conversation */}
 			<ScrollArea ref={scrollRef} className="min-h-0 flex-1">
@@ -334,11 +349,19 @@ export function AIPanel() {
 						</div>
 					) : (
 						messages.map((m, i) => (
-							<MessageBubble
-								key={m.id}
-								message={m}
-								isStreaming={isStreaming && i === messages.length - 1}
-							/>
+							<div key={m.id} className="flex flex-col gap-1.5">
+								{/* The agent's work for THIS turn, above the reply it
+									produced. Rendered on the last assistant bubble only:
+									steps are cleared per turn, so anywhere else would
+									attach them to a message they did not belong to. */}
+								{m.role === "assistant" && i === messages.length - 1 && steps.length > 0 && (
+									<ToolSteps steps={steps} />
+								)}
+								<MessageBubble
+									message={m}
+									isStreaming={isStreaming && i === messages.length - 1}
+								/>
+							</div>
 						))
 					)}
 				</div>
@@ -346,6 +369,37 @@ export function AIPanel() {
 
 			{/* Composer */}
 			<div className={cn("shrink-0 border-t border-neutral-200 p-3 dark:border-neutral-800", isMaximized && "mx-auto w-full max-w-3xl")}>
+				{/* What the agent will be told about, above the box the user types in.
+					Context the user cannot see is context they cannot correct - and the
+					auto tag in particular has to say WHY it is there, or a chip they
+					never added looks like a bug. */}
+				{activeTags.length > 0 && (
+					<div className="mb-2 flex flex-wrap items-center gap-1.5">
+						{activeTags.map((tag) => {
+							const isAuto = tagState.auto?.id === tag.id && tagState.auto?.kind === tag.kind
+							return (
+								<span
+									key={`${tag.kind}:${tag.id}`}
+									className="inline-flex max-w-full items-center gap-1 rounded-full border border-neutral-200 bg-neutral-100 py-0.5 pl-2 pr-1 text-[11px] font-medium text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+								>
+									<span className="truncate">{tag.title}</span>
+									{isAuto ? (
+										<span className="shrink-0 text-neutral-400 dark:text-neutral-500">(this page)</span>
+									) : (
+										<button
+											type="button"
+											onClick={() => removePinnedTag(tag.id)}
+											aria-label={`Remove ${tag.title} from context`}
+											className="shrink-0 cursor-pointer rounded-full p-0.5 text-neutral-400 transition-colors hover:bg-neutral-200 hover:text-neutral-700 dark:hover:bg-neutral-700 dark:hover:text-neutral-100"
+										>
+											<X className="h-3 w-3" />
+										</button>
+									)}
+								</span>
+							)
+						})}
+					</div>
+				)}
 				<div className="flex items-end gap-2 rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2 focus-within:border-neutral-900 dark:border-neutral-800 dark:bg-neutral-900">
 					<textarea
 						ref={textareaRef}

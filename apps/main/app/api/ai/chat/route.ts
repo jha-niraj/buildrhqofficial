@@ -4,6 +4,7 @@ import { db, users } from "@repo/db";
 import { eq } from "drizzle-orm";
 import { openai } from "@/lib/openai-client";
 import { TOOL_SPECS, runTool } from "@/lib/ai/tools";
+import { encodeFrame, type ChatFrame } from "@/lib/ai/protocol";
 
 export const runtime = "nodejs";
 // The response is a token stream, so it can never be cached or prerendered.
@@ -53,6 +54,7 @@ function systemPrompt(ctx: {
     semester: string | null;
     interests: string[];
     page?: { route: string; title: string } | null;
+    tags?: Array<{ id: string; kind: string; title: string }>;
 }): string {
     const lines = [
         "You are the ShipItHQ assistant - an engineering-career copilot for CS students and software engineers.",
@@ -85,6 +87,18 @@ function systemPrompt(ctx: {
             `The user is currently on the "${ctx.page.title}" page (${ctx.page.route}). Take that into account when it's relevant; don't mention it otherwise.`,
         );
     }
+
+    // Tagged context. Named as things to look at rather than pasted content: the
+    // agent has tools for every one of these and they enforce ownership, whereas
+    // inlining a resume here would put it in the prompt whether or not the answer
+    // needed it.
+    if (ctx.tags?.length) {
+        lines.push(
+            "",
+            "The user has attached these to the conversation - treat them as what the question is about, and use your tools to look them up:",
+            ...ctx.tags.map((t) => `- ${t.kind}: "${t.title}"`),
+        );
+    }
     return lines.join("\n");
 }
 
@@ -97,7 +111,7 @@ export async function POST(request: NextRequest) {
         });
     }
 
-    let body: { messages?: unknown; page?: unknown };
+    let body: { messages?: unknown; page?: unknown; tags?: unknown };
     try {
         body = (await request.json()) as typeof body;
     } catch {
@@ -126,6 +140,24 @@ export async function POST(request: NextRequest) {
         });
     }
 
+    // Context tags the user pinned, plus whatever page they are on. Shape-checked
+    // like everything else off the client, and capped: this goes into the system
+    // prompt, so an unbounded list is an unbounded prompt.
+    //
+    // The tags are HINTS about what to look at, never data in themselves. The
+    // agent still fetches through its own tools, which are all scoped to the
+    // signed-in user - so a forged tag can only ask for something the caller is
+    // already allowed to read.
+    const rawTags = Array.isArray(body.tags) ? body.tags : [];
+    const tags = rawTags
+        .filter((t): t is { id: string; kind: string; title: string } =>
+            !!t && typeof t === "object" &&
+            typeof (t as { id?: unknown }).id === "string" &&
+            typeof (t as { kind?: unknown }).kind === "string" &&
+            typeof (t as { title?: unknown }).title === "string")
+        .map((t) => ({ id: t.id.slice(0, 64), kind: t.kind.slice(0, 24), title: t.title.slice(0, 120) }))
+        .slice(0, 8);
+
     const page =
         body.page && typeof body.page === "object"
             ? {
@@ -153,6 +185,7 @@ export async function POST(request: NextRequest) {
         semester: user?.semester ?? null,
         interests: user?.learningPreferences ?? [],
         page,
+        tags,
     });
 
     const conversation: ChatParam[] = [
@@ -160,91 +193,125 @@ export async function POST(request: NextRequest) {
         ...history,
     ];
 
-    // ── Tool rounds ───────────────────────────────────────────────────────────
-    // Resolved BEFORE streaming starts, not during it. A tool round is a
-    // non-streamed completion: the model either answers (and we throw that draft
-    // away, re-asking with streaming so the user sees tokens appear) or asks for
-    // tools, which we run and feed back. Doing it this way means the response
-    // body only ever carries prose - the client stays a plain text reader and
-    // never has to understand tool framing.
-    try {
-        for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-            const decision = (await openai.chat.completions.create({
-                model: MODEL,
-                messages: conversation,
-                temperature: 0.6,
-                max_tokens: 1600,
-                tools: TOOL_SPECS,
-                tool_choice: "auto",
-            })) as CompletionResponse;
-
-            const choice = decision?.choices?.[0]?.message;
-            const calls = choice?.tool_calls ?? [];
-            if (calls.length === 0) break;
-
-            conversation.push({
-                role: "assistant",
-                content: choice?.content ?? null,
-                tool_calls: calls,
-            });
-
-            // Independent reads - run them together rather than serialising a
-            // round trip to the database per call.
-            const results = await Promise.all(
-                calls.map((call) =>
-                    runTool(call.function?.name ?? "", call.function?.arguments ?? "", session.user.id),
-                ),
-            );
-            calls.forEach((call, i) => {
-                conversation.push({
-                    role: "tool",
-                    tool_call_id: call.id,
-                    content: results[i] ?? JSON.stringify({ error: "No result." }),
-                });
-            });
-        }
-    } catch (error) {
-        // A failed tool round is recoverable: drop back to the plain history and
-        // let the model answer from what it already knows.
-        console.error("[ai/chat] tool round failed:", error);
-        conversation.length = 0;
-        conversation.push({ role: "system", content: system }, ...history);
-    }
-
-    let stream: AsyncGenerator<unknown>;
-    try {
-        stream = (await openai.chat.completions.create({
-            model: MODEL,
-            messages: conversation,
-            temperature: 0.6,
-            max_tokens: 1600,
-            stream: true,
-        })) as AsyncGenerator<unknown>;
-    } catch (error) {
-        console.error("[ai/chat] failed to start completion:", error);
-        return new Response(JSON.stringify({ error: "The assistant is unavailable right now." }), {
-            status: 502,
-            headers: { "Content-Type": "application/json" },
-        });
-    }
-
-    // Plain UTF-8 token stream - no SSE framing. The client renders whatever has
-    // arrived, so there is nothing for a richer protocol to buy here.
+    // ── One stream, tool rounds included ──────────────────────────────────────
+    // Tool rounds used to run to completion BEFORE the response opened, and the
+    // body was plain prose. That is why the agent looked idle: the user watched a
+    // motionless spinner for the whole database round trip, then text appeared
+    // with no sign that anything had been read. Now the response opens first and
+    // every tool call is announced as it happens - see `lib/ai/protocol.ts`.
     const encoder = new TextEncoder();
     const body$ = new ReadableStream<Uint8Array>({
         async start(controller) {
+            const send = (frame: ChatFrame) => controller.enqueue(encoder.encode(encodeFrame(frame)));
+
             try {
+                for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+                    const decision = (await openai.chat.completions.create({
+                        model: MODEL,
+                        messages: conversation,
+                        temperature: 0.6,
+                        max_tokens: 1600,
+                        tools: TOOL_SPECS,
+                        tool_choice: "auto",
+                    })) as CompletionResponse;
+
+                    const choice = decision?.choices?.[0]?.message;
+                    const calls = choice?.tool_calls ?? [];
+                    if (calls.length === 0) break;
+
+                    conversation.push({
+                        role: "assistant",
+                        content: choice?.content ?? null,
+                        tool_calls: calls,
+                    });
+
+                    // Announce every call before running any of them, so the panel
+                    // shows the whole round at once rather than one line appearing
+                    // per completed database read.
+                    for (const call of calls) {
+                        send({
+                            t: "tool",
+                            phase: "call",
+                            id: call.id ?? `${round}-${call.function?.name ?? "tool"}`,
+                            name: call.function?.name ?? "tool",
+                        });
+                    }
+
+                    // Independent reads - run them together rather than serialising
+                    // a round trip to the database per call.
+                    const results = await Promise.all(
+                        calls.map(async (call) => {
+                            try {
+                                return await runTool(
+                                    call.function?.name ?? "",
+                                    call.function?.arguments ?? "",
+                                    session.user.id,
+                                );
+                            } catch (error: unknown) {
+                                console.error(`[ai/chat] tool ${call.function?.name} failed:`, error);
+                                return null;
+                            }
+                        }),
+                    );
+
+                    calls.forEach((call, i) => {
+                        const id = call.id ?? `${round}-${call.function?.name ?? "tool"}`;
+                        const name = call.function?.name ?? "tool";
+                        const result = results[i] ?? null;
+
+                        if (result === null) {
+                            send({ t: "tool", phase: "error", id, name });
+                        } else {
+                            // A tool may return `_summary` to describe what it found
+                            // in its own words ("Found 3 projects"). Better than the
+                            // generic label, and it is the tool that knows.
+                            let summary: string | undefined;
+                            try {
+                                const parsed = JSON.parse(result) as { _summary?: unknown };
+                                if (typeof parsed._summary === "string") summary = parsed._summary;
+                            } catch {
+                                // Not JSON, or no summary. The client falls back to
+                                // its own label for the tool name.
+                            }
+                            send({ t: "tool", phase: "result", id, name, ...(summary ? { summary } : {}) });
+                        }
+
+                        conversation.push({
+                            role: "tool",
+                            tool_call_id: call.id,
+                            content: result ?? JSON.stringify({ error: "No result." }),
+                        });
+                    });
+                }
+            } catch (error) {
+                // A failed tool round is recoverable: drop back to the plain history
+                // and let the model answer from what it already knows.
+                console.error("[ai/chat] tool round failed:", error);
+                conversation.length = 0;
+                conversation.push({ role: "system", content: system }, ...history);
+            }
+
+            try {
+                const stream = (await openai.chat.completions.create({
+                    model: MODEL,
+                    messages: conversation,
+                    temperature: 0.6,
+                    max_tokens: 1600,
+                    stream: true,
+                })) as AsyncGenerator<unknown>;
+
                 for await (const chunk of stream) {
                     const delta = (chunk as {
                         choices?: Array<{ delta?: { content?: string } }>;
                     })?.choices?.[0]?.delta?.content;
-                    if (delta) controller.enqueue(encoder.encode(delta));
+                    if (delta) send({ t: "text", v: delta });
                 }
+                send({ t: "done" });
             } catch (error) {
                 console.error("[ai/chat] stream error:", error);
-                // Mid-stream failures can't change the status code, so surface the
-                // problem as text the user can actually read.
-                controller.enqueue(encoder.encode("\n\n_The response was cut short. Please try again._"));
+                // The status code is long gone by here, so the failure has to travel
+                // in band or the user just gets a truncated answer with no reason.
+                send({ t: "error", message: "The response was cut short. Please try again." });
             } finally {
                 controller.close();
             }
@@ -253,7 +320,8 @@ export async function POST(request: NextRequest) {
 
     return new Response(body$, {
         headers: {
-            "Content-Type": "text/plain; charset=utf-8",
+            // NDJSON, not text/plain: the body is now framed. See lib/ai/protocol.ts.
+            "Content-Type": "application/x-ndjson; charset=utf-8",
             "Cache-Control": "no-store, no-transform",
             "X-Accel-Buffering": "no",
         },
