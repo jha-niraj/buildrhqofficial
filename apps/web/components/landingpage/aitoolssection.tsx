@@ -1,12 +1,10 @@
-"use client"
-
-import { motion } from "framer-motion"
 import {
     Briefcase, FileText, PenLine, ArrowRight, Sparkles
 } from "lucide-react"
 import { Badge } from "@repo/ui/components/ui/badge"
 import { Button } from "@repo/ui/components/ui/button"
 import { APP_URL } from "@/lib/site"
+import { Reveal } from "@/components/reveal"
 
 const tools = [
     {
@@ -39,13 +37,9 @@ export default function AIToolsSection() {
             <div className="absolute right-0 top-0 -z-10 h-[500px] w-[500px] rounded-full bg-neutral-100 dark:bg-neutral-900 blur-[100px] opacity-50" />
 
             <div className="max-w-7xl mx-auto px-6">
-                <motion.div
-                    initial={{ opacity: 0, y: -16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5 }}
-                    className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8"
-                >
+                <Reveal
+                        className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8"
+                    >
                     <div className="max-w-3xl">
                         <Badge variant="outline" className="px-4 py-1.5 rounded-full border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 font-medium text-sm backdrop-blur-sm mb-6">
                             <Sparkles className="w-3.5 h-3.5 mr-2 text-neutral-900 dark:text-white" />
@@ -65,18 +59,14 @@ export default function AIToolsSection() {
                             </a>
                         </Button>
                     </div>
-                </motion.div>
+                </Reveal>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {
                         tools.map((tool, index) => (
-                            <motion.div
-                                key={index}
-                                initial={{ opacity: 0, y: -16 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                                className="group relative h-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-neutral-900/5 dark:hover:shadow-black/50 transition-all duration-500 flex flex-col justify-between"
-                            >
+                            <Reveal
+                        key={index}
+                        className="group relative h-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-neutral-900/5 dark:hover:shadow-black/50 transition-all duration-500 flex flex-col justify-between"
+                    >
                                 <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-neutral-200 via-neutral-900 to-neutral-200 dark:from-neutral-800 dark:via-white dark:to-neutral-800 opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
 
                                 <div className="p-8">
@@ -102,17 +92,13 @@ export default function AIToolsSection() {
                                         Launch Tool <ArrowRight className="ml-2 w-4 h-4" />
                                     </a>
                                 </div>
-                            </motion.div>
+                            </Reveal>
                         ))
                     }
                 </div>
-                <motion.div
-                    initial={{ opacity: 0, y: -16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                    className="mt-16 relative rounded-3xl overflow-hidden border border-neutral-200 dark:border-neutral-800"
-                >
+                <Reveal
+                        className="mt-16 relative rounded-3xl overflow-hidden border border-neutral-200 dark:border-neutral-800"
+                    >
                     <div className="absolute inset-0 bg-neutral-900 dark:bg-white/5"></div>
                     <div className="absolute inset-0 opacity-20" />
 
@@ -136,7 +122,7 @@ export default function AIToolsSection() {
                             </Button>
                         </div>
                     </div>
-                </motion.div>
+                </Reveal>
             </div>
         </section>
     )

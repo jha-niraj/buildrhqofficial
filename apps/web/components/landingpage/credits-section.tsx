@@ -1,12 +1,10 @@
-"use client"
-
-import { motion } from "framer-motion"
 import {
     Zap, Wallet, ArrowRight, Check, Activity
 } from "lucide-react"
 import { Button } from "@repo/ui/components/ui/button"
 import { Badge } from "@repo/ui/components/ui/badge"
 import { APP_URL } from "@/lib/site"
+import { Reveal } from "@/components/reveal"
 
 // Checked against the product on 2026-08-20. "Gain credits by merging PRs" was removed:
 // the opensource tables exist in the schema but the module has no route, so there is no
@@ -22,11 +20,7 @@ export default function CreditsSection() {
         <section className="py-24 bg-neutral-50 dark:bg-neutral-950 border-t border-neutral-100 dark:border-neutral-800">
             <div className="max-w-7xl mx-auto px-6">
                 <div className="flex flex-col md:flex-row gap-12 lg:gap-24 items-start">
-                    <motion.div
-                        initial={{ opacity: 0, y: -16 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5 }}
+                    <Reveal
                         className="flex-1 sticky top-24"
                     >
                         <Badge variant="outline" className="mb-6 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 px-4 py-1.5 rounded-full">
@@ -43,14 +37,10 @@ export default function CreditsSection() {
                         <div className="space-y-6">
                             {
                                 benefits.map((item, i) => (
-                                    <motion.div
-                                        key={i}
-                                        initial={{ opacity: 0, y: -16 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                                        className="flex gap-4"
-                                    >
+                                    <Reveal
+                        key={i}
+                        className="flex gap-4"
+                    >
                                         <div className="w-6 h-6 rounded-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center flex-shrink-0 mt-0.5">
                                             <Check className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />
                                         </div>
@@ -58,7 +48,7 @@ export default function CreditsSection() {
                                             <h4 className="font-bold text-neutral-900 dark:text-white text-sm">{item.title}</h4>
                                             <p className="text-sm text-neutral-500 dark:text-neutral-400">{item.desc}</p>
                                         </div>
-                                    </motion.div>
+                                    </Reveal>
                                 ))
                             }
                         </div>
@@ -69,12 +59,8 @@ export default function CreditsSection() {
                                 </Button>
                             </a>
                         </div>
-                    </motion.div>
-                    <motion.div
-                        initial={{ opacity: 0, y: -16 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    </Reveal>
+                    <Reveal
                         className="flex-1 w-full max-w-md"
                     >
                         <div className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-2xl shadow-neutral-200/50 dark:shadow-black/20 p-8">
@@ -135,7 +121,7 @@ export default function CreditsSection() {
                                 </div>
                             </div>
                         </div>
-                    </motion.div>
+                    </Reveal>
                 </div>
             </div>
         </section>

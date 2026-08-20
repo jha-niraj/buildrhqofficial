@@ -1,11 +1,9 @@
-"use client"
-
-import { motion } from 'framer-motion'
 import {
     BrainCircuit, Code2, GraduationCap, BarChart3, GitMerge, FileCode, ArrowRight
 } from 'lucide-react'
 import { Button } from '@repo/ui/components/ui/button';
 import Link from 'next/link';
+import { Reveal } from "@/components/reveal"
 
 // Every line here is checked against a route in apps/main. Three claims were removed
 // on 2026-08-20 because nothing implemented them: adaptive difficulty, coding-velocity
@@ -48,33 +46,25 @@ export default function FeaturesSection() {
     return (
         <section className="py-24 w-full bg-white dark:bg-neutral-950 border-t border-neutral-100 dark:border-neutral-800">
             <div className="max-w-7xl mx-auto px-6">
-                <motion.div
-                    initial={{ opacity: 0, y: -16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    viewport={{ once: true }}
-                    className="text-center mb-16"
-                >
+                <Reveal
+                        className="text-center mb-16"
+                    >
                     <h2 className="text-4xl font-bold mb-4 text-neutral-900 dark:text-white tracking-tight">
                         The Full Stack.
                     </h2>
                     <p className="text-lg text-neutral-500 dark:text-neutral-400 max-w-2xl mx-auto font-light">
                         A complete ecosystem designed to take you from &quot;Hello World&quot; to Senior Engineer.
                     </p>
-                </motion.div>
+                </Reveal>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {
                         features.map((feature, index) => {
                             const Icon = feature.icon
                             return (
-                                <motion.div
-                                    key={index}
-                                    initial={{ opacity: 0, y: -16 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                                    className="group p-8 rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors duration-300"
-                                >
+                                <Reveal
+                        key={index}
+                        className="group p-8 rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors duration-300"
+                    >
                                     <div className="w-12 h-12 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center mb-6 text-neutral-900 dark:text-white group-hover:scale-110 transition-transform duration-300">
                                         <Icon className="w-6 h-6" />
                                     </div>
@@ -84,7 +74,7 @@ export default function FeaturesSection() {
                                     <p className="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
                                         {feature.description}
                                     </p>
-                                </motion.div>
+                                </Reveal>
                             )
                         })
                     }

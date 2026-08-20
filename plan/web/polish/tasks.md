@@ -30,7 +30,7 @@ is not started.
 | WEB-22 | Adopt it on Features, Compare | 4 | not started |
 | WEB-23 | Contrast audit across every public page | 8 | not started |
 | **Landing composition** | | | |
-| WEB-30 | Port `reveal.tsx` and `lazy-mount.tsx` | 7 | not started |
+| WEB-30 | Port `reveal.tsx` and `lazy-mount.tsx` | 7 | **done (2026-08-20)** |
 | WEB-31 | Port `problem-scroll` as the Problem section | 6 | not started |
 | WEB-32 | Collapse four feature sections into one | 6 | not started |
 | WEB-33 | Port the FAQ section structure | 6 | not started |
@@ -46,8 +46,8 @@ is not started.
 | WEB-45 | Verify social cards still generate | 5 | not started |
 | **Performance** | | | |
 | WEB-50 | Baseline Lighthouse run | 7 | not started |
-| WEB-51 | Lazily mount every below-fold section | 7 | not started |
-| WEB-52 | `use client` audit | 7 | not started |
+| WEB-51 | Lazily mount every below-fold section | 7 | **deferred - see note** |
+| WEB-52 | `use client` audit | 7 | **done for landingpage (2026-08-20)** |
 | WEB-53 | Final measured run against the budget | 7 | not started |
 
 ---
@@ -287,10 +287,80 @@ same failure is available on any hero with a shader or image behind it.
 
 ### WEB-30 - Port `reveal` and `lazy-mount`
 
-**Status:** not started
+**Status:** done (2026-08-20)
 **Serves:** DoD 7
 
-Two small files, and everything after this depends on them.
+**`reveal.tsx` already existed here and had the richer API** - stagger groups,
+reduced-motion, a `fadeOnly` escape for the sticky-transform trap. It was also
+framer-motion, one client component per revealed block.
+
+The reference's is 57 lines, ships **zero JavaScript**, and is a SERVER component:
+a plain element carrying a class, flipped by one site-wide IntersectionObserver.
+Fifty blocks cost one observer instead of fifty components. On a marketing site,
+where the score is decided by main-thread JS rather than bytes, that architecture
+wins outright - so this was a rewrite onto the reference's mechanism, keeping the
+useful half of the old API.
+
+Landed:
+- `reveal-observer.tsx` - the single observer, mounted once in the root layout.
+  Handles all three arrival routes: initial HTML, client-side navigation
+  (`usePathname`), and late mounts from `LazyMount` (MutationObserver, rAF-batched).
+- `.sh-reveal` in the shared stylesheet, **with the 3s failsafe keyframe**. That is
+  what makes this safe on content: an element at `opacity: 0` waiting for JS that
+  never arrives is invisible forever.
+- `reveal.tsx` rewritten as a server component. `fadeOnly` kept; `RevealItem` now
+  takes an `index` and staggers via a CSS custom property rather than a parent
+  variant, since there is no JS to orchestrate one.
+- `lazy-mount.tsx` ported.
+
+**One self-inflicted break worth recording.** The CSS edit used a string replace on
+`.sh-reveal.sh-in {`, which matched the first occurrence - inside the doc comment
+above the rule, not the rule. That broke the SHARED stylesheet, so every app 500'd
+on a CSS syntax error. It is the same delimiter-inside-a-delimited-region trap as
+`docs/responsiveness.md` section 10, and it was caught by running the dev server,
+not by the typecheck. Verified the repair by diffing brace and comment balance
+against `git show HEAD:` - the delta was +5/+5, so no drift.
+
+### WEB-52 - `use client` audit
+
+**Status:** done for `components/landingpage` (2026-08-20)
+**Serves:** DoD 7
+
+Nine of eleven landing sections were client components. Four of them -
+`credits-section`, `assessments-section`, `featuressection`, `aitoolssection` -
+had **zero interactivity**: no state, no handlers, no refs. They were client
+components purely to run a framer-motion scroll fade, which `Reveal` now does with
+no JavaScript at all.
+
+All four are now server components. Landing page: **9 client sections -> 7**, and
+six framer-motion importers left where there were ten.
+
+The remaining client sections earn it: `faqs` (accordion state), `projects-section`
+(fetches stats), `herosection` (rotating panel), `homepagenavbar` (menu),
+`pricing-section` (currency toggle), the two testimonial files (hidden anyway).
+
+Still to audit: the rest of `apps/web` (20 client components site-wide).
+
+### WEB-51 - Lazily mount below-fold sections
+
+**Status:** DEFERRED, and the reason is a correction to this plan
+**Serves:** DoD 7
+
+`06-performance.md` says to lazily mount every below-fold section. Reading
+`LazyMount`'s own contract while porting it makes clear that would be **wrong here**:
+
+> ONLY use this around a section that is genuinely client-only and carries no
+> indexable text. Wrapping a server-rendered section pulls its markup out of the
+> initial HTML and costs real SEO.
+
+Every below-fold section on this landing page carries indexable text - features,
+assessments, credits, pricing, FAQ - and four of them were just converted TO server
+components. Wrapping them would undo that and take the copy out of the HTML, which
+is a far worse trade than the JavaScript it saves.
+
+`LazyMount` is ported and available for a section that is genuinely heavy and
+decorative - the container demo in WEB-34 is the likely first real use. Revisit
+after WEB-35 with the measured numbers from WEB-50 rather than on principle.
 
 ### WEB-31 - Problem section
 

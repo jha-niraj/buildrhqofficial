@@ -1,98 +1,96 @@
-"use client"
-
-import { motion, useReducedMotion, type Variants } from "framer-motion"
-import type { ReactNode } from "react"
+import type { CSSProperties, ReactNode } from "react"
 
 // The one scroll-entrance primitive for the marketing site.
 //
-// It exists so SERVER components can animate. The blog article, the topic hub and
-// the legal pages are all statically generated on purpose (SEO, `dynamicParams =
-// false`), and converting them to `"use client"` just to get a fade would throw that
-// away. Wrapping their sections in <Reveal> puts the client boundary on this tiny
-// component instead - `children` is passed as a prop, so the content inside stays
-// server-rendered.
+// ── This component ships NO JavaScript ──
 //
-// Everything animates the same way (rise + fade, once, triggered slightly before the
-// element reaches the viewport) so the whole site feels like one system rather than
-// each page inventing its own motion.
+// It renders a plain element carrying `sh-reveal`. The transition lives in
+// `@repo/ui/styles/globals.css` and the class is flipped by the single site-wide
+// observer in `reveal-observer.tsx`, mounted once in the root layout. A page can
+// hold fifty of these and still pay for exactly one observer and one client
+// component.
+//
+// It used to be a framer-motion client component, one per revealed block. That was
+// a nicer API and the wrong trade for a marketing site, where the Lighthouse score
+// is decided by main-thread JavaScript rather than by bytes - the reference site
+// measured 7,680ms mobile TBT before making this same change. Fifty blocks meant
+// fifty client components, fifty viewport effects and the motion runtime.
+//
+// Being a SERVER component matters twice over: the blog article, the topic hubs and
+// the legal pages are statically generated on purpose, and this no longer drags
+// them across a client boundary - their content stays in the initial HTML for
+// crawlers.
+//
+// ── `sh-reveal` works without this wrapper ──
+//
+// The observer looks for the CLASS, not for this component. Where a suitable
+// element already exists - a section's inner container, a card - put `sh-reveal`
+// straight on it rather than wrapping. That avoids introducing a div between a grid
+// and its items, which is the one way this can break a layout.
+//
+// Reduced motion is handled entirely in CSS, so there is no preference
+// subscription anywhere.
 
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
+/** `--sh-reveal-delay` is a custom property, which CSSProperties does not model. */
+type RevealStyle = CSSProperties & { "--sh-reveal-delay": string }
+
+/** Inline style that staggers an `sh-reveal` element. Use it to ripple a row of cards. */
+export function revealDelay(seconds: number): RevealStyle {
+    return { "--sh-reveal-delay": `${seconds}s` }
+}
 
 export interface RevealProps {
     children: ReactNode
     /** Seconds to wait before this element starts. Use to cascade siblings. */
     delay?: number
-    /** Distance in px the element rises from. Default 16. */
-    y?: number
+    className?: string
+    as?: "div" | "section" | "li"
     /**
-     * Fade only, never translate. Use when the subtree contains a
-     * `position: sticky` element - Framer leaves a `transform` on the element after
-     * the animation settles, and a transformed ancestor creates a containing block
-     * that stops sticky positioning from resolving against the page scroller.
+     * Fade only, never translate.
+     *
+     * Required when the subtree contains a `position: sticky` or `position: fixed`
+     * element: a transformed ancestor becomes their containing block, so a sticky
+     * child stops sticking and a fixed child stops tracking the viewport.
      */
     fadeOnly?: boolean
-    className?: string
 }
 
-export function Reveal({ children, delay = 0, y = 16, fadeOnly = false, className }: RevealProps) {
-    // Honour the OS setting: content still appears, it just doesn't move.
-    const reduced = useReducedMotion()
-    const still = reduced || fadeOnly
+export function Reveal({ children, delay = 0, className = "", as = "div", fadeOnly = false }: RevealProps) {
+    const props = {
+        // `sh-reveal-fade` drops the translate but keeps the opacity transition.
+        className: `sh-reveal${fadeOnly ? " sh-reveal-fade" : ""} ${className}`.trim(),
+        style: delay ? revealDelay(delay) : undefined,
+    }
 
-    return (
-        <motion.div
-            className={className}
-            initial={still ? { opacity: 0 } : { opacity: 0, y }}
-            whileInView={still ? { opacity: 1 } : { opacity: 1, y: 0 }}
-            // `once` so scrolling back up doesn't replay everything, and a negative
-            // margin so the animation starts just before the element is visible -
-            // otherwise it finishes off-screen on a fast scroll and looks like nothing
-            // happened.
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: reduced ? 0.2 : 0.5, delay, ease: EASE }}
-        >
-            {children}
-        </motion.div>
-    )
-}
-
-const staggerParent: Variants = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.08, delayChildren: 0.04 } },
+    if (as === "section") return <section {...props}>{children}</section>
+    if (as === "li") return <li {...props}>{children}</li>
+    return <div {...props}>{children}</div>
 }
 
 /**
- * Wrap a list whose items should cascade. Each direct child must be a
- * <RevealItem>; the parent only owns the timing.
+ * Wrap a list whose items should cascade.
+ *
+ * The parent is a plain element - the stagger is per-item `--sh-reveal-delay`, not a
+ * parent-driven variant, because there is no JavaScript here to orchestrate one.
+ * Each direct child should be a `<RevealItem>`, which takes its index.
  */
-export function RevealGroup({ children, className }: { children: ReactNode; className?: string }) {
-    return (
-        <motion.div
-            className={className}
-            variants={staggerParent}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-80px" }}
-        >
-            {children}
-        </motion.div>
-    )
+export function RevealGroup({ children, className = "" }: { children: ReactNode; className?: string }) {
+    return <div className={className}>{children}</div>
 }
 
-export function RevealItem({ children, className, y = 16 }: { children: ReactNode; className?: string; y?: number }) {
-    const reduced = useReducedMotion()
-    const variants: Variants = {
-        hidden: reduced ? { opacity: 0 } : { opacity: 0, y },
-        show: {
-            opacity: 1,
-            y: 0,
-            transition: { duration: reduced ? 0.2 : 0.5, ease: EASE },
-        },
-    }
+export function RevealItem({
+    children, className = "", index = 0, step = 0.08,
+}: {
+    children: ReactNode
+    className?: string
+    /** Position in the list. Multiplied by `step` to give this item its delay. */
+    index?: number
+    step?: number
+}) {
     return (
-        <motion.div className={className} variants={variants}>
+        <Reveal className={className} delay={index * step}>
             {children}
-        </motion.div>
+        </Reveal>
     )
 }
 

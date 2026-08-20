@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "@repo/ui/styles/globals.css";
+import { RevealObserver } from "@/components/reveal-observer";
 import { ThemeProvider } from "@repo/ui/components/themeprovider";
 import { Geist, Space_Grotesk, Geist_Mono, Bricolage_Grotesque } from "next/font/google";
 import { Toaster as SonnerToaster } from "@repo/ui/components/ui/sonner";
@@ -193,6 +194,8 @@ export default function RootLayout({
 			<body
 				className={`${spaceGrotesk.className} ${bricolage.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
+				{/* One observer for every scroll reveal on the site - see reveal.tsx. */}
+				<RevealObserver />
 				<Providers>
 					<ThemeProvider
 						attribute="class"

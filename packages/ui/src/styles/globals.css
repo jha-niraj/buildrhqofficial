@@ -759,3 +759,77 @@ h1, h2, h3, h4, h5, h6,
         animation: none;
     }
 }
+
+/* ── Scroll reveal ────────────────────────────────────────────────────────────
+ *
+ * Marketing-site scroll entrance, driven by ONE site-wide IntersectionObserver
+ * (`apps/web/components/reveal-observer.tsx`) that adds `sh-in`. The elements
+ * themselves ship no JavaScript, so a page with fifty of them still pays for one
+ * observer and one client component.
+ *
+ * THE FAILSAFE IS WHY THIS IS SAFE TO PUT ON CONTENT. An element that starts at
+ * `opacity: 0` and waits for JavaScript is invisible forever if that JavaScript
+ * never arrives - a failed chunk, a blocked script, a crawler that does not run JS.
+ * The keyframe below fires at 3s and reveals everything unconditionally; `.sh-in`
+ * sets `animation: none`, so on a normal load the observer wins long before the
+ * failsafe is due and it never runs.
+ *
+ * TWO RULES FOR WHERE `sh-reveal` MAY GO, both about the transform:
+ *
+ *  1. NOT on an element that carries its own transform - a `hover:-translate-y-1`
+ *     card, a scaling thumbnail. The revealed-state rule resets the transform at the
+ *     same specificity as Tailwind's hover translate, and this block comes later, so it
+ *     wins the tie and the hover silently stops moving. Wrap such an element
+ *     instead: the wrapper takes the reveal, the child keeps its transform.
+ *  2. NOT on an ancestor of anything `position: fixed` or `position: sticky`. A
+ *     transformed element becomes the containing block for both, so a fixed child
+ *     stops tracking the viewport and a sticky child stops sticking.
+ */
+@keyframes sh-reveal-failsafe {
+    to { opacity: 1; transform: none; }
+}
+
+.sh-reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+        opacity 620ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--sh-reveal-delay, 0s);
+    animation: sh-reveal-failsafe 1ms linear 3s forwards;
+    will-change: opacity, transform;
+}
+
+/* Fade with no translate. For a subtree containing `sticky` or `fixed`, where a
+   transformed ancestor would become their containing block. */
+.sh-reveal-fade {
+    transform: none;
+}
+.sh-reveal-fade.sh-in {
+    transform: none;
+}
+
+.sh-reveal.sh-in {
+    opacity: 1;
+    transform: none;
+    animation: none;
+    /* The transform is done; stop paying for a layer on every revealed block. */
+    will-change: auto;
+}
+
+/* Fade with no translate. For a subtree containing a sticky or fixed descendant,
+   where a transformed ancestor would become their containing block. */
+.sh-reveal-fade,
+.sh-reveal-fade.sh-in {
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    /* Content still appears; it just does not move, and it does not wait. */
+    .sh-reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+        animation: none;
+    }
+}

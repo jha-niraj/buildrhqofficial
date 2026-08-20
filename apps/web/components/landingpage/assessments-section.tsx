@@ -1,12 +1,10 @@
-"use client"
-
-import { motion } from "framer-motion"
 import {
     Trophy, Target, Timer, Code, BookOpen, Sparkles, Terminal
 } from "lucide-react"
 import { Button } from "@repo/ui/components/ui/button"
 import { Badge } from "@repo/ui/components/ui/badge"
 import { APP_LINKS, APP_URL } from "@/lib/site"
+import { Reveal } from "@/components/reveal"
 
 const features = [
     {
@@ -37,13 +35,9 @@ export default function AssessmentsSection() {
             <div className="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
-                <motion.div
-                    initial={{ opacity: 0, y: -16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5 }}
-                    className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8"
-                >
+                <Reveal
+                        className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8"
+                    >
                     <div className="max-w-2xl">
                         <Badge variant="outline" className="px-4 py-1.5 rounded-full border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 font-medium text-sm mb-6">
                             <Sparkles className="w-3.5 h-3.5 mr-2 text-neutral-900 dark:text-white" />
@@ -68,19 +62,15 @@ export default function AssessmentsSection() {
                             </Button>
                         </a>
                     </div>
-                </motion.div>
+                </Reveal>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         {
                             features.map((feature, index) => (
-                                <motion.div
-                                    key={index}
-                                    initial={{ opacity: 0, y: -16 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                                    className="group p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-300"
-                                >
+                                <Reveal
+                        key={index}
+                        className="group p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-300"
+                    >
                                     <div className="w-10 h-10 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center mb-4 text-neutral-900 dark:text-white group-hover:scale-110 transition-transform">
                                         <feature.icon className="w-5 h-5" />
                                     </div>
@@ -88,15 +78,11 @@ export default function AssessmentsSection() {
                                     <p className="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
                                         {feature.description}
                                     </p>
-                                </motion.div>
+                                </Reveal>
                             ))
                         }
                     </div>
-                    <motion.div
-                        initial={{ opacity: 0, y: -16 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    <Reveal
                         className="relative"
                     >
                         <div className="rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-2xl shadow-neutral-200/50 dark:shadow-black/50">
@@ -166,7 +152,7 @@ export default function AssessmentsSection() {
                                 </div>
                             </div>
                         </div>
-                    </motion.div>
+                    </Reveal>
                 </div>
             </div>
         </section>

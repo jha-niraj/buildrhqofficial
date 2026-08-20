@@ -120,8 +120,8 @@ export default async function TopicPage({ params }: Props) {
                         </p>
                     ) : (
                         <RevealGroup className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                            {posts.map((post) => (
-                                <RevealItem key={post.slug} className="flex">
+                            {posts.map((post, i) => (
+                                <RevealItem key={post.slug} index={i} className="flex">
                                 <Link
                                     href={`/blogs/${post.slug}`}
                                     className="group flex w-full flex-col rounded-2xl border border-neutral-200 p-6 transition-colors hover:border-neutral-400 dark:border-neutral-800 dark:hover:border-neutral-600"
