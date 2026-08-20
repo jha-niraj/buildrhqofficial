@@ -15,11 +15,11 @@ import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { cn } from '@repo/ui/lib/utils';
 import { Sheet, SheetContent, SheetTitle } from '@repo/ui/components/ui/sheet';
 import { AIPanel } from '@/components/ai/ai-panel';
-import { AITriggerButton } from '@/components/ai/ai-trigger-button';
 import {
     useAIPanelStore, AI_MIN_WIDTH, AI_MAX_WIDTH, clampPanelWidth,
 } from '@/app/store/aiPanelStore';
 import { AppBackdrop } from '@/components/common/app-backdrop';
+import { ScrollArea } from '@repo/ui/components/ui/scroll-area';
 
 interface LayoutProps {
     children: React.ReactNode
@@ -129,7 +129,13 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
                         className={cn(
                             // min-w-0 so a wide child (a table, a chart) shrinks with the
                             // column instead of pushing the row past the viewport.
-                            "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-white ring-1 ring-inset ring-neutral-200 transition-all duration-300 dark:bg-neutral-950 dark:ring-neutral-800",
+                            //
+                            // NO background: the page card is transparent so the shell's
+                            // photographic backdrop reads through it. The ring stays, so
+                            // the card's edge is still legible against the photo, and the
+                            // SIDEBAR keeps its own opaque surface - nav has to stay
+                            // readable at a glance and is the wrong place for texture.
+                            "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden ring-1 ring-inset ring-neutral-200 transition-all duration-300 dark:ring-neutral-800",
                             isDocked ? "rounded-l-2xl" : "rounded-2xl",
                         )}
                         // The card is inset by the shell's 0.5rem margin, so "full
@@ -141,9 +147,15 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
                         // show a scrollbar over a strip of nothing.
                         style={{ ["--page-h" as string]: "calc(100vh - 1rem)" }}
                     >
-                        <div className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
+                        {/* ScrollArea, not native overflow. The native scrollbar is an
+                            OS control: it paints outside the card's rounded corner on
+                            Windows, reserves gutter width on some platforms and not
+                            others, and cannot be styled to match a surface that is now
+                            transparent. `min-w-0` on the viewport keeps a wide child
+                            (a table, a chart) shrinking with the column. */}
+                        <ScrollArea className="min-h-0 min-w-0 flex-1" viewportClassName="[&>div]:min-w-0">
                             {children}
-                        </div>
+                        </ScrollArea>
                     </div>
 
                     {/* AI rail - a real column, not an overlay. The page narrows to make
@@ -208,7 +220,6 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
                 </SheetContent>
             </Sheet>
 
-            <AITriggerButton />
             <Script
                 src="https://checkout.razorpay.com/v1/checkout.js"
                 strategy="afterInteractive"

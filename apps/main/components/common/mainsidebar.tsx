@@ -114,14 +114,18 @@ export default function Sidebar() {
                         type="button"
                         onClick={toggleAI}
                         aria-pressed={aiOpen}
+                        // The primary action in this footer, and now the ONLY way in -
+                        // the floating launcher that used to sit bottom-right is gone.
+                        // Filled rather than tinted: beside a muted credits pill it has
+                        // to read as the thing to press, not as a second chip.
                         className={cn(
-                            "flex flex-1 cursor-pointer items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors min-w-0",
-                            aiOpen
-                                ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
-                                : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800",
+                            "group flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-semibold transition-all min-w-0",
+                            "bg-neutral-900 text-white shadow-sm hover:bg-neutral-800 hover:shadow active:scale-[0.98]",
+                            "dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100",
+                            aiOpen && "ring-2 ring-neutral-900/20 dark:ring-white/30",
                         )}
                     >
-                        <Sparkles className={cn("h-3.5 w-3.5 shrink-0", !aiOpen && "text-neutral-900 dark:text-white")} />
+                        <Sparkles className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:scale-110" />
                         <span className="truncate">Ask AI</span>
                     </button>
                 </div>
@@ -140,11 +144,13 @@ export default function Sidebar() {
                         onClick={toggleAI}
                         aria-pressed={aiOpen}
                         title="Ask AI"
+                        // Collapsed rail: same promotion, so the entry point does not
+                        // quietly demote itself to a plain icon when the nav narrows.
                         className={cn(
-                            "flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg transition-colors",
-                            aiOpen
-                                ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
-                                : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800",
+                            "flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg transition-all",
+                            "bg-neutral-900 text-white shadow-sm hover:bg-neutral-800 active:scale-95",
+                            "dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100",
+                            aiOpen && "ring-2 ring-neutral-900/20 dark:ring-white/30",
                         )}
                     >
                         <Sparkles className="h-5 w-5" />
