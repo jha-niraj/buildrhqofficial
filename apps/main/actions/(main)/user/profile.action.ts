@@ -1365,6 +1365,7 @@ export async function getProfileByUsername(username: string) {
             userPortfolioProjects,
             userSkills,
             userExperiences,
+            userEducationsList,
             userCertifications,
             userAchievementsList,
             userSocialLinks,
@@ -1386,6 +1387,13 @@ export async function getProfileByUsername(username: string) {
             db.query.workExperiences.findMany({
                 where: eq(workExperiences.userId, user.id),
                 orderBy: [desc(workExperiences.startDate)]
+            }),
+            // Education was missing here while every other section was fetched,
+            // so a public profile silently showed "No education listed" no matter
+            // what the user had entered.
+            db.query.userEducations.findMany({
+                where: eq(userEducations.userId, user.id),
+                orderBy: [desc(userEducations.startDate)]
             }),
             db.query.certifications.findMany({
                 where: eq(certifications.userId, user.id),
@@ -1431,6 +1439,7 @@ export async function getProfileByUsername(username: string) {
                 portfolioProjects: userPortfolioProjects,
                 skills: userSkills,
                 experiences: userExperiences,
+                educations: userEducationsList,
                 certifications: userCertifications,
                 achievements: userAchievementsList,
                 socialLinks: userSocialLinks,

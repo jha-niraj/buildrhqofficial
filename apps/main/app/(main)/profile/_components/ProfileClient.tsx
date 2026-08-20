@@ -16,12 +16,15 @@ import toast from "@repo/ui/components/ui/sonner";
 import { cn } from "@repo/ui/lib/utils";
 import { useUserStore } from "@/app/store/useUserStore";
 import { ShareProfileModal, EditProfileModal } from "@/components/profile";
+import {
+    ProfileView, type ProfileViewData, type ProfileViewStats,
+} from "@/components/profile/profile-view";
 import { AddSkillsSheet } from "@/components/profile/sheets/add-skills-sheet";
 import { AddWorkExperienceSheet } from "@/components/profile/sheets/add-work-experience-sheet";
 import { AddEducationSheet } from "@/components/profile/sheets/add-education-sheet";
 import { AddProjectSheet } from "@/components/profile/sheets/add-project-sheet";
 import { getOwnProfile, getUserProfileStats } from "@/actions/(main)/user/profile.action";
-import { ProfileSkeleton } from "./profile-skeleton";
+import { ProfileSkeleton } from "@/components/profile/profile-view-skeleton";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -269,360 +272,56 @@ export default function ProfilePage() {
         );
     }
 
-    const s: ProfileStats = stats ?? {
-        projectsCount: profile.portfolioProjects?.length ?? 0,
-        skillsCount: profile.skills?.length ?? 0,
-        followersCount: profile._count?.followers ?? 0,
-        followingCount: profile._count?.following ?? 0,
-        xp: profile.totalXp || profile.currentXp || 0,
-        level: profile.currentLevel || 1,
-        credits: profile.credits ?? 0,
+    // Normalised for the shared view. The two profile routes come from different
+    // sources with different shapes, so each one maps at its own boundary and the
+    // view gets one explicit interface.
+    const view: ProfileViewData = {
+        id: profile.id,
+        name: profile.name,
+        username: profile.username,
+        email: profile.email,
+        image: profile.image,
+        bio: profile.bio,
+        headline: profile.userProfile?.tagline || profile.occupation || null,
+        location: profile.location,
+        company: profile.company,
+        university: profile.university,
+        website: profile.website,
+        hasResume: profile.hasResume,
+        skills: profile.skills ?? [],
+        experiences: profile.experiences ?? [],
+        educations: profile.educations ?? [],
+        projects: (profile.portfolioProjects ?? []).map((p) => ({
+            id: p.id,
+            projectName: p.projectName,
+            description: p.description,
+            status: p.status,
+            technologies: p.technologies,
+        })),
+        socialLinks: profile.socialLinks ?? [],
     };
 
-    // XP inside the current level. Levels are 1000 XP wide, so the bar is the
-    // remainder - a lifetime total would sit at ~100% forever and say nothing.
-    const xpIntoLevel = s.xp % 1000;
-    const xpProgress = Math.min(100, Math.round((xpIntoLevel / 1000) * 100));
-
-    const headline = profile.userProfile?.tagline || profile.occupation || null;
-    const experiences = profile.experiences ?? [];
-    const educations = profile.educations ?? [];
-    const projects = profile.portfolioProjects ?? [];
-    const skills = profile.skills ?? [];
-
-    const metaBits = [
-        profile.location && { icon: MapPin, text: profile.location },
-        profile.company && { icon: Building2, text: profile.company },
-        profile.university && { icon: GraduationCap, text: profile.university },
-    ].filter(Boolean) as Array<{ icon: React.ComponentType<{ className?: string }>; text: string }>;
+    const viewStats: ProfileViewStats = {
+        xp: stats?.xp ?? profile.totalXp ?? profile.currentXp ?? 0,
+        level: stats?.level ?? profile.currentLevel ?? 1,
+        projectsCount: stats?.projectsCount ?? profile.portfolioProjects?.length ?? 0,
+        skillsCount: stats?.skillsCount ?? profile.skills?.length ?? 0,
+        followersCount: stats?.followersCount ?? profile._count?.followers ?? 0,
+    };
 
     return (
-        <div className="mx-auto w-full max-w-5xl space-y-5 px-4 py-6 pb-12 sm:px-6 lg:px-8">
-            {/* ── Identity card ── */}
-            <motion.section
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900"
-            >
-                <div className="h-24 bg-gradient-to-r from-neutral-900 via-neutral-900 to-neutral-800 sm:h-28" />
-                <div className="px-5 pb-5 sm:px-6 sm:pb-6">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                        <div className="flex items-end gap-4">
-                            <div className="-mt-10 h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-neutral-100 dark:border-neutral-900 dark:bg-neutral-800 sm:-mt-12 sm:h-24 sm:w-24">
-                                {profile.image ? (
-                                    <Image
-                                        src={profile.image}
-                                        alt={profile.name ?? "Profile photo"}
-                                        width={96}
-                                        height={96}
-                                        className="h-full w-full object-cover"
-                                        unoptimized
-                                    />
-                                ) : (
-                                    <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-neutral-400">
-                                        {(profile.name ?? "?").charAt(0).toUpperCase()}
-                                    </div>
-                                )}
-                            </div>
-                            <div className="min-w-0 pb-1">
-                                <h1 className="truncate text-xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-2xl">
-                                    {profile.name ?? "Your profile"}
-                                </h1>
-                                {profile.username && (
-                                    <p className="font-mono text-sm text-neutral-500 dark:text-neutral-400">
-                                        @{profile.username}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-2">
-                            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setEditOpen(true)}>
-                                <Pencil className="h-3.5 w-3.5" /> Edit
-                            </Button>
-                            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setShareOpen(true)}>
-                                <Share2 className="h-3.5 w-3.5" /> Share
-                            </Button>
-                            <Button size="sm" variant="outline" className="gap-1.5" asChild><Link href="/settings">
-                                <Settings className="h-3.5 w-3.5" /> Settings
-                            </Link></Button>
-                        </div>
-                    </div>
-
-                    {headline && (
-                        <p className="mt-4 text-sm font-medium text-neutral-700 dark:text-neutral-200">{headline}</p>
-                    )}
-                    {profile.bio && (
-                        <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                            {profile.bio}
-                        </p>
-                    )}
-
-                    {(metaBits.length > 0 || profile.website) && (
-                        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
-                            {metaBits.map((m) => (
-                                <span key={m.text} className="inline-flex items-center gap-1.5 text-sm text-neutral-500 dark:text-neutral-400">
-                                    <m.icon className="h-3.5 w-3.5" /> {m.text}
-                                </span>
-                            ))}
-                            {profile.website && (
-                                <a
-                                    href={profile.website}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 text-sm text-neutral-900 hover:underline"
-                                >
-                                    <Globe className="h-3.5 w-3.5" /> Website
-                                </a>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Level + XP */}
-                    <div className="mt-5 rounded-xl border border-neutral-100 bg-neutral-50/60 p-4 dark:border-neutral-800 dark:bg-neutral-950/30">
-                        <div className="mb-2 flex items-center justify-between">
-                            <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-900 dark:text-white">
-                                <Sparkles className="h-3.5 w-3.5 text-neutral-900" /> Level {s.level}
-                            </span>
-                            <span className="font-mono text-xs text-neutral-500 dark:text-neutral-400">
-                                {xpIntoLevel} / 1000 XP to level {s.level + 1}
-                            </span>
-                        </div>
-                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
-                            <div
-                                className="h-full rounded-full bg-gradient-to-r from-neutral-900 to-neutral-800 transition-all"
-                                style={{ width: `${xpProgress}%` }}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Stats */}
-                    <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        {[
-                            { label: "Total XP", value: s.xp.toLocaleString(), icon: Zap },
-                            { label: "Projects", value: s.projectsCount, icon: FolderKanban },
-                            { label: "Skills", value: s.skillsCount, icon: Sparkles },
-                            { label: "Followers", value: s.followersCount, icon: Users },
-                        ].map((stat) => (
-                            <div
-                                key={stat.label}
-                                className="rounded-xl border border-neutral-100 px-3.5 py-2.5 dark:border-neutral-800"
-                            >
-                                <div className="flex items-center gap-1.5">
-                                    <stat.icon className="h-3 w-3 text-neutral-400" />
-                                    <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{stat.label}</p>
-                                </div>
-                                <p className="mt-0.5 text-lg font-bold tabular-nums text-neutral-900 dark:text-white">
-                                    {stat.value}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </motion.section>
-
-            {/* ── Everything else: one column of sections, no tabs ── */}
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-                <div className="space-y-5 lg:col-span-2">
-                    <Section
-                        title="Projects"
-                        icon={FolderKanban}
-                        action={{ label: "Add", onClick: () => setProjectOpen(true) }}
-                    >
-                        {projects.length === 0 ? (
-                            <Empty
-                                text="No projects on your profile yet."
-                                action={{ label: "Add your first project", onClick: () => setProjectOpen(true) }}
-                            />
-                        ) : (
-                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                {projects.slice(0, 6).map((p) => (
-                                    <div
-                                        key={p.id}
-                                        className="rounded-xl border border-neutral-100 p-4 transition-colors hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-600"
-                                    >
-                                        <div className="mb-1.5 flex items-start justify-between gap-2">
-                                            <h3 className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
-                                                {p.projectName}
-                                            </h3>
-                                            <Badge variant="secondary" className="shrink-0 text-xs">{p.status}</Badge>
-                                        </div>
-                                        {p.description && (
-                                            <p className="line-clamp-2 text-sm text-neutral-500 dark:text-neutral-400">
-                                                {p.description}
-                                            </p>
-                                        )}
-                                        {p.technologies?.length > 0 && (
-                                            <div className="mt-2.5 flex flex-wrap gap-1.5">
-                                                {p.technologies.slice(0, 4).map((t) => (
-                                                    <span
-                                                        key={t}
-                                                        className="rounded-md bg-neutral-100 px-1.5 py-0.5 font-mono text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300"
-                                                    >
-                                                        {t}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </Section>
-
-                    <Section
-                        title="Experience"
-                        icon={Briefcase}
-                        action={{ label: "Add", onClick: () => setExperienceOpen(true) }}
-                    >
-                        {experiences.length === 0 ? (
-                            <Empty
-                                text="No work experience added yet."
-                                action={{ label: "Add a role", onClick: () => setExperienceOpen(true) }}
-                            />
-                        ) : (
-                            <div className="space-y-4">
-                                {experiences.map((e) => (
-                                    <div key={e.id} className="flex gap-3">
-                                        <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-800">
-                                            <Briefcase className="h-4 w-4 text-neutral-500" />
-                                        </div>
-                                        <div className="min-w-0 flex-1">
-                                            <p className="text-sm font-semibold text-neutral-900 dark:text-white">
-                                                {e.roleTitle}
-                                            </p>
-                                            <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                                                {e.companyWebsite ? (
-                                                    <a
-                                                        href={e.companyWebsite}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="inline-flex items-center gap-1 hover:text-neutral-900"
-                                                    >
-                                                        {e.companyName} <ExternalLink className="h-3 w-3" />
-                                                    </a>
-                                                ) : e.companyName}
-                                            </p>
-                                            <p className="mt-0.5 font-mono text-xs text-neutral-400">
-                                                {dateRange(e.startDate, e.endDate, e.isCurrentlyWorking)}
-                                            </p>
-                                            {e.description && (
-                                                <p className="mt-1.5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                                                    {e.description}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </Section>
-
-                    <Section
-                        title="Education"
-                        icon={GraduationCap}
-                        action={{ label: "Add", onClick: () => setEducationOpen(true) }}
-                    >
-                        {educations.length === 0 ? (
-                            <Empty
-                                text="No education added yet."
-                                action={{ label: "Add your school", onClick: () => setEducationOpen(true) }}
-                            />
-                        ) : (
-                            <div className="space-y-4">
-                                {educations.map((ed) => (
-                                    <div key={ed.id} className="flex gap-3">
-                                        <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-800">
-                                            <GraduationCap className="h-4 w-4 text-neutral-500" />
-                                        </div>
-                                        <div className="min-w-0 flex-1">
-                                            <p className="text-sm font-semibold text-neutral-900 dark:text-white">
-                                                {ed.institution}
-                                            </p>
-                                            {ed.degree && (
-                                                <p className="text-sm text-neutral-600 dark:text-neutral-400">{ed.degree}</p>
-                                            )}
-                                            <p className="mt-0.5 inline-flex items-center gap-1 font-mono text-xs text-neutral-400">
-                                                <Calendar className="h-3 w-3" />
-                                                {dateRange(ed.startDate, ed.endDate)}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </Section>
-                </div>
-
-                <div className="space-y-5">
-                    <Section
-                        title="Skills"
-                        icon={Sparkles}
-                        action={{ label: "Manage", onClick: () => setSkillsOpen(true) }}
-                    >
-                        {skills.length === 0 ? (
-                            <Empty
-                                text="No skills added yet."
-                                action={{ label: "Add skills", onClick: () => setSkillsOpen(true) }}
-                            />
-                        ) : (
-                            <div className="flex flex-wrap gap-2">
-                                {skills.map((skill) => (
-                                    <span
-                                        key={skill.id}
-                                        className={cn(
-                                            "rounded-lg border px-2.5 py-1 text-sm font-medium",
-                                            "border-neutral-200 bg-neutral-50 text-neutral-700",
-                                            "dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
-                                        )}
-                                    >
-                                        {skill.name}
-                                    </span>
-                                ))}
-                            </div>
-                        )}
-                    </Section>
-
-                    <Section title="Resume" icon={FileText}>
-                        {profile.hasResume ? (
-                            <div className="flex items-center justify-between gap-3 rounded-xl border border-neutral-100 p-3.5 dark:border-neutral-800">
-                                <div className="flex items-center gap-2.5">
-                                    <FileText className="h-4 w-4 text-neutral-900" />
-                                    <span className="text-sm text-neutral-700 dark:text-neutral-300">Resume on file</span>
-                                </div>
-                                <Link
-                                    href="/ai"
-                                    className="inline-flex items-center gap-1 text-sm font-medium text-neutral-900 hover:underline"
-                                >
-                                    AI review <ArrowRight className="h-3 w-3" />
-                                </Link>
-                            </div>
-                        ) : (
-                            <Empty text="No resume uploaded. It powers the AI resume review, cover letters and interview prep." />
-                        )}
-                    </Section>
-
-                    {profile.socialLinks && profile.socialLinks.length > 0 && (
-                        <Section title="Links" icon={Globe}>
-                            <div className="space-y-2">
-                                {profile.socialLinks.map((l) => (
-                                    <a
-                                        key={l.id}
-                                        href={l.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm text-neutral-700 transition-colors hover:bg-neutral-50 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
-                                    >
-                                        <span className="truncate">{l.platform}</span>
-                                        <ExternalLink className="h-3 w-3 shrink-0 text-neutral-400" />
-                                    </a>
-                                ))}
-                            </div>
-                        </Section>
-                    )}
-                </div>
-            </div>
+        <>
+            <ProfileView
+                profile={view}
+                stats={viewStats}
+                isOwn
+                onEdit={() => setEditOpen(true)}
+                onShare={() => setShareOpen(true)}
+                onAddSkills={() => setSkillsOpen(true)}
+                onAddExperience={() => setExperienceOpen(true)}
+                onAddEducation={() => setEducationOpen(true)}
+                onAddProject={() => setProjectOpen(true)}
+            />
 
             {/* ── Modals & sheets ── */}
             <ShareProfileModal
@@ -642,7 +341,7 @@ export default function ProfilePage() {
                 open={skillsOpen}
                 onOpenChange={setSkillsOpen}
                 onSuccess={onSheetSuccess}
-                existingSkills={skills}
+                existingSkills={profile.skills ?? []}
             />
             <AddWorkExperienceSheet
                 open={experienceOpen}
@@ -659,6 +358,6 @@ export default function ProfilePage() {
                 onOpenChange={setProjectOpen}
                 onSuccess={onSheetSuccess}
             />
-        </div>
+        </>
     );
 }

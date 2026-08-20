@@ -1,19 +1,33 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-    ProfileHeader, ProfileTabs, ProfileSidebar, AtAGlanceTab, SkillsTab,
-    ProjectsTab, WorkExperienceTab, EducationTab, ShareProfileModal,
-    type ProfileTab
-} from "@/components/profile";
-import { trackProfileView } from "@/actions/(main)/user/profile.action";
-import { toggleFollow } from "@/actions/(main)/social/follow.action";
 import { useRouter } from "next/navigation";
 import toast from "@repo/ui/components/ui/sonner";
+import { ShareProfileModal } from "@/components/profile";
+import {
+    ProfileView, type ProfileViewData, type ProfileViewStats,
+} from "@/components/profile/profile-view";
+import { trackProfileView } from "@/actions/(main)/user/profile.action";
+import { toggleFollow } from "@/actions/(main)/social/follow.action";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Somebody else's profile.
+//
+// Renders the SAME component as `/profile` - see `components/profile/profile-view.tsx`
+// for why. This file owns only what is specific to viewing a profile that is not
+// yours: the view-tracking ping, the follow button's state, and the mapping from
+// the server query's shape onto the view's.
+//
+// It used to compose a header, a tab bar, a sidebar and five tab components,
+// which made a visitor's view of a developer a visibly different page from that
+// developer's own view of themselves.
+// ─────────────────────────────────────────────────────────────────────────────
 
 interface PublicProfileClientProps {
-     
+    // The server query result. Deliberately loose here and narrowed immediately
+    // below - the alternative is threading `any` into the shared view, where
+    // every field would silently become optional.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     user: any;
     isOwnProfile: boolean;
     isFollowing: boolean;
@@ -25,29 +39,20 @@ export function PublicProfileClient({
     isFollowing: initialIsFollowing,
 }: PublicProfileClientProps) {
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState<ProfileTab>("at_a_glance");
     const [shareModalOpen, setShareModalOpen] = useState(false);
     const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
     const [isFollowLoading, setIsFollowLoading] = useState(false);
 
-    // Track profile view on mount
+    // Counted once per mount, and never on your own profile - otherwise a user
+    // refreshing their own page inflates their view count.
     useEffect(() => {
         if (!isOwnProfile && user.userProfile?.id) {
             trackProfileView(user.userProfile.id, null, "DIRECT");
         }
     }, [user.userProfile?.id, isOwnProfile]);
 
-    const handleEditProfile = () => {
-        router.push("/profile");
-    };
-
-    const handleShareProfile = () => {
-        setShareModalOpen(true);
-    };
-
     const handleFollow = async () => {
         if (isFollowLoading) return;
-
         setIsFollowLoading(true);
         try {
             const result = await toggleFollow(user.id);
@@ -65,139 +70,66 @@ export function PublicProfileClient({
         }
     };
 
-    const fadeInUp = {
-        initial: { opacity: 0, y: 20 },
-        animate: { opacity: 1, y: 0 },
-        exit: { opacity: 0, y: -20 },
+    const view: ProfileViewData = {
+        id: user.id,
+        name: user.name ?? null,
+        username: user.username ?? null,
+        // Behind the owner's own setting, not merely behind "is it set".
+        email: user.userProfile?.showEmail ? user.email ?? null : null,
+        image: user.image ?? null,
+        bio: user.bio ?? null,
+        headline: user.userProfile?.tagline || user.occupation || null,
+        location: user.location ?? null,
+        company: user.company ?? null,
+        university: user.university ?? null,
+        website: user.website ?? null,
+        skills: user.skills ?? [],
+        experiences: user.experiences ?? [],
+        educations: user.educations ?? [],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        projects: (user.portfolioProjects ?? []).map((p: any) => ({
+            id: p.id,
+            projectName: p.projectName,
+            description: p.description,
+            status: p.status,
+            technologies: p.technologies,
+        })),
+        socialLinks: user.socialLinks ?? [],
     };
 
-    // Compute stats from user data
-    const stats = {
-        projectsCount: user.portfolioProjects?.length || 0,
-        skillsCount: user.skills?.length || 0,
-        followersCount: user._count?.followers || 0,
-        followingCount: user._count?.following || 0,
-        xp: user.totalXp || 0,
-        level: user.currentLevel || 1,
-        credits: user.credits || 0,
-    };
-
-    const renderTabContent = () => {
-        const tabContentProps = {
-            user,
-            isOwnProfile,
-        };
-
-        switch (activeTab) {
-            case "at_a_glance":
-                return (
-                    <AtAGlanceTab
-                        {...tabContentProps}
-                        stats={stats}
-                        onEditProfile={isOwnProfile ? handleEditProfile : undefined}
-                    />
-                );
-            case "projects":
-                return (
-                    <ProjectsTab
-                        user={{
-                            portfolioProjects: user.portfolioProjects || [],
-                            UserProjectV2Progress: user.UserProjectV2Progress || [],
-                        }}
-                        isOwnProfile={isOwnProfile}
-                    />
-                );
-            case "skills":
-                return (
-                    <SkillsTab
-                        {...tabContentProps}
-                        onEndorseSkill={async (skillId) => {
-                            toast.info("Endorsement feature coming soon for skillid: " + skillId);
-                        }}
-                        onAddSkill={
-                            isOwnProfile
-                                ? () => router.push("/ai/resume")
-                                : undefined
-                        }
-                    />
-                );
-            case "work_experience":
-                return (
-                    <WorkExperienceTab
-                        {...tabContentProps}
-                        onUploadResume={isOwnProfile ? () => router.push("/profile") : undefined}
-                    />
-                );
-            case "education":
-                return <EducationTab {...tabContentProps} />;
-            default:
-                return (
-                    <AtAGlanceTab
-                        {...tabContentProps}
-                        stats={stats}
-                        onEditProfile={isOwnProfile ? handleEditProfile : undefined}
-                    />
-                );
-        }
+    const stats: ProfileViewStats = {
+        xp: user.totalXp ?? 0,
+        level: user.currentLevel ?? 1,
+        projectsCount: user.portfolioProjects?.length ?? 0,
+        skillsCount: user.skills?.length ?? 0,
+        followersCount: user._count?.followers ?? 0,
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-            <ProfileHeader
-                user={user}
+        <>
+            <ProfileView
+                profile={view}
                 stats={stats}
-                isOwnProfile={isOwnProfile}
-                onEditProfile={handleEditProfile}
-                onShareProfile={handleShareProfile}
-                onOpenSettings={isOwnProfile ? () => router.push("/settings") : undefined}
+                // Visiting your OWN username URL gives you the owner's view, not a
+                // read-only copy of it. Editing routes to /profile, which is where
+                // the sheets and modals live.
+                isOwn={isOwnProfile}
+                onEdit={isOwnProfile ? () => router.push("/profile") : undefined}
+                onShare={() => setShareModalOpen(true)}
                 isFollowing={isFollowing}
-                onFollowToggle={handleFollow}
+                followPending={isFollowLoading}
+                onFollow={isOwnProfile ? undefined : handleFollow}
             />
-
-            <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} isOwnProfile={isOwnProfile} />
-
-            <div className="container mx-auto px-4 py-6">
-                <div className="flex flex-col lg:flex-row gap-6">
-                    <motion.div
-                        className="flex-1 order-2 lg:order-1"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                    >
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={activeTab}
-                                {...fadeInUp}
-                                transition={{ duration: 0.3 }}
-                            >
-                                {renderTabContent()}
-                            </motion.div>
-                        </AnimatePresence>
-                    </motion.div>
-                    <motion.div
-                        className="w-full lg:w-80 shrink-0 order-1 lg:order-2"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 }}
-                    >
-                        <div className="lg:sticky lg:top-24">
-                            <ProfileSidebar
-                                user={user}
-                                stats={stats}
-                                isOwnProfile={isOwnProfile}
-                            />
-                        </div>
-                    </motion.div>
-                </div>
-            </div>
 
             <ShareProfileModal
                 isOpen={shareModalOpen}
                 onClose={() => setShareModalOpen(false)}
-                username={user.username}
+                username={user.username || ""}
                 name={user.name}
                 image={user.image}
             />
-        </div>
+        </>
     );
 }
+
+export default PublicProfileClient;

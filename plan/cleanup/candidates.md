@@ -160,3 +160,52 @@ if it is superseded, trivially recreatable, or has no product intent behind it.*
   the only route to the `feedbacks` table.
 - **Totals:** 22 files deleted across all groups, ~2,900 lines. Combined with
   `RES-8`, roughly **5,100 lines** removed from `apps/main`.
+
+
+---
+
+# Group E - the superseded profile generation (added 2026-08-20)
+
+**Awaiting your decision. Nothing here has been deleted** - you said "I am not
+telling you to delete anything", so this is a list, not an action.
+
+`/profile` and `/profile/[username]` now render one shared component
+(`components/profile/profile-view.tsx`). The files below are the older tabbed
+generation that used to render the public profile: a header, a tab bar, a
+sidebar and eight tab panels. They are no longer imported by anything, and the
+barrel (`components/profile/index.ts`) no longer exports them.
+
+| ID | File | Lines |
+|---|---|---:|
+| CLN-27 | `components/profile/tabs/about-tab.tsx` | 481 |
+| CLN-28 | `components/profile/tabs/at-a-glance-tab.tsx` | 480 |
+| CLN-29 | `components/profile/integrations-tab.tsx` | 397 |
+| CLN-30 | `components/profile/tabs/activity-tab.tsx` | 378 |
+| CLN-31 | `components/profile/tabs/skills-tab.tsx` | 371 |
+| CLN-32 | `components/profile/profile-header.tsx` | 319 |
+| CLN-33 | `components/profile/modals/endorse-skill-modal.tsx` | 307 |
+| CLN-34 | `components/profile/tabs/work-experience-tab.tsx` | 265 |
+| CLN-35 | `components/profile/profile-sidebar.tsx` | 247 |
+| CLN-36 | `components/profile/profile-tabs.tsx` | 162 |
+| CLN-37 | `components/profile/tabs/education-tab.tsx` | 140 |
+| CLN-38 | `components/profile/tabs/projects-tab.tsx` | 534 |
+| CLN-39 | `components/profile/tabs/resume-tab.tsx` | 555 |
+
+**~4,636 lines.**
+
+## Two notes before you decide
+
+- **CLN-39 (`resume-tab.tsx`) was edited earlier this session** - it carries the
+  resume-upload wiring that dispatches the `resume_structure` worker job. That
+  work is not lost: the same upload path exists in
+  `components/profile/tabs/work-experience-tab.tsx`... which is also on this
+  list. **The live upload surfaces are `/ai/resume` (the hub's Upload source) and
+  onboarding**, both of which call the same `uploadResume` action. So the
+  profile page currently has no resume UPLOAD control, only a "Resume on file"
+  readout linking to `/ai/resume`. If you want upload back on the profile page
+  itself, say so and I will add it to the shared view - it is a small addition,
+  not a reason to keep 555 lines.
+
+- **`components/profile/sheets/*` are all still live** and are NOT on this list:
+  `add-skills-sheet`, `add-work-experience-sheet`, `add-education-sheet`,
+  `add-project-sheet`, `profile-strength-sheet`. The shared view opens them.

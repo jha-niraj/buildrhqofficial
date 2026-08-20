@@ -1,8 +1,12 @@
 "use client";
 
-// Mirrors the profile layout: identity card (cover + avatar + stats), then the
-// 2/1 section grid. A skeleton rather than the full-page loader because the
-// sidebar is already painted around this.
+// The loading silhouette for `profile-view.tsx`: identity card (cover + avatar +
+// level + stats), then the 2/1 section grid.
+//
+// Lives beside the view rather than inside one route's _components, because BOTH
+// profile routes render that view and so both need this. Kept deliberately in
+// step with it - per CLAUDE.md a skeleton that does not match the real layout is
+// worse than none, since the page visibly reflows when the data lands.
 function Block({ className = "" }: { className?: string }) {
     return (
         <div
