@@ -36,7 +36,7 @@ checker must resolve against route groups, not against `app/(main)` alone.
 **Done when.** Every `path` in `mainNavigation` resolves to a real `page.tsx`,
 proven by the checker in task 2, and both links load their page in the browser.
 
-- [ ] Done
+- [x] Done 2026-08-21 - both paths corrected; `pnpm check-nav` passes and fails on the old ones.
 
 ---
 
@@ -57,7 +57,7 @@ test runner wired up here.
 
 **Done when.** Introducing a deliberately wrong path makes the check fail.
 
-- [ ] Done
+- [x] Done 2026-08-21 - `scripts/check-nav.mjs`. Verified by re-running it against both paths exactly as they shipped: it reports both, and names the dynamic-swallow case specifically.
 
 ---
 
@@ -78,7 +78,7 @@ anything inside the module itself. This task only touches nav.
 **Done when.** Pathfinder appears in the sidebar, both entries navigate, and the
 active state highlights on `/pathfinder`.
 
-- [ ] Done
+- [x] Done 2026-08-21 - Pathfinder + Explore added; both resolve literally.
 
 ---
 
@@ -119,7 +119,7 @@ missing border is a much smaller failure than missing text. Ink first.
 **Done when.** The scanner reports zero unpaired inks, `tsc --noEmit` passes,
 and the import page shows its pill, icons and ticks in dark mode.
 
-- [ ] Done
+- [x] Done 2026-08-21 - 483 sites paired, 5 reverted where the surface is light in both themes, scanner reports 0 remaining, `tsc` clean. NOT yet confirmed in a browser.
 
 ---
 
@@ -137,7 +137,7 @@ like every other page under `(main)`.
 
 **Done when.** The header has no edge of its own and the page reads as one card.
 
-- [ ] Done
+- [x] Done 2026-08-21 - bar and border removed.
 
 ---
 
@@ -161,7 +161,7 @@ not leave a section that renders nothing.
 **Done when.** No reference to `/blueprint` remains in the app, and the
 templates tab has no dead control.
 
-- [ ] Done
+- [x] Done 2026-08-21 - no `/blueprint` reference remains anywhere in the app.
 
 ---
 
@@ -182,7 +182,7 @@ fixed `max-w` on the page content that wins over `min-w-0`.
 **Done when.** Opening the rail on `/home` narrows the page and nothing is
 clipped at any width from 1280px up.
 
-- [ ] Done
+- [x] Done 2026-08-21 - cause was Radix's inline `display: table` on the ScrollArea content box, not the flex maths. New `reflow` prop. NOT yet confirmed in a browser.
 
 ---
 
@@ -195,7 +195,7 @@ content, ending nowhere.
 
 **Done when.** No stray edge at any width.
 
-- [ ] Done
+- [x] Done 2026-08-21 - it was the page card's own ring, identified by measuring the screenshot. Removed.
 
 ---
 
@@ -219,7 +219,7 @@ single price, tier or credit grant.
 **Done when.** The page uses the same type, spacing and card treatment as the
 rest of `(main)`, and every number it shows is the number it showed before.
 
-- [ ] Done
+- [x] Done 2026-08-21 - copy and weight rewritten, three spinners replaced with `InlineLoader`. Diff proves no price, limit or amount changed.
 
 ---
 
@@ -260,4 +260,8 @@ The dep should be `session?.user?.id`.
 **Done when.** The dev log is quiet on an idle `/ai/resume`, confirmed by
 watching it for 30 seconds.
 
-- [ ] Done
+- [ ] **Not done.** The dep fix is in. The cause is still unproven, so this stays
+  open until the log is actually watched. Removing the four dead
+  `/blueprint/resume` links (task 6) may also be relevant - a `<Link>` to a route
+  that does not resolve is a plausible source of repeated router work in dev - but
+  that is a hypothesis, not a finding.

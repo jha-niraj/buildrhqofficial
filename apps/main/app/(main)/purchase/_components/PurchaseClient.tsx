@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from '@repo/auth/client';
 import { Button } from '@repo/ui/components/ui/button'
+import { InlineLoader } from '@repo/ui/components/ui/inline-loader'
 import { Input } from '@repo/ui/components/ui/input'
 import { Label } from '@repo/ui/components/ui/label'
 import { Slider } from '@repo/ui/components/ui/slider'
@@ -16,7 +17,7 @@ import {
 import { Badge } from '@repo/ui/components/ui/badge'
 import {
 	Receipt, Zap, Gift, AlertTriangle, ShieldCheck, Clock, Activity,
-	Terminal, Server, CheckCircle2, Loader2, Wallet
+	Terminal, Server, CheckCircle2, Wallet
 } from 'lucide-react'
 import Link from 'next/link'
 import toast from '@repo/ui/components/ui/sonner'
@@ -124,7 +125,7 @@ export default function PurchasePage() {
 				amount: amountInSmallestUnit,
 				currency: currency,
 				name: 'ShipItHQ',
-				description: `Provision ${credits} Compute Credits`,
+				description: `${credits} credits`,
 				image: '/titlelogo.jpeg',
 				order_id: data.orderId,
 				handler: async function (response: RazorpayResponse) {
@@ -284,15 +285,21 @@ export default function PurchasePage() {
 							variant="outline"
 							className="mb-5 inline-flex items-center gap-1.5 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 px-3 py-1 rounded-full text-xs font-medium text-neutral-500 dark:text-neutral-400"
 						>
-							<Server className="w-3 h-3" />
-							Compute Provisioning
+							<Wallet className="w-3 h-3" />
+							Credits
 						</Badge>
-						<h1 className="text-5xl md:text-6xl font-bold tracking-tight leading-[1.08] text-neutral-900 dark:text-white mb-4">
-							Scale your<br />
-							<span className="text-neutral-400 dark:text-neutral-600">potential.</span>
+						{/* This page used to open "Compute Provisioning / Scale your potential" over
+						    an "Allocation Amount" field and an "Invoice Preview", which is the
+						    vocabulary of a cloud console. Nothing else in the product talks that
+						    way, and a person buying 50 credits to score a resume is not
+						    provisioning anything. Every number and every behaviour below is
+						    unchanged - only the words and the weight are. */}
+						<h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-[1.08] text-neutral-900 dark:text-white mb-4">
+							Buy credits.
 						</h1>
-						<p className="text-base text-neutral-500 dark:text-neutral-400 leading-relaxed font-light max-w-md">
-							Acquire compute credits to run AI agents, perform architecture simulations, and validate skills at scale.
+						<p className="text-base text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-md">
+							Credits pay for the things that call a model - practice sets, mock interviews,
+							resume scoring. One-time, no subscription, and they do not expire.
 						</p>
 					</motion.div>
 
@@ -360,7 +367,7 @@ export default function PurchasePage() {
 								{/* Large number input */}
 								<div className="space-y-3">
 									<Label className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.18em]">
-										Allocation Amount
+										How many credits
 									</Label>
 									<div className="relative">
 										<Input
@@ -370,11 +377,11 @@ export default function PurchasePage() {
 												const val = parseInt(e.target.value) || 0;
 												if (val <= 1000) setBasicCredits(val);
 											}}
-											className="h-auto py-2 text-8xl md:text-9xl font-mono font-bold bg-transparent border-0 border-b-2 border-neutral-100 dark:border-neutral-800 rounded-none px-0 focus-visible:ring-0 focus-visible:border-neutral-900 dark:focus-visible:border-white transition-colors tracking-tight placeholder:text-neutral-200 dark:placeholder:text-neutral-800 leading-none"
+											className="h-auto py-2 text-6xl md:text-7xl font-bold bg-transparent border-0 border-b-2 border-neutral-100 dark:border-neutral-800 rounded-none px-0 focus-visible:ring-0 focus-visible:border-neutral-900 dark:focus-visible:border-white transition-colors tracking-tight placeholder:text-neutral-200 dark:placeholder:text-neutral-800 leading-none"
 											placeholder="50"
 										/>
-										<span className="absolute right-0 bottom-3 text-xs font-bold tracking-[0.2em] uppercase text-neutral-400 dark:text-neutral-600">
-											CREDITS
+										<span className="absolute right-0 bottom-3 text-xs font-medium text-neutral-400 dark:text-neutral-500">
+											credits
 										</span>
 									</div>
 								</div>
@@ -417,29 +424,23 @@ export default function PurchasePage() {
 											<Zap className="w-4 h-4 text-white" />
 										</div>
 										<div>
-											<p className="text-sm font-bold text-white">Invoice Preview</p>
-											<p className="text-[11px] text-neutral-500">One-time · no subscription</p>
+											<p className="text-sm font-bold text-white">Order summary</p>
+											<p className="text-[11px] text-neutral-400">One-time, no subscription</p>
 										</div>
 									</div>
-									<span className="text-[10px] font-mono uppercase tracking-widest text-neutral-600 border border-neutral-700 px-2 py-0.5 rounded">
-										Draft
-									</span>
+
 								</div>
 
 								{/* Line items */}
 								<div className="space-y-3">
 									<div className="flex justify-between items-center text-sm">
-										<span className="text-neutral-500">Unit price</span>
-										<span className="font-mono text-neutral-300">Dynamic</span>
-									</div>
-									<div className="flex justify-between items-center text-sm">
-										<span className="text-neutral-500">Quantity</span>
-										<span className="font-mono text-neutral-300">{basicCredits} CR</span>
+										<span className="text-neutral-400">Credits</span>
+										<span className="font-medium text-neutral-200 tabular-nums">{basicCredits}</span>
 									</div>
 									<div className="h-px bg-neutral-800 my-2" />
 									<div className="flex justify-between items-end">
 										<span className="text-sm font-bold text-white">Total</span>
-										<span className="text-3xl font-bold font-mono text-white leading-none">
+										<span className="text-3xl font-bold text-white leading-none tabular-nums">
 											{currency === 'INR' ? '₹' : '$'}{calculateCustomPrice(basicCredits)}
 										</span>
 									</div>
@@ -453,13 +454,13 @@ export default function PurchasePage() {
 										className="w-full h-12 bg-white text-neutral-900 hover:bg-neutral-100 font-bold text-sm tracking-wide"
 									>
 										{isProcessing
-											? <Loader2 className="w-4 h-4 animate-spin" />
-											: 'Provision Resources'
+											? <InlineLoader size="sm" />
+											: 'Buy credits'
 										}
 									</Button>
 									{basicCredits < paymentConfig.minCredits && (
 										<p className="text-[11px] text-red-400 text-center">
-											Minimum allocation is {paymentConfig.minCredits} credits
+											Minimum is {paymentConfig.minCredits} credits
 										</p>
 									)}
 								</div>
@@ -472,7 +473,7 @@ export default function PurchasePage() {
 				<div className="flex items-center gap-5 mb-12">
 					<div className="h-px bg-neutral-200 dark:bg-neutral-800 flex-1" />
 					<span className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.22em] whitespace-nowrap">
-						Or Select Standard Tier
+						Or pick a pack
 					</span>
 					<div className="h-px bg-neutral-200 dark:bg-neutral-800 flex-1" />
 				</div>
@@ -520,7 +521,7 @@ export default function PurchasePage() {
 						<SheetHeader className="p-0 text-left">
 							<SheetTitle className="text-xl font-bold">Bounty Program</SheetTitle>
 							<SheetDescription className="text-neutral-500 mt-1">
-								Complete social tasks to earn compute credits.
+								Complete social tasks to earn credits.
 							</SheetDescription>
 						</SheetHeader>
 					</div>
@@ -596,7 +597,7 @@ export default function PurchasePage() {
 				<SheetContent className="w-full sm:max-w-md border-l border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-0">
 					<div className="p-8 border-b border-neutral-100 dark:border-neutral-800">
 						<SheetHeader className="p-0 text-left">
-							<SheetTitle className="text-xl font-bold">Confirm Provisioning</SheetTitle>
+							<SheetTitle className="text-xl font-bold">Confirm purchase</SheetTitle>
 							<SheetDescription className="text-neutral-500 mt-1">
 								Verify allocation before executing transaction.
 							</SheetDescription>
@@ -608,7 +609,7 @@ export default function PurchasePage() {
 						<div className="flex justify-between items-center px-4 py-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
 							<span className="text-sm text-neutral-500">Total Allocation</span>
 							<span className="text-lg font-bold font-mono text-neutral-900 dark:text-white tracking-tight">
-								{pendingCredits} CR
+								{pendingCredits} credits
 							</span>
 						</div>
 
@@ -639,7 +640,7 @@ export default function PurchasePage() {
 								className="w-full h-12 text-sm font-bold bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
 							>
 								{isProcessing
-									? <Loader2 className="w-4 h-4 animate-spin" />
+									? <InlineLoader size="sm" />
 									: `Pay ${currency === 'INR' ? '₹' : '$'}${pendingPrice?.toFixed(2)}`
 								}
 							</Button>
@@ -657,22 +658,21 @@ export default function PurchasePage() {
 								<CheckCircle2 className="w-7 h-7 text-white dark:text-neutral-900" />
 							</div>
 						) : (
-							<div className="relative w-14 h-14">
-								<div className="absolute inset-0 border-4 border-neutral-100 dark:border-neutral-800 rounded-full" />
-								<div className="absolute inset-0 border-4 border-neutral-900 dark:border-white rounded-full border-t-transparent animate-spin" />
+							<div className="flex h-14 w-14 items-center justify-center">
+								<InlineLoader size="lg" />
 							</div>
 						)}
 						<div>
 							<h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-1">
-								{processingStatus === 'initializing' && 'Handshaking…'}
-								{processingStatus === 'processing'   && 'Awaiting Gateway'}
-								{processingStatus === 'verifying'    && 'Verifying Token'}
-								{processingStatus === 'redirecting'  && 'Allocated!'}
+								{processingStatus === 'initializing' && 'Getting ready'}
+								{processingStatus === 'processing'   && 'Waiting for payment'}
+								{processingStatus === 'verifying'    && 'Confirming payment'}
+								{processingStatus === 'redirecting'  && 'Credits added'}
 							</h3>
 							<p className="text-sm text-neutral-500 max-w-[180px] mx-auto leading-relaxed">
 								{processingStatus === 'processing'
 									? 'Complete the secure payment in the popup.'
-									: 'Secure connection established.'}
+									: 'This only takes a moment.'}
 							</p>
 						</div>
 					</div>

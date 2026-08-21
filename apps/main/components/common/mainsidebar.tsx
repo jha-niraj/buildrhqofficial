@@ -31,7 +31,18 @@ export default function Sidebar() {
     const [unreadCount, setUnreadCount] = useState(0)
     const [loading, setLoading] = useState(false)
 
-    useEffect(() => { if (session?.user) fetchCreditsAndXp() }, [session?.user, fetchCreditsAndXp])
+    // ── Depend on the ID, not the user OBJECT ──
+    //
+    // `session?.user` is an object, and its identity is not guaranteed stable across
+    // renders of better-auth's `useSession`. Both of these effects fire a server action,
+    // and `load()` also flips `loading`, which re-renders the sidebar - so an unstable
+    // reference here means a server round-trip and a visible flicker on every render.
+    //
+    // The id is a string. It changes when the user actually changes, which is the only
+    // time either of these should run again.
+    const userId = session?.user?.id
+
+    useEffect(() => { if (userId) fetchCreditsAndXp() }, [userId, fetchCreditsAndXp])
 
     const load = useCallback(async () => {
         setLoading(true)
@@ -53,7 +64,7 @@ export default function Sidebar() {
         } catch { /* silent */ } finally { setLoading(false) }
     }, [])
 
-    useEffect(() => { if (session?.user) load() }, [session?.user, load])
+    useEffect(() => { if (userId) load() }, [userId, load])
 
     const onItemClick = async (n: AppSidebarNotification) => {
         if (!n.read) {
