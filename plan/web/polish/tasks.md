@@ -28,7 +28,7 @@ is not started.
 | WEB-20 | Build `PageHero` - fixed surface, variant composition | 4 | **done (2026-08-20)** |
 | WEB-21 | Adopt it on aboutus, pricing | 4 | **done (2026-08-20)** |
 | WEB-22 | Adopt it on Features, Compare | 4 | **done (2026-08-20)** |
-| WEB-23 | Contrast audit across every public page | 8 | **hero + OG card done (2026-08-20); landing/blog open** |
+| WEB-23 | Contrast audit across every public page | 8 | **done (2026-08-21)** |
 | **Landing composition** | | | |
 | WEB-30 | Port `reveal.tsx` and `lazy-mount.tsx` | 7 | **done (2026-08-20)** |
 | WEB-31 | Port `problem-scroll` as the Problem section | 6 | **done, adapted (2026-08-21)** |
@@ -385,8 +385,35 @@ The `ledger` divider above the facts genuinely IS decoration - the list structur
 spacing already do that job - so it is listed as exempt rather than quietly counted
 as a pass.
 
-**Still open:** the landing page sections and the blog article body. Features and
-Compare cannot be audited until WEB-10/WEB-11 build them.
+**Second pass, 2026-08-21 - the rest of the site.**
+
+Method: enumerate the whole neutral ramp's ratio against white and against `neutral-950`,
+derive the failing shades from the numbers rather than from habit, then grep every `.tsx`
+for those shades. 16 occurrences.
+
+**The scan's own assumption was wrong for six of them**, which is the lesson from
+CLAUDE.md restated: *check the rendered contrast, not the class name*. The scanner assumes
+the page background. Six hits sit on a FIXED dark panel - the article CTA on
+`bg-neutral-950`, the terminal in the Proof section - where `text-neutral-400` measures
+7.85:1 rather than 2.52:1. Each was opened and its surface read before being judged.
+
+**Two genuine failures, both fixed:**
+
+| pair | was | now |
+|---|---|---|
+| `projects-section` "Example briefs" label | 2.52:1 light / 4.18:1 dark | 7.81:1 / 7.85:1 |
+| `proof-section` fact detail line | 4.18:1 dark | 7.85:1 |
+
+The first one matters more than its size suggests: that label is what WEB-1 added to mark
+those briefs as invented rather than real generated projects. The one line on the section
+that exists for honesty was the least readable thing on it.
+
+**Two legibility bumps that were not WCAG failures.** The topic glyph and the features
+checkmarks are `aria-hidden` decoration beside text that already says the same thing, so
+1.4.11 does not apply - but at 2.52:1 they were washed out, and they went to 4.74:1.
+
+**Four exempt, recorded rather than silently passed:** the `aria-hidden` separator dots and
+breadcrumb slashes at `neutral-300`. They convey nothing and are deliberately faint.
 
 ---
 

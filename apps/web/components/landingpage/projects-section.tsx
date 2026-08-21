@@ -188,7 +188,11 @@ export default function ProjectsSection() {
                     </div>
                 </motion.div>
 
-                <p className="mb-4 text-xs font-medium uppercase tracking-[0.14em] text-neutral-400 dark:text-neutral-500">
+                {/* neutral-600/400, not neutral-400/500. This label measured 2.52:1 on white and
+                    4.18:1 on the dark surface - both under the 4.5:1 floor for text this small.
+                    It is also the label WEB-1 added to mark these briefs as invented rather than
+                    real generated projects, so it is the one line here that must be readable. */}
+                <p className="mb-4 text-xs font-medium uppercase tracking-[0.14em] text-neutral-600 dark:text-neutral-400">
                     Example briefs
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

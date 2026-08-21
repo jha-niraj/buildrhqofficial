@@ -110,7 +110,7 @@ export default function ProofSection() {
                                     <dd className="mt-1 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
                                         {f.label}
                                     </dd>
-                                    <dd className="mt-1.5 text-[13px] leading-snug text-neutral-500 dark:text-neutral-500">
+                                    <dd className="mt-1.5 text-[13px] leading-snug text-neutral-500 dark:text-neutral-400">
                                         {f.detail}
                                     </dd>
                                 </div>

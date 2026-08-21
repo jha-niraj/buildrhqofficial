@@ -156,7 +156,7 @@ export default function FeaturesPage() {
                                         <ul className="space-y-2.5">
                                             {m.points.map((p) => (
                                                 <li key={p} className="flex gap-3 text-[15px] leading-relaxed text-neutral-700 dark:text-neutral-300">
-                                                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400 dark:text-neutral-500" aria-hidden />
+                                                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden />
                                                     {p}
                                                 </li>
                                             ))}

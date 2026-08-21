@@ -108,7 +108,7 @@ export default async function TopicPage({ params }: Props) {
                         </nav>
 
                         <h1 className="mb-5 flex items-center gap-4 text-4xl font-bold tracking-tight text-neutral-900 dark:text-white md:text-5xl">
-                            <TopicGlyph category={topic} className="h-10 w-10 shrink-0 text-neutral-400 dark:text-neutral-500 md:h-12 md:w-12" />
+                            <TopicGlyph category={topic} className="h-10 w-10 shrink-0 text-neutral-500 dark:text-neutral-400 md:h-12 md:w-12" />
                             {name}
                         </h1>
                         <p className="max-w-2xl text-lg leading-relaxed text-neutral-500 dark:text-neutral-400">
