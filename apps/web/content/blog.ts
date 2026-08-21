@@ -66,7 +66,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2025-05-01',
         dateModified: '2026-07-30',
         keywords: ['software engineering portfolio', 'developer portfolio', 'portfolio projects for software engineer', 'github portfolio', 'web developer portfolio'],
-        readingTime: 12,
+        readingTime: 13,
         featured: true,
         takeaways: [
             'Three finished, deployed projects beat twelve half-built repos every time.',
@@ -144,7 +144,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-07-30',
         dateModified: '2026-07-30',
         keywords: ['star method interview', 'star interview method', 'star method examples', 'behavioural interview software engineer', 'star technique interview answers'],
-        readingTime: 13,
+        readingTime: 14,
         featured: true,
         takeaways: [
             'STAR is Situation, Task, Action, Result - and Result is the part almost everyone drops.',
@@ -171,7 +171,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-07-30',
         dateModified: '2026-07-30',
         keywords: ['behavioral interview questions software engineer', 'software engineer behavioral interview', 'behavioural questions developers', 'tell me about yourself software engineer', 'engineering culture fit interview'],
-        readingTime: 15,
+        readingTime: 10,
         takeaways: [
             'Behavioural rounds are not a formality - they are where most senior candidates get rejected.',
             'Every question maps to a small set of traits: ownership, collaboration, judgement, and how you handle being wrong.',
@@ -196,7 +196,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-07-30',
         dateModified: '2026-07-30',
         keywords: ['questions to ask interviewer software engineer', 'questions to ask at end of interview', 'reverse interview questions', 'what to ask hiring manager engineering', 'engineering interview red flags'],
-        readingTime: 10,
+        readingTime: 8,
         takeaways: [
             'The questions you ask are scored. "No, I think you covered everything" is a weak signal.',
             'Ask about process and reality, not perks - on-call, code review, how work gets prioritised.',
@@ -248,7 +248,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-07-30',
         dateModified: '2026-07-30',
         keywords: ['leetcode alternative', 'leetcode alternatives', 'coding practice sites', 'best coding interview platforms', 'sites like leetcode'],
-        readingTime: 12,
+        readingTime: 8,
         takeaways: [
             'LeetCode optimises for algorithmic puzzles - it does not prepare you for take-homes, debugging rounds or system design.',
             'Match the platform to the interview format you are actually facing.',
@@ -274,7 +274,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2025-05-09',
         dateModified: '2026-07-30',
         keywords: ['ats resume', 'ats resume checker', 'software engineer resume', 'applicant tracking system resume', 'resume format for software engineer'],
-        readingTime: 13,
+        readingTime: 11,
         featured: true,
         takeaways: [
             'Most ATS platforms do not auto-reject you - recruiters filter by keyword search, which is a different failure mode.',
@@ -300,7 +300,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-07-30',
         dateModified: '2026-07-30',
         keywords: ['software engineer cover letter', 'cover letter for developer', 'cover letter examples software engineering', 'how to write a cover letter developer', 'tech cover letter template'],
-        readingTime: 11,
+        readingTime: 10,
         takeaways: [
             'A cover letter is only worth writing if it says something your resume cannot.',
             'Four short paragraphs, under 250 words. Nobody reads more than that.',
@@ -326,7 +326,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-07-30',
         dateModified: '2026-07-30',
         keywords: ['how to become a software engineer', 'software engineer career', 'become a developer without a degree', 'software engineer requirements', 'how long to become a software engineer'],
-        readingTime: 14,
+        readingTime: 9,
         featured: true,
         takeaways: [
             'You do not need a CS degree, but you do need what a CS degree provides: fundamentals, projects, and a network.',
@@ -352,7 +352,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-07-30',
         dateModified: '2026-07-30',
         keywords: ['full stack developer roadmap', 'full stack roadmap', 'how to become a full stack developer', 'full stack developer skills', 'web development roadmap'],
-        readingTime: 15,
+        readingTime: 9,
         featured: true,
         takeaways: [
             'Learn HTML, CSS and JavaScript properly before any framework. Skipping this is the most common and most expensive mistake.',
@@ -378,7 +378,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-07-30',
         dateModified: '2026-07-30',
         keywords: ['software engineer career path', 'software engineer levels', 'senior software engineer requirements', 'staff engineer vs engineering manager', 'engineering career ladder'],
-        readingTime: 13,
+        readingTime: 9,
         takeaways: [
             'Levels are defined by scope of ownership, not years served or technical difficulty.',
             'The jump from mid-level to senior is about owning ambiguity, not writing better code.',
@@ -403,7 +403,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-07-30',
         dateModified: '2026-07-30',
         keywords: ['new grad software engineer jobs', 'entry level software engineer', 'graduate software engineer roles', 'how to get first developer job', 'junior developer job search'],
-        readingTime: 12,
+        readingTime: 9,
         takeaways: [
             'New grad pipelines open in August and September and fill before most students start applying.',
             'Referrals convert several times better than cold applications - and asking for one is normal.',
@@ -428,7 +428,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-07-30',
         dateModified: '2026-07-30',
         keywords: ['placement preparation', 'campus placement preparation', 'placement preparation for cse students', 'campus recruitment preparation', 'how to prepare for placements'],
-        readingTime: 14,
+        readingTime: 9,
         takeaways: [
             'Start six months before your placement season, not six weeks.',
             'Aptitude rounds eliminate more candidates than coding rounds do - and they are the easiest to fix.',
@@ -454,7 +454,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2025-05-07',
         dateModified: '2026-07-30',
         keywords: ['open source contribution', 'first open source pull request', 'open source for beginners', 'good first issue', 'how to contribute to open source'],
-        readingTime: 11,
+        readingTime: 13,
         takeaways: [
             'Start with projects you already use - context is the hardest part of contributing, and you already have it.',
             'Read CONTRIBUTING.md before writing any code. Most rejected PRs break a documented rule.',
@@ -480,7 +480,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2025-05-13',
         dateModified: '2026-07-30',
         keywords: ['ai coding tools', 'ai tools for developers', 'best ai for coding', 'ai developer productivity', 'github copilot alternatives'],
-        readingTime: 11,
+        readingTime: 12,
         takeaways: [
             'AI is best at code you could write but do not want to - boilerplate, tests, migrations.',
             'Review every generated line. Reviewing badly is where AI-assisted teams actually lose time.',
@@ -506,7 +506,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-08-21',
         dateModified: '2026-08-21',
         keywords: ['coding interview patterns', 'leetcode patterns', 'interview problem patterns', 'algorithm patterns interview', 'coding interview preparation'],
-        readingTime: 7,
+        readingTime: 10,
         takeaways: [
             'Pattern recognition beats problem count - four hundred problems builds recall, fifteen patterns builds transfer.',
             'The trigger is in the wording: \'contiguous\' means sliding window, \'all valid ways\' means backtracking.',
@@ -531,7 +531,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-08-21',
         dateModified: '2026-08-21',
         keywords: ['dynamic programming interview', 'dp interview questions', 'dynamic programming patterns', 'memoization vs tabulation', 'coin change dynamic programming'],
-        readingTime: 7,
+        readingTime: 10,
         takeaways: [
             'A problem is DP when it has overlapping subproblems AND optimal substructure. Check both.',
             'Coin Change with [1,3,4] to 6 shows exactly why greedy fails: 4+1+1 is three coins, 3+3 is two.',
@@ -556,7 +556,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-08-21',
         dateModified: '2026-08-21',
         keywords: ['big o notation', 'time complexity', 'space complexity', 'big o cheat sheet', 'algorithm complexity interview'],
-        readingTime: 7,
+        readingTime: 10,
         takeaways: [
             'Big O is about growth, not speed. An O(n squared) algorithm can beat an O(n log n) one on small inputs.',
             'The gap that matters is n log n versus n squared: at a million elements that is 20 million operations versus a trillion.',
@@ -581,7 +581,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-08-21',
         dateModified: '2026-08-21',
         keywords: ['how to approach coding interview problems', 'coding interview process', 'technical interview tips', 'thinking out loud interview', 'coding interview strategy'],
-        readingTime: 7,
+        readingTime: 10,
         takeaways: [
             'Restate, clarify, work an example by hand, state a brute force, name the waste, propose, then code.',
             'Ask about input size at minute six. It decides the target complexity and interviewers wait to see whether you ask.',
@@ -606,7 +606,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-08-21',
         dateModified: '2026-08-21',
         keywords: ['technical phone screen', 'phone screen interview', 'coding phone interview', 'phone screen tips software engineer', 'first round technical interview'],
-        readingTime: 6,
+        readingTime: 9,
         takeaways: [
             'A phone screen decides whether the company should spend five engineers\' afternoons on you, not whether to hire you.',
             'They cannot see you, so narrate more than feels natural. Silence and being stuck look identical.',
@@ -631,7 +631,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-08-21',
         dateModified: '2026-08-21',
         keywords: ['software engineer resume bullet points', 'resume bullet points examples', 'resume action verbs', 'quantify resume achievements', 'developer resume writing'],
-        readingTime: 7,
+        readingTime: 10,
         takeaways: [
             'Action verb plus what you built plus how plus a measurable outcome. Every bullet, every time.',
             'You do have numbers: scale, time, volume, frequency and cost. Credible estimates are allowed; invention is not.',
@@ -656,7 +656,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-08-21',
         dateModified: '2026-08-21',
         keywords: ['linkedin profile software engineer', 'linkedin headline developer', 'linkedin for developers', 'linkedin open to work', 'linkedin tips engineers'],
-        readingTime: 6,
+        readingTime: 9,
         takeaways: [
             'Your headline is a search field, not a slogan. Job title, three technologies, and what you are looking for.',
             'LinkedIn truncates About after two lines on mobile. Lead with the definition, not the story.',
@@ -681,7 +681,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-08-21',
         dateModified: '2026-08-21',
         keywords: ['portfolio project ideas', 'software engineer projects', 'project ideas for developers', 'portfolio projects resume', 'coding project ideas'],
-        readingTime: 7,
+        readingTime: 10,
         takeaways: [
             'The test: what decision will this force, and what alternative will I have rejected? Cannot name one, do not build it.',
             'A to-do app forces no decisions, which is why no interviewer can ask you anything interesting about it.',
@@ -706,7 +706,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-08-21',
         dateModified: '2026-08-21',
         keywords: ['deploy portfolio project', 'free hosting for projects', 'how to deploy a web app', 'vercel cloudflare deployment', 'portfolio project hosting'],
-        readingTime: 7,
+        readingTime: 10,
         takeaways: [
             'Nobody clones your repository. A live URL is the difference between \'I built this\' and \'here, look\'.',
             'Deployed means: loads for a stranger, has data in it, and shows the main feature without a sign-up wall.',
@@ -731,7 +731,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-08-21',
         dateModified: '2026-08-21',
         keywords: ['github profile', 'github profile readme', 'pinned repositories', 'github for recruiters', 'github portfolio'],
-        readingTime: 6,
+        readingTime: 9,
         takeaways: [
             'Three things get read: the profile README, six pins, and the contribution graph. Optimise those and stop.',
             'A wall of technology badges compresses to \'this person has heard of things\'. Three sentences compress to a person.',
@@ -756,7 +756,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-08-21',
         dateModified: '2026-08-21',
         keywords: ['open source resume', 'open source contributions resume', 'github contributions job', 'open source for hiring', 'merged pull request resume'],
-        readingTime: 7,
+        readingTime: 10,
         takeaways: [
             'Only list merged work. An open or closed-unmerged PR turns a positive claim into a negative one in front of the reader.',
             'Include the PR number. It is verifiable, and including it signals you expect to be checked.',
@@ -781,7 +781,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-08-21',
         dateModified: '2026-08-21',
         keywords: ['learning to code with ai', 'ai coding assistant', 'github copilot learning', 'using ai to learn programming', 'ai coding tools skills'],
-        readingTime: 7,
+        readingTime: 10,
         takeaways: [
             'Recognition is not learning. Agreeing that generated code is correct feels like understanding and does not transfer.',
             'The rule: never accept code you could not have written without first understanding why it works.',
@@ -806,7 +806,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
         datePublished: '2026-08-21',
         dateModified: '2026-08-21',
         keywords: ['ai resume screening', 'applicant tracking system', 'ats resume scanner', 'resume keyword matching', 'how ats works'],
-        readingTime: 7,
+        readingTime: 10,
         takeaways: [
             'The pipeline is parse, index, recruiter search, six-second human skim. Nothing in it scores your resume for quality.',
             'The failure that actually costs interviews is parsing, and it is invisible from your side.',

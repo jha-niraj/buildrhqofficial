@@ -109,3 +109,63 @@ If you do nothing else:
 That is most of the available value. The remaining polish - recommendations, posting, the full About section - is real but it has a much worse ratio, and it is the part people start with.
 
 Your LinkedIn does one job: get found, and survive the ten seconds after. Everything above serves one of those two.
+
+## The Projects and Education sections
+
+**Projects.** Use the dedicated Projects section rather than inventing an Experience entry
+for personal work. Recruiters can tell the difference and a well-presented project needs no
+disguise.
+
+Each entry: what it does in one line, a live link, and the technologies named explicitly.
+The link matters more here than on a resume, because LinkedIn is read on a phone and a
+tappable demo gets opened far more often than a repository does. [Deploying it](/blogs/deploy-your-portfolio-project)
+is what makes that link worth having.
+
+**Education.** Fill in the degree, the institution and the dates, and nothing else unless
+it is genuinely notable. Recruiters filter new-grad pipelines on graduation year, so the
+end date is the field that matters. Coursework lists add nothing.
+
+## Recommendations, honestly assessed
+
+They are the highest-effort, lowest-return item on the profile, with one exception: a
+recommendation from someone who managed you and writes specifically is genuinely
+persuasive, because it is rare.
+
+The failure mode is the reciprocal exchange, where two people write vague paragraphs for
+each other. Readers recognise it instantly and it is worse than an empty section.
+
+If you want one, ask a former manager or a senior colleague, and **give them something to
+work from** - two sentences about what you would like mentioned. People say yes far more
+often when they do not have to compose from scratch, and the result is specific rather than
+generic.
+
+Two good ones is plenty. Eight vague ones is a negative.
+
+## Keeping it current without maintaining it
+
+The realistic failure is not a bad profile; it is a profile that was accurate two jobs ago.
+
+A twenty-minute update three times a year covers it:
+
+- When you change role or get promoted, that day
+- When you ship something you would mention in an interview, add it to Featured
+- Once a year, reread the headline and the first two lines of About and ask whether they
+  still describe you
+
+That is the whole maintenance burden. Everything else on LinkedIn is optional, and treating
+it as a project rather than a profile is how people end up spending weekends on something
+with a fixed, modest ceiling.
+
+## What LinkedIn is not for
+
+Worth saying plainly, because a lot of advice implies otherwise.
+
+It is not a portfolio - [your GitHub and a deployed project](/blogs/github-profile-software-engineer)
+do that job better and are what a technical interviewer will actually open.
+
+It is not a resume - it is a discovery surface. Its job is to get you found and to survive
+ten seconds. The resume does the convincing.
+
+It is not a substitute for applying. Recruiters finding you is a supplement to a search,
+not a strategy, and a well-optimised profile with no applications going out is a common and
+comfortable way to make no progress.

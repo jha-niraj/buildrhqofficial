@@ -158,3 +158,68 @@ DP sits inside a broader taxonomy - see [the coding interview patterns guide](/b
 Not whether you produce the optimal solution immediately. The signal is the sequence: state a brute force, notice the repeated work out loud, define the subproblem, write the recurrence, then code it.
 
 A candidate who says "this recomputes `best(3)` several times, so let me cache it" and arrives at a correct memoised solution scores better than one who silently writes an optimal table nobody watched them reason about. The reasoning is the interview. The code is the artefact.
+
+## The three bugs that account for most wrong DP answers
+
+**Iterating the capacity loop in the wrong direction.** In 0/1 knapsack each item may be
+used once, so the inner loop runs *downward*; in the unbounded version it runs upward. Get
+it backwards and you silently allow an item to be reused, which produces a plausible wrong
+answer rather than an error.
+
+```python
+# 0/1: each item once. Downward.
+for item in items:
+    for w in range(capacity, item.weight - 1, -1):
+        dp[w] = max(dp[w], dp[w - item.weight] + item.value)
+
+# Unbounded: reuse allowed. Upward.
+for item in items:
+    for w in range(item.weight, capacity + 1):
+        dp[w] = max(dp[w], dp[w - item.weight] + item.value)
+```
+
+Write both out once, side by side, and the difference becomes memorable. Under pressure it
+is otherwise a coin flip.
+
+**Getting the base case wrong by one.** `dp[0]` almost always means "the empty case", and
+it is usually 0 or 1 depending on whether you are counting cost or counting ways. For
+"number of ways to make 0", the answer is 1 - there is exactly one way to pick nothing -
+and setting it to 0 makes every subsequent cell zero.
+
+**Returning the wrong cell.** For a problem asking about the best answer over *any* prefix
+rather than the full input, the answer is `max(dp)` and not `dp[n]`. Longest Increasing
+Subsequence is the classic case, and the bug passes the first test and fails the second.
+
+## Saying it out loud, in order
+
+There is a script for the DP portion of an interview, and following it scores better than
+producing the table silently:
+
+1. "The brute force tries every combination, which is exponential."
+2. "But it recomputes `best(3)` several times, so there is overlapping structure."
+3. "Let me define the subproblem: `dp[i]` is the fewest coins that make exactly `i`."
+4. "The base case is `dp[0] = 0`."
+5. "The transition is `dp[i] = min(dp[i - c] + 1)` over coins that fit."
+6. "The answer is `dp[amount]`, and I need a sentinel for unreachable."
+7. "That is O(amount x coins) time and O(amount) space."
+
+Steps 3 and 4 are where most candidates go quiet and start typing. Saying them costs
+fifteen seconds and it is the entire difference between an interviewer watching you reason
+and an interviewer watching you recall.
+
+## When a DP problem is not a DP problem
+
+Two traps worth recognising:
+
+**Greedy actually works.** For interval scheduling, or Jump Game, or activity selection,
+there is a local rule that is provably optimal. Reaching for DP produces a correct but
+overcomplicated answer, and an interviewer who asks "could this be simpler" is telling you
+something.
+
+**It is really a graph problem.** Shortest path on a weighted graph is Dijkstra, not DP,
+even though it has optimal substructure. If the state has cycles, a table filled in order
+does not work, because there is no order.
+
+The check: **is there a strict order in which subproblems can be solved?** DP needs one. If
+you cannot name it - "by increasing `i`", "by increasing string length" - the problem is
+probably something else.

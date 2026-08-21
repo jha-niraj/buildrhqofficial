@@ -99,3 +99,67 @@ The genuinely useful loop is: run your resume through a parser, read the extract
 6. Then stop optimising for the machine, because the machine was never the hard part.
 
 The last line is the one worth keeping. The parse is a hurdle with a known height and a known technique for clearing it. Everything that decides whether you get the job happens after it, with a person, and that is where the remaining effort belongs - starting with [the technical phone screen](/blogs/technical-phone-screen-guide), which is the next thing between you and an offer.
+
+## What happens after the screen, and why it changes your priorities
+
+The parse and the six-second skim are the parts people obsess over. They are also the parts
+with the lowest ceiling: a clean, well-structured resume passes them, and no amount of
+further optimisation makes it pass more.
+
+What comes after is where the outcome is actually decided:
+
+**A recruiter screen**, often 20 minutes on a call, covering whether you are real, what you
+want, and whether the salary band works. Most people prepare nothing for this and it does
+eliminate candidates - usually on a vague answer about what they are looking for.
+
+**A technical phone screen**, which is where the largest number of candidates are
+eliminated. [That guide is here](/blogs/technical-phone-screen-guide).
+
+**The loop.** Multiple rounds, and by this point your resume is a conversation starter
+rather than a filter.
+
+The implication is worth stating plainly: **once your resume parses cleanly and reads well,
+stop working on it.** The marginal hour is worth far more spent on the phone screen. People
+spend weeks on resume optimisation because it is legible and controllable, and it has a
+ceiling they hit in an afternoon.
+
+## Volume, and the thing that actually beats it
+
+Applying to two hundred jobs with a generic resume converts worse than applying to twenty
+with a tailored one, and both convert worse than one referral.
+
+The numbers are not the point; the mechanism is. A cold application arrives in a queue with
+hundreds of others and is filtered by keyword search. A referred application arrives in a
+different queue, usually with a human already attached to it, and often skips the first
+filter entirely.
+
+So the ordering that works:
+
+1. **Referrals**, for anything you actually want
+2. **Tailored applications** to twenty roles that genuinely fit
+3. **Volume applications**, as background noise rather than a strategy
+
+[The new-grad job search guide](/blogs/new-grad-software-engineer-jobs) covers asking for a
+referral without it being awkward, which is the part that stops most people.
+
+## Fixing the parse in ten minutes
+
+If you do one thing from this article:
+
+1. Export your resume as a PDF and open it in any PDF reader.
+2. Select all the text and copy it.
+3. Paste it into a plain text editor.
+
+What you are looking at is roughly what the ATS stored. Read it as a stranger.
+
+- Are your job titles on their own line, or merged into a skills list?
+- Did the section headers survive?
+- Is your phone number there, or did it live in a header that got dropped?
+- Are the dates attached to the right roles?
+- Is there anything that is now gibberish?
+
+Every problem you find is a real problem that was invisible from the formatted version, and
+fixing it is almost always the same fix: single column, standard headers, no text boxes.
+
+That is the whole ATS problem, and it takes an afternoon. Everything after it is about
+people - which is both harder and where the job actually is.

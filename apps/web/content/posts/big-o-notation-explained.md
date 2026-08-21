@@ -123,3 +123,63 @@ And know your own solution's complexity before the interviewer asks. Being asked
 Complexity is not a topic to study for a week; it is a lens you apply to everything else. Every problem in [the coding interview patterns guide](/blogs/coding-interview-patterns) has a complexity you should be able to state, and the whole point of [dynamic programming](/blogs/dynamic-programming-interview-guide) is turning an exponential recursion into a polynomial table.
 
 The practical habit worth building: after solving anything, before you move on, say the time and space complexity out loud. Ten seconds each, on every problem. That is how it becomes automatic rather than a thing you calculate.
+
+## Four complexity claims that are commonly wrong
+
+**"Sorting is O(n log n)."** Comparison sorting is. Counting sort and radix sort are O(n + k)
+and O(nk) respectively, because they do not compare elements - they use the values as
+indices. If an interviewer says the input is integers in a bounded range, that is the hint.
+
+**"Checking membership in a list is O(1)."** In a *set* or *dict*, yes on average. In a
+Python list or a JavaScript array, `x in items` and `items.includes(x)` are O(n). This is
+the single most common accidental O(n²) in interview code:
+
+```python
+# O(n^2) - the membership check scans the list every time.
+seen = []
+for x in items:
+    if x in seen: ...
+    seen.append(x)
+
+# O(n) - one hash lookup.
+seen = set()
+for x in items:
+    if x in seen: ...
+    seen.add(x)
+```
+
+**"Slicing is free."** `arr[1:]` in Python and `arr.slice(1)` in JavaScript both **copy**.
+A recursion that slices at each level is O(n²) in time and space regardless of how elegant
+it looks. Pass indices instead.
+
+**"String concatenation in a loop is fine."** Strings are immutable in most languages, so
+`s += x` builds a new string each time and the loop is O(n²). Collect into a list and join
+once.
+
+## Reading complexity off a recursion
+
+Two questions answer most recursive cases:
+
+**How many branches, and how deep?** A recursion that makes two calls and reduces the input
+by one is O(2ⁿ) - naive Fibonacci. Two calls that each *halve* the input is O(n log n) -
+merge sort. One call that halves is O(log n) - binary search.
+
+**What does the work at each level cost?** Merge sort's merge is O(n) at every level and
+there are log n levels, hence n log n. Binary search does O(1) at each of log n levels.
+
+The trap is assuming recursion depth equals complexity. A tree recursion of depth n with
+branching factor 2 visits 2ⁿ nodes, not n.
+
+## What to say when you do not know
+
+Sometimes you genuinely cannot compute it in the moment. The recoverable answer is to
+bound it out loud:
+
+"The outer loop is n. The inner one depends on the input in a way I would need to think
+about - it is at most n, so this is O(n²) worst case, but I suspect the amortised cost is
+lower because each element is only pushed and popped once. Can I come back to that?"
+
+That is a strong answer. It shows you know what you do not know, it gives a correct upper
+bound, and it names the reason the tight bound might be better. Guessing a number
+confidently and being wrong is much worse, because the follow-up is "walk me through how
+you got that".

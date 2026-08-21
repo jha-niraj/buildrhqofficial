@@ -172,3 +172,52 @@ If you find yourself stuck for more than twenty-five minutes, read the solution,
 They will not get you through a debugging round, a take-home, or a system design interview, and they will not help you explain your own project. Those are separate skills with separate practice, and the mistake is assuming the pattern work covers them. [The technical phone screen guide](/blogs/technical-phone-screen-guide) covers the round that usually comes first.
 
 Patterns solve exactly one problem: the blank page at minute one of a coding interview. That is a real problem and worth solving. It is just not the only one.
+
+## Two patterns people confuse, and how to tell them apart
+
+**Sliding window versus two pointers.** They look identical - two indices moving through
+an array - and the distinction is what the indices mean. In a sliding window, the region
+*between* the pointers is the answer you are maintaining, and both pointers move in the
+same direction. In two pointers, the region between them is the search space you are
+shrinking, and they move toward each other.
+
+The practical tell: if you find yourself adding and removing elements from a running total
+as the pointers move, it is a window. If you are comparing the values *at* the two
+pointers and deciding which to advance, it is two pointers.
+
+**Backtracking versus DFS.** Backtracking *is* DFS, with one addition: you undo the choice
+on the way back up. Every backtracking solution has the shape `choose, recurse, unchoose`,
+and if you forget the unchoose, you get a subtly wrong answer rather than a crash - which
+is why it is the hardest bug in this category to spot.
+
+```python
+def subsets(nums):
+    out, path = [], []
+    def walk(i):
+        if i == len(nums):
+            out.append(path[:])       # copy, or every entry aliases the same list
+            return
+        path.append(nums[i]); walk(i + 1); path.pop()   # choose, recurse, UNCHOOSE
+        walk(i + 1)
+    walk(0)
+    return out
+```
+
+The `path[:]` is the other classic bug in the same six lines. Appending `path` itself gives
+you a list of references to one mutating list, and every entry ends up empty.
+
+## The problems worth doing twice
+
+Some problems teach a pattern; a few teach the *boundary* of a pattern, and those are worth
+returning to a month later:
+
+| Problem | What it actually teaches |
+|---|---|
+| Minimum Window Substring | A window that shrinks from the left while the right keeps moving - the general form, not the easy case |
+| Koko Eating Bananas | Binary search on an answer space with nothing sorted anywhere |
+| Course Schedule II | Topological sort and cycle detection are the same traversal |
+| Word Search | Backtracking on a grid, where the unchoose is a cell you have to un-mark |
+| Merge k Sorted Lists | Why a heap beats repeated linear scans, with a complexity you can state |
+
+If you can do those five cold, you can handle most variations of the fourteen other
+patterns, because each one sits at the edge of its category rather than in the middle.

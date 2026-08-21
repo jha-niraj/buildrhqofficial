@@ -85,3 +85,59 @@ Then write down the problem and what you did badly, while it is fresh. A pattern
 Practise the round, not just the problems. Set a 45-minute timer, pick a medium problem you have not seen, and solve it while talking to an empty room, with no solution button. It feels absurd. It also exposes the exact failure mode phone screens punish: knowing an answer and being unable to say it while typing.
 
 Do that five times and the round stops being frightening. [The mock interview guide](/blogs/mock-technical-interview-guide) covers how to get a real one, and [the pattern guide](/blogs/coding-interview-patterns) covers what to do about the blank page at minute one - which, on a phone screen, is the moment everything hinges on.
+
+## What to do with the shared editor
+
+Most phone screens use a pad with no autocomplete, no type checking and often no ability to
+run code. That is a bigger adjustment than people expect if you normally work in a
+configured IDE.
+
+**Write it as if it cannot run**, because it might not. That means being deliberate about
+syntax rather than relying on the editor to flag a missing bracket, and it means reading
+your own code back before saying you are finished.
+
+**Use real variable names.** `left`, `right`, `seen`, `remaining`. Single letters are fine
+for loop indices and nothing else. The person reading it has no syntax highlighting either.
+
+**Leave the brute force in a comment if it helps.** Writing `# O(n^2): nested loop over all
+pairs` above your real solution costs one line and shows the reasoning survived into the
+code.
+
+**If you can run it, run it before you say you are done.** If you cannot, trace your example
+by hand out loud. Either way, do not announce completion until you have checked.
+
+## The forty-five-minute rehearsal
+
+The single most useful preparation for this round is a full-length rehearsal, and almost
+nobody does one because it feels absurd.
+
+The setup: a timer at 45 minutes, a plain text editor with autocomplete off, a medium
+problem you have not seen, and yourself talking out loud to an empty room. No solution
+button, no searching, no pausing the timer.
+
+What it exposes, reliably:
+
+- You go quiet when you think. Everybody does, and it is fatal on a phone.
+- You start coding before you have an approach, then rewrite at minute twenty.
+- You forget to ask about input size and only notice when your solution times out.
+- You finish and say "done" without testing.
+
+Each of those is invisible when you practise silently and each of them costs a round. Five
+rehearsals is enough to fix all four, which is a much better return than five more problems.
+
+## If it goes badly
+
+Some screens go badly for reasons that are not about you: an interviewer who gives a
+problem three levels above the role, a connection that drops, a question you happen to have
+never seen the pattern for.
+
+Two things worth doing anyway:
+
+**Finish the round properly.** Ask your questions, be pleasant, thank them. Companies keep
+notes, and "did not solve it but was good to talk to" is a materially different note from
+"did not solve it and disengaged". People do get re-invited.
+
+**Write down what happened the same day.** Not to dwell on it - to find the pattern. Three
+or four screens in, something repeats: always running out of time, always forgetting to
+clarify, always freezing on graphs. That repeated thing is your actual preparation list,
+and it is invisible from inside any single round.

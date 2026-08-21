@@ -131,3 +131,68 @@ Run each bullet through this:
 Bullets that fail 4 are the ones to cut. If nobody can ask you about it, it is taking up space that a bullet they could ask about should have.
 
 Once the bullets are right, the rest of the document is mostly formatting and ordering - [the ATS guide](/blogs/ats-resume-software-engineer) covers that, and [the cover letter guide](/blogs/software-engineer-cover-letter) covers the other document, which is a different job with different rules.
+
+## Bullets for people with no professional experience
+
+The advice above assumes a job. Most of it transfers, and the parts that do not have direct
+substitutes.
+
+**A personal project** gets the same treatment as a role, with the scale numbers coming
+from what you built rather than from a company:
+
+```text
+Weak:   Built a chat application using React and Socket.io
+Better: Built a real-time chat app handling 500 concurrent WebSocket
+        connections on a single 512MB instance; switched from polling
+        to WebSockets after measuring 40x fewer requests at the same
+        message rate
+```
+
+The second one says you measured something, which is the thing employers are actually
+uncertain about with a candidate who has no job history.
+
+**Coursework** counts if it was substantial and you say what was yours. "Built the parser
+and type checker for a compiler course project, 4,000 lines of OCaml" is real. "Completed
+coursework in compilers" is a transcript entry.
+
+**A hackathon** is worth one line, and the line should be about what you built rather than
+whether you placed. Nobody knows how competitive that hackathon was.
+
+**Open source** is the strongest of the four because it is verifiable - see
+[turning contributions into a hiring signal](/blogs/open-source-for-your-resume) for how to
+present it, and note the rule there: merged only.
+
+What does not work: listing technologies you have "learned", padding with soft skills, or
+inflating a two-week tutorial into a project. All three are transparent to a reader who has
+seen a thousand of these, and the last one is transparent in an interview.
+
+## Ordering, which does more than wording
+
+Two resumes with identical bullets perform very differently depending on order, because a
+six-second skim reads top to bottom and stops.
+
+**Most relevant first, within each role.** Not chronological, not most recent - most
+relevant to the job you are applying to. Your Kubernetes bullet goes first for an infra
+role and third for a frontend one.
+
+**Strongest bullet first overall.** Whatever is most impressive should be in the top third
+of the page, because that is what gets read.
+
+**Sections in order of what you are selling.** With a job: Experience, Projects, Skills,
+Education. Without one: Projects, Open Source, Skills, Education, Experience. A student who
+puts Education first has spent the most valuable space on the least differentiating thing -
+everyone applying has a degree.
+
+## Cutting
+
+Most resumes are one page of good material and one page of filler. The filler is usually:
+
+- Bullets about routine responsibilities that every engineer has
+- Anything from more than about eight years ago, in detail
+- "Proficient in Microsoft Office"
+- An objective statement saying you are seeking a challenging role
+- Soft-skill claims with nothing behind them
+
+The test for any bullet: **would I be happy to spend five interview minutes on this?** If
+not, it is taking space from something you would. Cutting a weak bullet is a net gain even
+if nothing replaces it, because it raises the average of what remains.

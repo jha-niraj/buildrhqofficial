@@ -119,3 +119,71 @@ page N, which this UI does not need.
 That is an interview answer, written down at the moment you actually understood it rather than reconstructed six months later under pressure. Those notes become the architecture-decisions section of your README, and they are what turns a project on your CV into a project you can be interviewed about.
 
 [The portfolio guide](/blogs/software-engineering-portfolio-guide) covers presenting the finished set, and [the GitHub profile guide](/blogs/github-profile-software-engineer) covers the ten seconds before anybody opens a repository at all.
+
+## Making an ordinary idea interesting
+
+You do not need a novel idea. You need an ordinary one with the hard part left in, and most
+ideas have one hiding behind a constraint you can add.
+
+| Ordinary version | Add this constraint | The hard part appears |
+|---|---|---|
+| Blog | Full-text search across posts | Ranking, stemming, index versus query time |
+| Chat app | Works offline and syncs on reconnect | Conflict resolution, ordering |
+| Todo list | Shared between two people live | Concurrency, last-write-wins versus merge |
+| Image gallery | Handles a 200MB upload | Streaming, chunking, resumable uploads |
+| Recipe site | Scales ingredients and converts units | Rational arithmetic, and why floats fail here |
+| Habit tracker | Timezone-correct streaks | Dates are not timestamps, and DST exists |
+
+That last one is a better interview conversation than it sounds. "A streak broke for a user
+who flew to Singapore" is a real bug with a real cause, and explaining it demonstrates
+something a to-do app never can.
+
+The move is always the same: take the thing everyone builds and add one constraint that
+makes a naive implementation wrong.
+
+## Two projects that are worth more than three
+
+If you build only two, build one **backend-heavy** and one **product-complete**.
+
+The backend-heavy one exists to have a hard technical decision in it - the rate limiter,
+the job queue, the settlement algorithm. It can look plain. Nobody is judging the CSS on a
+service.
+
+The product-complete one exists to show you can finish something a person uses: auth,
+error states, empty states, mobile layout, a real deploy. It can be technically
+straightforward. What it demonstrates is that you know a feature is not done when the happy
+path works.
+
+Most portfolios have three of the second kind and none of the first, which is why so many
+of them read the same. One of each covers both questions an interviewer has.
+
+## Reusing work you already did
+
+Before starting anything new, look at what exists:
+
+**A university project** you built with a team can be extended solo. Take the piece that
+was yours, rebuild the interesting part properly, deploy it, and write up what you would do
+differently. "I rebuilt the scheduler from my OS coursework because the original had a
+starvation bug" is a strong opening line.
+
+**A script you wrote for yourself** is often a project with a UI missing. The scraper, the
+renamer, the thing that reconciles two CSVs - you already solved the hard part.
+
+**A bug you hit in a library** is [an open source contribution](/blogs/open-source-for-your-resume)
+rather than a project, and it is often a faster path to something verifiable.
+
+The instinct to start fresh is usually wrong. A finished extension of existing work beats
+an abandoned new idea, and half the reason projects get abandoned is that starting from
+nothing is the least motivating part.
+
+## The one thing to do before you write code
+
+Write the README. Twenty minutes, before anything else.
+
+Describe what it does, what it will not do, and the one decision you expect to be hard. It
+is the most effective scope control that exists, because the moment you write "it will also
+support..." you can see the month you just added.
+
+It is also, unusually, the artefact an interviewer reads first. Writing it last means
+writing it as documentation. Writing it first means writing it as a plan, and it ends up
+being both.

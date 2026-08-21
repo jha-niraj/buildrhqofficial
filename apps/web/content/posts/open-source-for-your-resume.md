@@ -114,3 +114,69 @@ Open source is not the fastest route to a job. It is slower than applying, slowe
 What it is, is the most *verifiable* thing on your resume, and the only one where a stranger can read your actual code and the actual review of it. For a candidate with no professional experience, that is worth a lot - it converts "I can do this" from a claim into a link.
 
 Two or three merged PRs into one active project is enough to get that benefit. It does not require becoming a maintainer, and it does not require a year.
+
+## What a maintainer is actually deciding
+
+Understanding the other side makes contributions merge faster, and it is not complicated.
+
+A maintainer is usually one person doing this unpaid, in the evening, on a project other
+people depend on. Every PR they receive is a request for their attention, and the implicit
+question is: **is reviewing this cheaper than doing it myself?**
+
+That framing explains almost every piece of contribution advice:
+
+**Small PRs merge; large ones stall.** A fifty-line change with a test can be reviewed in
+ten minutes. A five-hundred-line refactor cannot be reviewed in an evening, so it waits for
+an evening that does not come.
+
+**Scope creep is the top cause of death.** You fix the bug and also rename three variables
+and reformat the file. Now the diff is mostly noise and the reviewer has to separate your
+fix from your opinions.
+
+**Matching their conventions is not deference, it is cost reduction.** If they use tabs,
+use tabs. Every deviation is a comment they have to write.
+
+**Asking first, for anything non-trivial**, saves everyone. "I hit this bug, here is what I
+think is happening, would you take a fix along these lines?" in the issue costs you two
+days of waiting and saves you two weeks of writing something they did not want.
+
+## A realistic first month
+
+If you are starting from nothing, this sequence works and it takes about a month of
+evenings:
+
+**Week 1: pick and read.** One project you actually use. Read the `CONTRIBUTING.md`, get it
+running locally, and read the last twenty merged PRs to see what gets accepted and how
+review goes. Do not write anything yet.
+
+**Week 2: one small merged change.** A documentation fix, a typo, a missing example. The
+goal is not the contribution - it is going through fork, branch, PR, review and merge once,
+so the mechanics stop being the hard part.
+
+**Week 3: reproduce a real bug.** Pick an open issue and reproduce it locally. Comment with
+what you found even if you cannot fix it. Reproductions are genuinely valuable to
+maintainers and this is how people get noticed.
+
+**Week 4: fix it, with a test.** The test is what makes it the contribution worth putting
+on a resume.
+
+After that, the fourth and fifth are much easier than the first, because you know the
+codebase and the maintainer recognises your name.
+
+## When it is not worth it
+
+Being honest about the cases where this is the wrong use of your time:
+
+**If you have no portfolio projects yet**, build one first. A deployed project you can
+explain is a broader signal than a merged PR, and it takes less waiting.
+
+**If you are two weeks from an interview loop**, this is the wrong investment. Contribution
+timelines are measured in weeks and depend on somebody else's availability.
+[Practice](/blogs/coding-interview-patterns) and mocks have a much faster return.
+
+**If you are contributing to pad a number**, stop. Ten trivial PRs across ten repositories
+reads worse than none, and it reads exactly like what it is.
+
+**If the project is not merging anything**, move. Check the last month of merged PRs before
+you invest. An unmerged contribution does not count, and no amount of effort on your side
+changes an inactive maintainer.

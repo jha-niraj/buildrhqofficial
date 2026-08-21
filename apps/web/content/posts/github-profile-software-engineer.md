@@ -95,3 +95,67 @@ An interviewer who is interested will look at your commit history. It is one of 
 6. Enable private contribution counts if your real work is elsewhere.
 
 That is most of the value on the page. Beyond it, the returns fall off sharply - and the effort is much better spent on [finishing another project](/blogs/portfolio-project-ideas-software-engineer) than on decorating the ones you have.
+
+## What an engineer looks at, as opposed to a recruiter
+
+Two different readers arrive at your GitHub and they look at different things.
+
+A **recruiter** sees the profile README, the pins and the graph, and stops. That is the ten
+seconds this article opened with.
+
+An **engineer on your interview loop** goes further, and usually in this order:
+
+1. Opens the most relevant pinned repository
+2. Reads the README, mostly looking for the architecture section
+3. Clicks the live demo
+4. Skims the file tree to see how it is organised
+5. Opens two or three source files, roughly at random
+6. Looks at the commit history
+
+Steps 4 to 6 are the ones people never optimise, and they are where a portfolio either
+holds up or does not.
+
+**The file tree** should be legible without explanation. A flat directory of forty files at
+the root, or a `src/utils/helpers.js` containing nine hundred lines, tells a story before
+anything is read.
+
+**The files they open** will not be the ones you would have chosen. This is the argument
+for consistency: it is fine for a project to be simple, and it is not fine for one file to
+be carefully written and the next to be an unedited first draft with commented-out code in
+it.
+
+**The commit history** is the only place they can see how you work rather than what you
+produced. A history of `fix`, `update`, `asdf`, `final`, `final2` is a real negative, and
+it is one nobody thinks about while committing.
+
+## Deleting commented-out code, and other five-minute wins
+
+Before you pin something, spend twenty minutes on it:
+
+- **Remove commented-out code.** Git remembers. Leaving it says you do not trust that.
+- **Remove `console.log` and `print` debugging.** Same reason.
+- **Fix the obvious `TODO`s in the main path**, or delete them. A `// TODO: handle errors`
+  in the request handler is an admission on the page.
+- **Make sure it runs from a clean clone.** Follow your own README on a fresh directory.
+  This fails more often than anyone expects, usually on a missing environment variable.
+- **Add a `.env.example`** and confirm there is no `.env` in the history.
+- **Add a licence.** [choosealicense.com](https://choosealicense.com/) takes a minute, and
+  a repository with no licence is technically all-rights-reserved, which is an odd signal
+  on something you are presenting as a portfolio piece.
+
+None of these are impressive individually. Together they are the difference between a
+repository that reads as finished and one that reads as abandoned mid-thought.
+
+## The profile as a hub
+
+The most useful thing your GitHub profile can do is route people onward. Recruiters and
+engineers both arrive there from a resume link, and both leave immediately unless there is
+somewhere to go.
+
+Three links, in the profile README, above everything else: your best **deployed** project,
+your [portfolio site or LinkedIn](/blogs/linkedin-profile-software-engineer), and your
+email.
+
+That is it. A profile that is a well-organised set of doors outperforms one that tries to
+be the destination, because nobody reads a GitHub profile for its own sake - they read it
+on the way to deciding something.

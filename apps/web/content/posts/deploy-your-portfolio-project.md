@@ -110,3 +110,78 @@ Put the link in three places: the top of the README, your [GitHub profile](/blog
 Then check it works from a device that is not yours. Every so often somebody puts a link on a resume that only resolves inside their home network, and they find out in the worst possible way.
 
 Deployment is the cheapest signal in a portfolio and the one most people skip. [The project ideas guide](/blogs/portfolio-project-ideas-software-engineer) covers what to build; this is the twenty percent of the work that makes anyone believe you built it.
+
+## Making a free tier survive a recruiter clicking it
+
+Free hosting has behaviours that are fine for you and bad for a stranger arriving from your
+resume.
+
+**Cold starts.** Many free tiers sleep after inactivity and take 20 to 50 seconds to wake.
+A recruiter will not wait. Two mitigations: pick a host whose free tier does not sleep for
+your most important project, or put a static landing page in front that loads instantly and
+explains what is loading.
+
+**Free-tier databases that pause.** Several managed Postgres providers suspend an inactive
+database. The app then throws a connection error rather than being slow, which is worse.
+Check your provider's policy and know what the first request after a pause does.
+
+**Bandwidth and build minutes.** Rarely an issue at portfolio scale, but worth knowing your
+limits so a project does not go dark in month four without you noticing.
+
+**A health check.** A free uptime monitor pinging the site every few minutes both tells you
+when it breaks and, as a side effect, keeps some hosts awake. This is the single highest
+value fifteen minutes in this article.
+
+## Handling errors like it is production
+
+An interviewer clicking your demo and getting a stack trace has learned something, and it
+is not what you wanted.
+
+**Never leak internals.** A 500 page should say something went wrong. The stack trace,
+query and connection string go to your logs. This is basic and it is missing from most
+portfolio projects, which is exactly why doing it is noticed.
+
+**Have an empty state.** What does the app look like with no data? "Nothing here yet" with
+a way to create something beats a blank rectangle, and a blank rectangle is what a demo
+usually shows on first load.
+
+**Handle the third-party being down.** If you call an external API, what happens when it
+times out? A spinner forever is the common answer and it is the wrong one.
+
+**Set a page title and a favicon.** Free, thirty seconds, and "localhost:3000" in a browser
+tab on a live site is the kind of detail that makes a careful reader wonder what else was
+left.
+
+## The README is part of the deployment
+
+A deployed project with a bad README is half-finished. The top of the file, before any
+scrolling, needs:
+
+1. What it does, one sentence, no jargon
+2. **The live link**, in the first three lines
+3. A screenshot or short GIF if it has a UI
+4. The stack, as a short list
+5. Architecture decisions - two or three, with the alternative you rejected
+
+Point 5 is what separates a junior portfolio from a mid-level one and it is the section
+almost nobody writes. "Chose cursor pagination over offset because the feed changes between
+page loads and offset was duplicating rows" is an engineer talking; a stack list is not.
+
+Keep a `DECISIONS.md` while you build, three lines per decision, written at the moment you
+understood it. It becomes that section, and it means you are not reconstructing your own
+reasoning six months later in an interview.
+
+## After the first deploy
+
+Deploying once is not the point; being able to redeploy is.
+
+**Automate it.** Every host on the list deploys on push to main. Set that up on day one -
+manual deploys stop happening, and a project you cannot redeploy is a project you cannot
+fix when somebody reports it broken.
+
+**Pin your dependencies.** A lockfile committed, and a build that works today working in
+six months. Projects that will not build any more are a common and avoidable way to lose a
+portfolio piece.
+
+**Check it from a device that is not yours.** Every so often somebody puts a link on a
+resume that only resolves inside their own network, and they find out during an interview.

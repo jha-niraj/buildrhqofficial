@@ -108,3 +108,65 @@ Solving problems in silence trains the wrong skill. The thing that transfers is 
 The cheapest version: solve problems talking to an empty room, with a timer, no solution button. It feels ridiculous and it works, because the failure mode it exposes - knowing the answer and being unable to narrate it - is invisible when you practise silently.
 
 Better, when you can get it: a real mock with someone who will interrupt you. [The mock interview guide](/blogs/mock-technical-interview-guide) covers how to run one that is worth the hour, and [the technical phone screen guide](/blogs/technical-phone-screen-guide) covers the round this procedure matters most in - the one where the interviewer cannot see your face and has forty-five minutes to decide.
+
+## The questions that change what you write
+
+Not all clarifying questions are equal. These are the ones whose answers actually change
+your solution, ranked by how often they matter:
+
+| Question | What changes if the answer surprises you |
+|---|---|
+| How large can the input be? | Your entire target complexity |
+| Is the input sorted? | Binary search and two pointers become available |
+| Can there be duplicates? | Set-based approaches, and whether an index map is safe |
+| Negative numbers? | Prefix sums, sliding windows and greedy all break differently |
+| Empty input, or a single element? | Your base case, and usually your first bug |
+| One answer or all of them? | Greedy versus backtracking - a different algorithm entirely |
+| Can I modify the input? | In-place becomes available, or is disqualifying |
+
+Ask two or three. Asking all seven reads as stalling, and the interviewer will start
+answering them before you finish.
+
+## Handling a follow-up
+
+Most interviews have one. "Now suppose the array does not fit in memory." "Now suppose it
+is streaming." "Now do it in O(1) space."
+
+The instinct is to panic, because you just spent twenty minutes on a solution that has now
+been invalidated. It has not. The follow-up is almost always testing whether you can
+identify **which assumption broke**, and saying that is most of the answer:
+
+"My solution assumes random access to the whole array, because the hash map holds every
+element. If it does not fit in memory, that assumption is what fails - so I would need
+either an external sort and a merge pass, or a probabilistic structure if an approximate
+answer is acceptable."
+
+You do not need to implement it. Naming the broken assumption and one direction is a
+complete answer to a five-minute follow-up.
+
+## What to do in the last five minutes
+
+If you are nearly done, **stop coding and test**. An untested solution that works and a
+tested solution that works score differently, and the gap is larger than people expect.
+
+If you are not nearly done, **say where you are and what remains**. "The main loop is
+right; I have not handled the case where the window is empty, which would be an extra check
+here." That converts an incomplete answer into a demonstration that you know what
+incomplete means, which is worth considerably more than silently running out of time.
+
+If you finished early, do not sit quietly. Offer the improvement you did not need: "This is
+O(n) space; if we are allowed to sort the input we could do it in O(1) extra space at the
+cost of O(n log n) time." Volunteering the trade-off is free signal.
+
+## Practising the procedure, not the problems
+
+The gap between people who can solve problems and people who pass interviews is almost
+entirely this procedure, and it does not improve by solving more problems.
+
+A drill that works: take a problem you have **already solved**, and run only steps 1 to 6
+on it out loud, with a timer, without writing any code. Five minutes. You are not trying to
+find the answer - you know the answer - you are rehearsing the narration.
+
+Do that with ten problems you already know and the first five minutes of a real interview
+stop feeling like an ambush. It is the cheapest, least popular and most effective
+preparation there is, because it practises the part that is actually failing.

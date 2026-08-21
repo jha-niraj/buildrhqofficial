@@ -94,3 +94,67 @@ Once a week, pick something you have built with assistance and reimplement a pie
 If you can, you learned it. If you cannot, you shipped it - which is fine for the parts that are in the way, and a problem for the parts that are the point.
 
 That check takes twenty minutes and it is the only reliable way to know which of the two happened, because it does not feel different at the time. [The AI tools guide](/blogs/ai-tools-developers-2025) covers which tools are worth using; this is the part about not letting them cost you the thing they were supposed to accelerate.
+
+## The interview problem, specifically
+
+There is a practical reason this matters beyond craft, and it is worth being blunt about.
+
+Interviews are unassisted. Every round - the phone screen, the onsite, the system design
+conversation - is a retrieval test with no autocomplete, and increasingly with proctoring
+that makes assistance impossible even remotely.
+
+So a skill gap that is invisible day to day becomes visible in exactly the forty-five
+minutes that decide the outcome. The candidate who has shipped a lot with assistance and
+cannot write a binary search on a blank page is a real and increasingly common failure, and
+the person it surprises most is the candidate.
+
+The check from earlier is the whole defence: **reimplement something from scratch, no
+assistant, once a week**. If that is uncomfortable, it is measuring something true.
+
+## Reviewing generated code like a reviewer
+
+Read it as if a stranger wrote it, because one did. The specific questions worth asking
+every time:
+
+**What happens on empty input?** Generated code is trained on happy paths and the empty
+case is the most commonly missing branch.
+
+**Is this API real?** Confidently invented methods on real libraries are common, and they
+look exactly like real ones. The docs are the arbiter.
+
+**Is this the current way to do it?** Models see a lot of old code, because most code is
+old. Deprecated patterns come back looking authoritative.
+
+**What is the error handling doing?** Frequently: nothing, or a bare catch that swallows
+the failure. This is the one that causes production incidents rather than test failures.
+
+**Would I be able to defend this in review?** If the answer is no, you do not understand it
+well enough to have accepted it.
+
+That last question is the most useful of the five, because it is the same standard a
+colleague would hold you to, and it does not require knowing in advance what is wrong.
+
+## Where assistants are genuinely better than you
+
+Worth stating, because the framing so far has been about protecting a skill and that can
+tip into refusing help that is obviously worth taking.
+
+**Boilerplate you have written forty times.** Config files, test scaffolding, the shape of
+a CLI parser, a Dockerfile. There is no learning left in these and typing them is pure
+overhead.
+
+**Regular expressions.** Genuinely faster and usually more correct than a person doing it
+by hand, and easy to verify with a handful of test strings.
+
+**Translating between languages.** "What is the Python equivalent of this Go function" is a
+question with a right answer that would otherwise cost you twenty minutes of searching.
+
+**Explaining unfamiliar code.** The strongest use case, with essentially no downside.
+
+**First drafts of documentation.** Writing a README from a codebase is exactly the kind of
+summarisation these are good at, and you are going to edit it anyway.
+
+The pattern across all five: they are tasks where you can **verify the output faster than
+you could produce it**. That is the real dividing line, and it is a better rule than any
+list. Where verification is cheap, delegate freely. Where verifying requires the
+understanding you were trying to build, do it yourself.
