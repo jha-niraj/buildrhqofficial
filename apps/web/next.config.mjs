@@ -13,14 +13,42 @@
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:6001";
 
 // Paths owned by the app, not the marketing site.
+//
+// EVERY ENTRY MUST RESOLVE ON THE APP. This list is a redirect table, so a path pointing
+// at a route that does not exist produces a 404 *after* a redirect hop - which is strictly
+// worse than not redirecting, because the visitor lands on the app's error page with no
+// way back into the marketing site. Nine of these were doing exactly that, audited on
+// 2026-08-21 by requesting each target:
+//
+//   /signup /verify /dashboard /sharecredits /referrals /chat /leaderboard
+//   /achievements /feedback
+//
+// Two were real aliases and are now redirected to the route that exists (see APP_ALIASES).
+// The other seven belong to modules that were removed from the product - Chat/Inbox,
+// referrals, achievements and the rest - so they are gone from this list entirely. They now
+// 404 on the MARKETING site, which is the better outcome: that page has navigation back
+// into the rest of the site, and the app's does not.
+//
+// If you add a path here, request it against the app first.
 const APP_PATHS = [
-    "/signin", "/signup", "/register", "/verify", "/onboarding",
+    "/signin", "/register", "/onboarding",
     "/forgotpassword", "/resetpassword", "/error",
-    "/home", "/dashboard", "/profile", "/settings",
-    "/purchase", "/transactions", "/sharecredits", "/referrals",
-    "/ai", "/chat", "/practice", "/mock", "/pathfinder",
-    "/projects", "/knowme", "/leaderboard", "/achievements", "/feedback",
+    "/home", "/profile", "/settings",
+    "/purchase", "/transactions",
+    "/ai", "/practice", "/mock", "/pathfinder",
+    "/projects", "/knowme",
     "/jobs",
+];
+
+// Paths people type or link that are NOT what the app calls the route.
+//
+// `/signup` is the important one: it is the most-guessed sign-up URL on any site, the
+// app's route is `/register`, and it was redirecting to `${APP_URL}/signup` - a 404 at the
+// end of a redirect. `lib/site.ts` already sends our own CTAs to `/register`; this covers
+// everyone who typed it, bookmarked it, or followed an old link.
+const APP_ALIASES = [
+    { from: "/signup", to: "/register" },
+    { from: "/dashboard", to: "/home" },
 ];
 
 // JSON-LD structured data is emitted inline on every page, so script-src needs
@@ -93,6 +121,10 @@ const nextConfig = {
                 { source: p, destination: `${APP_URL}${p}`, permanent: false },
                 { source: `${p}/:path*`, destination: `${APP_URL}${p}/:path*`, permanent: false },
             ])),
+            // Aliases resolve to the app's real route name rather than echoing the path.
+            ...APP_ALIASES.map(({ from, to }) => (
+                { source: from, destination: `${APP_URL}${to}`, permanent: false }
+            )),
         ];
     },
 

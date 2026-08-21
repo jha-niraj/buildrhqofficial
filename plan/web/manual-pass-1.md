@@ -425,3 +425,63 @@ the component from a client page.
 **Verified:** all six ids on their `<section>` elements, no stray anchor divs, six TOC links,
 `aria-current` on the first row in the initial HTML. Full re-scan: 55/55 clean, 83 internal
 links all 200.
+
+---
+
+# Manual pass 5, 2026-08-21
+
+## MP-19 - The redirect table had nine dead entries
+
+**`/signin` was not actually broken.** Traced end to end: the marketing site 307s it to
+`${APP_URL}/signin` and the app returns 200. The route exists at
+`app/(auth)/(shell)/signin`. If it looked like a 404, the app was not running on its port.
+
+**But the audit found nine that were.** `APP_PATHS` is a redirect table, and every entry was
+being echoed straight through to the app - so a path with no matching route produced a 404
+*after* a redirect hop. That is strictly worse than no redirect: the visitor lands on the
+APP's error page, which has no way back into the marketing site.
+
+Requested every one of the 27 targets against a running app. Nine returned 404:
+
+| path | what it was |
+|---|---|
+| `/signup` | the most-guessed sign-up URL anywhere. The app's route is `/register` |
+| `/dashboard` | the app calls it `/home` |
+| `/verify` `/chat` `/sharecredits` `/referrals` `/leaderboard` `/achievements` `/feedback` | removed modules. No page under any path |
+
+**Two were real aliases** and now redirect to the route that exists, via a new `APP_ALIASES`
+list: `/signup` -> `/register`, `/dashboard` -> `/home`. Our own CTAs already went to
+`/register`; this covers everyone who typed it, bookmarked it or followed an old link.
+
+**Seven are gone from the table entirely.** They 404 on the marketing site now, which is the
+better outcome - that page has navigation back into the rest of the site and the app's does
+not.
+
+The rule is written into the config above the list: **every entry must resolve on the app,
+and you request it before adding it.**
+
+## MP-20 - The 404 page
+
+It was a centred card with an apology and two buttons - which tells you the page is missing,
+which you knew, and then offers "home", the one destination somebody who typed a specific
+URL was not looking for.
+
+It leads with destinations now: six real places, each with a line saying what is there, so a
+reader recognises the one they wanted instead of navigating from scratch.
+
+**The sign-in block is the useful part, and it is not filler.** A large share of the 404s
+this page will ever see are people typing an app route on the marketing domain. Seven of
+those used to redirect into the app's own 404; now they arrive here, where we can say
+plainly that practice, projects, mocks and resumes live behind sign-in, and give them both
+buttons.
+
+An illustration to match the rest - the brand staircase with its top tile detached and
+drifting, server-rendered SVG on `currentColor`, CSS-animated and disabled under reduced
+motion.
+
+`noindex, follow` unchanged and deliberate: never index a 404, and keep its links live so a
+crawler that lands here still reaches the site.
+
+**Verified:** every remaining redirect resolves 200 end to end, `/signup` lands on
+`/register`, the seven removed paths 404 on the marketing site with navbar, footer and six
+destinations, and the page is `noindex, follow`.

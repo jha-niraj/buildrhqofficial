@@ -482,9 +482,19 @@
 .sh-art-wave > path:nth-child(7) { animation-delay: 0.42s; }
 .sh-art-wave > path:nth-child(8) { animation-delay: 0.06s; }
 
+@keyframes sh-art-drift {
+    0%, 100% { transform: translateY(0) rotate(-4deg); opacity: 0.45; }
+    50%      { transform: translateY(-10px) rotate(4deg); opacity: 0.8; }
+}
+.sh-art-drift {
+    animation: sh-art-drift 4.5s ease-in-out infinite;
+    transform-origin: center;
+    transform-box: fill-box;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .sh-art-flow, .sh-art-pulse, .sh-art-rise, .sh-art-scan,
-    .sh-art-tick, .sh-art-caret, .sh-art-wave > path {
+    .sh-art-tick, .sh-art-caret, .sh-art-drift, .sh-art-wave > path {
         animation: none;
     }
 }
