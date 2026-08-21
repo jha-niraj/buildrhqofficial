@@ -134,6 +134,8 @@ Speed - reasoning models are significantly slower than standard GPT-4. They also
 
 **Best practice:** Use GPT-4o for everyday coding help, Perplexity for research, and o1/o3 when you have a genuinely hard problem where you need confident accuracy over speed.
 
+Using these without the underlying skill quietly failing to develop is its own question - [learning to code with AI](/blogs/learning-to-code-with-ai) covers when to turn the assistant off and when to lean on it.
+
 ## The AI Developer Stack in Practice
 
 Here is how the tools fit together in a realistic developer workflow:

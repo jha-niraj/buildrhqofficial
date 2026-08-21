@@ -22,6 +22,8 @@ The community-maintained [New Grad Positions repo](https://github.com/SimplifyJo
 
 If you still have a summer ahead of you, an internship is worth more than almost anything else you can do - many new grad seats are filled by returning interns before they are ever posted publicly. The same maintainers run an [internships repo](https://github.com/SimplifyJobs/Summer2027-Internships).
 
+Recruiters find new-grad candidates by searching graduation year plus a technology, which makes your profile a discovery surface rather than a formality - [the LinkedIn guide](/blogs/linkedin-profile-software-engineer) covers what to fix.
+
 ## Referrals Convert, Cold Applications Mostly Do Not
 
 This is the highest-leverage change most candidates can make, and most do not make it because asking feels presumptuous.

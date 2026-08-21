@@ -71,6 +71,8 @@ is:issue is:open label:"good first issue" language:typescript created:>2026-02-0
 `no:assignee` is the one most people leave off. An issue that already has somebody on it is
 not an opportunity, it is a queue.
 
+Once something has merged, presenting it is a separate skill - [turning open source contributions into a hiring signal](/blogs/open-source-for-your-resume) covers what to write and why unmerged work is worse than saying nothing.
+
 ## The First Contribution: What to Look For
 
 Your first contribution does not have to be a bug fix or a feature. Here is a prioritized list of contribution types from easiest to hardest:

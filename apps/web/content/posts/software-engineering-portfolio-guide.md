@@ -93,7 +93,7 @@ Here is that skeleton as an actual file. Copy it, fill it in, delete nothing:
 Splits shared holiday expenses between people in different currencies and settles
 up in the fewest possible transfers.
 
-**[Live demo](https://trips.example.dev)** | **[API docs](https://trips.example.dev/docs)**
+**[Live demo](https://trips.example.com)** | **[API docs](https://trips.example.com/docs)**
 
 ## Stack
 
@@ -131,6 +131,8 @@ The two sections that separate a junior portfolio from a mid-level one are **Arc
 decisions** and **What I learned**. Anyone can list a stack. Explaining a trade-off you
 made, and one you got wrong, is the part that reads as an engineer rather than a
 tutorial-follower.
+
+Choosing what to build is its own problem - [portfolio project ideas that are not a to-do app](/blogs/portfolio-project-ideas-software-engineer) covers the selection test, and [how to deploy your portfolio project](/blogs/deploy-your-portfolio-project) covers the step that turns a repository from a claim into evidence.
 
 ## Making Your GitHub Profile Work for You
 

@@ -68,6 +68,8 @@ For structured problem sets, [Striver's A2Z DSA sheet](https://takeuforward.org/
 
 **Language choice:** C++ for competitive-style rounds because of the STL, Java if your curriculum uses it, Python if you are fastest in it and the company allows it. Pick one in month one and do not switch.
 
+Your GitHub is often opened before your resume in campus processes, and it gets about ten seconds - [the profile guide](/blogs/github-profile-software-engineer) covers what a recruiter actually sees in them.
+
 ## Aptitude: The Underrated Round
 
 Two to three hours a week for three months is enough for most people to clear these comfortably. The question bank is genuinely finite.

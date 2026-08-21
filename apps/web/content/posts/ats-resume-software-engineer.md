@@ -151,6 +151,8 @@ Tools:        PostgreSQL, Redis, Kafka, Elasticsearch, Git
 
 Listing skills this way ensures every technology you know appears as an exact keyword match.
 
+The wording of each bullet is its own skill, and it is where most of the remaining value is - [resume bullet points for software engineers](/blogs/software-engineer-resume-bullet-points) covers the formula and where to find numbers when you think you have none.
+
 ## The Metrics Problem
 
 Most developers dramatically underutilize metrics in their resumes. You do not need to know precise numbers - you need credible estimates.

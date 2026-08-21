@@ -21,6 +21,8 @@ A cover letter is only worth writing when it can say something the resume struct
 
 That last case is worth being blunt about. If you are sending twenty applications this week to roles you cleanly match, your time is better spent [tailoring each resume to the job description](/blogs/ats-resume-software-engineer) and chasing referrals than writing twenty letters nobody will open.
 
+Before the cover letter matters at all, the resume has to survive the parser and the six-second skim - [what actually happens after you click apply](/blogs/ai-resume-screening-explained) covers that pipeline.
+
 ## The Structure
 
 Four paragraphs. Under 250 words total. That is not a stylistic preference - it is the length that actually gets read.

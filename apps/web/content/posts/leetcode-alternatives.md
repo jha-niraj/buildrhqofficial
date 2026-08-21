@@ -107,6 +107,8 @@ There is no LeetCode for system design and the attempts to build one mostly do n
 
 What actually works: [the System Design Primer](https://github.com/donnemartin/system-design-primer) as the standard free reference, real engineering blogs from companies operating at scale, and mock sessions where somebody makes you defend a decision out loud. The structured version of that is in [the system design interview roadmap](/blogs/system-design-interview-prep).
 
+Whichever platform you use, the thing that transfers is pattern recognition rather than problem count - [the fifteen coding interview patterns](/blogs/coding-interview-patterns) is the taxonomy worth learning first.
+
 ## So Do You Still Need LeetCode?
 
 For most large tech companies, yes. The algorithmic screen has not gone away, and pretending otherwise is not a strategy.

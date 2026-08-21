@@ -191,6 +191,8 @@ Know what eventual consistency means in practice. If you post a tweet and your f
 
 The final phase is the most important: repetition and feedback.
 
+Before any of this, the round that decides whether you reach a system design interview at all is usually a coding phone screen - [that guide is here](/blogs/technical-phone-screen-guide).
+
 ### The 30-Problem List
 
 Practice these problems in this order. Each one teaches a different lesson:

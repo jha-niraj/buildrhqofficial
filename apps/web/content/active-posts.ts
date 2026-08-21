@@ -33,4 +33,24 @@ export const ACTIVE_BLOG_SLUGS: readonly string[] = [
     'open-source-contribution-beginners',
     // ─── AI & Developer Tools ───
     'ai-tools-developers-2025',
+
+    // ─── Added 2026-08-21: filling the thin clusters ───
+    // DSA went from 2 posts to 6, portfolio from 1 to 4, resume from 2 to 4, ai-tools
+    // from 1 to 3, open-source from 1 to 2. The strategy is in plan/web/seo/overview.md:
+    // compete on specificity, not coverage - 17 posts is a rounding error against
+    // GeeksforGeeks, so every one of these targets a query where a generic answer is
+    // unsatisfying.
+    'coding-interview-patterns',
+    'dynamic-programming-interview-guide',
+    'big-o-notation-explained',
+    'how-to-approach-coding-interview-problems',
+    'technical-phone-screen-guide',
+    'software-engineer-resume-bullet-points',
+    'linkedin-profile-software-engineer',
+    'portfolio-project-ideas-software-engineer',
+    'deploy-your-portfolio-project',
+    'github-profile-software-engineer',
+    'open-source-for-your-resume',
+    'learning-to-code-with-ai',
+    'ai-resume-screening-explained',
 ]

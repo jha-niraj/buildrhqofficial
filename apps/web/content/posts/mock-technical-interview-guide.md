@@ -1,5 +1,7 @@
 Most developers practice technical interviews the same way: they open LeetCode, solve problems alone with no time pressure, check the solution when they get stuck, and feel okay about their progress. Then they walk into an interview, freeze on a medium-difficulty problem they have solved before, and leave confused about what went wrong.
 
+If the round you are preparing for is the first one, [the technical phone screen guide](/blogs/technical-phone-screen-guide) covers what is specific to it, and [the first five minutes of a coding interview](/blogs/how-to-approach-coding-interview-problems) covers the procedure that matters most under time pressure.
+
 The problem is not talent. The problem is that they practiced the wrong thing.
 
 Solving problems in silence with no time limit and infinite hints is completely different from explaining your thinking out loud while a stranger watches you struggle under a 45-minute timer. One is a skill. The other is a different skill. You need to practice both - but most people only practice the first.

@@ -75,7 +75,7 @@ Hash maps are the single most powerful tool in your interview arsenal. When you 
 6. First Unique Character in a String
 7. Subarray Sum Equals K
 
-**Key insight:** If you find yourself writing O(n²) for any array problem, ask yourself: "Can I precompute something into a hash map to eliminate the inner loop?" The answer is yes more often than you think.
+**Key insight:** If you find yourself writing O(n²) for any array problem, ask yourself: "Can I precompute something into a hash map to eliminate the inner loop?" The answer is yes more often than you think. If the complexity notation itself is shaky, [the Big O guide](/blogs/big-o-notation-explained) covers it properly.
 
 **The complexity table worth memorising.** Averages, not worst cases, except where the
 worst case is the thing that bites you:
@@ -245,6 +245,8 @@ which is two. That gap is the entire reason this problem is DP and not greedy.
 The recurrence is one line: `dp[i] = min(dp[i - c] + 1)` over every coin `c` that fits.
 Write the table out by hand for a small input before you write the loop. Every DP problem
 you will be given is that table with different arithmetic in the cell.
+
+The full taxonomy - which pattern each problem type belongs to and what triggers it - is in [the coding interview patterns guide](/blogs/coding-interview-patterns), and dynamic programming has enough depth to deserve [its own treatment](/blogs/dynamic-programming-interview-guide).
 
 ## Month 3: Advanced and Interview Simulation (Weeks 9-12)
 
