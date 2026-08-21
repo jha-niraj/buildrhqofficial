@@ -70,6 +70,9 @@ export default function OnboardingClient() {
 	const { data: session, refetch } = useSession()
 	const [open, setOpen] = useState(true)
 	const [loggingOut, setLoggingOut] = useState(false)
+	// True from the moment the flow closes until the browser has actually left this route.
+	// Without it the page renders NOTHING in that window - see the note on `handleClose`.
+	const [leaving, setLeaving] = useState(false)
 	const submittedRef = useRef(false)
 
 	const steps: FlowStep[] = useMemo(() => [
@@ -213,6 +216,8 @@ export default function OnboardingClient() {
 
 	const handleClose = () => {
 		setOpen(false)
+		setLeaving(true)
+
 		if (!submittedRef.current) {
 			router.push("/signin")
 			return
@@ -225,7 +230,20 @@ export default function OnboardingClient() {
 		const parked =
 			searchParams.get("callbackUrl") ?? sessionStorage.getItem("sso_callback")
 		sessionStorage.removeItem("sso_callback")
-		router.push(isSafeCallback(parked) ? parked : "/home")
+		const destination = isSafeCallback(parked) ? parked : "/home"
+
+		// A FULL navigation, not router.push.
+		//
+		// This is the one moment in the product where the session cookie has just changed
+		// - `completeOnboarding` set onboardingCompleted and `finalizeSignup` ran - and the
+		// destination is behind middleware that reads that cookie. A client-side push
+		// reuses the router cache and can be evaluated against the pre-update session,
+		// which bounces /home straight back to /onboarding. The flow is closed by then, so
+		// what the user sees is a blank page, and only a manual refresh recovers it.
+		//
+		// `assign` costs one full page load, once, at the end of signup. That is a fair
+		// price for the last step of onboarding landing somewhere every time.
+		window.location.assign(destination)
 	}
 
 	const handleLogout = async () => {
@@ -237,6 +255,27 @@ export default function OnboardingClient() {
 			// even if the sign-out call fails, send them to the sign-in screen
 		}
 		router.push("/signin")
+	}
+
+	// TypeformFlow renders null when closed, and this component renders nothing else - so
+	// between the flow closing and the browser leaving the route, the page was BLANK. That
+	// window is not instant: it spans a middleware check and a full page load.
+	if (leaving) {
+		return (
+			<div className="flex min-h-screen items-center justify-center bg-white px-6 dark:bg-neutral-950">
+				<div className="text-center">
+					<InlineLoader size="lg" />
+					<p className="mt-6 text-lg font-semibold text-neutral-900 dark:text-white">
+						{submittedRef.current ? "Setting up your workspace" : "Taking you back"}
+					</p>
+					<p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+						{submittedRef.current
+							? "One moment - this only happens once."
+							: "Returning you to sign in."}
+					</p>
+				</div>
+			</div>
+		)
 	}
 
 	return (

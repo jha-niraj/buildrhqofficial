@@ -47,11 +47,83 @@ export async function getR2SignedUrl(key: string, expiresIn = 7 * 24 * 60 * 60):
     return getSignedUrl(client, command, { expiresIn })
 }
 
+/**
+ * Placeholder markers that appear in `.env.example`. A value containing one of these was
+ * copied from the template and never filled in.
+ */
+const PLACEHOLDER = /your|here|xxx|placeholder|change[_-]?me|todo|example|<|>/i
+
+/**
+ * The account id becomes a DNS label: `https://<id>.r2.cloudflarestorage.com`.
+ *
+ * So it must be a legal hostname label - letters, digits and hyphens only. Checking that
+ * rather than guessing Cloudflare's id format means this stays correct if they ever change
+ * the format, while still catching the thing that actually happens.
+ */
+const DNS_LABEL = /^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/i
+
+function usable(value: string | undefined, { asHostLabel = false } = {}): boolean {
+    const v = value?.trim()
+    if (!v) return false
+    if (PLACEHOLDER.test(v)) return false
+    if (asHostLabel && !DNS_LABEL.test(v)) return false
+    return true
+}
+
+/**
+ * Whether R2 can actually be reached - not merely whether the variables are present.
+ *
+ * ── Why this is stricter than a truthiness check ──
+ *
+ * It used to be `!!(A && B && C)`, which is true for a `.env` copied from `.env.example`
+ * and never edited, because `R2_ACCOUNT_ID=your_r2_account_id` is a non-empty string.
+ *
+ * Every caller then took the "configured" branch and issued a real upload against
+ * `https://your_r2_account_id.r2.cloudflarestorage.com`. That host sits under Cloudflare's
+ * wildcard, so TCP connects and then the edge REFUSES THE TLS HANDSHAKE for an SNI it does
+ * not recognise. Node surfaces that as:
+ *
+ *     Error: write EPROTO ... ssl3_read_bytes:ssl/tls alert handshake failure ... alert number 40
+ *
+ * Which reads like a network or certificate problem and is really "you did not fill in the
+ * env file". It cost a debugging session, and the graceful "storage not configured" path
+ * that every caller already has was sitting right there unused.
+ *
+ * ── Wrong credentials look completely different ──
+ *
+ * Worth knowing, because it is how you tell these apart. Bad keys with a VALID account id
+ * complete the TLS handshake and come back as an HTTP 403 `InvalidAccessKeyId` or
+ * `SignatureDoesNotMatch`. A TLS-level failure can only be the endpoint, and the only part
+ * of the endpoint we control is the account id.
+ */
 export function isR2Configured(): boolean {
-    return !!(
-        process.env.R2_ACCOUNT_ID &&
-        process.env.R2_ACCESS_KEY_ID &&
-        process.env.R2_SECRET_ACCESS_KEY
+    return (
+        usable(process.env.R2_ACCOUNT_ID, { asHostLabel: true }) &&
+        usable(process.env.R2_ACCESS_KEY_ID) &&
+        usable(process.env.R2_SECRET_ACCESS_KEY)
+    )
+}
+
+/**
+ * Explain, once per process, why storage is off. Without this the only symptom is uploads
+ * quietly not persisting, which is worse than the TLS error it replaced.
+ */
+let warned = false
+export function warnIfR2Misconfigured(): void {
+    if (warned || isR2Configured()) return
+    warned = true
+    const id = process.env.R2_ACCOUNT_ID?.trim()
+    const reason = !id
+        ? "R2_ACCOUNT_ID is empty"
+        : PLACEHOLDER.test(id)
+            ? "R2_ACCOUNT_ID still holds the placeholder from .env.example"
+            : !DNS_LABEL.test(id)
+                ? "R2_ACCOUNT_ID is not a valid hostname label, so the endpoint cannot resolve"
+                : "R2_ACCESS_KEY_ID or R2_SECRET_ACCESS_KEY is empty or still a placeholder"
+    console.warn(
+        `[r2] File storage is DISABLED: ${reason}. ` +
+        "Uploads will fall back to text-only where a fallback exists. " +
+        "Set the R2_* values in apps/main/.env to enable it.",
     )
 }
 

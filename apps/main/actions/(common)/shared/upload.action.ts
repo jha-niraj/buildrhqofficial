@@ -2,7 +2,7 @@
 
 import { getSession } from '@repo/auth';
 import { headers } from 'next/headers';
-import { uploadToR2, deleteFromR2, isR2Configured, r2PublicUrl, isPubliclyServableKey, R2_PUBLIC_PREFIX } from '@/lib/r2-client';
+import { uploadToR2, deleteFromR2, isR2Configured, warnIfR2Misconfigured, r2PublicUrl, isPubliclyServableKey, R2_PUBLIC_PREFIX } from '@/lib/r2-client';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Profile picture upload.
@@ -73,6 +73,7 @@ export async function uploadProfileImage(formData: FormData): Promise<UploadImag
         }
 
         if (!isR2Configured()) {
+            warnIfR2Misconfigured();
             return { success: false, message: "Image storage is not configured.", url: null };
         }
 

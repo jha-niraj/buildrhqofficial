@@ -5,7 +5,7 @@ import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { db, users } from "@repo/db"
 import { eq } from "drizzle-orm"
-import { uploadToR2, deleteFromR2, getR2SignedUrl, isR2Configured } from "@/lib/r2-client"
+import { uploadToR2, deleteFromR2, getR2SignedUrl, isR2Configured, warnIfR2Misconfigured } from "@/lib/r2-client"
 import { startBackgroundJob } from "@/actions/(main)/workers/jobs.action"
 
 async function extractTextFromPDFBuffer(buffer: ArrayBuffer): Promise<string> {
@@ -121,7 +121,7 @@ export async function uploadResume(file: File, _resumeText?: string, options?: {
     if (resumeText.length > 50000) resumeText = resumeText.substring(0, 50000)
 
     if (!isR2Configured()) {
-        console.warn("R2 storage not configured. Saving resume text only.")
+        warnIfR2Misconfigured()
         if (resumeText) {
             await db.update(users).set({ hasResume: true, resumeText }).where(eq(users.id, userId))
             const structureJobId = await dispatchResumeStructuring(draftName)
