@@ -122,7 +122,11 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
                     inner height that a full-height page below does not account for,
                     leaving it 2px too tall and scrolling the shell. A ring is a
                     box-shadow - same look, zero layout cost. */}
-                <main className="m-2 flex h-[calc(100vh-1rem)] overflow-hidden lg:ml-0">
+                {/* m-3, not m-2. The gutter is the only place the photograph shows now that the
+                    page is opaque, and 8px of it is a hairline rather than a frame. 12px is
+                    enough to read as deliberate. `--page-h` below is derived from this, so
+                    the two cannot drift. */}
+                <main className="m-3 flex h-[calc(100vh-1.5rem)] overflow-hidden lg:ml-0">
                     {/* Page surface */}
                     <div
                         data-app-page
@@ -130,22 +134,32 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
                             // min-w-0 so a wide child (a table, a chart) shrinks with the
                             // column instead of pushing the row past the viewport.
                             //
-                            // NO background: the page card is transparent so the shell's
-                            // photographic backdrop reads through it. The ring stays, so
-                            // the card's edge is still legible against the photo, and the
-                            // SIDEBAR keeps its own opaque surface - nav has to stay
-                            // readable at a glance and is the wrong place for texture.
-                            "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden ring-1 ring-inset ring-neutral-200 transition-all duration-300 dark:ring-neutral-800",
+                            // OPAQUE, and this is a contrast decision rather than a
+                            // stylistic one.
+                            //
+                            // The card was transparent so the photographic backdrop read
+                            // through it. Measured, that put `text-neutral-500` at
+                            // **1.32:1** against the darker parts of the photo - the app is
+                            // full of small grey text and none of it was legible over those
+                            // regions. n-500 is only 4.74:1 on pure white to begin with, so
+                            // it has no headroom for any translucency at all; there is no
+                            // scrim setting that both shows the image and carries it.
+                            //
+                            // With the page opaque the photograph has nothing to compete
+                            // with, which is why the backdrop could be turned UP rather than
+                            // down: it now reads as a real photograph in the gutter and
+                            // around the cards instead of a grey wash behind the text.
+                            "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-white ring-1 ring-inset ring-neutral-200 transition-all duration-300 dark:bg-neutral-950 dark:ring-neutral-800",
                             isDocked ? "rounded-l-2xl" : "rounded-2xl",
                         )}
                         // The card is inset by the shell's 0.5rem margin, so "full
-                        // height" inside it is 1rem short of the viewport. `--page-h`
+                        // height" inside it is 1.5rem short of the viewport. `--page-h`
                         // is the single source of truth for that; a rule in
                         // globals.css retargets `h-screen` / `min-h-screen` inside
                         // [data-app-page] at it. Without that, the ~49 full-height
-                        // pages under (main) would each overflow by exactly 16px and
+                        // pages under (main) would each overflow by exactly 24px and
                         // show a scrollbar over a strip of nothing.
-                        style={{ ["--page-h" as string]: "calc(100vh - 1rem)" }}
+                        style={{ ["--page-h" as string]: "calc(100vh - 1.5rem)" }}
                     >
                         {/* ScrollArea, not native overflow. The native scrollbar is an
                             OS control: it paints outside the card's rounded corner on

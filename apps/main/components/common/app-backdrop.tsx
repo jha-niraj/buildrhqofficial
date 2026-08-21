@@ -12,11 +12,22 @@
  * rounded surfaces with a gutter between them, and this is what shows through
  * that gutter: texture and depth instead of a flat grey plane.
  *
- * It is deliberately NOT visible through the page itself. Frosting the page card
- * so the photograph shows behind the content is the obvious move and the wrong
- * one - `text-neutral-500` help text over a translucent panel drops under 4.5:1
- * against the light parts of the image, and the app is full of small grey text.
- * `auth-shell.tsx` reached the same conclusion for the same reason.
+ * It is deliberately NOT visible through the page itself, and that is measured
+ * rather than asserted. `text-neutral-500` is 4.74:1 on pure white - so it has
+ * almost no headroom, and ANY translucency in the page card drops it under 4.5:1
+ * against the darker parts of the photograph. There is no scrim value that both
+ * shows the image and carries small grey text: pushing the scrim to 45% white
+ * only lifts n-500 from 4.15:1 to 4.30:1, and by then the photo is gone anyway.
+ *
+ * This was violated for a while - `layout.tsx` made the page card transparent with
+ * a comment saying the backdrop "reads through it", which is exactly the thing this
+ * file warned against. Measured at the time: n-500 was **1.32:1**. The page card is
+ * opaque again, and the photo lives where it was always meant to - in the frame.
+ *
+ * ── Why the photo is stronger now ──
+ * With the page opaque, the image is behind nothing but the gutter, so there is no
+ * contrast reason to keep it faint. It reads as an actual photograph instead of a
+ * grey wash, which was the point of using one.
  *
  * ── Theme ──
  * Pure CSS `dark:` variants, not a `useTheme()` read. A backdrop that is briefly
@@ -38,7 +49,7 @@ export function AppBackdrop() {
     return (
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
             <div
-                className="absolute inset-0 bg-cover bg-center opacity-80 dark:opacity-[0.55]"
+                className="absolute inset-0 bg-cover bg-center opacity-100 dark:opacity-[0.92]"
                 style={{ backgroundImage: `url(${BLURRED})` }}
             />
 
@@ -47,7 +58,7 @@ export function AppBackdrop() {
                 so the cards are the brightest thing on screen rather than competing
                 with a mountain. Lighter in the middle than at the edges, which is
                 where the cards sit - the gradient frames them. */}
-            <div className="absolute inset-0 bg-gradient-to-b from-white/45 via-white/25 to-white/55 dark:from-neutral-950/55 dark:via-neutral-950/40 dark:to-neutral-950/70" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/25 via-white/10 to-white/30 dark:from-neutral-950/35 dark:via-neutral-950/18 dark:to-neutral-950/45" />
         </div>
     )
 }
