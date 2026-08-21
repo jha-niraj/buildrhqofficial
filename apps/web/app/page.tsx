@@ -14,6 +14,7 @@ import Footer from "@/components/landingpage/footer";
 import SmoothScroll from "@/components/smoothscroll";
 import { LANDING_FAQS } from "@/components/landingpage/faq-data";
 import { SITE, BRAND } from "@/lib/site";
+import { faqSchema, webPageSchema, jsonLd } from "@/lib/schema";
 
 export const metadata: Metadata = {
     title: 'ShipItHQ - Practice, Build and Get Hired as a Developer',
@@ -70,39 +71,24 @@ export const metadata: Metadata = {
 // highest-authority page on the site were invisible to the one result type that quotes
 // answers directly. Google requires the marked-up text to match what a visitor sees, which
 // is why this reads LANDING_FAQS rather than restating them.
-const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: LANDING_FAQS.map((f) => ({
-        "@type": "Question",
-        name: f.question,
-        acceptedAnswer: { "@type": "Answer", text: f.answer },
-    })),
-}
+const landingFaqSchema = faqSchema(LANDING_FAQS)
 
-// WebSite + SearchAction is the entity anchor for the domain. `@id` matches the one used
-// in the blog's Article schema so the two describe one publisher rather than two.
-const siteSchema = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "@id": `${SITE}/#website`,
+// The landing page's own WebPage node, wired into the site graph by @id.
+//
+// It does NOT redeclare WebSite. An earlier version of this file did, with the same @id
+// the root layout uses - two competing definitions of one entity. See lib/schema.ts.
+const landingPageSchema = webPageSchema({
     url: SITE,
-    name: BRAND.name,
-    description: BRAND.tagline,
-    publisher: { "@type": "Organization", "@id": `${SITE}/#organization`, name: BRAND.name },
-}
+    name: `${BRAND.name} - ${BRAND.tagline}`,
+    description:
+        "Practice DSA and system design with code that runs in a real Linux container, build projects you can be interviewed about, rehearse voice mock interviews and fix the resume an ATS is actually reading.",
+})
 
 export default function LandingPage() {
     return (
         <SmoothScroll>
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-            />
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }}
-            />
+            <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(landingFaqSchema)} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(landingPageSchema)} />
             <Navbar />
             <main className={cn("relative bg-white dark:bg-neutral-950")}>
                 <section id="hero">

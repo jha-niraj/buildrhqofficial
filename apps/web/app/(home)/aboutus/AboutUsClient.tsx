@@ -1,4 +1,5 @@
 "use client"
+import Link from "next/link";
 
 import React from 'react'
 import Image, { type StaticImageData } from 'next/image'
@@ -70,6 +71,44 @@ export default function AboutUs() {
                     { text: "See what it costs", href: "/pricing" },
                 ]}
             />
+
+            {/* ── The entity definition ──
+
+                One sentence, in "X is Y" form, in the first 150 words, standing on its own
+                without the paragraph around it.
+
+                That shape is not a stylistic preference. This is the page an assistant reads
+                when somebody asks "what is ShipItHQ", and the hero above it opens with an
+                argument ("Nobody gets hired for finishing a tutorial") rather than a
+                definition - which is right for a human arriving from an ad and useless to
+                anything trying to extract what the product actually is.
+
+                It says the same thing as the `description` in this route's AboutPage schema,
+                deliberately. A definition that exists only in the markup is one no human
+                sees; one that exists only in prose is one a parser has to guess at. */}
+            <section className="border-b border-neutral-100 py-16 dark:border-neutral-800">
+                <div className="mx-auto max-w-3xl px-6">
+                    <p className="text-xl leading-relaxed text-neutral-900 dark:text-white sm:text-2xl">
+                        <strong className="font-semibold">ShipItHQ is an interview preparation and portfolio
+                        platform for computer science students and software engineers.</strong>{" "}
+                        <span className="text-neutral-600 dark:text-neutral-400">
+                            It combines four things that are usually five separate tabs: pattern-based
+                            practice where your code runs in a real Linux container, portfolio projects
+                            with a quiz and mock interview generated from what you actually built, voice
+                            mock interviews you can take at any hour, and resume tooling that scores what
+                            an applicant tracking system extracts from your file.
+                        </span>
+                    </p>
+                    <p className="mt-6 text-[15px] leading-relaxed text-neutral-600 dark:text-neutral-400">
+                        It is not a course. There are no video lessons, no curriculum to complete and
+                        nothing that issues a certificate - the full list of what each part does, and
+                        what each part deliberately does not do, is on the{" "}
+                        <Link href="/features" className="font-medium text-neutral-900 underline decoration-neutral-300 underline-offset-4 hover:decoration-neutral-900 dark:text-white dark:decoration-neutral-700 dark:hover:decoration-white">
+                            features page
+                        </Link>.
+                    </p>
+                </div>
+            </section>
 
             <section className="py-24 border-b border-neutral-100 dark:border-neutral-800">
                 <div className="max-w-7xl mx-auto px-6">

@@ -20,17 +20,17 @@ written before the research is content written from guesses.
 | ID | Task | Serves | Status |
 |---|---|---|---|
 | **Measure first** | | | |
-| SEO-50 | Set up GSC + Bing, record the day-zero baseline | 8 | not started |
+| SEO-50 | Set up GSC + Bing, record the day-zero baseline | 8 | **BLOCKED - needs Niraj's GSC/Bing access** |
 | **Structured data** | | | |
-| SEO-1 | `SoftwareApplication` -> `Service` | 1 | not started |
-| SEO-2 | `lib/schema.ts` - shared entity graph with `@id`s | 2 | not started |
-| SEO-3 | BreadcrumbList on marketing pages | 3 | not started |
-| SEO-4 | FAQPage on the landing FAQ | 3 | not started |
-| SEO-5 | `lib/seo.ts` + `pageMeta()` | 4 | not started |
+| SEO-1 | `SoftwareApplication` -> `Service` | 1 | **done (2026-08-21)** |
+| SEO-2 | `lib/schema.ts` - shared entity graph with `@id`s | 2 | **done (2026-08-21)** |
+| SEO-3 | BreadcrumbList on marketing pages | 3 | **done (2026-08-21)** |
+| SEO-4 | FAQPage on the landing FAQ | 3 | **done (2026-08-20, in WEB-33)** |
+| SEO-5 | `lib/seo.ts` + `pageMeta()` | 4 | **done (2026-08-21)** |
 | **Technical** | | | |
-| SEO-6 | Canonical audit across public pages | 4 | not started |
+| SEO-6 | Canonical audit across public pages | 4 | **done (2026-08-21)** |
 | SEO-7 | Title + description audit | 4 | not started |
-| SEO-8 | Sitemap contents audit | 1 | not started |
+| SEO-8 | Sitemap contents audit | 1 | **done (2026-08-20/21)** |
 | SEO-9 | Re-check `srs/seo/11-cloudflare-workers-seo.md` against the current adapter | 1 | not started |
 | **Research** | | | |
 | SEO-30 | Build the keyword map | 6 | not started |
@@ -41,7 +41,7 @@ written before the research is content written from guesses.
 | SEO-21 | Answer-first rewrites | 5 | not started |
 | SEO-22 | Comparison tables with sourced cells | 5 | not started |
 | SEO-23 | Source every statistic, or delete it | 5 | not started |
-| SEO-24 | Entity definition + schema on `/aboutus` | 5 | not started |
+| SEO-24 | Entity definition + schema on `/aboutus` | 5 | **done (2026-08-21)** |
 | SEO-25 | Author credentials and Person schema | 5 | not started |
 | SEO-26 | Visible published + updated dates | 5 | not started |
 | **Content structure** | | | |

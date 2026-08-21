@@ -12,6 +12,7 @@ import {
 import { AUTHORS, AUTHOR_PAGE_URL } from '@/content/authors'
 import { getPostContent } from '@/lib/blog-renderer'
 import { SITE, APP_LINKS, BRAND, abs } from '@/lib/site'
+import { ref, ORG_ID } from '@/lib/schema'
 import { Reveal } from '@/components/reveal'
 import { AuthorByline } from '@/components/author-byline'
 import { KeyTakeaways } from '../_components/key-takeaways'
@@ -120,16 +121,17 @@ export default async function BlogPostPage({ params }: Props) {
             sameAs: [...author.sameAs],
             url: AUTHOR_PAGE_URL,
         },
-        publisher: {
-            '@type': 'Organization',
-            name: BRAND.name,
-            url: SITE,
-            logo: { '@type': 'ImageObject', url: BRAND.logo },
-        },
+        // A REFERENCE, not a second declaration.
+        //
+        // This used to restate the whole Organization inline with no `@id`, which made it an
+        // anonymous node - a second, unlinked company on the same page as the real one from
+        // the root layout. The two would have drifted the first time the logo or the name
+        // changed in one place, and a parser had no way to know they were the same company.
+        publisher: ref(ORG_ID),
         mainEntityOfPage: { '@type': 'WebPage', '@id': url },
     }
 
-    const breadcrumbSchema = {
+    const articleBreadcrumb = {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
@@ -154,7 +156,7 @@ export default async function BlogPostPage({ params }: Props) {
         <>
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleBreadcrumb) }} />
             {faqSchema && (
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
             )}

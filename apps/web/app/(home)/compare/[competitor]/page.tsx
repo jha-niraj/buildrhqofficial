@@ -5,6 +5,8 @@ import { ArrowRight, ExternalLink } from 'lucide-react'
 import { PageHero } from '@/components/page-hero'
 import { Reveal } from '@/components/reveal'
 import { SITE, BRAND, APP_LINKS } from '@/lib/site'
+import { pageMeta } from '@/lib/seo'
+import { breadcrumbSchema, webPageSchema, jsonLd } from '@/lib/schema'
 import { COMPARISONS, COMPARISON_SLUGS, getComparison, SOURCING_NOTE } from '../_components/comparisons'
 
 /**
@@ -44,20 +46,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const c = getComparison(competitor)
     if (!c) return {}
 
-    const url = `${SITE}/compare/${c.slug}`
-    return {
-        title: `${c.title} - An Honest Comparison`,
+    return pageMeta({
+        title: `${c.title} - Honest Comparison`,
         description: c.description,
-        alternates: { canonical: url },
-        openGraph: {
-            type: 'website',
-            url,
-            siteName: BRAND.name,
-            title: c.title,
-            description: c.description,
-            images: [{ url: '/og/home.webp', width: 1200, height: 630 }],
-        },
-    }
+        path: `/compare/${c.slug}`,
+    })
 }
 
 export default async function ComparePage({ params }: Props) {
@@ -67,8 +60,22 @@ export default async function ComparePage({ params }: Props) {
 
     const others = COMPARISONS.filter((x) => x.slug !== c.slug)
 
+    const crumbs = breadcrumbSchema(
+        [{ name: 'Compare', path: '/compare' }],
+        { name: c.title, path: `/compare/${c.slug}` },
+    )
+    const page = webPageSchema({
+        url: `${SITE}/compare/${c.slug}`,
+        name: c.title,
+        description: c.description,
+        breadcrumb: crumbs['@id'],
+    })
+
     return (
         <>
+            <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(crumbs)} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(page)} />
+
             <PageHero
                 variant="versus"
                 eyebrow="Compare"

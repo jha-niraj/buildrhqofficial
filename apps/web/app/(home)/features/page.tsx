@@ -4,6 +4,8 @@ import { ArrowRight, Check } from 'lucide-react'
 import { PageHero } from '@/components/page-hero'
 import { Reveal } from '@/components/reveal'
 import { SITE, BRAND, APP_LINKS } from '@/lib/site'
+import { pageMeta } from '@/lib/seo'
+import { breadcrumbSchema, webPageSchema, jsonLd } from '@/lib/schema'
 import { FEATURE_MODULES } from './_components/feature-modules'
 
 /**
@@ -31,21 +33,21 @@ import { FEATURE_MODULES } from './_components/feature-modules'
  * contract. See the note at the top of it.
  */
 
-export const metadata: Metadata = {
-    title: 'Features - Practice, Projects, Mock Interviews and AI Tools',
+export const metadata: Metadata = pageMeta({
+    title: 'Features',
     description:
-        'Everything ShipItHQ does: DSA and system design practice with code that runs in a real Linux container, project briefs with interviews written from your own build, voice mock interviews, ATS resume tooling and a job tracker.',
-    alternates: { canonical: `${SITE}/features` },
-    openGraph: {
-        type: 'website',
-        url: `${SITE}/features`,
-        siteName: BRAND.name,
-        title: `Features | ${BRAND.name}`,
-        description:
-            'Practice on real infrastructure, projects you can be interviewed about, voice mocks, ATS resume tooling and a job tracker.',
-        images: [{ url: '/og/home.webp', width: 1200, height: 630 }],
-    },
-}
+        'Practice with code that runs in a real Linux container, projects with interviews written from your own build, voice mocks, ATS resume tooling and a job tracker.',
+    path: '/features',
+})
+
+const crumbs = breadcrumbSchema([], { name: 'Features', path: '/features' })
+
+const page = webPageSchema({
+    url: `${SITE}/features`,
+    name: `Features | ${BRAND.name}`,
+    description: 'Every module in ShipItHQ, what each one does, and what each one is not.',
+    breadcrumb: crumbs['@id'],
+})
 
 // ItemList rather than SoftwareApplication. `SoftwareApplication` requires an
 // `aggregateRating` or a `review` to be eligible for a rich result, and there are no real
@@ -67,10 +69,9 @@ const featureSchema = {
 export default function FeaturesPage() {
     return (
         <>
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(featureSchema) }}
-            />
+            <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(featureSchema)} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(crumbs)} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(page)} />
 
             <PageHero
                 variant="split"

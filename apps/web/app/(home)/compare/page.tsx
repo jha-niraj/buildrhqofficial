@@ -4,6 +4,8 @@ import { ArrowRight } from 'lucide-react'
 import { PageHero } from '@/components/page-hero'
 import { Reveal } from '@/components/reveal'
 import { SITE, BRAND, APP_LINKS } from '@/lib/site'
+import { pageMeta } from '@/lib/seo'
+import { breadcrumbSchema, webPageSchema, jsonLd } from '@/lib/schema'
 import { COMPARISONS } from './_components/comparisons'
 
 /**
@@ -14,24 +16,28 @@ import { COMPARISONS } from './_components/comparisons'
  * four different compositions on the same surface.
  */
 
-export const metadata: Metadata = {
-    title: 'Compare - ShipItHQ vs the Alternatives',
+export const metadata: Metadata = pageMeta({
+    title: 'Compare ShipItHQ vs the Alternatives',
     description:
-        'Honest comparisons between ShipItHQ and the tools people use to prepare for engineering interviews. No competitor prices quoted from memory, and every claim says where it was checked.',
-    alternates: { canonical: `${SITE}/compare` },
-    openGraph: {
-        type: 'website',
-        url: `${SITE}/compare`,
-        siteName: BRAND.name,
-        title: `Compare | ${BRAND.name}`,
-        description: 'How ShipItHQ compares to the alternatives, with the sourcing shown.',
-        images: [{ url: '/og/home.webp', width: 1200, height: 630 }],
-    },
-}
+        'Honest comparisons with the tools people use to prepare for engineering interviews. No competitor prices quoted from memory, and every claim says where it was checked.',
+    path: '/compare',
+})
+
+const crumbs = breadcrumbSchema([], { name: 'Compare', path: '/compare' })
+
+const page = webPageSchema({
+    url: `${SITE}/compare`,
+    name: `Compare | ${BRAND.name}`,
+    description: 'How ShipItHQ compares to the alternatives, with the sourcing shown.',
+    breadcrumb: crumbs['@id'],
+})
 
 export default function CompareIndexPage() {
     return (
         <>
+            <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(crumbs)} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(page)} />
+
             <PageHero
                 variant="ledger"
                 eyebrow="Compare"

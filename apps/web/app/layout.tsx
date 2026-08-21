@@ -5,7 +5,8 @@ import { ThemeProvider } from "@repo/ui/components/themeprovider";
 import { Geist, Space_Grotesk, Geist_Mono, Bricolage_Grotesque } from "next/font/google";
 import { Toaster as SonnerToaster } from "@repo/ui/components/ui/sonner";
 import { Providers } from "@/app/providers";
-import { SITE, APP_URL, BRAND } from "@/lib/site";
+import { SITE, BRAND } from "@/lib/site";
+import { organizationSchema, websiteSchema, serviceSchema, jsonLd } from "@/lib/schema";
 
 // No analytics component is rendered here on purpose. This site deploys to Cloudflare
 // Workers, where Cloudflare Web Analytics is injected by the platform automatically - it
@@ -123,52 +124,14 @@ export const metadata: Metadata = {
 	},
 };
 
-// Site-wide structured data. Deliberately NO aggregateRating here: Google's structured
-// data policy requires ratings to come from real, on-page user reviews, and inventing one
-// is a fast route to a manual action. Add it back only when real reviews are displayed.
-const organizationSchema = {
-	"@context": "https://schema.org",
-	"@type": "Organization",
-	"@id": `${SITE}/#organization`,
-	name: BRAND.name,
-	url: SITE,
-	logo: BRAND.logo,
-	email: BRAND.email,
-	description:
-		"AI-powered engineering intelligence platform for CS students and software engineers.",
-	sameAs: [BRAND.social.twitter, BRAND.social.github, BRAND.social.linkedin],
-	foundingDate: "2024",
-	founder: { "@type": "Person", name: "Niraj Kumar Jha" },
-};
-
-const websiteSchema = {
-	"@context": "https://schema.org",
-	"@type": "WebSite",
-	"@id": `${SITE}/#website`,
-	name: BRAND.name,
-	url: SITE,
-	description: DEFAULT_DESCRIPTION,
-	publisher: { "@id": `${SITE}/#organization` },
-	inLanguage: "en",
-};
-
-const softwareAppSchema = {
-	"@context": "https://schema.org",
-	"@type": "SoftwareApplication",
-	name: BRAND.name,
-	url: APP_URL,
-	applicationCategory: "DeveloperApplication",
-	operatingSystem: "Web",
-	description:
-		"AI-powered engineering intelligence suite: resume builder, mock interviews, DSA practice, system design prep, and open source tracking - all in one platform.",
-	publisher: { "@id": `${SITE}/#organization` },
-	offers: {
-		"@type": "Offer",
-		price: "0",
-		priceCurrency: "USD",
-		description: "Free to start",
-	},
-};
+// Site-wide structured data lives in `lib/schema.ts`, declared once and referenced by
+// `@id` everywhere else. It used to be three literals here, and then the landing page
+// declared `WebSite` a second time with the SAME `@id` - two competing definitions of one
+// entity, where which one wins is not something you get to choose.
+//
+// `serviceSchema` replaced a `SoftwareApplication` node that failed Google validation on
+// every page inheriting this layout. The reasoning, and the condition for ever adding an
+// aggregateRating, are in that file.
 
 export default function RootLayout({
 	children,
@@ -178,18 +141,9 @@ export default function RootLayout({
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<head>
-				<script
-					type="application/ld+json"
-					dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-				/>
-				<script
-					type="application/ld+json"
-					dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-				/>
-				<script
-					type="application/ld+json"
-					dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareAppSchema) }}
-				/>
+				<script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(organizationSchema)} />
+				<script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(websiteSchema)} />
+				<script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(serviceSchema)} />
 			</head>
 			<body
 				className={`${spaceGrotesk.className} ${bricolage.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
