@@ -2,7 +2,7 @@ import { withTransaction, creditHolds, creditTransactions, users } from "@repo/d
 import { and, eq, sql } from "drizzle-orm";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Credit holds — charge, run, then settle or refund.
+// Credit holds - charge, run, then settle or refund.
 //
 // Every paid flow used to debit credits and *then* call an LLM. When the call
 // failed the user had paid and received nothing, with no record that a refund
@@ -14,7 +14,7 @@ import { and, eq, sql } from "drizzle-orm";
 //   if (!hold.ok) return { success: false, error: hold.error, code: hold.code }
 //   try {
 //       const result = await doTheExpensiveThing()
-//       await settleCredits(holdId)          // work landed — keep the charge
+//       await settleCredits(holdId)          // work landed - keep the charge
 //       return { success: true, result }
 //   } catch (error: unknown) {
 //       await releaseCredits(holdId, toReleaseReason(error))
@@ -30,7 +30,7 @@ import { and, eq, sql } from "drizzle-orm";
 //
 // Every balance change is paired with a `credit_transaction` row inside ONE
 // transaction, so the ledger can never disagree with the balance. The previous
-// code did the debit and the ledger insert as two separate awaits — a process
+// code did the debit and the ledger insert as two separate awaits - a process
 // death between them left the two permanently out of step.
 //
 // Note `withTransaction`, not `db.transaction`: the default client is neon-http,
@@ -55,7 +55,7 @@ interface ReserveInput {
 /**
  * Debit `amount` and record a hold against it.
  *
- * Returns `alreadyHeld: true` — not an error — if this `holdId` has been
+ * Returns `alreadyHeld: true` - not an error - if this `holdId` has been
  * reserved before, so a retried dispatch does not charge twice.
  */
 export async function reserveCredits(input: ReserveInput): Promise<ReserveResult> {
@@ -133,7 +133,7 @@ export async function reserveCredits(input: ReserveInput): Promise<ReserveResult
 }
 
 /**
- * The work succeeded — keep the charge.
+ * The work succeeded - keep the charge.
  *
  * No balance change; this only closes the hold so a later `release` cannot
  * refund work that was actually delivered.
@@ -156,7 +156,7 @@ export async function settleCredits(holdId: string): Promise<{ ok: boolean }> {
 }
 
 /**
- * The work failed — refund.
+ * The work failed - refund.
  *
  * Scoped to `status = 'held'` so calling it twice, or after a settle, does
  * nothing. That is what makes it safe on a Durable Object alarm that re-fires.
@@ -183,7 +183,7 @@ export async function releaseCredits(
                 .set({ credits: sql`${users.credits} + ${hold.amount}` })
                 .where(eq(users.id, hold.userId));
 
-            // "Refund" in the description on purpose — it must be distinguishable
+            // "Refund" in the description on purpose - it must be distinguishable
             // from pathfinder's score-based performance rebate, which is a
             // different mechanic that also credits the user.
             await tx.insert(creditTransactions).values({

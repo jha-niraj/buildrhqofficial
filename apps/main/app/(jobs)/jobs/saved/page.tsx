@@ -8,7 +8,7 @@ import { SavedJobsContent } from "./saved-jobs-content"
 export const dynamic = "force-dynamic"
 
 export const metadata = {
-    title: "Saved Jobs | CodeDot.AI",
+    title: "Saved Jobs | ShipItHQ",
     description: "Your saved job opportunities"
 }
 

@@ -6,7 +6,7 @@ import { Button } from "@repo/ui/components/ui/button";
  * Shown when a project slug does not resolve.
  *
  * A dedicated page rather than the global 404 because this is a *normal* thing
- * to hit — a link shared before the project was made public, or a project since deleted — and the
+ * to hit - a link shared before the project was made public, or a project since deleted - and the
  * generic 404 gives the user no route back into the module they were in.
  *
  * `min-h-screen` is retargeted at the shell's `--page-h` by the rule in

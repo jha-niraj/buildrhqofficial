@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: AssignmentPageProps) {
         .from(jobApplications).innerJoin(jobs, eq(jobs.id, jobApplications.jobId))
         .where(eq(jobApplications.id, applicationId)).limit(1)
     return {
-        title: row ? `Assignment - ${row.jobTitle} | CodeDot.AI` : "Assignment | CodeDot.AI",
+        title: row ? `Assignment - ${row.jobTitle} | ShipItHQ` : "Assignment | ShipItHQ",
         description: "Complete your take-home assignment"
     }
 }

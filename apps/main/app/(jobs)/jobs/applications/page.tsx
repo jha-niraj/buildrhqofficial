@@ -8,7 +8,7 @@ import { ApplicationsContent } from "./applications-content"
 export const dynamic = "force-dynamic"
 
 export const metadata = {
-    title: "My Applications | CodeDot.AI",
+    title: "My Applications | ShipItHQ",
     description: "Track your job applications and preparation progress"
 }
 

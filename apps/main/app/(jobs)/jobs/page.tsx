@@ -8,7 +8,7 @@ import { SparkContent } from "./spark/spark-content"
 export const dynamic = "force-dynamic"
 
 export const metadata = {
-    title: "Spark - Discover Jobs | CodeDot.AI",
+    title: "Spark - Discover Jobs | ShipItHQ",
     description: "Swipe through jobs and find your perfect match with AI-powered recommendations"
 }
 

@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: RoundPageProps) {
     const { roundId } = await params
     const [round] = await db.select({ title: interviewRounds.title }).from(interviewRounds).where(eq(interviewRounds.id, roundId)).limit(1)
     return {
-        title: round ? `${round.title} | Interview Round` : "Interview Round | CodeDot.AI",
+        title: round ? `${round.title} | Interview Round` : "Interview Round | ShipItHQ",
         description: "Prepare for your interview round"
     }
 }

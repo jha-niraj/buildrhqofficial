@@ -1,5 +1,15 @@
-"use client"
-
+/**
+ * Server component. It renders static legal text and has no state, no event handlers and
+ * no motion.
+ *
+ * It carried `"use client"` until 2026-08-21, which was vestigial: the directive predates
+ * `Reveal` being converted to a zero-JS server component, and nothing else in the file
+ * ever needed it. The cost was roughly two hundred lines of legal prose crossing a client
+ * boundary for no reason.
+ *
+ * `SmoothScroll` below IS a client component, and that is fine - a server component can
+ * render one. The boundary belongs around the thing that needs it, not around the page.
+ */
 import Link from "next/link"
 import SmoothScroll from "@/components/smoothscroll"
 import { Reveal } from "@/components/reveal"

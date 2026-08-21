@@ -1,9 +1,22 @@
-"use client"
+/**
+ * Server component as of 2026-08-21.
+ *
+ * It was `"use client"` for exactly two things: a pair of framer-motion blocks doing a
+ * plain scroll fade. That is the same pattern four landing sections were converted off in
+ * WEB-52 - decoration is not state, and a fade does not justify sending 273 lines of a
+ * static page across a client boundary along with the motion runtime.
+ *
+ * `Reveal` does the same fade with zero JavaScript (one site-wide IntersectionObserver
+ * flipping a CSS class - see components/reveal.tsx).
+ *
+ * The contact form below IS still a client component, and correctly so: it has form state
+ * and a submit handler. The boundary now sits around the form rather than around the page.
+ */
 import Link from "next/link";
 
 import React from 'react'
 import Image, { type StaticImageData } from 'next/image'
-import { motion } from 'framer-motion'
+import { Reveal } from '@/components/reveal'
 import {
     ArrowRight, Github, Linkedin, Twitter, Target, Users, Globe, Cpu, Mail
 } from 'lucide-react'
@@ -155,12 +168,9 @@ export default function AboutUs() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
                         {
                             leadership.map((leader, index) => (
-                                <motion.div
+                                <Reveal
                                     key={index}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ delay: index * 0.1 }}
+                                    delay={index * 0.1}
                                     className="group bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-6 rounded-2xl flex items-start gap-6 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all"
                                 >
                                     <div className="relative w-20 h-20 flex-shrink-0">
@@ -193,7 +203,7 @@ export default function AboutUs() {
                                             )}
                                         </div>
                                     </div>
-                                </motion.div>
+                                </Reveal>
                             ))
                         }
                     </div>
@@ -218,13 +228,7 @@ export default function AboutUs() {
             </section>
             <section id="contact" className="scroll-mt-24 border-t border-neutral-100 py-24 dark:border-neutral-800">
                 <div className="mx-auto max-w-7xl px-6">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-80px" }}
-                        transition={{ duration: 0.5 }}
-                        className="grid gap-14 lg:grid-cols-[1fr_1.2fr]"
-                    >
+                    <Reveal className="grid gap-14 lg:grid-cols-[1fr_1.2fr]">
                         <div>
                             <h2 className="mb-5 text-3xl font-bold tracking-tight text-neutral-900 dark:text-white md:text-4xl">
                                 Get in touch
@@ -266,7 +270,7 @@ export default function AboutUs() {
                         </div>
 
                         <ContactClient />
-                    </motion.div>
+                    </Reveal>
                 </div>
             </section>
         </div>

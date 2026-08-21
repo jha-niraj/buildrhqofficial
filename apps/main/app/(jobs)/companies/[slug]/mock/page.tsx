@@ -6,7 +6,7 @@ import { getCompanyMockHub } from "@/actions/companies/mock"
 import { CompanyMockHubContent } from "./mock-hub-content"
 
 export const metadata = {
-    title: "Mock Interview Hub | CodeDot.AI",
+    title: "Mock Interview Hub | ShipItHQ",
     description: "Practice AI mock interviews for this company's interview process"
 }
 

@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: InterviewJourneyPageProps) {
         .where(eq(jobApplications.id, applicationId))
         .limit(1)
     return {
-        title: app ? `Interview Journey - ${app.jobTitle} | CodeDot.AI` : "Interview Journey | CodeDot.AI",
+        title: app ? `Interview Journey - ${app.jobTitle} | ShipItHQ` : "Interview Journey | ShipItHQ",
         description: "Track your interview progress and prepare for each round"
     }
 }

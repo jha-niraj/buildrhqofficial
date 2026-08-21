@@ -9,7 +9,7 @@ import { Button } from "@repo/ui/components/ui/button";
  * Error boundary for every route under /pathfinder.
  *
  * Without this, a throw anywhere in the module walks all the way to the root
- * boundary and replaces the entire app shell — sidebar, AI rail and all — so a
+ * boundary and replaces the entire app shell - sidebar, AI rail and all - so a
  * failure in one panel reads to the user as the whole product crashing. Sharper
  * here than elsewhere: /pathfinder is a full-height two-panel workspace, so an
  * unhandled throw drops the user out of the surface with no way back to a goal
@@ -42,7 +42,7 @@ export default function PathfinderError({
                     This page didn&apos;t load
                 </h1>
                 <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
-                    Something went wrong while loading this goal. Your progress is saved — nothing
+                    Something went wrong while loading this goal. Your progress is saved - nothing
                     has been lost.
                 </p>
 

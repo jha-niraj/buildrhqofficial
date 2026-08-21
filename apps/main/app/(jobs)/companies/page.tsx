@@ -6,7 +6,7 @@ import { CompaniesContent } from "./companies-content"
 export const dynamic = "force-dynamic"
 
 export const metadata = {
-    title: "Companies | CodeDot.AI",
+    title: "Companies | ShipItHQ",
     description: "Discover companies with transparent interview processes"
 }
 

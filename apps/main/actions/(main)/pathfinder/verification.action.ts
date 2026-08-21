@@ -126,11 +126,11 @@ export async function getVerificationStatus(slugOrId: string) {
 }
 
 // ================================================================================
-// GENERATE VERIFICATION CONTENT — moved to the generation worker
+// GENERATE VERIFICATION CONTENT - moved to the generation worker
 // ================================================================================
 //
 // This ran the OpenAI Assistants API inline and polled it up to 90 times at one
-// second apart — up to 90 seconds of blocking sleep in a server action, which
+// second apart - up to 90 seconds of blocking sleep in a server action, which
 // Cloudflare kills long before it finishes, after the user has been charged.
 //
 // It now runs on a Durable Object with an Alarm:
@@ -424,7 +424,7 @@ async function checkVerificationCompletion(verificationId: string) {
 
     // Already completed. This helper runs after every section submission, so
     // once the fourth section lands it will be re-entered by any later submit
-    // or retry — and everything below it pays the user (credits, and now XP).
+    // or retry - and everything below it pays the user (credits, and now XP).
     // Bail before any of that can happen twice.
     if (verification.passed) return
 
@@ -484,7 +484,7 @@ async function checkVerificationCompletion(verificationId: string) {
             })
         }
 
-        // Verification is the module's payoff — a multi-week goal, four sections
+        // Verification is the module's payoff - a multi-week goal, four sections
         // passed. Until now it granted nothing; the reward half of the feature was
         // this comment.
         //

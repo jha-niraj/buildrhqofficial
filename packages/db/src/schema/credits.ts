@@ -120,7 +120,7 @@ export const creditTransactions = pgTable(
  * A reservation against a user's balance for work that might fail.
  *
  * The problem this solves: every paid flow used to debit credits and *then* call
- * an LLM. When the call failed — error, timeout, bad JSON — the user had paid and
+ * an LLM. When the call failed - error, timeout, bad JSON - the user had paid and
  * received nothing, and there was no record that a refund was owed.
  * `_refundCredits()` existed in the projects action layer and was never once
  * called.
@@ -130,7 +130,7 @@ export const creditTransactions = pgTable(
  *
  * `holdId` is the idempotency key and is the whole point of the table. For work
  * that runs on a Durable Object it is the job id, because a DO alarm can re-fire
- * after an eviction — without a unique key on the hold, a retry either double
+ * after an eviction - without a unique key on the hold, a retry either double
  * charges or double refunds. The unique constraint makes both impossible at the
  * database level rather than by convention.
  */
@@ -144,7 +144,7 @@ export const creditHolds = pgTable(
         amount: integer("amount").notNull(),
         /** "held" | "settled" | "released" */
         status: text("status").notNull().default("held"),
-        /** What the charge was for — mirrored into the ledger description. */
+        /** What the charge was for - mirrored into the ledger description. */
         reason: text("reason").notNull(),
         /** Why it was released, when it was. */
         releaseReason: text("release_reason"),

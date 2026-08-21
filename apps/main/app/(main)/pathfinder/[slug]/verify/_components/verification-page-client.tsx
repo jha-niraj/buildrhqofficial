@@ -71,7 +71,7 @@ export function VerificationPageClient({ goal: initialGoal, verification }: Veri
     const handleOpenSheet = () => setGenerateSheetOpen(true)
 
     // The generation runs on a Durable Object, so this only starts the job and
-    // then watches it. Closing the tab no longer loses the run — the worker
+    // then watches it. Closing the tab no longer loses the run - the worker
     // finishes regardless and the plan is on the verification row when the user
     // comes back.
     const handleGenerate = async () => {
@@ -241,7 +241,7 @@ export function VerificationPageClient({ goal: initialGoal, verification }: Veri
                                 {/* The main benefit of moving this to a worker, said plainly:
                                     the run no longer depends on this tab staying open. */}
                                 <p className="mt-5 max-w-sm text-center text-xs text-neutral-400 dark:text-neutral-500">
-                                    This runs on our servers — you can close this tab and come back.
+                                    This runs on our servers - you can close this tab and come back.
                                     It usually takes 30&ndash;60 seconds.
                                 </p>
                             </div>

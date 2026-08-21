@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { publishedPosts } from '@/content/blog'
 import { SITE, BRAND } from '@/lib/site'
-import BlogsClient from './_components/BlogsClient'
+import { ref, ORG_ID } from '@/lib/schema'
+import BlogIndex from './_components/blog-index'
 
 // 38 chars. The template appends " | ShipItHQ" (11), so this must stay under 49 or
 // Google truncates the end - which is where the differentiator lives.
@@ -34,12 +35,10 @@ export default function BlogsPage() {
         name: `${BRAND.name} Blog`,
         description: DESCRIPTION,
         url: `${SITE}/blogs`,
-        publisher: {
-            '@type': 'Organization',
-            name: BRAND.name,
-            url: SITE,
-            logo: { '@type': 'ImageObject', url: BRAND.logo },
-        },
+        // A reference, not a second declaration - same fix as the article page. Restating
+        // the Organization inline with no `@id` creates an anonymous node alongside the real
+        // one from the root layout, and the two drift the first time either changes.
+        publisher: ref(ORG_ID),
         blogPost: publishedPosts.map((post) => ({
             '@type': 'BlogPosting',
             headline: post.title,
@@ -63,7 +62,7 @@ export default function BlogsPage() {
         <>
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogSchema) }} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-            <BlogsClient posts={publishedPosts} />
+            <BlogIndex posts={publishedPosts} />
         </>
     )
 }

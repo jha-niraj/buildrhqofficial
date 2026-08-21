@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: JobDetailPageProps) {
     }
 
     return {
-        title: `${result.data.title} at ${result.data.company.name} | CodeDot.AI`,
+        title: `${result.data.title} at ${result.data.company.name} | ShipItHQ`,
         description: result.data.description?.slice(0, 160)
     }
 }

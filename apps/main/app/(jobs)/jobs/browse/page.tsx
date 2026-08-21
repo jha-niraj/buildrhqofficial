@@ -8,7 +8,7 @@ import { BrowseContent } from "./browse-content"
 export const dynamic = "force-dynamic"
 
 export const metadata = {
-    title: "Browse All Jobs | CodeDot.AI",
+    title: "Browse All Jobs | ShipItHQ",
     description: "Browse all available job opportunities"
 }
 

@@ -47,7 +47,7 @@ is not started.
 | **Performance** | | | |
 | WEB-50 | Baseline Lighthouse run | 7 | **measured, method changed (2026-08-21)** |
 | WEB-51 | Lazily mount every below-fold section | 7 | **deferred - see note** |
-| WEB-52 | `use client` audit | 7 | **done for landingpage (2026-08-20)** |
+| WEB-52 | `use client` audit | 7 | **done site-wide (2026-08-21)** |
 | WEB-53 | Final measured run against the budget | 7 | **partly done - Lighthouse needs a deploy** |
 
 ---

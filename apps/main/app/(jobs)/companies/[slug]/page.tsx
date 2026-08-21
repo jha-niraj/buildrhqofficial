@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: CompanyDetailPageProps) {
     }
 
     return {
-        title: `${result.data.name} | CodeDot.AI`,
+        title: `${result.data.name} | ShipItHQ`,
         description: result.data.description?.slice(0, 160) || `Learn about ${result.data.name} and their interview process`
     }
 }

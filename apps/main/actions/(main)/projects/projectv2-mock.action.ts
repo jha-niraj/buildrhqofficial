@@ -181,7 +181,7 @@ ${knowledgeBase.practicalScenarios.map((s, i) => `${i + 1}. ${s}`).join('\n')}
             await tx.insert(creditTransactions).values({
                 userId: session.user.id,
                 currency: "INR",
-                // Negative: SPEND rows debit — see the note in projectv2-quiz.
+                // Negative: SPEND rows debit - see the note in projectv2-quiz.
                 amount: -MOCK_CREDIT_COST,
                 type: "SPEND",
                 description: `Mock Interview generated for project: ${project.title}`

@@ -8,7 +8,7 @@ import { FollowingContent } from "./following-content"
 export const dynamic = "force-dynamic"
 
 export const metadata = {
-    title: "Following - Jobs | CodeDot.AI",
+    title: "Following - Jobs | ShipItHQ",
     description: "Jobs from companies you follow"
 }
 

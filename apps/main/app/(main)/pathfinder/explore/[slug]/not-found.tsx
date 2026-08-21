@@ -6,7 +6,7 @@ import { Button } from "@repo/ui/components/ui/button";
  * Shown when a public goal slug does not resolve.
  *
  * A dedicated page rather than the global 404 because this is a *normal* thing
- * to hit — goals get unpublished, and forked links outlive their source — and the
+ * to hit - goals get unpublished, and forked links outlive their source - and the
  * generic 404 gives the user no route back into the module they were in.
  *
  * `min-h-screen` is retargeted at the shell's `--page-h` by the rule in

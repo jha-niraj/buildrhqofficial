@@ -45,7 +45,7 @@ written before the research is content written from guesses.
 | SEO-25 | Author credentials and Person schema | 5 | **already correct - verified 2026-08-21** |
 | SEO-26 | Visible published + updated dates | 5 | **already correct - verified 2026-08-21** |
 | **Content structure** | | | |
-| SEO-41 | Write the pillar pages | 7 | **resolved as NOT NEEDED - see SEO-44** |
+| SEO-41 | Write the pillar pages | 7 | **done differently (2026-08-21): the hubs became the pillars** |
 | SEO-42 | `lib/internal-links.ts` | 7 | **done (2026-08-21) - found a live orphan** |
 | SEO-44 | Resolve pillar vs topic-hub targeting | 7 | **resolved (2026-08-21): hubs ARE the pillars** |
 | **Agent surface (low priority)** | | | |
@@ -415,7 +415,8 @@ That asymmetry is the whole reason the module exists. Internal linking is the SE
 most within our control and the one that degrades silently, because a post with no inbound
 links is still reachable, still in the sitemap, and still accumulating nothing.
 
-**SEO-41 / SEO-44 - the pillar question, resolved as NO separate pillar pages.**
+**SEO-41 / SEO-44 - the pillar question, resolved as NO separate pillar pages, and then
+the obligation that left was actually discharged.**
 
 Two reasons specific to this site:
 
@@ -461,3 +462,49 @@ speculative and both should stay unbuilt. There is no adopted specification for 
 `llms.txt` already exists and is generated from the blog data, and building against a
 convention nobody has agreed on produces a file to maintain and no reader. Revisit only if
 a specification is actually ratified and crawlers actually request it.
+
+---
+
+# Follow-through, 2026-08-21 (later the same day)
+
+Resolving SEO-44 as "the hubs ARE the pillars" created an obligation, and for a few hours
+it was unmet: each hub carried **fifteen to twenty words** of copy. A pillar with twenty
+words is a category listing with an intro sentence. It will not carry the head term the
+cluster is built around, and saying it is the pillar does not make it one.
+
+`content/topic-hubs.ts` now gives each of the seven hubs what a pillar page would have had:
+
+| hub | own prose, before | after |
+|---|---|---|
+| interview-prep | 20 words | **411** |
+| dsa | 19 | **392** |
+| resume | 15 | **383** |
+| career | 19 | **368** |
+| ai-tools | 18 | **357** |
+| open-source | 16 | **342** |
+| portfolio | 15 | **329** |
+
+Three parts, each doing a job the blog index cannot:
+
+**A real introduction** - two or three paragraphs defining the topic, who it is for, and
+what it is not.
+
+**An ordered reading path.** The cluster sequenced by where the READER is, with one line
+per step saying why it comes at that point. A grid sorted by publication date tells nobody
+where to start. The full grid still sits below it, so the path is a recommendation rather
+than a filter.
+
+**Answered questions**, rendered on the page and emitted as `FAQPage`. That is a second
+rich result the hubs now genuinely earn, and it applies to seven more URLs.
+
+Every slug in a reading path is checked against `BLOG_POSTS` **at build time** and throws
+with the offending hub and slug named. A hand-curated path is exactly the thing that rots
+silently when a post is renamed, and the route is fully prerendered so the check costs
+nothing at runtime.
+
+**The blog index changed as a consequence, and for the better.** Its category pills were a
+client-side filter: no URL, no way to link to "the DSA posts", and a filtered view of
+`/blogs` is the same content as `/blogs/topics/dsa` at a second address. They are links to
+the hubs now. The old code had already half-admitted this - its own comment called the
+topic links at the foot of the page "the real, crawlable URLs" while the pills above them
+were not.

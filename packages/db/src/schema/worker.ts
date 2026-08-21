@@ -19,7 +19,7 @@ import { users } from "./schema";
  *
  * Declared in one place and imported by BOTH the app and the workers, because a
  * job written with a type string the poller does not recognise is a job nobody
- * can ever observe finishing — it just sits at `queued` forever.
+ * can ever observe finishing - it just sits at `queued` forever.
  */
 export const JOB_TYPES = [
     "project_generation",
@@ -55,7 +55,7 @@ export const JOB_TYPES = [
 export type JobType = (typeof JOB_TYPES)[number];
 
 /**
- * The status vocabulary actually in use — read off the code, not invented:
+ * The status vocabulary actually in use - read off the code, not invented:
  *
  *   waiting    written by the app when it inserts the row, before dispatch
  *              (`projectsworker.action.ts`)
@@ -64,7 +64,7 @@ export type JobType = (typeof JOB_TYPES)[number];
  *   completed  worker, on success (`:60`)
  *   failed     worker, on error (`:66`)
  *
- * `completed` and `failed` are terminal — a poller must stop on either, or it
+ * `completed` and `failed` are terminal - a poller must stop on either, or it
  * will spin forever against a job that will never change again.
  */
 export const JOB_STATUSES = ["waiting", "active", "completed", "failed"] as const;
@@ -85,13 +85,13 @@ export const backgroundJobs = pgTable(
         jobId: text("job_id").notNull().unique(),
         // Which kind of work this row represents. Added because the table was
         // built when project generation was the only writer; the moment a second
-        // job type appeared, nothing could tell them apart — not the status
+        // job type appeared, nothing could tell them apart - not the status
         // poller, not an admin view, not a retry. Stored as text rather than a
         // pgEnum so adding a job type is a code change, not a migration.
         type: text("type").notNull().default("project_generation").$type<JobType>(),
         status: text("status").notNull().$type<JobStatus>(),
         progress: integer("progress").notNull().default(0),
-        // Free-form per job type. Keep it small — a pointer (ids) rather than a
+        // Free-form per job type. Keep it small - a pointer (ids) rather than a
         // payload, so the worker re-reads current data instead of acting on a
         // snapshot that may be minutes stale by the time the alarm fires.
         input: jsonb("input").notNull(),
