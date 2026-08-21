@@ -46,7 +46,7 @@ Deliberate practice means practicing under conditions that specifically target y
 
 ### Phase 1: Pattern Recognition (Weeks 1-3)
 
-Before you can apply algorithmic patterns, you need to recognize them. There are approximately 15 core patterns that cover 90% of technical interview problems:
+Before you can apply algorithmic patterns, you need to recognise them. Around fifteen recur often enough to be worth naming, and they cover the large majority of what gets asked:
 
 1. **Two Pointers** - sorted arrays, linked list problems
 2. **Sliding Window** - subarray/substring problems with a condition

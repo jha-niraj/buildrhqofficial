@@ -17,11 +17,15 @@ import { SITE, BRAND } from "@/lib/site";
 import { faqSchema, webPageSchema, jsonLd } from "@/lib/schema";
 
 export const metadata: Metadata = {
-    title: 'ShipItHQ - Practice, Build and Get Hired as a Developer',
+    // 45 chars. Google cuts near 60 and this one has no template suffix (it is the
+    // root layout's default), so it is measured as written.
+    title: 'ShipItHQ - Practice, Build and Get Hired',
     description:
-        'Practice DSA and system design with code that runs in a real Linux container, build projects you can be interviewed about, rehearse voice mock interviews and fix the resume an ATS is actually reading. 100 free credits, no subscription.',
+        'Practice DSA and system design with code that runs in a real Linux container, build projects you can be interviewed about, and fix the resume an ATS reads.',
     openGraph: {
-        title: 'ShipItHQ - Practice, Build and Get Hired as a Developer',
+        // 45 chars. Google cuts near 60 and this one has no template suffix (it is the
+    // root layout's default), so it is measured as written.
+    title: 'ShipItHQ - Practice, Build and Get Hired',
         description:
             'Real container execution, projects with interviews written from your own build, voice mocks and ATS resume tooling. 100 free credits, no subscription.',
         type: 'website',

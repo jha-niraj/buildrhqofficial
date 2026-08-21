@@ -59,8 +59,8 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     // ───────────────────────── Portfolio & Projects ─────────────────────────
     'software-engineering-portfolio-guide': {
         title: 'How to Build a Software Engineering Portfolio That Gets You Hired',
-        pageTitle: 'Software Engineering Portfolio: What to Build & Show',
-        description: 'A complete guide to building a software engineering portfolio from scratch - what to include, what to skip, and how to make a recruiter stop scrolling in a crowded market.',
+        pageTitle: 'Software Engineering Portfolio: What to Build',
+        description: 'What to include in a software engineering portfolio and what to skip. Three finished, deployed projects beat twelve half-built repositories.',
         category: 'portfolio',
         author: 'niraj',
         datePublished: '2025-05-01',
@@ -87,7 +87,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     'system-design-interview-prep': {
         title: 'System Design Interview Prep: The Complete Roadmap for CS Students',
         pageTitle: 'System Design Interview Prep: A Complete Roadmap',
-        description: 'Everything you need to crack system design interviews - from fundamentals to scalability patterns, in a structured week-by-week plan that fits around a full-time job or degree.',
+        description: 'A twelve-week plan for system design interviews: the fundamentals worth knowing, how to structure the conversation, and thirty problems that cover most rounds.',
         category: 'interview-prep',
         author: 'niraj',
         datePublished: '2025-05-05',
@@ -112,8 +112,8 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
 
     'mock-technical-interview-guide': {
         title: 'Mock Technical Interviews: Practice That Actually Improves Performance',
-        pageTitle: 'Mock Technical Interviews: A Practice Framework That Works',
-        description: 'Why most technical interview practice is wasted effort - and the deliberate practice framework that takes engineers from freezing up to fluent in about four weeks.',
+        pageTitle: 'Mock Technical Interviews: A Practical Guide',
+        description: 'How to run a mock interview worth the hour, who to do it with, and the feedback that changes your performance rather than flattering it.',
         category: 'interview-prep',
         author: 'niraj',
         datePublished: '2025-05-11',
@@ -137,8 +137,8 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
 
     'star-method-interview-software-engineers': {
         title: 'The STAR Method for Software Engineers: Answer Any Behavioural Question',
-        pageTitle: 'STAR Method Interview Guide for Software Engineers',
-        description: 'The STAR method explained for engineers, with full worked answers to the behavioural questions that actually come up in software interviews - and the mistakes that make good stories land badly.',
+        pageTitle: 'STAR Method for Software Engineers',
+        description: 'The STAR method applied to engineering answers, the mistake most people make in the Result step, and worked examples for the questions you will get.',
         category: 'interview-prep',
         author: 'niraj',
         datePublished: '2026-07-30',
@@ -164,8 +164,8 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
 
     'behavioral-interview-questions-software-engineer': {
         title: '30 Behavioural Interview Questions for Software Engineers (With Real Answers)',
-        pageTitle: 'Behavioural Interview Questions for Software Engineers',
-        description: 'The 30 behavioural questions that actually come up in software engineering interviews, what each one is really testing, and worked answers you can adapt to your own experience.',
+        pageTitle: 'Behavioural Interview Questions for Engineers',
+        description: 'The behavioural questions engineers actually get asked, what each is really testing, and how to prepare stories that survive a follow-up.',
         category: 'interview-prep',
         author: 'niraj',
         datePublished: '2026-07-30',
@@ -189,8 +189,8 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
 
     'questions-to-ask-interviewer-software-engineer': {
         title: 'Questions to Ask Your Interviewer (And What the Answers Actually Reveal)',
-        pageTitle: 'Questions to Ask the Interviewer as a Software Engineer',
-        description: 'The questions strong engineering candidates ask at the end of an interview, what a good answer sounds like, and the red flags that should make you think twice about an offer.',
+        pageTitle: 'Questions to Ask Your Interviewer',
+        description: 'Questions that tell you something real about a job, grouped by who to ask them of, plus the ones that quietly cost you an offer.',
         category: 'interview-prep',
         author: 'niraj',
         datePublished: '2026-07-30',
@@ -216,7 +216,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     'dsa-study-plan-coding-interview': {
         title: 'The 3-Month DSA Study Plan to Crack Any Coding Interview',
         pageTitle: '3-Month DSA Study Plan for Coding Interviews',
-        description: 'A week-by-week DSA study plan for students and working engineers preparing for technical interviews - arrays through dynamic programming, with the right problem list at each stage.',
+        description: 'A three-month DSA plan with a week-by-week sequence, the problems to solve in each, and what to do when a topic will not stick.',
         category: 'dsa',
         author: 'niraj',
         datePublished: '2025-05-12',
@@ -241,8 +241,8 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
 
     'leetcode-alternatives': {
         title: 'LeetCode Alternatives: 12 Better Ways to Practise for Coding Interviews',
-        pageTitle: 'LeetCode Alternatives: 12 Platforms Worth Your Time',
-        description: 'LeetCode is not the only way to prepare, and for some interview formats it is the wrong one. Twelve alternatives compared by what they are actually good at, and when to use each.',
+        pageTitle: 'LeetCode Alternatives Worth Your Time',
+        description: 'LeetCode is not the only way to prepare, and for some formats it is the wrong one. Twelve alternatives compared by what each is good at.',
         category: 'dsa',
         author: 'niraj',
         datePublished: '2026-07-30',
@@ -293,8 +293,8 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
 
     'software-engineer-cover-letter': {
         title: 'The Software Engineer Cover Letter That Actually Gets Read',
-        pageTitle: 'Software Engineer Cover Letter: Templates & Examples',
-        description: 'Most engineering cover letters are ignored because they restate the resume. Here is the structure that gets read, with full examples for new grads, career changers and senior engineers.',
+        pageTitle: 'Software Engineer Cover Letter Guide',
+        description: 'When a cover letter is worth writing, the four-paragraph structure that works, and the opening paragraph almost everybody gets wrong.',
         category: 'resume',
         author: 'niraj',
         datePublished: '2026-07-30',
@@ -319,8 +319,8 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     // ───────────────────────── Career ─────────────────────────
     'how-to-become-a-software-engineer': {
         title: 'How to Become a Software Engineer: The Realistic Path',
-        pageTitle: 'How to Become a Software Engineer: A Realistic Path',
-        description: 'A realistic, step-by-step path into software engineering - degree or not, what to learn in what order, how long it actually takes, and what the entry-level market looks like now.',
+        pageTitle: 'How to Become a Software Engineer',
+        description: 'An honest route into software engineering in a hard entry-level market: what to learn, in what order, and the realistic timeline.',
         category: 'career',
         author: 'niraj',
         datePublished: '2026-07-30',
@@ -345,7 +345,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
 
     'full-stack-developer-roadmap': {
         title: 'The Full Stack Developer Roadmap',
-        pageTitle: 'Full Stack Developer Roadmap: What to Learn & When',
+        pageTitle: 'Full Stack Developer Roadmap',
         description: 'A no-nonsense full stack developer roadmap - what to learn, in what order, what to safely ignore, and how to tell when you are actually ready to apply for jobs.',
         category: 'career',
         author: 'niraj',
@@ -372,7 +372,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     'software-engineer-career-path': {
         title: 'The Software Engineer Career Path: From Intern to Staff Engineer',
         pageTitle: 'Software Engineer Career Path: Levels Explained',
-        description: 'What each software engineering level actually expects of you, how promotion really works, and the honest trade-offs between the management track and the staff engineer track.',
+        description: 'The engineering ladder from junior to staff, what changes at each level, and where the individual contributor and management tracks split.',
         category: 'career',
         author: 'niraj',
         datePublished: '2026-07-30',
@@ -397,7 +397,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     'new-grad-software-engineer-jobs': {
         title: 'How to Land a New Grad Software Engineer Job in a Hard Market',
         pageTitle: 'New Grad Software Engineer Jobs: How to Land One',
-        description: 'The entry-level engineering market is genuinely tough right now. Here is where new grad roles actually get filled, when to apply, and what separates the candidates who get offers.',
+        description: 'Finding a new-grad software engineering job when timing, referrals and targeting matter far more than application volume.',
         category: 'career',
         author: 'niraj',
         datePublished: '2026-07-30',
@@ -421,8 +421,8 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
 
     'campus-placement-preparation-guide': {
         title: 'Campus Placement Preparation: A Complete Guide for CS Students',
-        pageTitle: 'Campus Placement Preparation Guide for CS Students',
-        description: 'A structured campus placement preparation plan - aptitude, DSA, core subjects, group discussion and the HR round - with a realistic timeline that fits around your semester.',
+        pageTitle: 'Campus Placement Preparation Guide',
+        description: 'A six-month plan for campus placements: the funnel, what gets asked in each round, and the two under-prepared areas that decide most outcomes.',
         category: 'career',
         author: 'niraj',
         datePublished: '2026-07-30',
@@ -448,7 +448,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     'open-source-contribution-beginners': {
         title: 'How to Get Your First Open Source Pull Request Merged',
         pageTitle: 'Open Source for Beginners: Your First Merged PR',
-        description: 'A step-by-step playbook for your first meaningful open source contribution - finding the right project, choosing an issue, and getting the pull request actually merged.',
+        description: 'Finding a first issue, getting a pull request merged, and the social conventions nobody writes down. A step-by-step first contribution.',
         category: 'open-source',
         author: 'niraj',
         datePublished: '2025-05-07',
@@ -473,8 +473,8 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     // ───────────────────────── AI & Developer Tools ─────────────────────────
     'ai-tools-developers-2025': {
         title: '10 AI Tools Every Developer Should Actually Use',
-        pageTitle: 'Best AI Tools for Developers (And How to Use Them)',
-        description: 'Beyond autocomplete - the AI tools working developers use to write better code and ship faster, plus the failure mode that quietly makes engineers worse at their jobs.',
+        pageTitle: 'AI Tools for Developers, Assessed',
+        description: 'The AI tooling working engineers actually use, what each is good at, where each falls short, and how they fit together in a real workflow.',
         category: 'ai-tools',
         author: 'niraj',
         datePublished: '2025-05-13',
@@ -500,7 +500,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     'coding-interview-patterns': {
         title: 'The 15 Coding Interview Patterns That Cover Most Problems',
         pageTitle: 'Coding Interview Patterns: The 15 That Matter',
-        description: 'Most coding interview questions are the same fifteen problems in different clothes. Each pattern, the signal in the question that triggers it, and the problems worth solving to make it stick.',
+        description: 'Most interview questions are the same fifteen problems in different clothes. Each pattern, the signal that triggers it, and problems to make it stick.',
         category: 'dsa',
         author: 'niraj',
         datePublished: '2026-08-21',
@@ -525,7 +525,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     'dynamic-programming-interview-guide': {
         title: 'Dynamic Programming for Interviews: Patterns, Not Puzzles',
         pageTitle: 'Dynamic Programming Interview Guide with Examples',
-        description: 'DP is not hard because the recurrences are hard. It is hard because recognising a DP problem and choosing the subproblem is hard. Five patterns, a worked table, and what interviewers actually score.',
+        description: 'DP is hard because recognising it is hard, not because the recurrences are. Five patterns, a worked table, and what interviewers actually score.',
         category: 'dsa',
         author: 'niraj',
         datePublished: '2026-08-21',
@@ -550,7 +550,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     'big-o-notation-explained': {
         title: 'Big O Notation, Explained Without the Maths Degree',
         pageTitle: 'Big O Notation Explained for Coding Interviews',
-        description: 'Big O describes how work grows as input grows - not how fast code is. The complexities you will actually meet, how to count them, and the three things that make an interview answer good rather than merely correct.',
+        description: 'Big O describes how work grows as input grows, not how fast code is. The complexities you will meet, how to count them, and what makes an answer good.',
         category: 'dsa',
         author: 'niraj',
         datePublished: '2026-08-21',
@@ -599,8 +599,8 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     // ───────────────────────── Interview Prep ─────────────────────────
     'technical-phone-screen-guide': {
         title: 'The Technical Phone Screen: What It Is and How to Pass It',
-        pageTitle: 'Technical Phone Screen Guide for Software Engineers',
-        description: 'The round that eliminates the most candidates and gets the least preparation. What the 45 minutes contain, the one thing that makes it different from an onsite, and the three ways people lose it.',
+        pageTitle: 'Technical Phone Screen: A Guide',
+        description: 'The round that eliminates the most candidates and gets the least preparation. What the 45 minutes contain and the three ways people lose it.',
         category: 'interview-prep',
         author: 'niraj',
         datePublished: '2026-08-21',
@@ -625,7 +625,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     'software-engineer-resume-bullet-points': {
         title: 'Resume Bullet Points for Software Engineers That Get Read',
         pageTitle: 'Software Engineer Resume Bullet Points: Examples',
-        description: 'A bullet should say what you did, how, and what changed. Most say only the first, in a voice that sounds like a job description. The formula, where to find numbers, and three bullets rewritten.',
+        description: 'A bullet should say what you did, how, and what changed. The formula, where to find numbers when you think you have none, and three rewrites.',
         category: 'resume',
         author: 'niraj',
         datePublished: '2026-08-21',
@@ -650,7 +650,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     'linkedin-profile-software-engineer': {
         title: 'The LinkedIn Profile a Recruiter Actually Searches For',
         pageTitle: 'LinkedIn Profile Tips for Software Engineers',
-        description: 'Recruiters find you by searching a job title and a technology, then decide in ten seconds. What to fix, in order of impact, and the twenty-minute pass that captures most of the value.',
+        description: 'Recruiters find you by searching a job title and a technology, then decide in ten seconds. What to fix, in order of impact, in twenty minutes.',
         category: 'resume',
         author: 'niraj',
         datePublished: '2026-08-21',
@@ -675,7 +675,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     'portfolio-project-ideas-software-engineer': {
         title: 'Portfolio Project Ideas That Are Not a To-Do App',
         pageTitle: 'Portfolio Project Ideas for Software Engineers',
-        description: 'A project is worth building when it forces a decision you can be interviewed about. Nine projects chosen for their hard parts, and how to scope them so you actually finish.',
+        description: 'A project is worth building when it forces a decision you can be interviewed about. Nine projects chosen for their hard parts, and how to finish.',
         category: 'portfolio',
         author: 'niraj',
         datePublished: '2026-08-21',
@@ -700,7 +700,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     'deploy-your-portfolio-project': {
         title: 'How to Deploy Your Portfolio Project So It Actually Counts',
         pageTitle: 'How to Deploy a Portfolio Project for Free',
-        description: 'A project that is not deployed is a claim; a deployed one is evidence. Where to host what for free, the three things that always go wrong, and a ten-point checklist before the link goes on your resume.',
+        description: 'A project that is not deployed is a claim; a deployed one is evidence. Where to host what for free, and the three things that always go wrong.',
         category: 'portfolio',
         author: 'niraj',
         datePublished: '2026-08-21',
@@ -725,7 +725,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     'github-profile-software-engineer': {
         title: 'Your GitHub Profile Has Ten Seconds. Here Is What to Fix',
         pageTitle: 'GitHub Profile Tips for Software Engineers',
-        description: 'A recruiter sees your profile README, your pinned repositories and your contribution graph. Everything else is ignored. A twenty-minute pass that makes those three say something.',
+        description: 'A recruiter sees your profile README, your pins and your contribution graph, and stops. A twenty-minute pass that makes those three say something.',
         category: 'portfolio',
         author: 'niraj',
         datePublished: '2026-08-21',
@@ -750,7 +750,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     'open-source-for-your-resume': {
         title: 'Turning Open Source Contributions Into a Hiring Signal',
         pageTitle: 'Open Source on Your Resume: How to Present It',
-        description: 'A merged pull request is one of the few resume claims a hiring manager can verify in thirty seconds. What it is evidence of, how to write it, and why unmerged work is worse than saying nothing.',
+        description: 'A merged pull request is one of the few resume claims anybody can verify. What it proves, how to write it, and why unmerged work is worse than none.',
         category: 'open-source',
         author: 'niraj',
         datePublished: '2026-08-21',
@@ -774,8 +774,8 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     // ───────────────────────── AI & Developer Tools ─────────────────────────
     'learning-to-code-with-ai': {
         title: 'Learning to Code With AI Without Hollowing Out Your Skills',
-        pageTitle: 'Learning to Code With AI: How to Not Lose the Skill',
-        description: 'The risk is not that AI writes bad code. It is that it lets you ship code you could not have written, and you find out which in an interview. How to use assistants by phase without the skill failing to develop.',
+        pageTitle: 'Learning to Code With AI, Without Losing It',
+        description: 'The risk is not bad code. It is shipping code you could not have written and finding out in an interview. How to use assistants by phase.',
         category: 'ai-tools',
         author: 'niraj',
         datePublished: '2026-08-21',
@@ -800,7 +800,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     'ai-resume-screening-explained': {
         title: 'What Actually Happens to Your Resume After You Click Apply',
         pageTitle: 'AI Resume Screening: What Really Happens',
-        description: 'There is no AI reading your resume for potential. There is a parser, a search index and a human running queries. Understanding the sequence eliminates most of the advice you have been given.',
+        description: 'No AI reads your resume for potential. There is a parser, a search index and a human running queries. That changes what is worth optimising.',
         category: 'ai-tools',
         author: 'niraj',
         datePublished: '2026-08-21',

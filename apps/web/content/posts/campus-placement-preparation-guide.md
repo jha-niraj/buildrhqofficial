@@ -6,13 +6,17 @@ That structure is an advantage if you plan around it and brutal if you do not. T
 
 Almost every campus process has the same five stages, and they eliminate very different numbers of people.
 
-| Stage | Typical elimination | What it tests |
+| Stage | What it tests | Notes |
 |---|---|---|
-| Resume shortlist | CGPA cutoff, often 6.5-7.0 | Nothing you can change in September |
-| Aptitude test | 50-70% of candidates | Quantitative, logical, verbal |
-| Coding round | 40-60% of the rest | DSA, usually 2-3 problems |
-| Technical interview | 30-50% | DSA, core subjects, your projects |
-| HR round | 10-20% | Communication, fit, motivation |
+| Resume shortlist | A CGPA cutoff, commonly 6.5 to 7.0 | Nothing you can change in September |
+| Aptitude test | Quantitative, logical, verbal | Usually the largest single cut |
+| Coding round | DSA, usually two or three problems | The stage everyone prepares for |
+| Technical interview | DSA, core subjects, your projects | Where core subjects catch people out |
+| HR round | Communication, fit, motivation | Fewest eliminations, and not zero |
+
+Exact elimination rates vary by company and campus and are not published, so this table
+does not invent them. What is consistent across recruiters is the ORDER of the cuts, and
+the fact that the largest one is not where students spend their time.
 
 The number that surprises people: **the aptitude round eliminates more candidates than the coding round does.** It is also the easiest stage to improve, because the question types are finite and repetitive. Students who spend all three months on DSA and none on aptitude regularly get filtered before anyone looks at their code.
 

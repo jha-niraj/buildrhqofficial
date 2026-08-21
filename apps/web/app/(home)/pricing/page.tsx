@@ -8,7 +8,7 @@ import { faqSchema, breadcrumbSchema, webPageSchema, jsonLd } from '@/lib/schema
 export const metadata: Metadata = pageMeta({
     title: 'Pricing - Credits, Not Subscriptions',
     description:
-        'Credit-based pricing with no subscription and no idle-time charges. 100 free credits at signup, no card, and credits never expire. Each operation shows its cost first.',
+        'Credit-based pricing, no subscription and no idle-time charges. 100 free credits at signup, no card, and credits never expire.',
     path: '/pricing',
 })
 

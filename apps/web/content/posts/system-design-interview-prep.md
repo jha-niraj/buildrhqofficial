@@ -83,7 +83,7 @@ Understand the difference between blob storage (S3, Cloudflare R2) and databases
 
 ## Phase 2: Core System Design Patterns (Weeks 3-4)
 
-With fundamentals solid, move to the patterns that appear in 90% of system design interviews.
+With fundamentals solid, move to the patterns that recur across most system design interviews.
 
 ### The Rate Limiter Pattern
 

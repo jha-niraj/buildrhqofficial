@@ -19,7 +19,7 @@ import { COMPARISONS } from './_components/comparisons'
 export const metadata: Metadata = pageMeta({
     title: 'Compare ShipItHQ vs the Alternatives',
     description:
-        'Honest comparisons with the tools people use to prepare for engineering interviews. No competitor prices quoted from memory, and every claim says where it was checked.',
+        'Honest comparisons with the tools people use to prepare for engineering interviews. No competitor prices quoted from memory, every claim sourced.',
     path: '/compare',
 })
 

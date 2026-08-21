@@ -216,6 +216,6 @@ The platform also auto-tracks your GitHub activity and open source contributions
 
 Building a great portfolio takes 2-3 months of consistent work. There is no shortcut. Recruiters have seen thousands of portfolios and can tell in seconds whether a project was built thoughtfully or copied from a tutorial.
 
-The good news: most developers do not put in this work. The bar is lower than it looks. Three excellent projects, a clean GitHub, and a portfolio that loads fast and communicates clearly will put you ahead of 80% of candidates you are competing against.
+The good news: most developers do not put in this work. The bar is lower than it looks. Three excellent projects, a clean GitHub, and a portfolio that loads fast and communicates clearly will put you ahead of most of the candidates you are competing against.
 
 Start this week. Ship one thing. Then ship another. The portfolio builds itself through consistent output.

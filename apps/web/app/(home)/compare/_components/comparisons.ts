@@ -76,7 +76,6 @@ export interface Comparison {
     description: string
 }
 
-const REPO = 'verified in this repo'
 
 export const COMPARISONS: readonly Comparison[] = [
     {
@@ -85,7 +84,7 @@ export const COMPARISONS: readonly Comparison[] = [
         title: 'ShipItHQ vs LeetCode',
         stance: 'One is a problem bank. The other is everything that happens around the problems.',
         description:
-            'An honest comparison of ShipItHQ and LeetCode: what a problem bank is genuinely good at, what it does not cover, and where the two fit together rather than replace each other.',
+            'What a problem bank is genuinely good at, what it does not cover, and why ShipItHQ and LeetCode fit together rather than replace each other.',
         vendorUrl: 'https://leetcode.com/',
         creditWhereDue: [
             'LeetCode is very good at one thing, and it is a thing that matters: getting you ready for a 45-minute algorithmic screen where somebody asks you to solve a puzzle you have not seen before. Most large tech companies still run that interview.',
@@ -158,7 +157,7 @@ export const COMPARISONS: readonly Comparison[] = [
         title: 'ShipItHQ vs interviewing.io',
         stance: 'Human interviewers from big companies, versus a rehearsal room that is open at 1am.',
         description:
-            'An honest comparison of ShipItHQ and interviewing.io: when a real senior engineer is worth booking, when an always-available rehearsal is what you actually need, and why most people want both.',
+            'When a real senior engineer is worth booking, when an always-available rehearsal is what you need, and why most people end up wanting both.',
         vendorUrl: 'https://interviewing.io/',
         creditWhereDue: [
             'interviewing.io\'s own front page describes mock interviews conducted by senior and staff engineers from companies including Meta, Google, Amazon and OpenAI, across coding, system design, machine learning, behavioural, front-end and engineering-management rounds (interviewing.io, accessed 2026-08-20).',

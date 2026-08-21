@@ -2,7 +2,7 @@ You spent 4 hours writing a resume, tailored it to the job description, and subm
 
 That is not rejection. That is an ATS filter.
 
-Applicant Tracking Systems are software that large companies use to screen resumes before any human involvement. According to Jobscan research, over 98% of Fortune 500 companies use ATS software, and most mid-size tech companies do too. Understanding exactly how these systems work is the difference between getting interviews and disappearing into the void.
+Applicant Tracking Systems are software that companies use to store and search resumes before a human reads them. Essentially every large employer runs one, and most mid-sized ones do too. Understanding exactly how they work is the difference between getting interviews and disappearing into a queue.
 
 ## What ATS Software Actually Does
 

@@ -148,7 +148,7 @@ Trees are where many developers struggle because they require a mental model swi
 
 ## Month 2: Intermediate Patterns (Weeks 5-8)
 
-With foundations solid, month 2 covers the intermediate patterns that appear in 60-70% of medium-difficulty interview problems.
+With foundations solid, month 2 covers the intermediate patterns behind most medium-difficulty interview problems.
 
 ### Week 5: Binary Search
 

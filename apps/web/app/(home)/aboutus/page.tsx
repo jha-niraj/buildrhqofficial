@@ -7,7 +7,7 @@ import { breadcrumbSchema, webPageSchema, jsonLd, ORG_ID } from '@/lib/schema'
 export const metadata: Metadata = pageMeta({
     title: 'About ShipItHQ',
     description:
-        'ShipItHQ is an interview preparation and portfolio platform for computer science students and software engineers. Who is building it, why, and what it deliberately does not do.',
+        'ShipItHQ is an interview preparation and portfolio platform for CS students and software engineers. Who is building it, why, and what it does not do.',
     path: '/aboutus',
 })
 

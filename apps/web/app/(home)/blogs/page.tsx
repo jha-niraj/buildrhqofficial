@@ -3,9 +3,11 @@ import { publishedPosts } from '@/content/blog'
 import { SITE, BRAND } from '@/lib/site'
 import BlogsClient from './_components/BlogsClient'
 
-const TITLE = 'Developer Blog: Careers, Interviews & Engineering'
+// 38 chars. The template appends " | ShipItHQ" (11), so this must stay under 49 or
+// Google truncates the end - which is where the differentiator lives.
+const TITLE = 'Developer Blog: Interviews & Careers'
 const DESCRIPTION =
-    'Practical guides on software engineering careers, technical interview prep, DSA, system design, portfolios and resumes - written for CS students and working engineers.'
+    'Practical guides on engineering careers, interview prep, DSA, system design, portfolios and resumes, for CS students and working engineers.'
 
 export const metadata: Metadata = {
     title: TITLE,
