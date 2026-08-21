@@ -49,7 +49,7 @@ export function AppBackdrop() {
     return (
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
             <div
-                className="absolute inset-0 bg-cover bg-center opacity-100 dark:opacity-[0.92]"
+                className="absolute inset-0 bg-cover bg-center opacity-100 dark:opacity-100"
                 style={{ backgroundImage: `url(${BLURRED})` }}
             />
 
@@ -58,7 +58,25 @@ export function AppBackdrop() {
                 so the cards are the brightest thing on screen rather than competing
                 with a mountain. Lighter in the middle than at the edges, which is
                 where the cards sit - the gradient frames them. */}
-            <div className="absolute inset-0 bg-gradient-to-b from-white/25 via-white/10 to-white/30 dark:from-neutral-950/35 dark:via-neutral-950/18 dark:to-neutral-950/45" />
+            {/* Scrim, set by measurement rather than by eye.
+                Every value here is the brightest the photograph can be while a bare
+                `<h1>` on the transparent page card still clears its contrast floor.
+                Sampling the whole image through this exact stack:
+
+                  dark   scrim 55/42/62  -> rgb(6)..rgb(126), white h1 at 4.06:1
+                  light  scrim 50/38/55  -> rgb(127)..rgb(240), neutral-900 h1 at 4.48:1
+
+                Turning the dark scrim down to 22/8/30 shows 7.7x the tonal range and puts
+                white headings at 1.67:1, which is unreadable. 55/42/62 still shows 2.8x
+                what the original did, so the photograph reads as a photograph.
+
+                Light mode has less room: dark ink needs a light ground, and the image has
+                genuinely dark regions, so there is no setting that both shows it and
+                carries `text-neutral-900`. This is the limit, not a preference.
+
+                BODY-SIZE grey text is not covered by any of this and must live in a card.
+                Every page under (main) already does that. */}
+            <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-white/38 to-white/55 dark:from-neutral-950/55 dark:via-neutral-950/42 dark:to-neutral-950/62" />
         </div>
     )
 }

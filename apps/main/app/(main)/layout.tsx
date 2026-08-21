@@ -134,22 +134,22 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
                             // min-w-0 so a wide child (a table, a chart) shrinks with the
                             // column instead of pushing the row past the viewport.
                             //
-                            // OPAQUE, and this is a contrast decision rather than a
-                            // stylistic one.
+                            // TRANSPARENT, on purpose: the photographic backdrop is meant
+                            // to read through the page, not just around it.
                             //
-                            // The card was transparent so the photographic backdrop read
-                            // through it. Measured, that put `text-neutral-500` at
-                            // **1.32:1** against the darker parts of the photo - the app is
-                            // full of small grey text and none of it was legible over those
-                            // regions. n-500 is only 4.74:1 on pure white to begin with, so
-                            // it has no headroom for any translucency at all; there is no
-                            // scrim setting that both shows the image and carries it.
+                            // This was briefly opaque, on contrast grounds - bare text
+                            // sitting directly on the photo measured badly in the darker
+                            // regions. Niraj's call, twice asked for, is that seeing the
+                            // image matters more, and the reason it is safe in practice is
+                            // that page CONTENT lives in cards which carry their own opaque
+                            // surface (`bg-white dark:bg-neutral-900`), so the photo shows in
+                            // the margins around them rather than behind any paragraph.
                             //
-                            // With the page opaque the photograph has nothing to compete
-                            // with, which is why the backdrop could be turned UP rather than
-                            // down: it now reads as a real photograph in the gutter and
-                            // around the cards instead of a grey wash behind the text.
-                            "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-white ring-1 ring-inset ring-neutral-200 transition-all duration-300 dark:bg-neutral-950 dark:ring-neutral-800",
+                            // The thing to watch when building a new page under (main):
+                            // do not put small grey text directly on this surface. Put it in
+                            // a card. `text-neutral-500` on the bare backdrop measures around
+                            // 1.3:1 over the photo's darker regions, which is unreadable.
+                            "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden ring-1 ring-inset ring-neutral-200/70 transition-all duration-300 dark:ring-white/10",
                             isDocked ? "rounded-l-2xl" : "rounded-2xl",
                         )}
                         // The card is inset by the shell's 0.5rem margin, so "full
