@@ -499,6 +499,54 @@
     }
 }
 
+/* -- Small glyph illustrations -------------------------------------------------
+   The sh-art set above is calibrated for the large hero SVGs in apps/web. Most of
+   it is scale-independent and reused here: pulse and wave are transforms, tick and
+   caret are opacity. Two are not. sh-art-scan travels 30 user units and sh-art-drift
+   travels 10, which on a 32-unit glyph rendered at 28px throws the shape clean off
+   its own canvas.
+
+   So these are the same motions re-cut for a 32-unit viewBox. Kept separate rather
+   than parameterised with a custom property, because the hero versions are tuned by
+   eye against a much bigger canvas and folding them together would mean retuning
+   both every time either changes.
+
+   Decoration only. Nothing here carries meaning, so reduced-motion switches it all
+   off and loses nothing. */
+
+@keyframes sh-glyph-scan {
+    0%, 100% { transform: translateY(-7px); opacity: 0; }
+    20%, 80% { opacity: 1; }
+    50%      { transform: translateY(7px); }
+}
+@keyframes sh-glyph-draw {
+    0%       { stroke-dashoffset: 64; }
+    45%, 55% { stroke-dashoffset: 0; }
+    100%     { stroke-dashoffset: -64; }
+}
+@keyframes sh-glyph-orbit {
+    to { transform: rotate(360deg); }
+}
+
+.sh-glyph-scan  { animation: sh-glyph-scan 3.2s ease-in-out infinite; }
+.sh-glyph-draw  { stroke-dasharray: 64; animation: sh-glyph-draw 3.6s ease-in-out infinite; }
+.sh-glyph-orbit { animation: sh-glyph-orbit 9s linear infinite; transform-origin: center; transform-box: fill-box; }
+
+/* Staggered fade for a set of siblings - a sequence reads as "working through it"
+   where a single pulse just reads as "loading". */
+.sh-glyph-seq > * { animation: sh-art-tick 2.4s ease-in-out infinite; }
+.sh-glyph-seq > *:nth-child(2) { animation-delay: 0.18s; }
+.sh-glyph-seq > *:nth-child(3) { animation-delay: 0.36s; }
+.sh-glyph-seq > *:nth-child(4) { animation-delay: 0.54s; }
+.sh-glyph-seq > *:nth-child(5) { animation-delay: 0.72s; }
+.sh-glyph-seq > *:nth-child(6) { animation-delay: 0.9s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .sh-glyph-scan, .sh-glyph-draw, .sh-glyph-orbit, .sh-glyph-seq > * {
+        animation: none;
+    }
+}
+
 /* ── Animated theme switch ────────────────────────────────────────────────────
    Driven by packages/ui/src/lib/theme-transition.ts using the View Transitions
    API: a directional clip-path inset() WIPE of the new theme (light->dark wipes

@@ -15,12 +15,40 @@ import { createFrameParser } from "@/lib/ai/protocol";
 import { ToolSteps, type ToolStep } from "@/components/ai/tool-steps";
 import { ChatHistoryDialog } from "@/components/ai/chat-history-dialog";
 import { useContextTags, activeContextTags, removePinnedTag } from "@/components/ai/context-tags";
+import { AssistantMark, SuggestionGlyph, type GlyphKind } from "@/components/ai/ai-art";
 
-const SUGGESTIONS = [
-	"Review my resume for a backend role",
-	"Give me a 4-week DSA plan",
-	"Design a URL shortener - walk me through it",
-	"What project should I build next?",
+/**
+ * The four openers.
+ *
+ * `prompt` is what actually gets sent and is unchanged from the plain-text version. `title`
+ * and `hint` exist because a card needs a scannable line and a line that says what you get -
+ * four full sentences at the same weight read as a list of terms rather than a menu.
+ */
+const SUGGESTIONS: { prompt: string; title: string; hint: string; glyph: GlyphKind }[] = [
+	{
+		prompt: "Review my resume for a backend role",
+		title: "Review my resume",
+		hint: "Gaps, phrasing and what a backend screen looks for",
+		glyph: "resume",
+	},
+	{
+		prompt: "Give me a 4-week DSA plan",
+		title: "Plan my DSA prep",
+		hint: "Four weeks, starting from where you actually are",
+		glyph: "plan",
+	},
+	{
+		prompt: "Design a URL shortener - walk me through it",
+		title: "Design a URL shortener",
+		hint: "Walked through the way an interviewer would",
+		glyph: "design",
+	},
+	{
+		prompt: "What project should I build next?",
+		title: "What should I build next?",
+		hint: "Something matched to the gaps in your profile",
+		glyph: "build",
+	},
 ];
 
 /**
@@ -324,25 +352,38 @@ export function AIPanel() {
 					isMaximized && "mx-auto max-w-3xl",
 				)}>
 					{messages.length === 0 ? (
-						<div className="flex flex-col items-center py-10 text-center">
-							<span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-neutral-900/10">
-								<Sparkles className="h-6 w-6 text-neutral-900 dark:text-neutral-100" />
-							</span>
+						<div className="@container flex flex-col items-center py-8 text-center">
+							<AssistantMark className="mb-3 h-14 w-14 text-neutral-900 dark:text-white" />
 							<h2 className="text-base font-semibold text-neutral-900 dark:text-white">
 								How can I help?
 							</h2>
 							<p className="mt-1 max-w-xs text-sm text-neutral-500 dark:text-neutral-400">
 								Ask about your projects, interview prep, DSA, or your resume.
 							</p>
-							<div className="mt-5 grid w-full gap-2">
+
+							{/* Two columns once the rail is wide enough for them.
+								A CONTAINER query, not a viewport one: this rail is resizable
+								between 360px and 900px on a viewport that never changes, so
+								`sm:` would answer the wrong question entirely. */}
+							<div className="mt-6 grid w-full gap-2.5 @[26rem]:grid-cols-2">
 								{SUGGESTIONS.map((s) => (
 									<button
-										key={s}
+										key={s.prompt}
 										type="button"
-										onClick={() => void send(s)}
-										className="cursor-pointer rounded-xl border border-neutral-200 px-3 py-2.5 text-left text-sm text-neutral-700 transition-colors hover:border-neutral-900/50 hover:bg-neutral-900/5 dark:border-neutral-800 dark:text-neutral-300"
+										onClick={() => void send(s.prompt)}
+										className="group flex cursor-pointer items-start gap-3 rounded-xl border border-neutral-200 bg-white/60 p-3 text-left transition-all hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-sm dark:border-neutral-800 dark:bg-neutral-900/40 dark:hover:border-neutral-600"
 									>
-										{s}
+										<span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700 transition-colors group-hover:text-neutral-900 dark:bg-neutral-800 dark:text-neutral-300 dark:group-hover:text-white">
+											<SuggestionGlyph kind={s.glyph} className="h-[22px] w-[22px]" />
+										</span>
+										<span className="min-w-0">
+											<span className="block text-sm font-semibold leading-snug text-neutral-900 dark:text-white">
+												{s.title}
+											</span>
+											<span className="mt-0.5 block text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+												{s.hint}
+											</span>
+										</span>
 									</button>
 								))}
 							</div>
