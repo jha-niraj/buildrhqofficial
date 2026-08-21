@@ -7,6 +7,7 @@ import { Reveal } from '@/components/reveal'
 import { SITE, BRAND, APP_LINKS } from '@/lib/site'
 import { pageMeta } from '@/lib/seo'
 import { breadcrumbSchema, webPageSchema, faqSchema, jsonLd } from '@/lib/schema'
+import { FaqAccordion } from '@/components/faq-accordion'
 import { COMPARISONS, COMPARISON_SLUGS, getComparison, SOURCING_NOTE } from '../_components/comparisons'
 
 /**
@@ -87,15 +88,24 @@ export default async function ComparePage({ params }: Props) {
                     { text: 'See all features', href: '/features' },
                 ]}
                 aside={
-                    <a
-                        href={c.vendorUrl}
-                        rel="noopener noreferrer nofollow"
-                        target="_blank"
-                        className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-neutral-800 underline decoration-neutral-900/30 underline-offset-4 transition-colors hover:decoration-neutral-900"
-                    >
-                        Check any of this on {c.name} yourself
-                        <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                    </a>
+                    c.vendorUrl ? (
+                        <a
+                            href={c.vendorUrl}
+                            rel="noopener noreferrer nofollow"
+                            target="_blank"
+                            className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-neutral-800 underline decoration-neutral-900/30 underline-offset-4 transition-colors hover:decoration-neutral-900"
+                        >
+                            Check any of this on {c.name} yourself
+                            <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                        </a>
+                    ) : (
+                        // Category comparisons have no single vendor to link. Saying so is
+                        // better than an empty column or a link to something arbitrary.
+                        <p className="text-sm leading-relaxed text-neutral-700">
+                            This one compares an approach rather than a company, so there is no
+                            single site to check it against.
+                        </p>
+                    )
                 }
             />
 
@@ -148,7 +158,7 @@ export default async function ComparePage({ params }: Props) {
                                         {c.name}
                                     </th>
                                     <th scope="col" className="w-[18%] py-3 font-semibold text-neutral-900 dark:text-white">
-                                        Checked against
+                                        Read more
                                     </th>
                                 </tr>
                             </thead>
@@ -160,8 +170,24 @@ export default async function ComparePage({ params }: Props) {
                                         </th>
                                         <td className="py-4 pr-4 leading-relaxed text-neutral-700 dark:text-neutral-300">{r.ours}</td>
                                         <td className="py-4 pr-4 leading-relaxed text-neutral-600 dark:text-neutral-400">{r.theirs}</td>
-                                        <td className="py-4 font-mono text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-400">
-                                            {r.source}
+                                        {/* A link, not a file path.
+                                            This column used to print repository paths -
+                                            `apps/main/app/(main)/practice` - onto a public
+                                            page. That published our directory structure and
+                                            gave the reader nothing they could act on. The
+                                            sourcing discipline is unchanged and now lives in
+                                            the data file where reviewers can check it. */}
+                                        <td className="py-4 text-[13px] leading-relaxed">
+                                            {r.learnMore ? (
+                                                <Link
+                                                    href={r.learnMore.href}
+                                                    className="inline-flex items-center gap-1 font-medium text-neutral-900 underline decoration-neutral-300 underline-offset-4 transition-colors hover:decoration-neutral-900 dark:text-white dark:decoration-neutral-700 dark:hover:decoration-white"
+                                                >
+                                                    {r.learnMore.label}
+                                                </Link>
+                                            ) : (
+                                                <span className="text-neutral-500 dark:text-neutral-400">-</span>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
@@ -234,21 +260,9 @@ export default async function ComparePage({ params }: Props) {
                     <h2 className="mb-8 text-2xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-3xl">
                         Common questions
                     </h2>
-                    <div className="space-y-px overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-200 dark:border-neutral-800 dark:bg-neutral-800">
-                        {c.faqs.map((faq) => (
-                            <details key={faq.question} className="group bg-white dark:bg-neutral-950">
-                                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 font-semibold text-neutral-900 dark:text-white">
-                                    {faq.question}
-                                    <span aria-hidden className="shrink-0 text-neutral-400 transition-transform group-open:rotate-45 dark:text-neutral-500">
-                                        +
-                                    </span>
-                                </summary>
-                                <p className="px-5 pb-5 text-[15px] leading-relaxed text-neutral-600 dark:text-neutral-400">
-                                    {faq.answer}
-                                </p>
-                            </details>
-                        ))}
-                    </div>
+                    {/* Same accordion as the landing page - see the note in
+                        components/faq-accordion.tsx. */}
+                    <FaqAccordion faqs={c.faqs} idPrefix={`compare-${c.slug}`} />
                 </Reveal>
 
                 <Reveal className="mt-20 rounded-2xl border border-neutral-200 bg-neutral-50 px-6 py-12 text-center dark:border-neutral-800 dark:bg-neutral-900/40">

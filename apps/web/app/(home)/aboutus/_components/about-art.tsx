@@ -84,26 +84,10 @@ export function EvidenceArt({ className = '' }: { className?: string }) {
             {/* The file it was read from */}
             <rect x="10" y="94" width="128" height="42" rx="8" {...S} />
             <path d="M24 108h12M24 120h12" {...S} opacity={0.4} />
-            <text
-                x="46"
-                y="112"
-                fill="currentColor"
-                fontSize="8"
-                opacity={0.7}
-                fontFamily="ui-monospace, monospace"
-            >
-                lib/credits/grant.ts
-            </text>
-            <text
-                x="46"
-                y="126"
-                fill="currentColor"
-                fontSize="8"
-                opacity={0.7}
-                fontFamily="ui-monospace, monospace"
-            >
-                SIGNUP_GRANT = 100
-            </text>
+            {/* Deliberately not a real path or identifier. The drawing needs to READ as
+                source code; printing an actual filename would publish our layout for the
+                sake of an illustration. */}
+            <path d="M46 108h58M46 120h38" {...S} opacity={0.45} />
 
             {/* Passed */}
             <g className="sh-art-pulse">

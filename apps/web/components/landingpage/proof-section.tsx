@@ -79,8 +79,8 @@ export default function ProofSection() {
                                 unsigned size, that is g++ talking.
                             </p>
                             <p className="border-l-2 border-neutral-900 py-1 pl-6 text-[17px] text-neutral-700 dark:border-white dark:text-neutral-300">
-                                You do not have to take that on trust. The image is checked into the
-                                repo, and this is it.
+                                You do not have to take the claim on trust. This is the image
+                                definition itself, not a description of it.
                             </p>
                         </div>
 

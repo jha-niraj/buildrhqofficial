@@ -231,3 +231,82 @@ plus four rendered FAQs each with `FAQPage` schema.
 assumed: grepped the whole file for price figures afterwards and found none. Where the
 question is "what does interviewing.io cost", the answer says they do not publish it and
 that we do not quote figures we cannot source.
+
+---
+
+# Manual pass 2, 2026-08-21
+
+## MP-10 - Compare section to ten pages
+
+`leetcode`, `interviewing-io`, `bootcamp`, `youtube-tutorials`, `chatgpt`, `cs-degree`,
+`neetcode`, `pramp`, `resume-review-service`, `diy-study-plan`. ~10,600 words across the
+section, roughly 1,000 per page.
+
+**Four compare a CATEGORY rather than a company**, and that is the deliberate safety choice
+rather than a shortcut. A category cannot be misrepresented the way a named business can, it
+does not change its pricing on a Tuesday, and it is what a reader is actually choosing
+between. `vendorUrl` is optional now, and a category page says plainly that there is no
+single site to check it against.
+
+**Where a vendor IS named, the claim is sourced or it is not made.** Pramp's model and the
+fact that it is free are quoted from their own site with the access date. NeetCode's page
+returned no usable content to the fetcher, so that page describes the category - a curated
+roadmap over the classic problem set - and links out rather than inventing specifics.
+
+**No competitor prices anywhere.** Grepped the whole file afterwards rather than trusting
+myself: clean.
+
+**Several of these end up recommending the alternative**, which is the point. The CS degree
+page says take the degree if you have the option and the means, and says a subscription is
+not a substitute. The bootcamp page says buy the structure if you have stalled twice
+self-directing. The free-tutorials page says anybody telling you that you must pay to learn
+to code is selling something. The DIY page says do not replace a plan that is working.
+
+A comparison that never concedes is an advert, and it reads as one.
+
+## MP-11 - Repository paths off the public pages
+
+Found on the comparison tables, the About stats, the Dockerfile caption, the About SVG and
+several deepDive paragraphs. A path proves nothing to somebody who cannot open the
+repository, and it published our directory layout to everybody who could scroll.
+
+**The sourcing DISCIPLINE is unchanged.** `source` on a comparison row and `evidence` on a
+feature module are both still required and both still checked in review - they are marked
+INTERNAL and never rendered. The public column is now a link to the feature the row is about,
+which is more useful to a reader than a path ever was.
+
+Also: the About stats show a plain-English note instead of a filename, the Dockerfile panel
+caption says `Dockerfile` rather than the full path, the illustration draws abstract code
+lines instead of a real identifier, and the Proof copy no longer implies a public repo.
+
+## MP-12 - One FAQ accordion
+
+There were two: the landing page's bordered cards with a rotating plus, and a plain
+`<details>` list on the hubs and comparison pages.
+
+Zero-JS was the right instinct and the wrong call. A visitor moving from the landing page to
+a comparison page met two different components answering the same kind of question, and
+inconsistency across pages reads as carelessness much more loudly than a few kilobytes reads
+as slowness.
+
+`components/faq-accordion.tsx` is the one implementation, used by the landing page, all
+seven hubs and all ten comparison pages. It renders the LIST only - each caller supplies its
+own chrome, because the landing page puts it in a two-column sticky layout and the others
+stack it under a heading. Every caller still emits `FAQPage` from the same array it passes
+in.
+
+## MP-13 - Font, re-checked
+
+Re-verified after the question. **Nothing was broken, and it was worth checking again.**
+
+- All five Next apps load Bricolage with `.variable`, all import the shared stylesheet, none
+  shadow it with their own.
+- The `h1-h6` rule sits at brace depth 0 - unlayered - so it beats Tailwind utilities rather
+  than losing to them.
+- The production CSS contains four `@font-face` blocks for Bricolage at `font-weight: 200 800`
+  with real woff2 URLs, and there is no download failure in the build log.
+
+**The reason it can look absent while testing:** in `next dev`, Turbopack puts the font CSS in
+a separate chunk that is not linked from the initial HTML, so the face arrives a moment after
+first paint. A production build links it up front. Checked the served dev CSS and the built
+CSS separately to confirm that is the only difference.

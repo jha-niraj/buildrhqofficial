@@ -1,7 +1,7 @@
 import {
     Code2, FolderKanban, Video, Sparkles, Briefcase, Coins,
     BookOpen, Tags, Users, Mail, Swords, Scale, ShieldCheck,
-    MessagesSquare, Braces, FileText,
+    MessagesSquare, Braces, FileText, GraduationCap, School, ClipboardList,
 } from 'lucide-react'
 
 /**
@@ -99,14 +99,32 @@ export const NAV_ITEMS: readonly NavItem[] = [
                 icon: Swords,
             },
             {
-                href: '/compare/interviewing-io',
-                title: 'vs interviewing.io',
-                description: 'Human interviewers, versus a rehearsal room open at 1am',
-                icon: Swords,
+                href: '/compare/bootcamp',
+                title: 'vs a bootcamp',
+                description: 'Structure and a cohort, against repetition you can do at 1am',
+                icon: GraduationCap,
+            },
+            {
+                href: '/compare/chatgpt',
+                title: 'vs ChatGPT',
+                description: 'It explains anything. It does not run your code or tell you no',
+                icon: Sparkles,
+            },
+            {
+                href: '/compare/cs-degree',
+                title: 'vs a CS degree',
+                description: 'Not alternatives, and this page does not pretend otherwise',
+                icon: School,
+            },
+            {
+                href: '/compare/diy-study-plan',
+                title: 'vs your own plan',
+                description: 'The real baseline. Free, and missing the parts you have not heard of',
+                icon: ClipboardList,
             },
             {
                 href: '/compare',
-                title: 'How we write these',
+                title: 'All ten comparisons',
                 description: 'What the alternative is good at comes first, and no prices from memory',
                 icon: Scale,
             },

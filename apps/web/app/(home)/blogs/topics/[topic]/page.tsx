@@ -12,6 +12,7 @@ import {
 import { SITE, BRAND } from '@/lib/site'
 import { TOPIC_HUBS } from '@/content/topic-hubs'
 import { faqSchema, jsonLd } from '@/lib/schema'
+import { FaqAccordion } from '@/components/faq-accordion'
 import { Reveal, RevealGroup, RevealItem } from '@/components/reveal'
 import { PostCard } from '../../_components/post-card'
 import { TopicGlyph } from '../../_components/topic-glyph'
@@ -234,21 +235,10 @@ export default async function TopicPage({ params }: Props) {
                         <h2 className="mb-8 text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
                             Common questions
                         </h2>
-                        <div className="space-y-px overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-200 dark:border-neutral-800 dark:bg-neutral-800">
-                            {hub.faqs.map((faq) => (
-                                <details key={faq.question} className="group bg-white dark:bg-neutral-950">
-                                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 font-semibold text-neutral-900 dark:text-white">
-                                        {faq.question}
-                                        <span aria-hidden className="shrink-0 text-neutral-400 transition-transform group-open:rotate-45 dark:text-neutral-500">
-                                            +
-                                        </span>
-                                    </summary>
-                                    <p className="px-5 pb-5 text-[15px] leading-relaxed text-neutral-600 dark:text-neutral-400">
-                                        {faq.answer}
-                                    </p>
-                                </details>
-                            ))}
-                        </div>
+                        {/* Same accordion as the landing page. It was a plain details list,
+                            which shipped no JavaScript and looked like a different component
+                            from the one a visitor had just seen on the home page. */}
+                        <FaqAccordion faqs={hub.faqs} idPrefix={`hub-${topic}`} />
                     </Reveal>
 
                     <Reveal className="mt-16 border-t border-neutral-200 pt-8 dark:border-neutral-800">

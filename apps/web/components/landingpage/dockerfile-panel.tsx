@@ -48,7 +48,7 @@ interface Line {
 }
 
 /**
- * Copied from `apps/shipitworker/Dockerfile`.
+ * Copied from the code executor's Dockerfile.
  *
  * The only edit is that the long comment is wrapped onto two lines here - the source has
  * it on one. That is a presentational change to avoid clipping, and it does not change
@@ -94,8 +94,11 @@ export function DockerfilePanel() {
                     <span className="h-2.5 w-2.5 rounded-full bg-neutral-700" />
                     <span className="h-2.5 w-2.5 rounded-full bg-neutral-700" />
                 </span>
+                {/* Just the filename. It was the full repository path, which showed a
+                    visitor our directory layout to no benefit - "Dockerfile" already says
+                    everything the section needs it to. */}
                 <span className="font-mono text-[11px] text-neutral-400">
-                    apps/shipitworker/Dockerfile
+                    Dockerfile
                 </span>
                 <span className="ml-auto rounded-full border border-neutral-700 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-neutral-400">
                     In the repo

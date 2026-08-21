@@ -1,21 +1,17 @@
 "use client"
 
-import React, { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
-import {
-    MessageCircle, Plus, HelpCircle
-} from "lucide-react";
+import { MessageCircle, HelpCircle } from "lucide-react";
 import Link from "next/link";
 import { BRAND } from "@/lib/site";
 
 import { LANDING_FAQS } from "./faq-data";
+import { FaqAccordion } from "@/components/faq-accordion";
 
 
 export default function FaqsAccrodian() {
-    const [openIndex, setOpenIndex] = useState<string | null>(null);
-
     return (
         <section className="py-24 relative bg-white dark:bg-neutral-950 border-t border-neutral-100 dark:border-neutral-800">
             <div className="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
@@ -50,61 +46,11 @@ export default function FaqsAccrodian() {
                         </div>
                     </motion.div>
                     <div className="lg:col-span-8">
-                        <div className="space-y-4">
-                            {
-                                LANDING_FAQS.map((faq) => (
-                                    <motion.div
-                                        key={faq.id}
-                                        initial={{ opacity: 0, y: -16 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                                        className="group border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 rounded-xl overflow-hidden hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
-                                    >
-                                        <button
-                                            onClick={() => setOpenIndex(openIndex === faq.id ? null : faq.id)}
-                                            className="cursor-pointer flex items-start justify-between w-full p-6 text-left"
-                                        >
-                                            <span className="text-lg font-semibold text-neutral-900 dark:text-white pr-8">
-                                                {faq.question}
-                                            </span>
-                                            <div className={`flex-shrink-0 transition-transform duration-300 ${openIndex === faq.id ? "rotate-45" : "rotate-0"}`}>
-                                                {
-                                                    openIndex === faq.id ? (
-                                                        <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-900 dark:text-white">
-                                                            <Plus className="w-5 h-5 rotate-45" />
-                                                        </div>
-                                                    ) : (
-                                                        <div className="w-8 h-8 rounded-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 flex items-center justify-center text-neutral-500 dark:text-neutral-400 group-hover:bg-neutral-100 dark:group-hover:bg-neutral-800 transition-colors">
-                                                            <Plus className="w-5 h-5" />
-                                                        </div>
-                                                    )
-                                                }
-                                            </div>
-                                        </button>
-                                        <AnimatePresence>
-                                            {
-                                                openIndex === faq.id && (
-                                                    <motion.div
-                                                        initial={{ height: 0, opacity: 0 }}
-                                                        animate={{ height: "auto", opacity: 1 }}
-                                                        exit={{ height: 0, opacity: 0 }}
-                                                        transition={{ duration: 0.3, ease: "easeInOut" }}
-                                                    >
-                                                        <div className="px-6 pb-6 pt-0">
-                                                            <div className="h-px w-full bg-neutral-100 dark:bg-neutral-800 mb-4" />
-                                                            <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                                                                {faq.answer}
-                                                            </p>
-                                                        </div>
-                                                    </motion.div>
-                                                )
-                                            }
-                                        </AnimatePresence>
-                                    </motion.div>
-                                ))
-                            }
-                        </div>
+                        {/* The shared accordion. This markup used to live here and the
+                            hubs and comparison pages had a different one, so the same kind
+                            of question looked like two different components depending on
+                            which page you were on. */}
+                        <FaqAccordion faqs={LANDING_FAQS} idPrefix="landing-faq" />
                     </div>
                 </div>
             </div>

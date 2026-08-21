@@ -36,7 +36,14 @@ export interface FeatureModule {
     points: readonly string[]
     /** What it deliberately does not do. */
     scope: string
-    /** Where the claim was verified. Kept in the data so it cannot drift from the copy. */
+    /**
+     * Where the claim was verified. **INTERNAL. Never rendered.**
+     *
+     * Kept in the data so the claim and its proof live in one place and a reviewer can
+     * check every module in one read. It is not shown to visitors: a repository path
+     * proves nothing to somebody who cannot open the repository, and publishing our
+     * directory layout is a cost with no matching benefit.
+     */
     evidence: string
     /** Credit costs, where the module has any. Empty when nothing here is metered. */
     costs?: readonly { label: string; credits: number }[]

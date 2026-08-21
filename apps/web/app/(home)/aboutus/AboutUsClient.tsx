@@ -39,10 +39,10 @@ import { GapArt, EvidenceArt, ContainerArt } from "./_components/about-art"
  * counts from the database. Use those, or use nothing.
  */
 const stats = [
-    { value: "6", label: "Languages that run", source: "apps/shipitworker/Dockerfile" },
-    { value: "100", label: "Free credits at signup", source: "lib/credits/grant.ts" },
-    { value: "0", label: "Subscriptions", source: "there is no recurring plan" },
-    { value: "30", label: "Guides published", source: "content/active-posts.ts" },
+    { value: "6", label: "Languages that run", note: "JavaScript, TypeScript, Python 3, C, C++, Java" },
+    { value: "100", label: "Free credits at signup", note: "No card, and they never expire" },
+    { value: "0", label: "Subscriptions", note: "You pay for operations, not for months" },
+    { value: "30", label: "Guides published", note: "Across seven topics, all free to read" },
 ]
 
 export default function AboutUs() {
@@ -128,9 +128,13 @@ export default function AboutUs() {
                                 <div key={i}>
                                     <div className="mb-1 font-mono text-3xl font-bold tabular-nums text-neutral-900 dark:text-white">{stat.value}</div>
                                     <div className="text-sm uppercase tracking-wider text-neutral-600 dark:text-neutral-400">{stat.label}</div>
-                                    {/* The source is printed, not hidden in a comment. A number
-                                        nobody can check is a number we should not have used. */}
-                                    <div className="mt-1.5 font-mono text-[11px] leading-snug text-neutral-500 dark:text-neutral-500">{stat.source}</div>
+                                    {/* A plain-English note, not a repository path. These four
+                                        replaced invented vanity metrics, and for a while they
+                                        cited the file each was read from - which proved the
+                                        number to nobody and published our directory layout to
+                                        everybody. The verification still happens; it belongs in
+                                        review, not on the page. */}
+                                    <div className="mt-1.5 text-[12px] leading-snug text-neutral-500 dark:text-neutral-500">{stat.note}</div>
                                 </div>
                             ))
                         }
