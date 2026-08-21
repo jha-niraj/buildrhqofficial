@@ -181,7 +181,7 @@ export default function MyProjectsPage() {
 							>
 								<Card className="bg-white dark:bg-neutral-900 shadow-2xl p-5 rounded-xl border border-neutral-200 dark:border-neutral-800">
 									<CardContent className="pt-6 text-center">
-										<Code2 className="w-8 h-8 text-neutral-800 mx-auto mb-2" />
+										<Code2 className="w-8 h-8 text-neutral-800 dark:text-neutral-200 mx-auto mb-2" />
 										<div className="text-2xl font-bold text-gray-900 dark:text-white">
 											{stats.totalProjects}
 										</div>
@@ -190,7 +190,7 @@ export default function MyProjectsPage() {
 								</Card>
 								<Card className="bg-white dark:bg-neutral-900 shadow-2xl p-5 rounded-xl border border-neutral-200 dark:border-neutral-800">
 									<CardContent className="pt-6 text-center">
-										<CheckCircle2 className="w-8 h-8 text-neutral-800 mx-auto mb-2" />
+										<CheckCircle2 className="w-8 h-8 text-neutral-800 dark:text-neutral-200 mx-auto mb-2" />
 										<div className="text-2xl font-bold text-gray-900 dark:text-white">
 											{stats.completedProjects}
 										</div>
@@ -199,7 +199,7 @@ export default function MyProjectsPage() {
 								</Card>
 								<Card className="bg-white dark:bg-neutral-900 shadow-2xl p-5 rounded-xl border border-neutral-200 dark:border-neutral-800">
 									<CardContent className="pt-6 text-center">
-										<Play className="w-8 h-8 text-neutral-800 mx-auto mb-2" />
+										<Play className="w-8 h-8 text-neutral-800 dark:text-neutral-200 mx-auto mb-2" />
 										<div className="text-2xl font-bold text-gray-900 dark:text-white">
 											{stats.inProgressProjects}
 										</div>
@@ -208,7 +208,7 @@ export default function MyProjectsPage() {
 								</Card>
 								<Card className="bg-white dark:bg-neutral-900 shadow-2xl p-5 rounded-xl border border-neutral-200 dark:border-neutral-800">
 									<CardContent className="pt-6 text-center">
-										<Trophy className="w-8 h-8 text-neutral-800 mx-auto mb-2" />
+										<Trophy className="w-8 h-8 text-neutral-800 dark:text-neutral-200 mx-auto mb-2" />
 										<div className="text-2xl font-bold text-gray-900 dark:text-white">
 											{stats.totalSubmissions}
 										</div>

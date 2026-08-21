@@ -185,7 +185,7 @@ function ModuleRow({ title, icon: Icon, href, hrefLabel, stats, lines, data, rev
 			<div className="mb-4 flex items-center justify-between">
 				<div className="flex items-center gap-2">
 					<div className="flex h-8 w-8 items-center justify-center rounded-xl bg-neutral-900/10">
-						<Icon className="h-4 w-4 text-neutral-900" />
+						<Icon className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />
 					</div>
 					<h3 className="text-sm font-semibold text-neutral-900 dark:text-white">{title}</h3>
 				</div>
@@ -309,7 +309,7 @@ export default function HomeDashboard({
 						className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
 					>
 						<div className="flex items-center gap-2">
-							<s.icon className="h-3.5 w-3.5 text-neutral-900" />
+							<s.icon className="h-3.5 w-3.5 text-neutral-900 dark:text-neutral-100" />
 							<p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{s.label}</p>
 						</div>
 						<p className={cn("mt-1.5 text-2xl font-bold tabular-nums", toneCls(s.tone))}>{s.value}</p>
@@ -477,7 +477,7 @@ export default function HomeDashboard({
 										<div className="absolute bottom-0 left-3.5 top-7 w-px bg-neutral-200 dark:bg-neutral-800" />
 									)}
 									<div className="z-10 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border-2 border-white bg-neutral-900/10 dark:border-neutral-900">
-										<Clock className="h-3 w-3 text-neutral-900" />
+										<Clock className="h-3 w-3 text-neutral-900 dark:text-neutral-100" />
 									</div>
 									<div className="min-w-0 pt-0.5">
 										<p className="text-sm leading-snug text-neutral-700 dark:text-neutral-300">
@@ -513,7 +513,7 @@ function EmptyBlock({ icon: Icon, title, action }: {
 			{action && (
 				<Link
 					href={action.href}
-					className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-neutral-900 hover:underline"
+					className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-neutral-900 dark:text-neutral-100 hover:underline"
 				>
 					<Plus className="h-3.5 w-3.5" /> {action.label}
 				</Link>

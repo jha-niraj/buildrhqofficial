@@ -24,8 +24,8 @@ const DIFFICULTY_COLORS = {
 };
 
 const STATUS_ICON = {
-    COMPLETED: <CheckCircle2 className="h-4 w-4 text-neutral-900" />,
-    IN_PROGRESS: <Clock className="h-4 w-4 text-neutral-900" />,
+    COMPLETED: <CheckCircle2 className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />,
+    IN_PROGRESS: <Clock className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />,
     NOT_STARTED: <Circle className="h-4 w-4 text-neutral-300 dark:text-neutral-600" />,
 };
 
@@ -165,7 +165,7 @@ export function ModuleContent({
                 </div>
                 <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-5 h-fit sticky top-6">
                     <div className="flex items-center gap-2 mb-4">
-                        <Trophy className="h-4 w-4 text-neutral-900" />
+                        <Trophy className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />
                         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
                             Leaderboard
                         </h2>

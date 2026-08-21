@@ -249,7 +249,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                 </Button>
                 <div className="flex-1">
                     <h1 className="text-2xl lg:text-3xl font-bold text-neutral-900 dark:text-white flex items-center gap-3">
-                        <FileText className="w-7 h-7 text-neutral-900" />
+                        <FileText className="w-7 h-7 text-neutral-900 dark:text-neutral-100" />
                         My Applications
                     </h1>
                     <p className="text-neutral-500 mt-1">
@@ -473,7 +473,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                                             <div className="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800 mb-4">
                                                                 <div className="flex items-center justify-between mb-3">
                                                                     <div className="flex items-center gap-2">
-                                                                        <CheckCircle2 className="w-4 h-4 text-neutral-900" />
+                                                                        <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                                         <span className="text-sm font-medium text-neutral-900 dark:text-white">
                                                                             {application.job.interviewProcess.rounds.length} Interview Rounds
                                                                         </span>
@@ -515,7 +515,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                                                                     <span>R{round.roundNumber}: {round.title}</span>
                                                                                     {
                                                                                         round.hasMockInterview && !isCompleted && (
-                                                                                            <Mic className="w-3 h-3 text-neutral-900" />
+                                                                                            <Mic className="w-3 h-3 text-neutral-900 dark:text-neutral-100" />
                                                                                         )
                                                                                     }
                                                                                 </div>
@@ -537,7 +537,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                                         application.feedback && (
                                                             <div className="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800/20 border border-neutral-100 dark:border-neutral-800 mb-4">
                                                                 <div className="flex items-start gap-2">
-                                                                    <Bell className="w-4 h-4 text-neutral-900 mt-0.5" />
+                                                                    <Bell className="w-4 h-4 text-neutral-900 dark:text-neutral-100 mt-0.5" />
                                                                     <div>
                                                                         <span className="text-sm font-medium text-neutral-700 dark:text-neutral-100">Recruiter Feedback</span>
                                                                         <p className="text-sm text-neutral-800 dark:text-neutral-100 mt-1">{application.feedback}</p>
@@ -846,7 +846,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                                                         <div className="flex items-center gap-2">
                                                                             {
                                                                                 isCompleted ? (
-                                                                                    <CheckCircle2 className="w-4 h-4 text-neutral-900" />
+                                                                                    <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                                                 ) : (
                                                                                     <div className="w-4 h-4 rounded-full border-2 border-neutral-300 dark:border-neutral-600" />
                                                                                 )

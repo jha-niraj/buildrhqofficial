@@ -381,7 +381,7 @@ export default function ProjectIdeasPage() {
                                         {/* Platform Curated Projects Section */}
                                         <div className="mb-8">
                                             <div className="flex items-center gap-2 mb-4">
-                                                <Crown className="w-4 h-4 text-neutral-900" />
+                                                <Crown className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                 <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">ShipItHQ Curated Projects</h3>
                                                 <Badge className="bg-gradient-to-r from-neutral-100 to-neutral-100 dark:from-neutral-800/30 dark:to-neutral-800/30 text-neutral-800 dark:text-neutral-100 text-[10px] border-0">
                                                     Ready to Start
@@ -414,7 +414,7 @@ export default function ProjectIdeasPage() {
                                                                     {/* ShipItHQ Badge */}
                                                                     <div className="absolute top-3 right-3">
                                                                         <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-neutral-50 to-neutral-50 dark:from-neutral-900/40 dark:to-neutral-900/40 border border-neutral-200 dark:border-neutral-800">
-                                                                            <Crown className="w-3 h-3 text-neutral-900" />
+                                                                            <Crown className="w-3 h-3 text-neutral-900 dark:text-neutral-100" />
                                                                             <span className="text-[10px] font-semibold text-neutral-700 dark:text-neutral-100">ShipItHQ</span>
                                                                         </div>
                                                                     </div>
@@ -483,7 +483,7 @@ export default function ProjectIdeasPage() {
                                         {/* Community Ideas (from the technology) */}
                                         <div>
                                             <div className="flex items-center gap-2 mb-4">
-                                                <Users className="w-4 h-4 text-neutral-900" />
+                                                <Users className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                 <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Community Ideas</h3>
                                                 <Badge className="bg-neutral-100 dark:bg-neutral-800/30 text-neutral-700 dark:text-neutral-100 text-[10px] border-0">
                                                     User Submitted
@@ -570,7 +570,7 @@ export default function ProjectIdeasPage() {
                                         </p>
                                         {problem.coreRequirements?.slice(0, 2).map((req, i) => (
                                             <div key={i} className="flex items-center gap-1 text-[10px] text-neutral-500 mb-1">
-                                                <CheckCircle2 className="w-3 h-3 text-neutral-900" />
+                                                <CheckCircle2 className="w-3 h-3 text-neutral-900 dark:text-neutral-100" />
                                                 <span className="truncate">{req}</span>
                                             </div>
                                         ))}
@@ -624,7 +624,7 @@ export default function ProjectIdeasPage() {
                                         <ul className="space-y-2">
                                             {selectedProblem.coreRequirements.map((req, i) => (
                                                 <li key={i} className="flex items-start gap-2">
-                                                    <CheckCircle2 className="w-4 h-4 text-neutral-900 flex-shrink-0 mt-0.5" />
+                                                    <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100 flex-shrink-0 mt-0.5" />
                                                     <span className="text-sm text-neutral-600 dark:text-neutral-400">{req}</span>
                                                 </li>
                                             ))}
@@ -637,7 +637,7 @@ export default function ProjectIdeasPage() {
                                         <ul className="space-y-2">
                                             {selectedProblem.engineeringConstraints.map((c, i) => (
                                                 <li key={i} className="flex items-start gap-2">
-                                                    <Target className="w-4 h-4 text-neutral-900 flex-shrink-0 mt-0.5" />
+                                                    <Target className="w-4 h-4 text-neutral-900 dark:text-neutral-100 flex-shrink-0 mt-0.5" />
                                                     <span className="text-sm text-neutral-600 dark:text-neutral-400">{c}</span>
                                                 </li>
                                             ))}

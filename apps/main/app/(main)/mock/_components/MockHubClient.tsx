@@ -228,7 +228,7 @@ export default function MockInterviewLandingPage() {
                                                         {
                                                             type.features.map((feature, idx) => (
                                                                 <div key={idx} className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-                                                                    <CheckCircle className="w-4 h-4 flex-shrink-0 text-neutral-900" />
+                                                                    <CheckCircle className="w-4 h-4 flex-shrink-0 text-neutral-900 dark:text-neutral-100" />
                                                                     <span>{feature}</span>
                                                                 </div>
                                                             ))

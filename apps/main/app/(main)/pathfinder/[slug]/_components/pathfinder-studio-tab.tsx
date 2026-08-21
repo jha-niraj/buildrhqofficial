@@ -57,7 +57,7 @@ export function PathfinderStudioTab({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-neutral-900" />
+        <Loader2 className="h-8 w-8 animate-spin text-neutral-900 dark:text-neutral-100" />
       </div>
     );
   }
@@ -66,7 +66,7 @@ export function PathfinderStudioTab({
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <div className="h-20 w-20 rounded-full bg-neutral-100 dark:bg-neutral-900/30 flex items-center justify-center mb-4">
-          <StickyNote className="h-10 w-10 text-neutral-900" />
+          <StickyNote className="h-10 w-10 text-neutral-900 dark:text-neutral-100" />
         </div>
         <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-2">
           No Studio Yet

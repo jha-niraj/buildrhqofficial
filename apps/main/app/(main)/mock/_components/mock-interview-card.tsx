@@ -111,7 +111,7 @@ export function MockInterviewCard({ mock, onStart, variant = 'default', showAdmi
                             <span>{mock.duration}m</span>
                         </div>
                         <div className="flex items-center gap-1">
-                            <Sparkles className="w-4 h-4 text-neutral-800" />
+                            <Sparkles className="w-4 h-4 text-neutral-800 dark:text-neutral-200" />
                             <span>{mock.creditsRequired}c</span>
                         </div>
                     </div>

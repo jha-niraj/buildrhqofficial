@@ -111,7 +111,7 @@ export function TeamMembersDisplay({
 
             {/* Admin count badge */}
             {admins.length > 0 && (
-                <Badge variant="outline" className="text-xs text-neutral-800 border-neutral-300 dark:border-neutral-700">
+                <Badge variant="outline" className="text-xs text-neutral-800 dark:text-neutral-200 border-neutral-300 dark:border-neutral-700">
                     {admins.length} {admins.length === 1 ? 'Admin' : 'Admins'}
                 </Badge>
             )}

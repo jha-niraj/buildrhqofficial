@@ -143,7 +143,7 @@ export function ResumePublicView({ user, embedded = false }: ResumePublicViewPro
                                                     href={link.url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="flex items-center gap-2 text-neutral-800 hover:text-neutral-300 hover:underline text-sm"
+                                                    className="flex items-center gap-2 text-neutral-800 dark:text-neutral-200 hover:text-neutral-300 hover:underline text-sm"
                                                     title={link.platform}
                                                 >
                                                     <Icon className="w-4 h-4" />
@@ -295,7 +295,7 @@ export function ResumePublicView({ user, embedded = false }: ResumePublicViewPro
                                             href={cert.link}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="block text-sm text-neutral-800 hover:text-neutral-300"
+                                            className="block text-sm text-neutral-800 dark:text-neutral-200 hover:text-neutral-300"
                                         >
                                             {cert.name} • {cert.issuer} ({formatDate(cert.issuedDate)})
                                         </Link>

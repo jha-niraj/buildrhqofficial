@@ -565,7 +565,7 @@ export default function Quiz({
                                                 size="icon"
                                                 onClick={handleFlagQuestion}
                                                 className={cn(
-                                                    flaggedQuestions.has(currentQuestion.id) && "text-neutral-900"
+                                                    flaggedQuestions.has(currentQuestion.id) && "text-neutral-900 dark:text-neutral-100"
                                                 )}
                                             >
                                                 <Flag className="h-4 w-4" />
@@ -586,7 +586,7 @@ export default function Quiz({
                                                 size="icon"
                                                 onClick={toggleHint}
                                                 className={cn(
-                                                    usedHints.has(currentQuestion.id) && "text-neutral-900"
+                                                    usedHints.has(currentQuestion.id) && "text-neutral-900 dark:text-neutral-100"
                                                 )}
                                             >
                                                 <Lightbulb className="h-4 w-4" />
@@ -893,7 +893,7 @@ export default function Quiz({
                             Are you sure you want to submit your quiz? You have answered {answeredCount} out of {questions.length} questions.
                             {
                                 answeredCount < questions.length && (
-                                    <span className="block mt-2 text-neutral-800">
+                                    <span className="block mt-2 text-neutral-800 dark:text-neutral-200">
                                         You still have {questions.length - answeredCount} unanswered questions.
                                     </span>
                                 )
@@ -917,7 +917,7 @@ export default function Quiz({
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
-                            <AlertTriangle className="h-5 w-5 text-neutral-900" />
+                            <AlertTriangle className="h-5 w-5 text-neutral-900 dark:text-neutral-100" />
                             Leave Quiz?
                         </DialogTitle>
                         <DialogDescription>

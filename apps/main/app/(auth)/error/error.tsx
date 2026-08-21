@@ -44,7 +44,7 @@ export default function AuthError() {
                         />
                     </svg>
                 </div>
-                <h2 className="text-2xl font-bold mb-4 text-gray-800">Authentication Error</h2>
+                <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Authentication Error</h2>
                 <p className="text-gray-600 mb-6">{errorMessage}</p>
 
                 <div className="flex justify-center space-x-4">

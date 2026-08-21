@@ -139,12 +139,12 @@ export default function ActivityCalendar({ data }: ActivityCalendarProps) {
                 <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-lg bg-neutral-900/10 flex items-center justify-center">
-                            <CalendarDays className="h-4 w-4 text-neutral-900" />
+                            <CalendarDays className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />
                         </div>
                         <span className="font-semibold text-sm">Activity</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                        <Flame className="h-4 w-4 text-neutral-900" />
+                        <Flame className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />
                         <span className="font-bold text-sm">{currentStreak}</span>
                         <span className="text-xs text-neutral-500">day streak</span>
                     </div>

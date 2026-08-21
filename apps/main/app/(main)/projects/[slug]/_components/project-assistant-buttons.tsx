@@ -102,7 +102,7 @@ export function ProjectAssistantButtons({
                     <div className="h-full flex flex-col">
                         <SheetHeader className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-800">
                             <SheetTitle className="flex items-center gap-2">
-                                <Book className="w-5 h-5 text-neutral-800" />
+                                <Book className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />
                                 Resources Library
                             </SheetTitle>
                         </SheetHeader>
@@ -123,7 +123,7 @@ export function ProjectAssistantButtons({
                     <div className="h-full flex flex-col">
                         <SheetHeader className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-800">
                             <SheetTitle className="flex items-center gap-2">
-                                <AlertTriangle className="w-5 h-5 text-neutral-800" />
+                                <AlertTriangle className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />
                                 Errors & Mistakes
                             </SheetTitle>
                         </SheetHeader>

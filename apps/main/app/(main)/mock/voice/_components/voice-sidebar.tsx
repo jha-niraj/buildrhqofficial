@@ -126,7 +126,7 @@ export function VoiceSidebar() {
                     <div className="ml-auto flex items-center gap-2 flex-shrink-0">
                         {/* Credits chip */}
                         <div className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-medium text-neutral-700 dark:text-neutral-300">
-                            <span className="text-neutral-900">✦</span>
+                            <span className="text-neutral-900 dark:text-neutral-100">✦</span>
                             {credits} credits
                         </div>
 

@@ -96,19 +96,19 @@ function GoalCard({ goal, onAssign }: { goal: Goal; onAssign: () => void }) {
                     </div>
                     <div className="flex items-center gap-3 text-[11px] text-neutral-500 mb-3">
                         <div className="flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3 text-neutral-900" />
+                            <CheckCircle2 className="w-3 h-3 text-neutral-900 dark:text-neutral-100" />
                             <span>{goal.completedSubGoals}/{goal.totalSubGoals}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                            <Brain className="w-3 h-3 text-neutral-900" />
+                            <Brain className="w-3 h-3 text-neutral-900 dark:text-neutral-100" />
                             <span>{goal.totalQuizAnswered}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                            <Code2 className="w-3 h-3 text-neutral-900" />
+                            <Code2 className="w-3 h-3 text-neutral-900 dark:text-neutral-100" />
                             <span>{goal.totalCodingSolved}</span>
                         </div>
                         {goal.streakDays > 0 && (
-                            <div className="flex items-center gap-1 text-neutral-900">
+                            <div className="flex items-center gap-1 text-neutral-900 dark:text-neutral-100">
                                 <Flame className="w-3 h-3" />
                                 <span>{goal.streakDays}d</span>
                             </div>

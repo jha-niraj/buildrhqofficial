@@ -350,7 +350,7 @@ function QuestionAnswering({
                     <Card className="bg-gradient-to-r from-neutral-50 to-neutral-50 dark:from-neutral-800/20 dark:to-neutral-800/20 border-neutral-200 dark:border-neutral-800">
                         <CardContent className="p-4">
                             <div className="flex items-center gap-3">
-                                <CheckCircle className="h-5 w-5 text-neutral-800" />
+                                <CheckCircle className="h-5 w-5 text-neutral-800 dark:text-neutral-200" />
                                 <div>
                                     <h4 className="text-left font-semibold text-neutral-800 dark:text-neutral-100">
                                         Practice Completed!
@@ -369,7 +369,7 @@ function QuestionAnswering({
                     <Card className="border-slate-200 dark:border-slate-700">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-3 text-lg">
-                                <MessageSquare className="h-5 w-5 text-neutral-800" />
+                                <MessageSquare className="h-5 w-5 text-neutral-800 dark:text-neutral-200" />
                                 Your Answer
                             </CardTitle>
                         </CardHeader>
@@ -484,7 +484,7 @@ function QuestionAnswering({
                     <Card className="border-neutral-200 dark:border-neutral-800">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-3 text-lg">
-                                <BarChart3 className="h-5 w-5 text-neutral-800" />
+                                <BarChart3 className="h-5 w-5 text-neutral-800 dark:text-neutral-200" />
                                 AI Feedback
                             </CardTitle>
                         </CardHeader>
@@ -493,7 +493,7 @@ function QuestionAnswering({
                                 feedback.score !== undefined && (
                                     <div className="flex items-center gap-4">
                                         <div className="flex items-center gap-2">
-                                            <Award className="h-5 w-5 text-neutral-800" />
+                                            <Award className="h-5 w-5 text-neutral-800 dark:text-neutral-200" />
                                             <span className="font-semibold">Score:</span>
                                         </div>
                                         <Badge
@@ -527,14 +527,14 @@ function QuestionAnswering({
                                     (feedback?.strengths?.length ?? 0) > 0 && (
                                         <div className="bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 shadow-sm">
                                             <h4 className="text-neutral-800 dark:text-neutral-100 font-semibold text-base flex items-center gap-2 mb-3">
-                                                <TrendingUp className="h-5 w-5 text-neutral-800" />
+                                                <TrendingUp className="h-5 w-5 text-neutral-800 dark:text-neutral-200" />
                                                 Strengths
                                             </h4>
                                             <ul className="space-y-2">
                                                 {
                                                     feedback?.strengths?.map((strength: string, index: number) => (
                                                         <li key={index} className="flex items-start gap-3">
-                                                            <CheckCircle className="h-4 w-4 mt-1 text-neutral-800 flex-shrink-0" />
+                                                            <CheckCircle className="h-4 w-4 mt-1 text-neutral-800 dark:text-neutral-200 flex-shrink-0" />
                                                             <span className="text-sm text-slate-800 dark:text-slate-300">{strength}</span>
                                                         </li>
                                                     ))
@@ -547,14 +547,14 @@ function QuestionAnswering({
                                     (feedback?.improvements?.length ?? 0) > 0 && (
                                         <div className="bg-neutral-50 dark:bg-slate-900 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 shadow-sm">
                                             <h4 className="text-neutral-800 dark:text-neutral-100 font-semibold text-base flex items-center gap-2 mb-3">
-                                                <Target className="h-5 w-5 text-neutral-800" />
+                                                <Target className="h-5 w-5 text-neutral-800 dark:text-neutral-200" />
                                                 Areas for Improvement
                                             </h4>
                                             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 {
                                                     feedback?.improvements?.map((improvement: string, index: number) => (
                                                         <li key={index} className="flex items-start gap-3">
-                                                            <ArrowRight className="h-4 w-4 mt-1 text-neutral-800 flex-shrink-0" />
+                                                            <ArrowRight className="h-4 w-4 mt-1 text-neutral-800 dark:text-neutral-200 flex-shrink-0" />
                                                             <span className="text-sm text-left text-slate-800 dark:text-slate-300">{improvement}</span>
                                                         </li>
                                                     ))
@@ -567,7 +567,7 @@ function QuestionAnswering({
                                     feedback.comparedToExpert && (
                                         <div className="bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 shadow-sm">
                                             <h4 className="text-neutral-800 dark:text-neutral-100 font-semibold text-base flex items-center gap-2 mb-4">
-                                                <Users className="h-5 w-5 text-neutral-800" />
+                                                <Users className="h-5 w-5 text-neutral-800 dark:text-neutral-200" />
                                                 Comparison with Expert Answer
                                             </h4>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -581,7 +581,7 @@ function QuestionAnswering({
                                                                 {
                                                                     feedback?.comparedToExpert?.similarities?.map((similarity: string, index: number) => (
                                                                         <li key={index} className="flex items-start gap-3">
-                                                                            <CheckCircle className="h-3 w-3 mt-1 text-neutral-800 flex-shrink-0" />
+                                                                            <CheckCircle className="h-3 w-3 mt-1 text-neutral-800 dark:text-neutral-200 flex-shrink-0" />
                                                                             <span className="text-sm text-left text-slate-700 dark:text-slate-300">{similarity}</span>
                                                                         </li>
                                                                     ))
@@ -623,7 +623,7 @@ function QuestionAnswering({
                     <Card className="bg-gradient-to-r from-neutral-50 to-neutral-50 dark:from-neutral-800/20 dark:to-neutral-800/20 border-neutral-200 dark:border-neutral-800">
                         <CardContent className="p-4">
                             <div className="flex items-center gap-3">
-                                <Lock className="h-5 w-5 text-neutral-800" />
+                                <Lock className="h-5 w-5 text-neutral-800 dark:text-neutral-200" />
                                 <div className="text-left">
                                     <h4 className="font-semibold text-neutral-800 dark:text-neutral-100">
                                         Practice Required
@@ -945,7 +945,7 @@ export default function InterviewAssistantDetails({ slug }: { slug: string }) {
                                     generation.jobDescription && (
                                         <div className="mt-6 p-5 bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl backdrop-blur-sm">
                                             <h3 className="font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
-                                                <FileText className="h-4 w-4 text-neutral-800" />
+                                                <FileText className="h-4 w-4 text-neutral-800 dark:text-neutral-200" />
                                                 Job Description
                                             </h3>
                                             <p className="text-slate-800 dark:text-slate-300 text-sm leading-relaxed line-clamp-3">
@@ -1167,7 +1167,7 @@ export default function InterviewAssistantDetails({ slug }: { slug: string }) {
                                                                         <div className="bg-white/80 dark:bg-slate-800/80 rounded-xl p-6 border border-neutral-200/50 dark:border-neutral-700/50 shadow-sm backdrop-blur-sm">
                                                                             <div className="flex items-center justify-between mb-4">
                                                                                 <h4 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                                                                                    <Lightbulb className="h-4 w-4 text-neutral-900" />
+                                                                                    <Lightbulb className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />
                                                                                     Expert Answer
                                                                                 </h4>
                                                                                 <CopyButton text={question.answer} />
@@ -1313,7 +1313,7 @@ export default function InterviewAssistantDetails({ slug }: { slug: string }) {
                                                                         <div className="bg-white/80 dark:bg-slate-800/80 rounded-xl p-6 border border-neutral-200/50 dark:border-neutral-700/50 shadow-sm backdrop-blur-sm">
                                                                             <div className="flex items-center justify-between mb-4">
                                                                                 <h4 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                                                                                    <Lightbulb className="h-4 w-4 text-neutral-900" />
+                                                                                    <Lightbulb className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />
                                                                                     Sample STAR Answer
                                                                                 </h4>
                                                                                 <CopyButton text={question.answer} />

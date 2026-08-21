@@ -130,14 +130,14 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                         </div>
                         <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200/60 dark:border-neutral-800/60">
                             <div className="flex items-center gap-2 mb-1">
-                                <CheckCircle2 className="w-4 h-4 text-neutral-900" />
+                                <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                 <span className="text-xs text-neutral-500">Completed</span>
                             </div>
                             <p className="text-lg font-semibold text-neutral-900 dark:text-white">{goal.completedSubGoals}</p>
                         </div>
                         <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200/60 dark:border-neutral-800/60">
                             <div className="flex items-center gap-2 mb-1">
-                                <Sparkles className="w-4 h-4 text-neutral-900" />
+                                <Sparkles className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                 <span className="text-xs text-neutral-500">Progress</span>
                             </div>
                             <p className="text-lg font-semibold text-neutral-900 dark:text-white">{progressPercent}%</p>

@@ -127,7 +127,7 @@ export function RecentSubmissionsGrid() {
                                 {
                                     submission.upvotes && submission.upvotes > 0 && (
                                         <div className="flex items-center gap-1">
-                                            <Star className="w-3.5 h-3.5 fill-neutral-900 text-neutral-900" />
+                                            <Star className="w-3.5 h-3.5 fill-neutral-900 text-neutral-900 dark:text-neutral-100" />
                                             <span>{submission.upvotes}</span>
                                         </div>
                                     )

@@ -139,7 +139,7 @@ export function ProfileSidebar({ user, isOwnProfile }: ProfileSidebarProps) {
 						<Card>
 							<CardHeader className="pb-2">
 								<CardTitle className="text-sm font-medium flex items-center gap-2">
-									<Zap className="w-4 h-4 text-neutral-900" />
+									<Zap className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
 									Quick Actions
 								</CardTitle>
 							</CardHeader>

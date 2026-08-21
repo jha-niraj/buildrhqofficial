@@ -30,7 +30,7 @@ export default function SubmitConfirmDialog({
 			<DialogContent className="max-w-2xl">
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">
-						<Code2 className="h-5 w-5 text-neutral-800" />
+						<Code2 className="h-5 w-5 text-neutral-800 dark:text-neutral-200" />
 						Confirm Code Submission
 					</DialogTitle>
 					<DialogDescription>

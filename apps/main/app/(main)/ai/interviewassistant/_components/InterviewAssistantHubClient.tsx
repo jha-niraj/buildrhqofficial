@@ -248,7 +248,7 @@ export default function JobInterviewAssistant() {
                     className="text-center mb-16 space-y-4"
                 >
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-sm font-medium text-neutral-600 dark:text-neutral-300 mb-2">
-                        <Sparkles className="w-3.5 h-3.5 text-neutral-900" />
+                        <Sparkles className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100" />
                         <span>AI-Powered Career Architect</span>
                     </div>
                     <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-neutral-900 dark:text-white">
@@ -281,7 +281,7 @@ export default function JobInterviewAssistant() {
                                 <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                                     <div className="space-y-1">
                                         <h3 className="text-xl font-bold text-neutral-900 dark:text-white flex items-center gap-2">
-                                            <Shield className="w-5 h-5 text-neutral-900" />
+                                            <Shield className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                             Resume Context
                                         </h3>
                                         <p className="text-neutral-500 dark:text-neutral-400 text-sm max-w-md">
@@ -324,7 +324,7 @@ export default function JobInterviewAssistant() {
                             <div className="bg-white dark:bg-neutral-900 shadow-2xl rounded-xl p-8 border border-neutral-100 dark:border-neutral-800">
                                 <div className="mb-8">
                                     <h2 className="text-2xl font-bold text-neutral-900 dark:text-white flex items-center gap-3">
-                                        <Cpu className="w-6 h-6 text-neutral-900" />
+                                        <Cpu className="w-6 h-6 text-neutral-900 dark:text-neutral-100" />
                                         Interview Configuration
                                     </h2>
                                     <p className="text-neutral-500 dark:text-neutral-400 mt-2">
@@ -437,7 +437,7 @@ export default function JobInterviewAssistant() {
                             <div className="bg-white dark:bg-neutral-900 shadow-2xl rounded-xl p-6 border border-neutral-100 dark:border-neutral-800 flex flex-col h-full">
                                 <div className="flex items-center justify-between mb-6">
                                     <h3 className="font-bold text-neutral-900 dark:text-white flex items-center gap-2">
-                                        <Clock className="w-4 h-4 text-neutral-900" />
+                                        <Clock className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                         Recent Sessions
                                     </h3>
                                     <Link href="/ai/jobinterviewassistant/generations" className="text-xs font-medium text-neutral-800 dark:text-neutral-100 hover:underline">
@@ -487,7 +487,7 @@ export default function JobInterviewAssistant() {
                         >
                             <div className="bg-white dark:bg-neutral-900 shadow-2xl rounded-xl p-6 border border-neutral-100 dark:border-neutral-800">
                                 <h3 className="font-bold text-neutral-900 dark:text-white mb-6 flex items-center gap-2">
-                                    <Zap className="w-4 h-4 text-neutral-900" />
+                                    <Zap className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                     Included Features
                                 </h3>
                                 <div className="space-y-4">

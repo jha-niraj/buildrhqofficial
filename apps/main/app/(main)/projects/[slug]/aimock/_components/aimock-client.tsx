@@ -355,7 +355,7 @@ export default function AIMockInterviewClient({
                                         <div>
                                             <p className="text-sm text-neutral-600 dark:text-neutral-400">Your Credits</p>
                                             <p className="text-2xl font-bold text-neutral-900 dark:text-white flex items-center gap-2">
-                                                <Coins className="w-5 h-5 text-neutral-900" />
+                                                <Coins className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                                 {userCredits}
                                             </p>
                                         </div>
@@ -648,7 +648,7 @@ export default function AIMockInterviewClient({
                                 {
                                     processingStatus === 'processing' && (
                                         <>
-                                            <Loader2 className="w-5 h-5 animate-spin text-neutral-800" />
+                                            <Loader2 className="w-5 h-5 animate-spin text-neutral-800 dark:text-neutral-200" />
                                             Processing Your Interview
                                         </>
                                     )
@@ -656,7 +656,7 @@ export default function AIMockInterviewClient({
                                 {
                                     processingStatus === 'success' && (
                                         <>
-                                            <CheckCircle2 className="w-5 h-5 text-neutral-800" />
+                                            <CheckCircle2 className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />
                                             Interview Completed!
                                         </>
                                     )
@@ -701,12 +701,12 @@ export default function AIMockInterviewClient({
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <Trophy className="w-5 h-5 text-neutral-800" />
+                                    <Trophy className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />
                                     Overall Score
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-4xl font-bold text-neutral-800">
+                                <div className="text-4xl font-bold text-neutral-800 dark:text-neutral-200">
                                     {feedback.overallScore}/100
                                 </div>
                             </CardContent>
@@ -714,7 +714,7 @@ export default function AIMockInterviewClient({
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <MessageSquare className="w-5 h-5 text-neutral-800" />
+                                    <MessageSquare className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />
                                     Communication
                                 </CardTitle>
                             </CardHeader>
@@ -725,7 +725,7 @@ export default function AIMockInterviewClient({
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <Target className="w-5 h-5 text-neutral-800" />
+                                    <Target className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />
                                     Technical
                                 </CardTitle>
                             </CardHeader>
@@ -786,7 +786,7 @@ export default function AIMockInterviewClient({
                     <div className="grid md:grid-cols-2 gap-6 mb-8">
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-neutral-800">
+                                <CardTitle className="flex items-center gap-2 text-neutral-800 dark:text-neutral-200">
                                     <CheckCircle2 className="w-5 h-5" />
                                     Strengths
                                 </CardTitle>
@@ -796,7 +796,7 @@ export default function AIMockInterviewClient({
                                     {
                                         feedback.strengths?.map((strength: string, idx: number) => (
                                             <li key={idx} className="flex items-start gap-2">
-                                                <CheckCircle2 className="w-4 h-4 text-neutral-800 mt-1 flex-shrink-0" />
+                                                <CheckCircle2 className="w-4 h-4 text-neutral-800 dark:text-neutral-200 mt-1 flex-shrink-0" />
                                                 <span className="text-sm">{strength}</span>
                                             </li>
                                         ))
@@ -806,7 +806,7 @@ export default function AIMockInterviewClient({
                         </Card>
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-neutral-800">
+                                <CardTitle className="flex items-center gap-2 text-neutral-800 dark:text-neutral-200">
                                     <TrendingUp className="w-5 h-5" />
                                     Areas for Improvement
                                 </CardTitle>
@@ -816,7 +816,7 @@ export default function AIMockInterviewClient({
                                     {
                                         feedback.improvements?.map((improvement: string, idx: number) => (
                                             <li key={idx} className="flex items-start gap-2">
-                                                <AlertCircle className="w-4 h-4 text-neutral-800 mt-1 flex-shrink-0" />
+                                                <AlertCircle className="w-4 h-4 text-neutral-800 dark:text-neutral-200 mt-1 flex-shrink-0" />
                                                 <span className="text-sm">{improvement}</span>
                                             </li>
                                         ))

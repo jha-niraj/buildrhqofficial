@@ -170,7 +170,7 @@ export default function ActivityDaySheet({
                                                 </div>
                                                 {
                                                     activity.xpEarned > 0 && (
-                                                        <span className="font-medium text-neutral-900 shrink-0">
+                                                        <span className="font-medium text-neutral-900 dark:text-neutral-100 shrink-0">
                                                             +{activity.xpEarned} XP
                                                         </span>
                                                     )

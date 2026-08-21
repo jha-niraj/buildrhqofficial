@@ -121,7 +121,7 @@ export function APITester({ testCases, onRunTest, code }: APITesterProps) {
                                 >
                                     {result ? (
                                         result.passed ? (
-                                            <CheckCircle2 className="h-3.5 w-3.5 text-neutral-900 flex-shrink-0" />
+                                            <CheckCircle2 className="h-3.5 w-3.5 text-neutral-900 dark:text-neutral-100 flex-shrink-0" />
                                         ) : (
                                             <XCircle className="h-3.5 w-3.5 text-red-500 flex-shrink-0" />
                                         )
@@ -191,7 +191,7 @@ export function APITester({ testCases, onRunTest, code }: APITesterProps) {
                                                     )}>
                                                         <p className={cn(
                                                             "text-[10px]",
-                                                            result.passed ? "text-neutral-800" : "text-red-400"
+                                                            result.passed ? "text-neutral-800 dark:text-neutral-200" : "text-red-400"
                                                         )}>
                                                             {result.message}
                                                         </p>

@@ -306,7 +306,7 @@ function SubmitErrorSheet({
                 <section className="w-full max-w-5xl mx-auto">
                     <SheetHeader>
                         <SheetTitle className="flex items-center gap-2">
-                            <AlertTriangle className="w-5 h-5 text-neutral-900" />
+                            <AlertTriangle className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                             Share an Error or Mistake
                         </SheetTitle>
                         <SheetDescription>
@@ -484,7 +484,7 @@ export default function ErrorsTab({ projectId, isEnrolled, isCreator }: ErrorsTa
             <div className="flex items-center justify-between">
                 <div>
                     <h3 className="text-lg font-bold text-neutral-900 dark:text-white flex items-center gap-2">
-                        <AlertTriangle className="w-5 h-5 text-neutral-900" />
+                        <AlertTriangle className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                         Errors & Mistakes
                     </h3>
                     <p className="text-sm text-neutral-600 dark:text-neutral-400">

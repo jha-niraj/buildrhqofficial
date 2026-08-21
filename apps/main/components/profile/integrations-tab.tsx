@@ -298,19 +298,19 @@ export function IntegrationsTab({ isOwnProfile }: IntegrationsTabProps) {
                                         </h4>
                                         <ul className="text-sm text-neutral-600 dark:text-neutral-400 space-y-1.5">
                                             <li className="flex items-center gap-2">
-                                                <Check className="w-4 h-4 text-neutral-900" />
+                                                <Check className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                 Track your open source contributions automatically
                                             </li>
                                             <li className="flex items-center gap-2">
-                                                <Check className="w-4 h-4 text-neutral-900" />
+                                                <Check className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                 Claim and submit issues directly from the platform
                                             </li>
                                             <li className="flex items-center gap-2">
-                                                <Check className="w-4 h-4 text-neutral-900" />
+                                                <Check className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                 Get notified about PR reviews and merge status
                                             </li>
                                             <li className="flex items-center gap-2">
-                                                <Check className="w-4 h-4 text-neutral-900" />
+                                                <Check className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                 Showcase your contributions on your profile
                                             </li>
                                         </ul>
@@ -323,7 +323,7 @@ export function IntegrationsTab({ isOwnProfile }: IntegrationsTabProps) {
                                     </p>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
-                                            <GitPullRequest className="w-6 h-6 text-neutral-800 mb-2" />
+                                            <GitPullRequest className="w-6 h-6 text-neutral-800 dark:text-neutral-200 mb-2" />
                                             <h4 className="font-medium text-neutral-900 dark:text-white text-sm">
                                                 Track PRs
                                             </h4>
@@ -332,7 +332,7 @@ export function IntegrationsTab({ isOwnProfile }: IntegrationsTabProps) {
                                             </p>
                                         </div>
                                         <div className="p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
-                                            <Link2 className="w-6 h-6 text-neutral-800 mb-2" />
+                                            <Link2 className="w-6 h-6 text-neutral-800 dark:text-neutral-200 mb-2" />
                                             <h4 className="font-medium text-neutral-900 dark:text-white text-sm">
                                                 Claim Issues
                                             </h4>
@@ -341,7 +341,7 @@ export function IntegrationsTab({ isOwnProfile }: IntegrationsTabProps) {
                                             </p>
                                         </div>
                                         <div className="p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
-                                            <Star className="w-6 h-6 text-neutral-800 mb-2" />
+                                            <Star className="w-6 h-6 text-neutral-800 dark:text-neutral-200 mb-2" />
                                             <h4 className="font-medium text-neutral-900 dark:text-white text-sm">
                                                 Earn Recognition
                                             </h4>
@@ -350,7 +350,7 @@ export function IntegrationsTab({ isOwnProfile }: IntegrationsTabProps) {
                                             </p>
                                         </div>
                                         <div className="p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
-                                            <GitBranch className="w-6 h-6 text-neutral-800 mb-2" />
+                                            <GitBranch className="w-6 h-6 text-neutral-800 dark:text-neutral-200 mb-2" />
                                             <h4 className="font-medium text-neutral-900 dark:text-white text-sm">
                                                 Profile Integration
                                             </h4>

@@ -124,7 +124,7 @@ export default function ResultsPage({
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
-                    <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-neutral-800" />
+                    <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-neutral-800 dark:text-neutral-200" />
                     <p className="text-neutral-600 dark:text-neutral-400">Loading your results...</p>
                 </div>
             </div>
@@ -180,7 +180,7 @@ export default function ResultsPage({
                                 className="border-2 border-neutral-300 dark:border-neutral-700"
                                 size="lg"
                             >
-                                <Star className="w-5 h-5 mr-2 fill-neutral-800 text-neutral-800" />
+                                <Star className="w-5 h-5 mr-2 fill-neutral-800 text-neutral-800 dark:text-neutral-200" />
                                 Your Rating: {sessionData.userRating}/5
                             </Button>
                         )
@@ -200,7 +200,7 @@ export default function ResultsPage({
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-lg flex items-center gap-2">
-                                <Trophy className="w-5 h-5 text-neutral-800" />
+                                <Trophy className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />
                                 Overall Score
                             </CardTitle>
                         </CardHeader>
@@ -212,7 +212,7 @@ export default function ResultsPage({
                                         <span className="text-sm">Calculating...</span>
                                     </div>
                                 ) : (
-                                    <div className="text-4xl font-bold text-neutral-800">
+                                    <div className="text-4xl font-bold text-neutral-800 dark:text-neutral-200">
                                         {feedback?.overallScore || '--'}/100
                                     </div>
                                 )
@@ -222,7 +222,7 @@ export default function ResultsPage({
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-lg flex items-center gap-2">
-                                <MessageSquare className="w-5 h-5 text-neutral-800" />
+                                <MessageSquare className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />
                                 Duration
                             </CardTitle>
                         </CardHeader>
@@ -238,7 +238,7 @@ export default function ResultsPage({
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-lg flex items-center gap-2">
-                                <Target className="w-5 h-5 text-neutral-800" />
+                                <Target className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />
                                 Level
                             </CardTitle>
                         </CardHeader>
@@ -254,7 +254,7 @@ export default function ResultsPage({
                         <Card className="mb-8">
                             <CardContent className="py-12">
                                 <div className="text-center">
-                                    <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-neutral-800" />
+                                    <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-neutral-800 dark:text-neutral-200" />
                                     <h3 className="text-xl font-semibold mb-2">Generating AI Feedback</h3>
                                     <p className="text-neutral-600 dark:text-neutral-400">
                                         Our AI is analyzing your performance. This may take a moment...
@@ -311,7 +311,7 @@ export default function ResultsPage({
                             <div className="grid md:grid-cols-2 gap-6 mb-8">
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle className="flex items-center gap-2 text-neutral-800">
+                                        <CardTitle className="flex items-center gap-2 text-neutral-800 dark:text-neutral-200">
                                             <CheckCircle className="w-5 h-5" />
                                             Strengths
                                         </CardTitle>
@@ -321,7 +321,7 @@ export default function ResultsPage({
                                             {
                                                 feedback.strengths.map((strength: string, idx: number) => (
                                                     <li key={idx} className="flex items-start gap-2">
-                                                        <CheckCircle className="w-4 h-4 text-neutral-800 mt-1 flex-shrink-0" />
+                                                        <CheckCircle className="w-4 h-4 text-neutral-800 dark:text-neutral-200 mt-1 flex-shrink-0" />
                                                         <span className="text-sm">{strength}</span>
                                                     </li>
                                                 ))
@@ -331,7 +331,7 @@ export default function ResultsPage({
                                 </Card>
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle className="flex items-center gap-2 text-neutral-800">
+                                        <CardTitle className="flex items-center gap-2 text-neutral-800 dark:text-neutral-200">
                                             <TrendingUp className="w-5 h-5" />
                                             Areas for Improvement
                                         </CardTitle>
@@ -341,7 +341,7 @@ export default function ResultsPage({
                                             {
                                                 feedback.improvements.map((improvement: string, idx: number) => (
                                                     <li key={idx} className="flex items-start gap-2">
-                                                        <AlertTriangle className="w-4 h-4 text-neutral-800 mt-1 flex-shrink-0" />
+                                                        <AlertTriangle className="w-4 h-4 text-neutral-800 dark:text-neutral-200 mt-1 flex-shrink-0" />
                                                         <span className="text-sm text-left">{improvement}</span>
                                                     </li>
                                                 ))
@@ -364,7 +364,7 @@ export default function ResultsPage({
                     ) : (
                         <Card className="mb-8">
                             <CardContent className="py-12 text-center">
-                                <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-neutral-800" />
+                                <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-neutral-800 dark:text-neutral-200" />
                                 <h3 className="text-xl font-semibold mb-2">Feedback Not Available</h3>
                                 <p className="text-neutral-600 dark:text-neutral-400">
                                     We couldn&apos;t generate feedback for this session. Please try again or contact support.

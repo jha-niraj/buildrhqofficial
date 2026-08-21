@@ -88,7 +88,7 @@ export function CreatorEarningsSheet({
             <SheetContent className="sm:max-w-md lg:max-w-lg" side="right">
                 <SheetHeader>
                     <SheetTitle className="flex items-center gap-2">
-                        <Coins className="w-5 h-5 text-neutral-900" />
+                        <Coins className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                         Goal Earnings
                     </SheetTitle>
                     <SheetDescription>

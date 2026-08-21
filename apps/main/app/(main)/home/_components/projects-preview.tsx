@@ -35,7 +35,7 @@ export default function ProjectsPreview({ projects }: ProjectsPreviewProps) {
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-lg bg-neutral-900/10 flex items-center justify-center">
-                        <FolderKanban className="h-4 w-4 text-neutral-900" />
+                        <FolderKanban className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />
                     </div>
                     <span className="font-semibold text-sm">My Projects</span>
                 </div>
@@ -76,13 +76,13 @@ export default function ProjectsPreview({ projects }: ProjectsPreviewProps) {
                 ) : (
                     <div className="text-center py-6 space-y-3">
                         <div className="w-12 h-12 rounded-full bg-neutral-900/10 flex items-center justify-center mx-auto">
-                            <Layers className="h-5 w-5 text-neutral-800" />
+                            <Layers className="h-5 w-5 text-neutral-800 dark:text-neutral-200" />
                         </div>
                         <div>
                             <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">No active projects</p>
                             <p className="text-xs text-neutral-500 mt-0.5">Pick a project to start building</p>
                         </div>
-                        <Link href="/projects" className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-800 transition-colors">
+                        <Link href="/projects" className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:text-neutral-800 transition-colors">
                             Browse projects <ArrowRight className="h-3 w-3" />
                         </Link>
                     </div>

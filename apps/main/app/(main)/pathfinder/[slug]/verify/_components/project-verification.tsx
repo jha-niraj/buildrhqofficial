@@ -55,7 +55,7 @@ export function ProjectVerification({
             <div className="flex-1 flex items-center justify-center p-8">
                 <div className="text-center">
                     <div className="w-20 h-20 mx-auto rounded-full bg-neutral-100 dark:bg-neutral-800/30 flex items-center justify-center mb-4">
-                        <CheckCircle2 className="w-10 h-10 text-neutral-900" />
+                        <CheckCircle2 className="w-10 h-10 text-neutral-900 dark:text-neutral-100" />
                     </div>
                     <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">Project Submitted!</h3>
                     <p className="text-neutral-500">Your project has been verified.</p>
@@ -117,7 +117,7 @@ export function ProjectVerification({
                     >
                         <div className="flex items-center gap-3 mb-4">
                             <div className="p-2 rounded-lg bg-neutral-900/10">
-                                <Rocket className="w-6 h-6 text-neutral-900" />
+                                <Rocket className="w-6 h-6 text-neutral-900 dark:text-neutral-100" />
                             </div>
                             <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">Build with ShipItHQ</h3>
                         </div>
@@ -168,15 +168,15 @@ export function ProjectVerification({
                         </p>
                         <div className="space-y-2 mb-4 text-sm text-neutral-500">
                             <div className="flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-neutral-900" />
+                                <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                 <span>Add GitHub repository</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-neutral-900" />
+                                <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                 <span>Include demo link</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-neutral-900" />
+                                <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                 <span>Showcase in your portfolio</span>
                             </div>
                         </div>

@@ -276,7 +276,7 @@ function NewResumeSheet({ templates, open, onClose }: {
                                 <div className="space-y-3">
                                     <div className="space-y-1.5">
                                         <Label className="text-xs font-medium flex items-center gap-1.5">
-                                            <Linkedin className="w-3.5 h-3.5 text-neutral-800" /> LinkedIn URL
+                                            <Linkedin className="w-3.5 h-3.5 text-neutral-800 dark:text-neutral-200" /> LinkedIn URL
                                         </Label>
                                         <Input placeholder="https://linkedin.com/in/username" value={linkedinUrl} onChange={e => setLinkedinUrl(e.target.value)} />
                                     </div>
@@ -325,7 +325,7 @@ function NewResumeSheet({ templates, open, onClose }: {
                                                     <p className="text-xs font-semibold truncate">{t.name}</p>
                                                     <p className="text-[10px] text-neutral-500 truncate">{t.description}</p>
                                                 </div>
-                                                {selectedTemplate === t.slug && <CheckCircle2 className="w-4 h-4 text-neutral-900 flex-shrink-0" />}
+                                                {selectedTemplate === t.slug && <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100 flex-shrink-0" />}
                                             </button>
                                         )
                                     })}
@@ -444,7 +444,7 @@ function ResumeCard({ draft, onDelete, onTogglePublic, onDuplicate, onSetDefault
                     title={draft.isPublic ? 'Make private' : 'Make public'}
                     onClick={() => onTogglePublic(draft.id, !draft.isPublic)}
                 >
-                    {draft.isPublic ? <Eye className="w-3 h-3 text-neutral-900" /> : <Lock className="w-3 h-3" />}
+                    {draft.isPublic ? <Eye className="w-3 h-3 text-neutral-900 dark:text-neutral-100" /> : <Lock className="w-3 h-3" />}
                 </Button>
                 <Button
                     size="sm"
@@ -580,17 +580,17 @@ export function ResumeHub({ drafts: initialDrafts, templates }: Props) {
                     {/* Quick stats */}
                     <div className="flex items-center gap-6 mt-5 text-sm">
                         <div className="flex items-center gap-1.5">
-                            <FileText className="w-3.5 h-3.5 text-neutral-900" />
+                            <FileText className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100" />
                             <span className="font-semibold">{drafts.length}</span>
                             <span className="text-neutral-500">resumes</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                            <Globe className="w-3.5 h-3.5 text-neutral-900" />
+                            <Globe className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100" />
                             <span className="font-semibold">{drafts.filter(d => d.isPublic).length}</span>
                             <span className="text-neutral-500">public</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                            <LayoutTemplate className="w-3.5 h-3.5 text-neutral-900" />
+                            <LayoutTemplate className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100" />
                             <span className="font-semibold">{platformTemplates.length}</span>
                             <span className="text-neutral-500">templates</span>
                         </div>
@@ -678,7 +678,7 @@ export function ResumeHub({ drafts: initialDrafts, templates }: Props) {
                                                     ))}
                                                 </div>
                                                 <div className="flex items-center justify-between pt-2 border-t border-neutral-100 dark:border-neutral-800">
-                                                    <span className="text-xs text-neutral-800 font-medium">Free</span>
+                                                    <span className="text-xs text-neutral-800 dark:text-neutral-200 font-medium">Free</span>
                                                     <Button
                                                         size="sm"
                                                         className="h-7 text-xs"
@@ -708,7 +708,7 @@ export function ResumeHub({ drafts: initialDrafts, templates }: Props) {
                                                 <p className="font-semibold text-sm">{t.name}</p>
                                                 <p className="text-xs text-neutral-500 mt-1 line-clamp-2">{t.description}</p>
                                                 <div className="flex items-center justify-between mt-3 pt-3 border-t border-neutral-100 dark:border-neutral-800">
-                                                    <span className="text-xs font-semibold text-neutral-800">{t.marketplacePrice} credits</span>
+                                                    <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">{t.marketplacePrice} credits</span>
                                                     <Button size="sm" className="h-7 text-xs" asChild><Link href='/blueprint/resume'>
                                                         View in Blueprint
                                                     </Link></Button>

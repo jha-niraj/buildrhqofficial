@@ -23,7 +23,7 @@ export interface AuthCopy {
 
 /** Muted half of a headline. Dark, because the panel is light in both themes. */
 function Muted({ children }: { children: ReactNode }) {
-    return <span className="text-neutral-900/45">{children}</span>
+    return <span className="text-neutral-900 dark:text-neutral-100/45">{children}</span>
 }
 
 const COPY: Record<string, AuthCopy> = {

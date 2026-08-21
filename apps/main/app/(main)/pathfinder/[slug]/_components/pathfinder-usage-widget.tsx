@@ -40,12 +40,12 @@ export function PathfinderUsageWidget({ goalId, className }: PathfinderUsageWidg
             )}
         >
             <div className="flex items-center gap-2">
-                <Coins className="w-4 h-4 text-neutral-900" />
+                <Coins className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                 <span className="text-sm font-medium">{credits ?? 0} credits</span>
             </div>
             <div className="h-4 w-px bg-neutral-200 dark:bg-neutral-700" />
             <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-neutral-900" />
+                <Zap className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                 <span className="text-xs text-neutral-600 dark:text-neutral-400">
                     Pending: {usage?.pendingCredits ?? 0} cred
                 </span>

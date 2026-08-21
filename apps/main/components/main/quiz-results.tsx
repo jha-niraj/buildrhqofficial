@@ -317,7 +317,7 @@ export default function QuizResults({
                                                                 </Badge>
                                                                 {
                                                                     result.flaggedQuestions.includes(selectedQuestion.id) && (
-                                                                        <Flag className="w-4 h-4 text-neutral-900" />
+                                                                        <Flag className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                                     )
                                                                 }
                                                             </div>

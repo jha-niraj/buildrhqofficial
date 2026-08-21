@@ -328,7 +328,7 @@ export default function KnowMeDashboard({ profile }: KnowMeDashboardProps) {
                 >
                     <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 p-5">
                         <h3 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                            <Zap className="w-4 h-4 text-neutral-900" />
+                            <Zap className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                             Status
                         </h3>
                         <div className="space-y-4">
@@ -336,7 +336,7 @@ export default function KnowMeDashboard({ profile }: KnowMeDashboardProps) {
                                 <span className="text-sm text-slate-600 dark:text-slate-400">
                                     Status
                                 </span>
-                                <Badge className="bg-neutral-900/10 text-neutral-800 border-neutral-900/20">
+                                <Badge className="bg-neutral-900/10 text-neutral-800 dark:text-neutral-200 border-neutral-900/20">
                                     Active
                                 </Badge>
                             </div>
@@ -372,7 +372,7 @@ export default function KnowMeDashboard({ profile }: KnowMeDashboardProps) {
                     </div>
                     <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 p-5">
                         <h3 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-neutral-900" />
+                            <FileText className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                             Data Sources
                         </h3>
                         <div className="space-y-3">
@@ -440,7 +440,7 @@ export default function KnowMeDashboard({ profile }: KnowMeDashboardProps) {
                     </div>
                     <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 p-5">
                         <h3 className="font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
-                            <Key className="w-4 h-4 text-neutral-900" />
+                            <Key className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                             API Integration
                         </h3>
                         <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
@@ -489,7 +489,7 @@ function DataSourceItem({
             </div>
             {
                 enabled ? (
-                    <ToggleRight className="w-5 h-5 text-neutral-900" />
+                    <ToggleRight className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                 ) : (
                     <ToggleLeft className="w-5 h-5 text-slate-400" />
                 )

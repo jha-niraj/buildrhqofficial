@@ -242,7 +242,7 @@ export function JobCard({
                                 className={cn(
                                     "shrink-0 rounded-xl transition-all",
                                     job.isSaved
-                                        ? "text-neutral-900 hover:text-neutral-800"
+                                        ? "text-neutral-900 dark:text-neutral-100 hover:text-neutral-800"
                                         : "opacity-0 group-hover:opacity-100"
                                 )}
                                 onClick={(e) => {

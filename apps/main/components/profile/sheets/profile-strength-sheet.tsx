@@ -183,7 +183,7 @@ export function ProfileStrengthSheet({
 											)}
 										>
 											{item.completed ? (
-												<Check className="w-5 h-5 text-neutral-800" />
+												<Check className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />
 											) : (
 												<Icon className="w-5 h-5 text-muted-foreground" />
 											)}

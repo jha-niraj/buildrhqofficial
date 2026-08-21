@@ -338,7 +338,7 @@ export function AddProblemSheet({ module, onProblemAdded }: AddProblemSheetProps
                                             <ul className="space-y-1">
                                                 {preview.requirements.slice(0, 4).map((req, i) => (
                                                     <li key={i} className="flex items-start gap-1.5 text-[11px] text-neutral-500 dark:text-neutral-400">
-                                                        <Check className="h-3 w-3 text-neutral-900 mt-0.5 flex-shrink-0" />
+                                                        <Check className="h-3 w-3 text-neutral-900 dark:text-neutral-100 mt-0.5 flex-shrink-0" />
                                                         <span className="line-clamp-1">{req}</span>
                                                     </li>
                                                 ))}

@@ -73,9 +73,9 @@ export function AuthShell({ children }: { children: ReactNode }) {
 
                     <Link href="/" className="relative z-10 flex w-fit shrink-0 items-center gap-2.5">
                         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900/10 ring-1 ring-neutral-900/15">
-                            <Logo className="h-5 w-5 text-neutral-900" />
+                            <Logo className="h-5 w-5 text-neutral-900 dark:text-neutral-100" />
                         </span>
-                        <span className="text-lg font-semibold tracking-tight text-neutral-900">ShipItHQ</span>
+                        <span className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">ShipItHQ</span>
                     </Link>
 
                     {/* Copy block - high in the panel, left aligned. Keyed on the
@@ -87,14 +87,14 @@ export function AuthShell({ children }: { children: ReactNode }) {
                             made the change feel abrupt - the whole panel's text
                             appeared at once rather than composing itself. */}
                         <h2
-                            className="auth-copy-enter text-3xl font-bold leading-tight tracking-tight text-neutral-900 xl:text-4xl"
+                            className="auth-copy-enter text-3xl font-bold leading-tight tracking-tight text-neutral-900 dark:text-neutral-100 xl:text-4xl"
                             style={{ ["--enter-delay" as string]: "0ms" }}
                         >
                             {headline}
                         </h2>
                         {sub && (
                             <p
-                                className="auth-copy-enter mt-4 text-base leading-relaxed text-neutral-700"
+                                className="auth-copy-enter mt-4 text-base leading-relaxed text-neutral-700 dark:text-neutral-300"
                                 style={{ ["--enter-delay" as string]: "70ms" }}
                             >
                                 {sub}
@@ -124,7 +124,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
                         >
                             <AuthVisual
                                 variant={variant}
-                                className="h-full max-h-[340px] w-full max-w-[420px] text-neutral-900/70"
+                                className="h-full max-h-[340px] w-full max-w-[420px] text-neutral-900 dark:text-neutral-100/70"
                             />
                         </div>
                     </div>

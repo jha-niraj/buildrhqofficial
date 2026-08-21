@@ -76,7 +76,7 @@ function MessageBubble({ message, isStreaming }: { message: AIChatMessage; isStr
 		<div className="group flex flex-col gap-1.5">
 			<div className="flex items-center gap-1.5">
 				<span className="flex h-5 w-5 items-center justify-center rounded-md bg-neutral-900/10">
-					<Sparkles className="h-3 w-3 text-neutral-900" />
+					<Sparkles className="h-3 w-3 text-neutral-900 dark:text-neutral-100" />
 				</span>
 				<span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">ShipItHQ AI</span>
 			</div>
@@ -279,7 +279,7 @@ export function AIPanel() {
 			<header className="flex shrink-0 items-center justify-between gap-2 border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
 				<div className="flex min-w-0 items-center gap-2">
 					<span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-neutral-900/10">
-						<Sparkles className="h-4 w-4 text-neutral-900" />
+						<Sparkles className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />
 					</span>
 					<span className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
 						{activeSession?.messages.length ? activeSession.title : "ShipItHQ AI"}
@@ -326,7 +326,7 @@ export function AIPanel() {
 					{messages.length === 0 ? (
 						<div className="flex flex-col items-center py-10 text-center">
 							<span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-neutral-900/10">
-								<Sparkles className="h-6 w-6 text-neutral-900" />
+								<Sparkles className="h-6 w-6 text-neutral-900 dark:text-neutral-100" />
 							</span>
 							<h2 className="text-base font-semibold text-neutral-900 dark:text-white">
 								How can I help?

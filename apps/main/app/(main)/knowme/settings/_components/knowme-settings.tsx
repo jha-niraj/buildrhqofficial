@@ -706,7 +706,7 @@ function DataToggle({
             {
                 !locked && (
                     enabled ? (
-                        <ToggleRight className="w-8 h-8 text-neutral-900" />
+                        <ToggleRight className="w-8 h-8 text-neutral-900 dark:text-neutral-100" />
                     ) : (
                         <ToggleLeft className="w-8 h-8 text-slate-400" />
                     )

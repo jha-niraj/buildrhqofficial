@@ -280,7 +280,7 @@ export function GenerationSheet({ open, onClose, onConfirm, userCredits }: Gener
 									includePractice && (
 										<div className="mt-4 p-4 bg-neutral-100/50 dark:bg-neutral-800/10 rounded-lg">
 											<div className="flex items-center gap-2 mb-2">
-												<Play className="h-4 w-4 text-neutral-800" />
+												<Play className="h-4 w-4 text-neutral-800 dark:text-neutral-200" />
 												<span className="text-sm font-medium text-neutral-800 dark:text-neutral-100">
 													Practice Features Included:
 												</span>
@@ -337,7 +337,7 @@ export function GenerationSheet({ open, onClose, onConfirm, userCredits }: Gener
 								{makePublic && (
 									<div className="mt-4 p-4 bg-neutral-100/50 dark:bg-neutral-800/10 rounded-lg">
 										<div className="flex items-center gap-2 mb-2">
-											<Globe className="h-4 w-4 text-neutral-800" />
+											<Globe className="h-4 w-4 text-neutral-800 dark:text-neutral-200" />
 											<span className="text-sm font-medium text-neutral-800 dark:text-neutral-100">
 												Public Plan Benefits:
 											</span>

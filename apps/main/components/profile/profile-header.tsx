@@ -139,7 +139,7 @@ export function ProfileHeader({
 									user.userProfile?.completionScore === 100 && (
 										<Badge
 											variant="secondary"
-											className="bg-neutral-900/10 text-neutral-800 border-neutral-900/20"
+											className="bg-neutral-900/10 text-neutral-800 dark:text-neutral-200 border-neutral-900/20"
 										>
 											<Check className="w-3 h-3 mr-1" />
 											Verified
@@ -302,11 +302,11 @@ export function ProfileHeader({
 								transition={{ delay: 0.35 }}
 								className="hidden sm:flex items-center gap-3 px-4 py-2 rounded-lg bg-gradient-to-r from-neutral-900/10 to-neutral-900/10 border border-neutral-900/20 min-w-[180px]"
 							>
-								<TrendingUp className="w-5 h-5 text-neutral-800 shrink-0" />
+								<TrendingUp className="w-5 h-5 text-neutral-800 dark:text-neutral-200 shrink-0" />
 								<div className="flex-1 min-w-0">
 									<div className="flex items-center justify-between text-xs mb-1">
 										<span className="font-medium text-foreground">Level {stats.level}</span>
-										<span className="font-semibold text-neutral-800">{Math.round(xpProgress)}%</span>
+										<span className="font-semibold text-neutral-800 dark:text-neutral-200">{Math.round(xpProgress)}%</span>
 									</div>
 									<Progress value={xpProgress} className="h-2 bg-neutral-200/50" />
 								</div>

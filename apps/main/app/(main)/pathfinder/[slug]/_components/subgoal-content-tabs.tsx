@@ -50,7 +50,7 @@ export function SubGoalContentTabs({
                                     <CheckCircle2
                                         className={cn(
                                             'w-3 h-3',
-                                            codingPassed ? 'text-neutral-900' : 'text-red-500'
+                                            codingPassed ? 'text-neutral-900 dark:text-neutral-100' : 'text-red-500'
                                         )}
                                     />
                                 )

@@ -621,7 +621,7 @@ function DataSourceOption({
                         {title}
                         {
                             recommended && enabled && (
-                                <Check className="w-4 h-4 text-neutral-900" />
+                                <Check className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                             )
                         }
                     </h4>
@@ -632,7 +632,7 @@ function DataSourceOption({
             </div>
             {
                 enabled ? (
-                    <ToggleRight className="w-8 h-8 text-neutral-900" />
+                    <ToggleRight className="w-8 h-8 text-neutral-900 dark:text-neutral-100" />
                 ) : (
                     <ToggleLeft className="w-8 h-8 text-slate-400" />
                 )

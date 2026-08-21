@@ -307,7 +307,7 @@ export default function ResourcesList({ projectId, currentUserId, isCreator }: R
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() => handleToggleHelpful(resource.id)}
-                                                        className={markedHelpful[resource.id] ? 'text-neutral-800' : ''}
+                                                        className={markedHelpful[resource.id] ? 'text-neutral-800 dark:text-neutral-200' : ''}
                                                     >
                                                         <ThumbsUp className={`w-4 h-4 ${markedHelpful[resource.id] ? 'fill-current' : ''}`} />
                                                         <span className="ml-1">{resource.helpfulCount}</span>

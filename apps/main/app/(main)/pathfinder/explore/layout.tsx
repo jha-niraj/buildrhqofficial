@@ -26,7 +26,7 @@ export default async function ExploreLayout({
                 </Link>
                 <div className="h-4 w-px bg-neutral-200 dark:border-neutral-700" />
                 <div className="flex items-center gap-2">
-                    <Target className="w-5 h-5 text-neutral-900" />
+                    <Target className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                     <h1 className="font-semibold text-neutral-900 dark:text-white">
                         Explore Public Goals
                     </h1>

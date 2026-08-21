@@ -184,7 +184,7 @@ export default function QuizClient({ project, existingQuiz, userCredits, previou
                                         <div>
                                             <p className="text-sm text-neutral-600 dark:text-neutral-400">Your Credits</p>
                                             <p className="text-2xl font-bold text-neutral-900 dark:text-white flex items-center gap-2">
-                                                <Coins className="w-5 h-5 text-neutral-900" />
+                                                <Coins className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                                 {userCredits}
                                             </p>
                                         </div>

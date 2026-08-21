@@ -259,7 +259,7 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                                                     !isAssignmentUnlocked ? (
                                                         <Lock className="w-4 h-4" />
                                                     ) : isAssignmentCompleted ? (
-                                                        <CheckCircle2 className="w-4 h-4 text-neutral-900" />
+                                                        <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                     ) : null
                                                 }
                                             </button>
@@ -314,7 +314,7 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                                                                 !isUnlocked ? (
                                                                     <Lock className="w-4 h-4 shrink-0" />
                                                                 ) : isCompleted ? (
-                                                                    <CheckCircle2 className="w-4 h-4 text-neutral-900 shrink-0" />
+                                                                    <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100 shrink-0" />
                                                                 ) : (
                                                                     <ChevronRight className="w-4 h-4 shrink-0" />
                                                                 )

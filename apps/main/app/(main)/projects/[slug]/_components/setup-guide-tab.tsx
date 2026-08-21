@@ -80,7 +80,7 @@ export function SetupGuideTab({ setupGuide }: SetupGuideTabProps) {
                 <Card className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800">
                     <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
-                            <Download className="w-5 h-5 text-neutral-900" />
+                            <Download className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                             Prerequisites
                         </CardTitle>
                     </CardHeader>
@@ -110,7 +110,7 @@ export function SetupGuideTab({ setupGuide }: SetupGuideTabProps) {
                     <CardHeader>
                         <div className="flex items-center justify-between">
                             <CardTitle className="text-lg flex items-center gap-2">
-                                <Key className="w-5 h-5 text-neutral-900" />
+                                <Key className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                 Environment Variables
                             </CardTitle>
                             <Button variant="outline" size="sm" onClick={handleCopyAllEnv}>
@@ -162,7 +162,7 @@ export function SetupGuideTab({ setupGuide }: SetupGuideTabProps) {
                                                     onClick={() => handleCopyEnv(env.name, env.exampleValue)}
                                                 >
                                                     {copiedEnv === env.name ? (
-                                                        <Check className="w-4 h-4 text-neutral-900" />
+                                                        <Check className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                     ) : (
                                                         <Copy className="w-4 h-4" />
                                                     )}
@@ -182,7 +182,7 @@ export function SetupGuideTab({ setupGuide }: SetupGuideTabProps) {
                 <Card className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800">
                     <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
-                            <Terminal className="w-5 h-5 text-neutral-900" />
+                            <Terminal className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                             Installation Steps
                         </CardTitle>
                     </CardHeader>
@@ -198,7 +198,7 @@ export function SetupGuideTab({ setupGuide }: SetupGuideTabProps) {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 p-3 bg-neutral-900 dark:bg-black rounded-lg group">
-                                            <code className="flex-1 text-sm text-neutral-800 font-mono break-all">
+                                            <code className="flex-1 text-sm text-neutral-800 dark:text-neutral-200 font-mono break-all">
                                                 {step}
                                             </code>
                                             <Button
@@ -208,7 +208,7 @@ export function SetupGuideTab({ setupGuide }: SetupGuideTabProps) {
                                                 className="text-neutral-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
                                             >
                                                 {copiedStep === idx ? (
-                                                    <Check className="w-4 h-4 text-neutral-900" />
+                                                    <Check className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                 ) : (
                                                     <Copy className="w-4 h-4" />
                                                 )}
@@ -227,7 +227,7 @@ export function SetupGuideTab({ setupGuide }: SetupGuideTabProps) {
                 <Card className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800">
                     <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
-                            <PlayCircle className="w-5 h-5 text-neutral-900" />
+                            <PlayCircle className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                             Verification
                         </CardTitle>
                     </CardHeader>

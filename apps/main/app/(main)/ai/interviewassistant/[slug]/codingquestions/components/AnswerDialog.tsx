@@ -49,7 +49,7 @@ export default function AnswerDialog({
 			<DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">
-						<BookOpen className="h-5 w-5 text-neutral-800" />
+						<BookOpen className="h-5 w-5 text-neutral-800 dark:text-neutral-200" />
 						Expert Solution
 						<Badge variant="outline" className="ml-2">
 							{language.charAt(0).toUpperCase() + language.slice(1)}

@@ -37,10 +37,10 @@ interface StudioViewerProps {
 function PendingStepSkeleton({ type, prompt }: { type: string; prompt: string }) {
 	const getIcon = () => {
 		switch (type) {
-			case "EXPLANATION": return <FileText className="h-5 w-5 text-neutral-900" />;
-			case "QUIZ": return <FileQuestion className="h-5 w-5 text-neutral-900" />;
-			case "NOTE": return <StickyNote className="h-5 w-5 text-neutral-900" />;
-			default: return <Sparkles className="h-5 w-5 text-neutral-900" />;
+			case "EXPLANATION": return <FileText className="h-5 w-5 text-neutral-900 dark:text-neutral-100" />;
+			case "QUIZ": return <FileQuestion className="h-5 w-5 text-neutral-900 dark:text-neutral-100" />;
+			case "NOTE": return <StickyNote className="h-5 w-5 text-neutral-900 dark:text-neutral-100" />;
+			default: return <Sparkles className="h-5 w-5 text-neutral-900 dark:text-neutral-100" />;
 		}
 	};
 
@@ -79,7 +79,7 @@ function PendingStepSkeleton({ type, prompt }: { type: string; prompt: string })
 								<span className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
 									{getLabel()}...
 								</span>
-								<Loader2 className="h-4 w-4 animate-spin text-neutral-900" />
+								<Loader2 className="h-4 w-4 animate-spin text-neutral-900 dark:text-neutral-100" />
 							</div>
 							<p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 line-clamp-1">
 								&quot;{prompt}&quot;
@@ -293,7 +293,7 @@ export function StudioViewer({
 	if (initialLoading) {
 		return (
 			<div className="flex items-center justify-center py-20">
-				<Loader2 className="h-8 w-8 animate-spin text-neutral-900" />
+				<Loader2 className="h-8 w-8 animate-spin text-neutral-900 dark:text-neutral-100" />
 			</div>
 		);
 	}

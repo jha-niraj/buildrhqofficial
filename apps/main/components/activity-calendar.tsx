@@ -282,12 +282,12 @@ const ActivityCalendar: React.FC<ActivityCalendarProps> = ({ className = "" }) =
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-muted-foreground text-sm font-medium">Next Milestone</p>
-                                <p className="text-3xl font-bold text-neutral-800">
+                                <p className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">
                                     {Math.max(0, Math.ceil((stats?.streak.currentStreak || 0 + 1) / 7) * 7 - (stats?.streak.currentStreak || 0)) || '365+'}
                                 </p>
                                 <p className="text-muted-foreground text-xs">days</p>
                             </div>
-                            <Trophy className="w-8 h-8 text-neutral-900" />
+                            <Trophy className="w-8 h-8 text-neutral-900 dark:text-neutral-100" />
                         </div>
                     </CardContent>
                 </Card>
@@ -407,28 +407,28 @@ const ActivityCalendar: React.FC<ActivityCalendarProps> = ({ className = "" }) =
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <Coins className="w-4 h-4 text-neutral-800" />
+                                                    <Coins className="w-4 h-4 text-neutral-800 dark:text-neutral-200" />
                                                     <div>
                                                         <p className="text-sm text-muted-foreground">Credits Earned</p>
-                                                        <p className="font-bold text-neutral-800">
+                                                        <p className="font-bold text-neutral-800 dark:text-neutral-200">
                                                             {dailySummary.totalCreditsEarned}
                                                         </p>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <Clock className="w-4 h-4 text-neutral-800" />
+                                                    <Clock className="w-4 h-4 text-neutral-800 dark:text-neutral-200" />
                                                     <div>
                                                         <p className="text-sm text-muted-foreground">Time Spent</p>
-                                                        <p className="font-bold text-neutral-800">
+                                                        <p className="font-bold text-neutral-800 dark:text-neutral-200">
                                                             {dailySummary.totalTimeSpent}m
                                                         </p>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <ActivityIcon className="w-4 h-4 text-neutral-800" />
+                                                    <ActivityIcon className="w-4 h-4 text-neutral-800 dark:text-neutral-200" />
                                                     <div>
                                                         <p className="text-sm text-muted-foreground">Activities</p>
-                                                        <p className="font-bold text-neutral-800">
+                                                        <p className="font-bold text-neutral-800 dark:text-neutral-200">
                                                             {dailySummary.activitiesCount}
                                                         </p>
                                                     </div>

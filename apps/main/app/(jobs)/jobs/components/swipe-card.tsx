@@ -297,7 +297,7 @@ export function SwipeCard({
                                     >
                                         <Bookmark className={cn(
                                             "w-5 h-5",
-                                            job.isSaved ? "text-neutral-900 fill-neutral-900" : "text-neutral-900"
+                                            job.isSaved ? "text-neutral-900 dark:text-neutral-100 fill-neutral-900" : "text-neutral-900 dark:text-neutral-100"
                                         )} />
                                     </Button>
                                 </TooltipTrigger>
@@ -314,7 +314,7 @@ export function SwipeCard({
                                         className="w-14 h-14 rounded-full border-2 border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/20 hover:border-neutral-300"
                                         onClick={onSwipeRight}
                                     >
-                                        <Heart className="w-6 h-6 text-neutral-900" />
+                                        <Heart className="w-6 h-6 text-neutral-900 dark:text-neutral-100" />
                                     </Button>
                                 </TooltipTrigger>
                                 <TooltipContent>I&apos;m Interested!</TooltipContent>

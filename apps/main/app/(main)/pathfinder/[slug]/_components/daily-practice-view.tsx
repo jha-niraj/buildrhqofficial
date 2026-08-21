@@ -123,7 +123,7 @@ function PracticeHeader({ goal, onOpenEarnings, onOpenNotes }: { goal: Goal; onO
                     </Link>
                     <div>
                         <h1 className="text-base font-semibold text-neutral-900 dark:text-white flex items-center gap-2">
-                            <Target className="w-4 h-4 text-neutral-900" />
+                            <Target className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                             {goal.title}
                         </h1>
                         <p className="text-xs text-neutral-500 truncate max-w-[200px]">
@@ -225,11 +225,11 @@ function SubGoalItem({
             >
                 {
                     subGoal.status === 'COMPLETED' ? (
-                        <CheckCircle2 className="w-5 h-5 text-neutral-900" />
+                        <CheckCircle2 className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                     ) : (
                         <Circle className={cn(
                             "w-5 h-5 transition-colors",
-                            isSelected ? "text-neutral-800" : "text-neutral-300"
+                            isSelected ? "text-neutral-800 dark:text-neutral-200" : "text-neutral-300"
                         )} />
                     )
                 }
@@ -321,7 +321,7 @@ function SubGoalItem({
             </button>
             <ChevronRight className={cn(
                 "w-4 h-4 transition-colors",
-                isSelected ? "text-neutral-900" : "text-neutral-300"
+                isSelected ? "text-neutral-900 dark:text-neutral-100" : "text-neutral-300"
             )} />
         </motion.div>
     )
@@ -337,16 +337,16 @@ function SessionStats({ session }: { session: DailySession | null }) {
     return (
         <div className="grid grid-cols-3 gap-2 p-3 border-b border-neutral-200 dark:border-neutral-800">
             <div className="text-center p-2 rounded-lg bg-neutral-50 dark:bg-neutral-900/30">
-                <div className="text-lg font-bold text-neutral-800">{session.completedSubGoals}/{session.totalSubGoals}</div>
-                <div className="text-[10px] text-neutral-800/70">Tasks</div>
+                <div className="text-lg font-bold text-neutral-800 dark:text-neutral-200">{session.completedSubGoals}/{session.totalSubGoals}</div>
+                <div className="text-[10px] text-neutral-800 dark:text-neutral-200/70">Tasks</div>
             </div>
             <div className="text-center p-2 rounded-lg bg-neutral-50 dark:bg-neutral-900/30">
-                <div className="text-lg font-bold text-neutral-800">{quizPercent}%</div>
-                <div className="text-[10px] text-neutral-800/70">Quiz Score</div>
+                <div className="text-lg font-bold text-neutral-800 dark:text-neutral-200">{quizPercent}%</div>
+                <div className="text-[10px] text-neutral-800 dark:text-neutral-200/70">Quiz Score</div>
             </div>
             <div className="text-center p-2 rounded-lg bg-neutral-50 dark:bg-neutral-900/30">
-                <div className="text-lg font-bold text-neutral-800">{session.solvedCodingProblems}/{session.totalCodingProblems}</div>
-                <div className="text-[10px] text-neutral-800/70">Code</div>
+                <div className="text-lg font-bold text-neutral-800 dark:text-neutral-200">{session.solvedCodingProblems}/{session.totalCodingProblems}</div>
+                <div className="text-[10px] text-neutral-800 dark:text-neutral-200/70">Code</div>
             </div>
         </div>
     )
@@ -579,7 +579,7 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
                                                             <AccordionTrigger className="py-3 px-4 hover:no-underline hover:bg-neutral-100/80 dark:hover:bg-neutral-800/50 rounded-lg [&[data-state=open]]:rounded-b-none">
                                                                 <div className="flex items-center justify-between w-full gap-3">
                                                                     <div className="flex items-center gap-2.5">
-                                                                        <Calendar className="w-4 h-4 text-neutral-900 shrink-0" />
+                                                                        <Calendar className="w-4 h-4 text-neutral-900 dark:text-neutral-100 shrink-0" />
                                                                         <span className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
                                                                             {dateStr}
                                                                             {

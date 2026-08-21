@@ -189,7 +189,7 @@ export default function PublicChatInterface({ profile }: PublicChatInterfaceProp
                             <Button variant="ghost" size="icon" onClick={handleCopyLink}>
                                 {
                                     copied ? (
-                                        <Check className="w-4 h-4 text-neutral-900" />
+                                        <Check className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                     ) : (
                                         <Share2 className="w-4 h-4" />
                                     )
@@ -419,7 +419,7 @@ export default function PublicChatInterface({ profile }: PublicChatInterfaceProp
                     className="text-center text-xs text-slate-400 mt-4"
                 >
                     This is an AI assistant. For detailed discussions,{" "}
-                    <Link href={`/profile/${profile.user.username}`} className="text-neutral-900 hover:underline">
+                    <Link href={`/profile/${profile.user.username}`} className="text-neutral-900 dark:text-neutral-100 hover:underline">
                         contact {userName} directly
                     </Link>
                     .

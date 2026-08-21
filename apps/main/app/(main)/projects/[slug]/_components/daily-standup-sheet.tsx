@@ -287,7 +287,7 @@ export default function DailyStandupSheet({
                                                 </div>
                                                 {
                                                     selectedDays.includes(day.value) && (
-                                                        <CheckCircle2 className="w-4 h-4 text-neutral-800 mx-auto mt-1" />
+                                                        <CheckCircle2 className="w-4 h-4 text-neutral-800 dark:text-neutral-200 mx-auto mt-1" />
                                                     )
                                                 }
                                             </button>

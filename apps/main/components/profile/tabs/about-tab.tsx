@@ -75,7 +75,7 @@ export function AboutTab({ user, isOwnProfile, onEditProfile }: AboutTabProps) {
 							<CardHeader className="pb-2">
 								<div className="flex items-center justify-between">
 									<CardTitle className="text-lg flex items-center gap-2">
-										<User className="w-5 h-5 text-neutral-900" />
+										<User className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
 										About
 									</CardTitle>
 									{
@@ -110,7 +110,7 @@ export function AboutTab({ user, isOwnProfile, onEditProfile }: AboutTabProps) {
 								user.name && (
 									<div className="flex items-center gap-3">
 										<div className="w-10 h-10 rounded-lg bg-neutral-900/10 flex items-center justify-center">
-											<User className="w-5 h-5 text-neutral-900" />
+											<User className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
 										</div>
 										<div>
 											<p className="text-xs text-muted-foreground">Full Name</p>
@@ -123,7 +123,7 @@ export function AboutTab({ user, isOwnProfile, onEditProfile }: AboutTabProps) {
 								showEmail && user.email && (
 									<div className="flex items-center gap-3">
 										<div className="w-10 h-10 rounded-lg bg-neutral-900/10 flex items-center justify-center">
-											<Mail className="w-5 h-5 text-neutral-900" />
+											<Mail className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
 										</div>
 										<div>
 											<p className="text-xs text-muted-foreground">Email</p>
@@ -141,7 +141,7 @@ export function AboutTab({ user, isOwnProfile, onEditProfile }: AboutTabProps) {
 								isOwnProfile && user.phone && (
 									<div className="flex items-center gap-3">
 										<div className="w-10 h-10 rounded-lg bg-neutral-900/10 flex items-center justify-center">
-											<Phone className="w-5 h-5 text-neutral-900" />
+											<Phone className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
 										</div>
 										<div>
 											<p className="text-xs text-muted-foreground">Phone</p>
@@ -154,7 +154,7 @@ export function AboutTab({ user, isOwnProfile, onEditProfile }: AboutTabProps) {
 								user.location && (
 									<div className="flex items-center gap-3">
 										<div className="w-10 h-10 rounded-lg bg-neutral-900/10 flex items-center justify-center">
-											<MapPin className="w-5 h-5 text-neutral-900" />
+											<MapPin className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
 										</div>
 										<div>
 											<p className="text-xs text-muted-foreground">Location</p>
@@ -178,7 +178,7 @@ export function AboutTab({ user, isOwnProfile, onEditProfile }: AboutTabProps) {
 							}
 							<div className="flex items-center gap-3">
 								<div className="w-10 h-10 rounded-lg bg-neutral-900/10 flex items-center justify-center">
-									<Calendar className="w-5 h-5 text-neutral-900" />
+									<Calendar className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
 								</div>
 								<div>
 									<p className="text-xs text-muted-foreground">Member Since</p>
@@ -209,7 +209,7 @@ export function AboutTab({ user, isOwnProfile, onEditProfile }: AboutTabProps) {
 								user.occupation && (
 									<div className="flex items-center gap-3">
 										<div className="w-10 h-10 rounded-lg bg-neutral-900/10 flex items-center justify-center">
-											<Briefcase className="w-5 h-5 text-neutral-900" />
+											<Briefcase className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
 										</div>
 										<div>
 											<p className="text-xs text-muted-foreground">Role</p>
@@ -222,7 +222,7 @@ export function AboutTab({ user, isOwnProfile, onEditProfile }: AboutTabProps) {
 								user.company && (
 									<div className="flex items-center gap-3">
 										<div className="w-10 h-10 rounded-lg bg-neutral-900/10 flex items-center justify-center">
-											<Building className="w-5 h-5 text-neutral-900" />
+											<Building className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
 										</div>
 										<div>
 											<p className="text-xs text-muted-foreground">Company</p>
@@ -235,7 +235,7 @@ export function AboutTab({ user, isOwnProfile, onEditProfile }: AboutTabProps) {
 								user.university && (
 									<div className="flex items-center gap-3">
 										<div className="w-10 h-10 rounded-lg bg-neutral-900/10 flex items-center justify-center">
-											<GraduationCap className="w-5 h-5 text-neutral-900" />
+											<GraduationCap className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
 										</div>
 										<div>
 											<p className="text-xs text-muted-foreground">University</p>
@@ -255,7 +255,7 @@ export function AboutTab({ user, isOwnProfile, onEditProfile }: AboutTabProps) {
 								user.workExperience && (
 									<div className="flex items-center gap-3">
 										<div className="w-10 h-10 rounded-lg bg-neutral-900/10 flex items-center justify-center">
-											<Calendar className="w-5 h-5 text-neutral-900" />
+											<Calendar className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
 										</div>
 										<div>
 											<p className="text-xs text-muted-foreground">Experience</p>
@@ -268,7 +268,7 @@ export function AboutTab({ user, isOwnProfile, onEditProfile }: AboutTabProps) {
 								isOwnProfile && user.expectedSalary && (
 									<div className="flex items-center gap-3">
 										<div className="w-10 h-10 rounded-lg bg-neutral-900/10 flex items-center justify-center">
-											<Banknote className="w-5 h-5 text-neutral-900" />
+											<Banknote className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
 										</div>
 										<div>
 											<p className="text-xs text-muted-foreground">Expected Salary</p>
@@ -294,7 +294,7 @@ export function AboutTab({ user, isOwnProfile, onEditProfile }: AboutTabProps) {
 								user.website && (
 									<div className="flex items-center gap-3">
 										<div className="w-10 h-10 rounded-lg bg-neutral-900/10 flex items-center justify-center">
-											<Globe className="w-5 h-5 text-neutral-900" />
+											<Globe className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
 										</div>
 										<div>
 											<p className="text-xs text-muted-foreground">Website</p>
@@ -354,7 +354,7 @@ export function AboutTab({ user, isOwnProfile, onEditProfile }: AboutTabProps) {
 						<Card>
 							<CardHeader className="pb-2">
 								<CardTitle className="text-lg flex items-center gap-2">
-									<Target className="w-5 h-5 text-neutral-900" />
+									<Target className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
 									Career Goals
 								</CardTitle>
 							</CardHeader>
@@ -383,7 +383,7 @@ export function AboutTab({ user, isOwnProfile, onEditProfile }: AboutTabProps) {
 						<Card>
 							<CardHeader className="pb-2">
 								<CardTitle className="text-lg flex items-center gap-2">
-									<Building className="w-5 h-5 text-neutral-900" />
+									<Building className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
 									Target Companies
 								</CardTitle>
 							</CardHeader>
@@ -412,7 +412,7 @@ export function AboutTab({ user, isOwnProfile, onEditProfile }: AboutTabProps) {
 						<Card>
 							<CardHeader className="pb-2">
 								<CardTitle className="text-lg flex items-center gap-2">
-									<Globe className="w-5 h-5 text-neutral-900" />
+									<Globe className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
 									Social Links
 								</CardTitle>
 							</CardHeader>

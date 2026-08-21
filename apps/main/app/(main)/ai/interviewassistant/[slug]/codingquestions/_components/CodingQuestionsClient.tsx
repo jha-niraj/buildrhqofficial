@@ -357,7 +357,7 @@ export default function CodingQuestionsPage({ params }: { params: Promise<{ slug
 							</div>
 							<div className="w-full flex-1 flex items-center gap-2 overflow-auto">
 								<div className="flex items-center gap-2 shrink-0">
-									<Target className="h-4 w-4 text-neutral-800" />
+									<Target className="h-4 w-4 text-neutral-800 dark:text-neutral-200" />
 									<span className="font-medium text-sm">Problems</span>
 								</div>
 								<div className="w-full flex gap-2">
@@ -448,7 +448,7 @@ export default function CodingQuestionsPage({ params }: { params: Promise<{ slug
 									currentProblem?.hints && currentProblem.hints.length > 0 && (
 										<div className="mt-6">
 											<h3 className="font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center gap-2">
-												<Lightbulb className="h-4 w-4 text-neutral-900" />
+												<Lightbulb className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />
 												Hints
 											</h3>
 											<div className="space-y-2">
@@ -468,7 +468,7 @@ export default function CodingQuestionsPage({ params }: { params: Promise<{ slug
 									runResults.length > 0 && (
 										<div className="mt-6" ref={testResultsRef}>
 											<h3 className="font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center gap-2">
-												<Play className="h-4 w-4 text-neutral-900" />
+												<Play className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />
 												Test Results
 												<Badge variant="outline" className="text-xs ml-2">
 													{runResults.filter(r => r.passed).length}/{runResults.length} passed
@@ -512,7 +512,7 @@ export default function CodingQuestionsPage({ params }: { params: Promise<{ slug
 										<div className="space-y-6">
 											<div className="bg-neutral-50 dark:bg-neutral-800/20 border border-neutral-200 dark:border-neutral-800 rounded-lg p-6">
 												<div className="flex items-center gap-3">
-													<CheckCircle className="h-6 w-6 text-neutral-800" />
+													<CheckCircle className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
 													<h3 className="font-semibold text-lg text-neutral-800 dark:text-neutral-700">
 														Expert Solution Available
 													</h3>
@@ -592,7 +592,7 @@ export default function CodingQuestionsPage({ params }: { params: Promise<{ slug
 																{
 																	generatedAnswer.answer.keyPoints.map((point: string, index: number) => (
 																		<li key={index} className="flex items-start gap-2">
-																			<span className="text-neutral-900 font-semibold mt-1">•</span>
+																			<span className="text-neutral-900 dark:text-neutral-100 font-semibold mt-1">•</span>
 																			<span className="text-gray-700 dark:text-gray-300">{point}</span>
 																		</li>
 																	))
@@ -652,7 +652,7 @@ export default function CodingQuestionsPage({ params }: { params: Promise<{ slug
 																<div className="flex items-center gap-2">
 																	{
 																		submission.passed ? (
-																			<CheckCircle className="h-4 w-4 text-neutral-900" />
+																			<CheckCircle className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />
 																		) : (
 																			<XCircle className="h-4 w-4 text-red-500" />
 																		)
@@ -694,12 +694,12 @@ export default function CodingQuestionsPage({ params }: { params: Promise<{ slug
 													<div className="flex items-center gap-2">
 														{
 															submissionResults.passed ? (
-																<CheckCircle className="h-4 w-4 text-neutral-900" />
+																<CheckCircle className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />
 															) : (
 																<XCircle className="h-4 w-4 text-red-500" />
 															)
 														}
-														<span className={submissionResults.passed ? "text-neutral-800" : "text-red-600"}>
+														<span className={submissionResults.passed ? "text-neutral-800 dark:text-neutral-200" : "text-red-600"}>
 															{submissionResults.passed ? "Accepted" : "Wrong Answer"}
 														</span>
 													</div>

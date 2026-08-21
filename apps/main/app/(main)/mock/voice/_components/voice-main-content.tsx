@@ -179,25 +179,25 @@ export function VoiceMainContent({
                 return {
                     title: 'My Interview Sessions',
                     description: `Track your progress and review ${total} past interviews`,
-                    icon: <FolderOpen className="w-6 h-6 text-neutral-800" />
+                    icon: <FolderOpen className="w-6 h-6 text-neutral-800 dark:text-neutral-200" />
                 }
             case 'my-mocks':
                 return {
                     title: 'My Created Mocks',
                     description: `Manage your ${total} custom interview scenarios`,
-                    icon: <Brain className="w-6 h-6 text-neutral-800" />
+                    icon: <Brain className="w-6 h-6 text-neutral-800 dark:text-neutral-200" />
                 }
             case 'category':
                 return {
                     title: `${categoryLabel || 'Category'} Mocks`,
                     description: `Browse ${total} interviews in ${categoryLabel}`,
-                    icon: <Target className="w-6 h-6 text-neutral-800" />
+                    icon: <Target className="w-6 h-6 text-neutral-800 dark:text-neutral-200" />
                 }
             default:
                 return {
                     title: 'All Public Interviews',
                     description: `Explore ${total} community and expert created mocks`,
-                    icon: <Users className="w-6 h-6 text-neutral-800" />
+                    icon: <Users className="w-6 h-6 text-neutral-800 dark:text-neutral-200" />
                 }
         }
     }

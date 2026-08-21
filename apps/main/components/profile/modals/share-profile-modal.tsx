@@ -111,7 +111,7 @@ export function ShareProfileModal({
 								>
 									{
 										copied === "link" ? (
-											<Check className="w-4 h-4 text-neutral-900" />
+											<Check className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
 										) : (
 											<Copy className="w-4 h-4" />
 										)
@@ -211,7 +211,7 @@ export function ShareProfileModal({
 									{
 										copied === "embed" ? (
 											<>
-												<Check className="w-3 h-3 text-neutral-900" />
+												<Check className="w-3 h-3 text-neutral-900 dark:text-neutral-100" />
 												Copied
 											</>
 										) : (

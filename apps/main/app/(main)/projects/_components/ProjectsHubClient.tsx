@@ -146,7 +146,7 @@ export default function ProjectsHomePage() {
 								className="flex justify-center"
 							>
 								<div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-full shadow-sm">
-									<Sparkles className="w-3.5 h-3.5 text-neutral-900" />
+									<Sparkles className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100" />
 									<span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 tracking-wide uppercase">
 										AI-Powered Project Generator
 									</span>

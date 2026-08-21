@@ -104,7 +104,7 @@ function MilestoneTracker({ progressPercentage }: { progressPercentage: number, 
                                         <TooltipContent>
                                             {
                                                 milestone.unlocked ? (
-                                                    <p className="text-neutral-800">✓ Unlocked</p>
+                                                    <p className="text-neutral-800 dark:text-neutral-200">✓ Unlocked</p>
                                                 ) : (
                                                     <p>Complete {milestone.threshold}% to unlock</p>
                                                 )
@@ -166,7 +166,7 @@ function QuickActions({
                             )}
                             disabled={progressPercentage < 50}
                         >
-                            <Brain className={cn("w-5 h-5", progressPercentage >= 50 ? "text-neutral-800" : "text-neutral-400")} />
+                            <Brain className={cn("w-5 h-5", progressPercentage >= 50 ? "text-neutral-800 dark:text-neutral-200" : "text-neutral-400")} />
                             <span className="text-xs">{progressPercentage >= 50 ? 'Quiz' : '50% to unlock'}</span>
                         </Button>
                     </Link>
@@ -186,7 +186,7 @@ function QuickActions({
                             )}
                             disabled={progressPercentage < 75}
                         >
-                            <Sparkles className={cn("w-5 h-5", progressPercentage >= 75 ? "text-neutral-800" : "text-neutral-400")} />
+                            <Sparkles className={cn("w-5 h-5", progressPercentage >= 75 ? "text-neutral-800 dark:text-neutral-200" : "text-neutral-400")} />
                             <span className="text-xs">{progressPercentage >= 75 ? 'Mock AI' : '75% to unlock'}</span>
                         </Button>
                     </Link>
@@ -639,7 +639,7 @@ export default function ProjectDetailsClient({
                                 <Card className="bg-gradient-to-br from-white to-neutral-50 dark:from-neutral-900 dark:to-neutral-950 border-neutral-200 dark:border-neutral-800 shadow-sm hover:shadow-md transition-shadow duration-300">
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2 text-xl">
-                                            <Layers className="w-5 h-5 text-neutral-900" />
+                                            <Layers className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                             Technology Stack
                                         </CardTitle>
                                     </CardHeader>
@@ -683,7 +683,7 @@ export default function ProjectDetailsClient({
                                 <Card className="bg-gradient-to-br from-white to-neutral-50 dark:from-neutral-900 dark:to-neutral-950 border-neutral-200 dark:border-neutral-800 shadow-sm hover:shadow-md transition-shadow duration-300">
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2 text-xl">
-                                            <Target className="w-5 h-5 text-neutral-900" />
+                                            <Target className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                             Key Outcomes
                                         </CardTitle>
                                         <CardDescription>What you&apos;ll build in this project</CardDescription>
@@ -693,7 +693,7 @@ export default function ProjectDetailsClient({
                                             {
                                                 (project.keyOutcomes || []).map((outcome: string, index: number) => (
                                                     <li key={index} className="flex items-start gap-3 p-2 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg">
-                                                        <CheckCircle2 className="w-4 h-4 text-neutral-800 flex-shrink-0 mt-0.5" />
+                                                        <CheckCircle2 className="w-4 h-4 text-neutral-800 dark:text-neutral-200 flex-shrink-0 mt-0.5" />
                                                         <span className="text-left text-neutral-700 dark:text-neutral-300 text-sm">{outcome}</span>
                                                     </li>
                                                 ))
@@ -706,7 +706,7 @@ export default function ProjectDetailsClient({
                                         <Card className="bg-gradient-to-br from-white to-neutral-50 dark:from-neutral-900 dark:to-neutral-950 border-neutral-200 dark:border-neutral-800 shadow-sm hover:shadow-md transition-shadow duration-300">
                                             <CardHeader>
                                                 <CardTitle className="flex items-center gap-2 text-xl">
-                                                    <Lightbulb className="w-5 h-5 text-neutral-900" />
+                                                    <Lightbulb className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                                     Vision & Purpose
                                                 </CardTitle>
                                             </CardHeader>
@@ -737,7 +737,7 @@ export default function ProjectDetailsClient({
                                         <Card className="bg-gradient-to-br from-white to-neutral-50 dark:from-neutral-900 dark:to-neutral-950 border-neutral-200 dark:border-neutral-800 lg:col-span-2 shadow-sm hover:shadow-md transition-shadow duration-300">
                                             <CardHeader>
                                                 <CardTitle className="text-left flex items-center gap-2 text-xl">
-                                                    <Code2 className="w-5 h-5 text-neutral-900" />
+                                                    <Code2 className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                                     Features
                                                 </CardTitle>
                                                 <CardDescription className="text-left">Main features you&apos;ll implement</CardDescription>

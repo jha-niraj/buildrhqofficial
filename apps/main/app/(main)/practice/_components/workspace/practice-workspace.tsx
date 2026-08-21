@@ -174,7 +174,7 @@ export function PracticeWorkspace({ problem, session, mode }: PracticeWorkspaceP
                     </Badge>
                     <Badge variant="outline" className={cn(
                         "text-[10px] border-neutral-700",
-                        mode === "EXAM" ? "text-red-400 border-red-800" : "text-neutral-800 border-neutral-800"
+                        mode === "EXAM" ? "text-red-400 border-red-800" : "text-neutral-800 dark:text-neutral-200 border-neutral-800"
                     )}>
                         {mode === "EXAM" ? "🔒 Exam" : "💡 Assist"}
                     </Badge>
@@ -394,7 +394,7 @@ function ProblemPanel({
                                     <div key={i} className="flex items-start gap-2">
                                         {
                                             met ? (
-                                                <CheckCircle2 className="h-4 w-4 text-neutral-900 flex-shrink-0 mt-0.5" />
+                                                <CheckCircle2 className="h-4 w-4 text-neutral-900 dark:text-neutral-100 flex-shrink-0 mt-0.5" />
                                             ) : (
                                                 <div className="h-4 w-4 rounded-full border border-neutral-600 flex-shrink-0 mt-0.5" />
                                             )
@@ -446,7 +446,7 @@ function HintsSection({ hints }: { hints: string[] }) {
                     revealed < hints.length && (
                         <button
                             onClick={() => setRevealed((r) => r + 1)}
-                            className="cursor-pointer text-xs text-neutral-800 hover:text-neutral-300 transition-colors"
+                            className="cursor-pointer text-xs text-neutral-800 dark:text-neutral-200 hover:text-neutral-300 transition-colors"
                         >
                             Reveal hint {revealed + 1} of {hints.length}
                         </button>
@@ -492,7 +492,7 @@ function OutputPanel({
                         <span className={cn(
                             "text-[10px] font-medium px-1.5 py-0.5 rounded",
                             result.exitCode === 0
-                                ? "bg-neutral-900/50 text-neutral-800"
+                                ? "bg-neutral-900/50 text-neutral-800 dark:text-neutral-200"
                                 : "bg-red-900/50 text-red-400"
                         )}>
                             {result.exitCode === 0 ? "✓ Exited 0" : `✗ Exit ${result.exitCode ?? "err"}`}
@@ -518,7 +518,7 @@ function OutputPanel({
                         {result.stdout && (
                             <div>
                                 <div className="text-[10px] text-neutral-500 mb-1">STDOUT</div>
-                                <pre className="text-neutral-800 whitespace-pre-wrap break-all">{result.stdout}</pre>
+                                <pre className="text-neutral-800 dark:text-neutral-200 whitespace-pre-wrap break-all">{result.stdout}</pre>
                             </div>
                         )}
                         {result.stderr && (
@@ -541,7 +541,7 @@ function OutputPanel({
                                                 : "border-red-800 bg-red-950/30"
                                         )}>
                                             <div className="flex items-center gap-1.5">
-                                                <span className={tc.passed ? "text-neutral-800" : "text-red-400"}>
+                                                <span className={tc.passed ? "text-neutral-800 dark:text-neutral-200" : "text-red-400"}>
                                                     {tc.passed ? "✓" : "✗"}
                                                 </span>
                                                 <span className="text-neutral-300 text-[10px]">
@@ -556,7 +556,7 @@ function OutputPanel({
                                                     </div>
                                                     <div>
                                                         <span className="text-neutral-500">Expected: </span>
-                                                        <span className="text-neutral-800">{tc.expectedOutput}</span>
+                                                        <span className="text-neutral-800 dark:text-neutral-200">{tc.expectedOutput}</span>
                                                     </div>
                                                     <div>
                                                         <span className="text-neutral-500">Got: </span>

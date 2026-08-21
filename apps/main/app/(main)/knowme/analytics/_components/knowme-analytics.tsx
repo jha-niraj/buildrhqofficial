@@ -54,10 +54,10 @@ const categoryColors: Record<string, string> = {
 };
 
 const insightIcons: Record<string, React.ReactNode> = {
-    strength: <Sparkles className="w-4 h-4 text-neutral-900" />,
-    suggestion: <Lightbulb className="w-4 h-4 text-neutral-900" />,
+    strength: <Sparkles className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />,
+    suggestion: <Lightbulb className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />,
     warning: <AlertTriangle className="w-4 h-4 text-red-500" />,
-    info: <Info className="w-4 h-4 text-neutral-900" />,
+    info: <Info className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />,
 };
 
 export default function KnowMeAnalytics({ analytics, initialRange }: KnowMeAnalyticsProps) {
@@ -326,7 +326,7 @@ export default function KnowMeAnalytics({ analytics, initialRange }: KnowMeAnaly
                     className="bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 p-6"
                 >
                     <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                        <Lightbulb className="w-5 h-5 text-neutral-900" />
+                        <Lightbulb className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                         Insights
                     </h2>
 
@@ -465,7 +465,7 @@ function StatCard({
                     trend && (
                         <div className={cn(
                             "flex items-center gap-1 text-xs font-medium",
-                            trend.direction === "up" && "text-neutral-800",
+                            trend.direction === "up" && "text-neutral-800 dark:text-neutral-200",
                             trend.direction === "down" && "text-red-600",
                             trend.direction === "stable" && "text-slate-400"
                         )}>

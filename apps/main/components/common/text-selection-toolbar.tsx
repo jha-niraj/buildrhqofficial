@@ -71,7 +71,7 @@ export function TextSelectionToolbar({ containerRef, onAskAI, onCopy }: TextSele
                     setVisible(false);
                 }}
             >
-                <Sparkles className="w-3.5 h-3.5 text-neutral-800" />
+                <Sparkles className="w-3.5 h-3.5 text-neutral-800 dark:text-neutral-200" />
                 Ask AI
             </button>
             {onCopy && (

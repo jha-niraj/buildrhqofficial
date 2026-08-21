@@ -354,7 +354,7 @@ export function Voice({
                                     {
                                         processingStatus === 'processing' && (
                                             <>
-                                                <Loader2 className="w-5 h-5 animate-spin text-neutral-800" />
+                                                <Loader2 className="w-5 h-5 animate-spin text-neutral-800 dark:text-neutral-200" />
                                                 {stateLabels.processing.title}
                                             </>
                                         )
@@ -362,7 +362,7 @@ export function Voice({
                                     {
                                         processingStatus === 'success' && (
                                             <>
-                                                <CheckCircle2 className="w-5 h-5 text-neutral-800" />
+                                                <CheckCircle2 className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />
                                                 {stateLabels.completed.title}
                                             </>
                                         )

@@ -199,7 +199,7 @@ export function JobsTabs({ counts, isAuthenticated }: JobsTabsProps) {
                                             </Badge>
                                         )}
                                         {isActive && (
-                                            <Check className="w-4 h-4 text-neutral-900" />
+                                            <Check className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                         )}
                                     </span>
                                 </DropdownMenuItem>

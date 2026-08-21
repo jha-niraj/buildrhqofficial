@@ -333,7 +333,7 @@ export function SprintGenerationSheet({
                                         </CardHeader>
                                         <CardContent>
                                             <p className="text-sm text-neutral-600 dark:text-neutral-400 flex items-start gap-2">
-                                                <Target className="w-4 h-4 flex-shrink-0 mt-0.5 text-neutral-800" />
+                                                <Target className="w-4 h-4 flex-shrink-0 mt-0.5 text-neutral-800 dark:text-neutral-200" />
                                                 {generatedSprint.goal}
                                             </p>
                                         </CardContent>

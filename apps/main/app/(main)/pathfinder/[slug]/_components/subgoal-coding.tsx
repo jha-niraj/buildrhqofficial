@@ -87,9 +87,9 @@ export function SubGoalCoding({ subGoal, onComplete }: SubGoalCodingProps) {
                 )}>
                     {
                         subGoal.codingPassed ? (
-                            <CheckCircle2 className="w-10 h-10 text-neutral-900" />
+                            <CheckCircle2 className="w-10 h-10 text-neutral-900 dark:text-neutral-100" />
                         ) : (
-                            <XCircle className="w-10 h-10 text-neutral-900" />
+                            <XCircle className="w-10 h-10 text-neutral-900 dark:text-neutral-100" />
                         )
                     }
                 </div>
@@ -173,15 +173,15 @@ export function SubGoalCoding({ subGoal, onComplete }: SubGoalCodingProps) {
                             )}>
                                 {
                                     feedback.passed ? (
-                                        <CheckCircle2 className="w-8 h-8 text-neutral-900" />
+                                        <CheckCircle2 className="w-8 h-8 text-neutral-900 dark:text-neutral-100" />
                                     ) : (
-                                        <XCircle className="w-8 h-8 text-neutral-900" />
+                                        <XCircle className="w-8 h-8 text-neutral-900 dark:text-neutral-100" />
                                     )
                                 }
                             </div>
                             <h3 className={cn(
                                 "text-lg font-bold mb-1",
-                                feedback.passed ? "text-neutral-700" : "text-neutral-700"
+                                feedback.passed ? "text-neutral-700 dark:text-neutral-300" : "text-neutral-700 dark:text-neutral-300"
                             )}>
                                 {feedback.passed ? 'Solution Accepted!' : 'Needs Improvement'}
                             </h3>
@@ -214,7 +214,7 @@ export function SubGoalCoding({ subGoal, onComplete }: SubGoalCodingProps) {
                                         {
                                             feedback.suggestions.map((suggestion, i) => (
                                                 <li key={i} className="text-sm text-neutral-800 dark:text-neutral-100 flex items-start gap-2">
-                                                    <span className="text-neutral-800">•</span>
+                                                    <span className="text-neutral-800 dark:text-neutral-200">•</span>
                                                     {suggestion}
                                                 </li>
                                             ))
@@ -264,7 +264,7 @@ export function SubGoalCoding({ subGoal, onComplete }: SubGoalCodingProps) {
                 <div className="p-4 rounded-xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800">
                     <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-2">
-                            <Code2 className="w-5 h-5 text-neutral-900" />
+                            <Code2 className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                             <h3 className="font-semibold text-neutral-900 dark:text-white">
                                 {p.title}
                             </h3>
@@ -303,7 +303,7 @@ export function SubGoalCoding({ subGoal, onComplete }: SubGoalCodingProps) {
                     {
                         p.hints.length > 0 && (
                             <Collapsible open={hintsOpen} onOpenChange={setHintsOpen}>
-                                <CollapsibleTrigger className="flex items-center gap-2 text-sm text-neutral-800 hover:text-neutral-700 transition-colors">
+                                <CollapsibleTrigger className="flex items-center gap-2 text-sm text-neutral-800 dark:text-neutral-200 hover:text-neutral-700 transition-colors">
                                     <Lightbulb className="w-4 h-4" />
                                     <span>Hints ({p.hints.length})</span>
                                     {hintsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -313,7 +313,7 @@ export function SubGoalCoding({ subGoal, onComplete }: SubGoalCodingProps) {
                                         {
                                             p.hints.map((hint, i) => (
                                                 <p key={i} className="text-xs text-neutral-700 dark:text-neutral-100 flex items-start gap-2">
-                                                    <span className="text-neutral-800">{i + 1}.</span>
+                                                    <span className="text-neutral-800 dark:text-neutral-200">{i + 1}.</span>
                                                     {hint}
                                                 </p>
                                             ))

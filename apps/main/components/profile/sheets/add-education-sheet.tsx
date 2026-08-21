@@ -119,7 +119,7 @@ export function AddEducationSheet({ open, onOpenChange, onSuccess, editEducation
                 <SheetHeader className="px-6 pt-6 pb-4 border-b border-neutral-100 dark:border-neutral-800">
                     <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-lg bg-neutral-900/10 flex items-center justify-center">
-                            <GraduationCap className="w-4 h-4 text-neutral-900" />
+                            <GraduationCap className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                         </div>
                         <div>
                             <SheetTitle>{isEditing ? 'Edit Education' : 'Add Education'}</SheetTitle>

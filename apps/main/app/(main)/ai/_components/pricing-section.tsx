@@ -87,7 +87,7 @@ export default function PricingSection() {
                                             {
                                                 features.map((feature, index) => (
                                                     <li key={index} className="flex items-start">
-                                                        <Check className="w-5 h-5 text-neutral-900 mr-2 flex-shrink-0 mt-1" />
+                                                        <Check className="w-5 h-5 text-neutral-900 dark:text-neutral-100 mr-2 flex-shrink-0 mt-1" />
                                                         <span className="text-sm">{feature}</span>
                                                     </li>
                                                 ))
@@ -115,7 +115,7 @@ export default function PricingSection() {
                                             {
                                                 features.map((feature, index) => (
                                                     <li key={index} className="flex items-start">
-                                                        <Check className="w-5 h-5 text-neutral-900 mr-2 flex-shrink-0 mt-1" />
+                                                        <Check className="w-5 h-5 text-neutral-900 dark:text-neutral-100 mr-2 flex-shrink-0 mt-1" />
                                                         <span className="text-sm">{feature}</span>
                                                     </li>
                                                 ))

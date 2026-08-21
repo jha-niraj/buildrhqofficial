@@ -73,7 +73,7 @@ export default function AiToolsPage() {
                                 transition={{ delay: 0.2 }}
                             >
                                 <Badge variant="outline" className="px-4 py-1.5 rounded-full border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 font-medium text-sm backdrop-blur-sm">
-                                    <Sparkles className="w-3.5 h-3.5 mr-2 text-neutral-900" />
+                                    <Sparkles className="w-3.5 h-3.5 mr-2 text-neutral-900 dark:text-neutral-100" />
                                     The Coder&apos;z Intelligence Engine
                                 </Badge>
                             </motion.div>
@@ -215,8 +215,8 @@ export default function AiToolsPage() {
                                 </Button>
                             </div>
                             <div className="pt-6 flex items-center justify-center gap-6 text-sm text-neutral-400 font-medium">
-                                <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-neutral-900" /> Cancel anytime</span>
-                                <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-neutral-900" /> Secure payment</span>
+                                <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100" /> Cancel anytime</span>
+                                <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100" /> Secure payment</span>
                             </div>
                         </motion.div>
                     </div>

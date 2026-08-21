@@ -345,13 +345,13 @@ export function ProjectProgressAnalytics({ progress, className }: ProgressCompon
 					<Progress value={progress.progressPercentage} className="h-3" />
 					<div className="grid grid-cols-2 gap-4 mt-4">
 						<div className="flex items-center gap-2">
-							<Clock className="h-4 w-4 text-neutral-800" />
+							<Clock className="h-4 w-4 text-neutral-800 dark:text-neutral-200" />
 							<span className="text-sm text-gray-600 dark:text-gray-400">
 								{Math.round(progress.timeSpent / 60)}h spent
 							</span>
 						</div>
 						<div className="flex items-center gap-2">
-							<Zap className="h-4 w-4 text-neutral-800" />
+							<Zap className="h-4 w-4 text-neutral-800 dark:text-neutral-200" />
 							<span className="text-sm text-gray-600 dark:text-gray-400">
 								{progress.xpEarned} XP earned
 							</span>
@@ -472,7 +472,7 @@ function StatCard({
 					</div>
 					{
 						trend !== undefined && (
-							<div className={`flex items-center gap-1 text-xs ${trend >= 0 ? 'text-neutral-800' : 'text-red-600'}`}>
+							<div className={`flex items-center gap-1 text-xs ${trend >= 0 ? 'text-neutral-800 dark:text-neutral-200' : 'text-red-600'}`}>
 								{trend >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
 								{Math.abs(trend)}%
 							</div>
@@ -517,7 +517,7 @@ function CompletionRateChart({ completionRate }: { completionRate: number }) {
 							strokeWidth="8"
 							fill="none"
 							strokeDasharray={`${completionRate * 2.51} 251`}
-							className="text-neutral-800"
+							className="text-neutral-800 dark:text-neutral-200"
 						/>
 					</svg>
 					<div className="absolute inset-0 flex items-center justify-center">

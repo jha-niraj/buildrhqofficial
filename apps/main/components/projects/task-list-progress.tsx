@@ -235,7 +235,7 @@ function TaskItemCard({
                                 >
                                     {
                                         isUpdating ? (
-                                            <Loader2 className="w-4 h-4 animate-spin text-neutral-900" />
+                                            <Loader2 className="w-4 h-4 animate-spin text-neutral-900 dark:text-neutral-100" />
                                         ) : (
                                             <Play className="w-3 h-3 text-neutral-400 group-hover:text-neutral-900 opacity-0 group-hover:opacity-100 transition-opacity" />
                                         )
@@ -249,9 +249,9 @@ function TaskItemCard({
                                 >
                                     {
                                         isUpdating ? (
-                                            <Loader2 className="w-6 h-6 animate-spin text-neutral-900" />
+                                            <Loader2 className="w-6 h-6 animate-spin text-neutral-900 dark:text-neutral-100" />
                                         ) : task.status === 'COMPLETED' ? (
-                                            <CheckCircle2 className="w-6 h-6 text-neutral-900 fill-neutral-900" />
+                                            <CheckCircle2 className="w-6 h-6 text-neutral-900 dark:text-neutral-100 fill-neutral-900" />
                                         ) : (
                                             <div className="w-6 h-6 rounded-full border-2 border-neutral-900 bg-neutral-100 dark:bg-neutral-800/50 flex items-center justify-center">
                                                 <div className="w-2 h-2 rounded-full bg-neutral-900 animate-pulse" />
@@ -337,7 +337,7 @@ function TaskItemCard({
                                         <div className="mb-4">
                                             <div className="flex items-center justify-between mb-2">
                                                 <div className="flex items-center gap-2">
-                                                    <Sparkles className="w-4 h-4 text-neutral-900" />
+                                                    <Sparkles className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                     <span className="text-sm font-semibold text-neutral-900 dark:text-white">
                                                         Detailed Roadmap
                                                     </span>
@@ -388,7 +388,7 @@ function TaskItemCard({
                                                                                 <p className="text-neutral-600 dark:text-neutral-400">{sub.description}</p>
                                                                                 {
                                                                                     sub.command && (
-                                                                                        <code className="block mt-1 bg-neutral-900 text-neutral-800 px-2 py-1 rounded text-[10px] font-mono">
+                                                                                        <code className="block mt-1 bg-neutral-900 text-neutral-800 dark:text-neutral-200 px-2 py-1 rounded text-[10px] font-mono">
                                                                                             {sub.command}
                                                                                         </code>
                                                                                     )
@@ -461,14 +461,14 @@ function TaskItemCard({
                                     task.criteria && task.criteria.length > 0 && (
                                         <div className="mb-4">
                                             <h5 className="text-sm font-semibold text-neutral-900 dark:text-white mb-2 flex items-center gap-2">
-                                                <CheckCircle2 className="w-4 h-4 text-neutral-800" />
+                                                <CheckCircle2 className="w-4 h-4 text-neutral-800 dark:text-neutral-200" />
                                                 Success Criteria
                                             </h5>
                                             <ul className="space-y-1">
                                                 {
                                                     task.criteria.map((criterion, idx) => (
                                                         <li key={idx} className="flex items-start gap-2 text-sm text-neutral-700 dark:text-neutral-300">
-                                                            <CheckCircle2 className="w-4 h-4 text-neutral-900 flex-shrink-0 mt-0.5" />
+                                                            <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100 flex-shrink-0 mt-0.5" />
                                                             <span>{criterion}</span>
                                                         </li>
                                                     ))
@@ -482,7 +482,7 @@ function TaskItemCard({
                                     task.hints && task.hints.length > 0 && (
                                         <div className="mb-4">
                                             <h5 className="text-sm font-semibold text-neutral-900 dark:text-white mb-2 flex items-center gap-2">
-                                                <Info className="w-4 h-4 text-neutral-800" />
+                                                <Info className="w-4 h-4 text-neutral-800 dark:text-neutral-200" />
                                                 Hints
                                             </h5>
                                             <div className="space-y-1">
@@ -563,7 +563,7 @@ function TaskItemCard({
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
-                            <Sparkles className="w-5 h-5 text-neutral-800" />
+                            <Sparkles className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />
                             Unlock Detailed Roadmap?
                         </DialogTitle>
                         <DialogDescription>
@@ -667,14 +667,14 @@ export default function TaskListProgress({
                 </div>
                 <Progress value={progressPercentage} className="h-3" />
                 <div className="flex justify-between mt-4 text-xs text-neutral-500 dark:text-neutral-400">
-                    <span className={progressPercentage >= 0 ? 'text-neutral-800 font-medium' : ''}>Start</span>
-                    <span className={progressPercentage >= 50 ? 'text-neutral-800 font-medium' : ''}>
+                    <span className={progressPercentage >= 0 ? 'text-neutral-800 dark:text-neutral-200 font-medium' : ''}>Start</span>
+                    <span className={progressPercentage >= 50 ? 'text-neutral-800 dark:text-neutral-200 font-medium' : ''}>
                         50% - Quiz Unlocked 🧠
                     </span>
-                    <span className={progressPercentage >= 75 ? 'text-neutral-800 font-medium' : ''}>
+                    <span className={progressPercentage >= 75 ? 'text-neutral-800 dark:text-neutral-200 font-medium' : ''}>
                         75% - Mock Interview 🎤
                     </span>
-                    <span className={progressPercentage >= 100 ? 'text-neutral-800 font-medium' : ''}>
+                    <span className={progressPercentage >= 100 ? 'text-neutral-800 dark:text-neutral-200 font-medium' : ''}>
                         Complete 🏆
                     </span>
                 </div>

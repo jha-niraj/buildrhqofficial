@@ -155,7 +155,7 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
                                                     <div className="flex flex-col items-end shrink-0">
                                                         {
                                                             activity.xpEarned > 0 && (
-                                                                <span className="text-xs font-medium text-neutral-900">
+                                                                <span className="text-xs font-medium text-neutral-900 dark:text-neutral-100">
                                                                     +{activity.xpEarned} XP
                                                                 </span>
                                                             )

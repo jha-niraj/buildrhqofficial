@@ -164,7 +164,7 @@ export function VerificationPageClient({ goal: initialGoal, verification }: Veri
                         className="max-w-lg text-center"
                     >
                         <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-neutral-100 dark:bg-neutral-800/30 flex items-center justify-center">
-                            <Trophy className="w-10 h-10 text-neutral-900" />
+                            <Trophy className="w-10 h-10 text-neutral-900 dark:text-neutral-100" />
                         </div>
                         <h2 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">
                             Ready to Verify Your Knowledge?
@@ -175,19 +175,19 @@ export function VerificationPageClient({ goal: initialGoal, verification }: Veri
                         </p>
                         <div className="grid grid-cols-2 gap-3 text-left mb-8">
                             <div className="p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 flex items-center gap-3">
-                                <Brain className="w-5 h-5 text-neutral-900" />
+                                <Brain className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                 <span className="text-sm">20-25 Quiz Questions</span>
                             </div>
                             <div className="p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 flex items-center gap-3">
-                                <Code className="w-5 h-5 text-neutral-900" />
+                                <Code className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                 <span className="text-sm">3-8 Coding Challenges</span>
                             </div>
                             <div className="p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 flex items-center gap-3">
-                                <Mic className="w-5 h-5 text-neutral-900" />
+                                <Mic className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                 <span className="text-sm">Mock Interview</span>
                             </div>
                             <div className="p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 flex items-center gap-3">
-                                <Wrench className="w-5 h-5 text-neutral-900" />
+                                <Wrench className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                 <span className="text-sm">Project Verification</span>
                             </div>
                         </div>

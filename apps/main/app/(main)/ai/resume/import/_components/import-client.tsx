@@ -102,7 +102,7 @@ export function ImportClient() {
                     No manual entry required.
                 </p>
                 <div className="flex gap-2 mt-3">
-                    <Badge variant="outline" className="text-xs gap-1 text-neutral-800 border-neutral-200">
+                    <Badge variant="outline" className="text-xs gap-1 text-neutral-800 dark:text-neutral-200 border-neutral-200">
                         <Linkedin className="w-3 h-3" /> LinkedIn
                     </Badge>
                     <Badge variant="outline" className="text-xs gap-1 text-neutral-700 dark:text-neutral-300">
@@ -137,9 +137,9 @@ export function ImportClient() {
                         {STAGES.map((s, i) => (
                             <div key={s} className={`flex items-center gap-2 text-xs transition-colors ${i <= stageIdx ? "text-neutral-700 dark:text-neutral-300" : "text-neutral-300 dark:text-neutral-600"}`}>
                                 {i < stageIdx ? (
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-neutral-900 shrink-0" />
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100 shrink-0" />
                                 ) : i === stageIdx ? (
-                                    <Loader2 className="w-3.5 h-3.5 text-neutral-900 animate-spin shrink-0" />
+                                    <Loader2 className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100 animate-spin shrink-0" />
                                 ) : (
                                     <div className="w-3.5 h-3.5 rounded-full border border-neutral-200 dark:border-neutral-700 shrink-0" />
                                 )}
@@ -157,7 +157,7 @@ export function ImportClient() {
 
                         <div className="space-y-1.5">
                             <Label className="text-sm font-medium flex items-center gap-1.5">
-                                <Linkedin className="w-3.5 h-3.5 text-neutral-800" />
+                                <Linkedin className="w-3.5 h-3.5 text-neutral-800 dark:text-neutral-200" />
                                 LinkedIn Profile URL
                                 <span className="text-red-500 text-xs">*</span>
                             </Label>
@@ -198,7 +198,7 @@ export function ImportClient() {
 
                         <div className="space-y-1.5">
                             <Label className="text-sm font-medium flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400">
-                                <Twitter className="w-3.5 h-3.5 text-neutral-900" />
+                                <Twitter className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100" />
                                 Twitter / X Handle
                             </Label>
                             <div className="flex items-center">
@@ -216,7 +216,7 @@ export function ImportClient() {
 
                         <div className="space-y-1.5">
                             <Label className="text-sm font-medium flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400">
-                                <Globe className="w-3.5 h-3.5 text-neutral-900" />
+                                <Globe className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100" />
                                 Portfolio URL
                             </Label>
                             <Input
@@ -237,7 +237,7 @@ export function ImportClient() {
                                 "Technical skills", "Education", "Professional summary",
                             ].map((item) => (
                                 <div key={item} className="flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
-                                    <CheckCircle2 className="w-3 h-3 text-neutral-900 shrink-0" />
+                                    <CheckCircle2 className="w-3 h-3 text-neutral-900 dark:text-neutral-100 shrink-0" />
                                     {item}
                                 </div>
                             ))}

@@ -140,17 +140,17 @@ export function PurchaseMockSheet({ isOpen, onClose, mock, userCredits }: Purcha
                     {/* Quick stats row */}
                     <div className="grid grid-cols-3 gap-3">
                         <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-                            <Clock className="w-4 h-4 text-neutral-900" />
+                            <Clock className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                             <span className="text-lg font-bold">{mock.duration}</span>
                             <span className="text-[10px] text-neutral-500 uppercase tracking-wide">min</span>
                         </div>
                         <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-                            <Brain className="w-4 h-4 text-neutral-900" />
+                            <Brain className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                             <span className="text-lg font-bold">{mock.questionsCount ?? '-'}</span>
                             <span className="text-[10px] text-neutral-500 uppercase tracking-wide">questions</span>
                         </div>
                         <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-                            <Trophy className="w-4 h-4 text-neutral-900" />
+                            <Trophy className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                             <span className="text-lg font-bold">{mock.popularity ?? 0}</span>
                             <span className="text-[10px] text-neutral-500 uppercase tracking-wide">sessions</span>
                         </div>
@@ -218,9 +218,9 @@ export function PurchaseMockSheet({ isOpen, onClose, mock, userCredits }: Purcha
                             )}
                         </div>
                         <div className="flex items-center gap-1.5">
-                            <Sparkles className="w-4 h-4 text-neutral-900" />
+                            <Sparkles className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                             {isFreeSession ? (
-                                <span className="text-2xl font-bold text-neutral-800">Free</span>
+                                <span className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">Free</span>
                             ) : (
                                 <span className="text-2xl font-bold text-neutral-900 dark:text-white">{creditsNeeded}</span>
                             )}

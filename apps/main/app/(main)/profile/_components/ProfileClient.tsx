@@ -112,7 +112,7 @@ function Section({ title, icon: Icon, action, children }: {
         <section className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900 sm:p-6">
             <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <Icon className="h-4 w-4 text-neutral-900" />
+                    <Icon className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />
                     <h2 className="text-sm font-semibold tracking-tight text-neutral-900 dark:text-white">
                         {title}
                     </h2>
@@ -140,7 +140,7 @@ function Empty({ text, action }: { text: string; action?: { label: string; onCli
                 <button
                     type="button"
                     onClick={action.onClick}
-                    className="cursor-pointer text-sm font-medium text-neutral-900 hover:underline"
+                    className="cursor-pointer text-sm font-medium text-neutral-900 dark:text-neutral-100 hover:underline"
                 >
                     {action.label}
                 </button>

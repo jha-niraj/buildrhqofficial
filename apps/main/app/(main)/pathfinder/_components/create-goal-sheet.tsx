@@ -297,7 +297,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                         <div className="absolute inset-0 flex items-center justify-center">
                                             {
                                                 progressPercent === 100 ? (
-                                                    <CheckCircle className="w-8 h-8 text-neutral-900" />
+                                                    <CheckCircle className="w-8 h-8 text-neutral-900 dark:text-neutral-100" />
                                                 ) : (
                                                     <Brain className="w-8 h-8 text-neutral-400" />
                                                 )
@@ -533,7 +533,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                             <span className="text-sm text-neutral-900 dark:text-white">{focus.label}</span>
                                                                             {
                                                                                 formData.focusAreas.includes(focus.id) && (
-                                                                                    <Check className="w-4 h-4 text-neutral-900" />
+                                                                                    <Check className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                                                 )
                                                                             }
                                                                         </button>
@@ -605,7 +605,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                     <p className="text-xs text-neutral-500">{PATHFINDER_CREDITS.privateGoalCreation} credits</p>
                                                                     {
                                                                         (credits ?? 0) < PATHFINDER_CREDITS.privateGoalCreation && (
-                                                                            <p className="text-xs text-neutral-800 mt-0.5">Need {PATHFINDER_CREDITS.privateGoalCreation - (credits ?? 0)} more</p>
+                                                                            <p className="text-xs text-neutral-800 dark:text-neutral-200 mt-0.5">Need {PATHFINDER_CREDITS.privateGoalCreation - (credits ?? 0)} more</p>
                                                                         )
                                                                     }
                                                                 </button>
@@ -634,7 +634,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                             <p className="text-sm font-medium text-neutral-900 dark:text-white">No Group</p>
                                                                             <p className="text-xs text-neutral-500">Keep ungrouped</p>
                                                                         </div>
-                                                                        {formData.groupId === null && <Check className="w-4 h-4 text-neutral-900" />}
+                                                                        {formData.groupId === null && <Check className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />}
                                                                     </button>
 
                                                                     {
@@ -658,7 +658,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                                 <div className="flex-1">
                                                                                     <p className="text-sm font-medium text-neutral-900 dark:text-white">{group.name}</p>
                                                                                 </div>
-                                                                                {formData.groupId === group.id && <Check className="w-4 h-4 text-neutral-900" />}
+                                                                                {formData.groupId === group.id && <Check className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />}
                                                                             </button>
                                                                         ))
                                                                     }

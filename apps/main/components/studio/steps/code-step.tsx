@@ -142,7 +142,7 @@ export function CodeStep({ step, studioId }: CodeStepProps) {
 							</span>
 						)}
 						{isSaved && !isSaving && (
-							<span className="text-xs text-neutral-800 flex items-center gap-1">
+							<span className="text-xs text-neutral-800 dark:text-neutral-200 flex items-center gap-1">
 								<Check className="h-3 w-3" />
 								Saved
 							</span>
@@ -195,10 +195,10 @@ export function CodeStep({ step, studioId }: CodeStepProps) {
 									hasError ? (
 										<XCircle className="h-3.5 w-3.5 text-red-400" />
 									) : (
-										<CheckCircle className="h-3.5 w-3.5 text-neutral-800" />
+										<CheckCircle className="h-3.5 w-3.5 text-neutral-800 dark:text-neutral-200" />
 									)
 								}
-								<span className={hasError ? "text-red-400" : "text-neutral-800"}>
+								<span className={hasError ? "text-red-400" : "text-neutral-800 dark:text-neutral-200"}>
 									Output
 								</span>
 							</div>

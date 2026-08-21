@@ -298,9 +298,9 @@ export function CreateMockSheet({
                                                 >
                                                     {
                                                         progressPercent === 100 ? (
-                                                            <CheckCircle className="w-12 h-12 text-neutral-900" />
+                                                            <CheckCircle className="w-12 h-12 text-neutral-900 dark:text-neutral-100" />
                                                         ) : (
-                                                            <Brain className="w-12 h-12 text-neutral-900" />
+                                                            <Brain className="w-12 h-12 text-neutral-900 dark:text-neutral-100" />
                                                         )
                                                     }
                                                 </motion.div>
@@ -337,9 +337,9 @@ export function CreateMockSheet({
                                                     >
                                                         {
                                                             progressPercent >= item.threshold + 20 ? (
-                                                                <Check className="w-5 h-5 text-neutral-900" />
+                                                                <Check className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                                             ) : progressPercent >= item.threshold ? (
-                                                                <Loader2 className="w-5 h-5 text-neutral-900 animate-spin" />
+                                                                <Loader2 className="w-5 h-5 text-neutral-900 dark:text-neutral-100 animate-spin" />
                                                             ) : (
                                                                 <div className="w-5 h-5 rounded-full border-2 border-neutral-300 dark:border-neutral-700" />
                                                             )
@@ -545,7 +545,7 @@ export function CreateMockSheet({
                                                             <span>{formData.knowledgeBase.length} characters</span>
                                                             {
                                                                 formData.knowledgeBase.length > 0 && (
-                                                                    <Check className="w-4 h-4 text-neutral-900" />
+                                                                    <Check className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                                 )
                                                             }
                                                         </div>
@@ -606,9 +606,9 @@ export function CreateMockSheet({
                                                                         : "border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900"
                                                                 )}
                                                             >
-                                                                <Globe className="w-5 h-5 text-neutral-900 mb-2" />
+                                                                <Globe className="w-5 h-5 text-neutral-900 dark:text-neutral-100 mb-2" />
                                                                 <div className="font-medium text-neutral-900 dark:text-white">Public</div>
-                                                                <div className="text-xs text-neutral-800">50% discount!</div>
+                                                                <div className="text-xs text-neutral-800 dark:text-neutral-200">50% discount!</div>
                                                             </motion.button>
                                                         </div>
                                                         <div className="p-5 bg-neutral-50 dark:bg-neutral-900/50 rounded-xl border border-neutral-200 dark:border-neutral-800">
@@ -624,7 +624,7 @@ export function CreateMockSheet({
                                                                 </div>
                                                                 {
                                                                     formData.isPublic && (
-                                                                        <div className="flex justify-between text-neutral-800">
+                                                                        <div className="flex justify-between text-neutral-800 dark:text-neutral-200">
                                                                             <span>Public discount</span>
                                                                             <span>-50%</span>
                                                                         </div>

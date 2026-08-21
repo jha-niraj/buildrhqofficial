@@ -52,8 +52,8 @@ function TaskNode({ data }: { data: TaskNodeData }) {
 
     const statusIcons = {
         NOT_STARTED: <div className="w-4 h-4 rounded-full border-2 border-neutral-400" />,
-        IN_PROGRESS: <Play className="w-4 h-4 text-neutral-800 fill-neutral-800" />,
-        COMPLETED: <CheckCircle2 className="w-4 h-4 text-neutral-800" />,
+        IN_PROGRESS: <Play className="w-4 h-4 text-neutral-800 dark:text-neutral-200 fill-neutral-800" />,
+        COMPLETED: <CheckCircle2 className="w-4 h-4 text-neutral-800 dark:text-neutral-200" />,
     }
 
     return (

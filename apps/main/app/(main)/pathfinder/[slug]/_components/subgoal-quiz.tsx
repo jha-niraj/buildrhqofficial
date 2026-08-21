@@ -55,7 +55,7 @@ export function SubGoalQuiz({ subGoal, onComplete }: SubGoalQuizProps) {
                 </div>
                 <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">Quiz Completed!</h3>
                 <p className="text-neutral-500 mb-4">
-                    You scored <span className="font-bold text-neutral-800">{subGoal.quizScore}%</span> on this quiz.
+                    You scored <span className="font-bold text-neutral-800 dark:text-neutral-200">{subGoal.quizScore}%</span> on this quiz.
                 </p>
             </div>
         )

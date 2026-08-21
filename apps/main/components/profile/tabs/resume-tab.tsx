@@ -272,7 +272,7 @@ export function ResumeTab({
                     <CardHeader className="pb-2">
                         <div className="flex items-center justify-between">
                             <CardTitle className="text-lg flex items-center gap-2">
-                                <Briefcase className="w-5 h-5 text-neutral-900" />
+                                <Briefcase className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                 Work Experience
                             </CardTitle>
                             {
@@ -362,7 +362,7 @@ export function ResumeTab({
                                                                         exp.isCurrentlyWorking && (
                                                                             <Badge
                                                                                 variant="outline"
-                                                                                className="text-xs bg-neutral-900/10 text-neutral-800 border-neutral-900/20"
+                                                                                className="text-xs bg-neutral-900/10 text-neutral-800 dark:text-neutral-200 border-neutral-900/20"
                                                                             >
                                                                                 Current
                                                                             </Badge>
@@ -416,7 +416,7 @@ export function ResumeTab({
                     <CardHeader className="pb-2">
                         <div className="flex items-center justify-between">
                             <CardTitle className="text-lg flex items-center gap-2">
-                                <GraduationCap className="w-5 h-5 text-neutral-900" />
+                                <GraduationCap className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                 Education
                             </CardTitle>
                             {
@@ -435,7 +435,7 @@ export function ResumeTab({
                                     {user.educations.map((edu) => (
                                         <div key={edu.id} className="flex items-start gap-4">
                                             <div className="w-12 h-12 rounded-lg bg-neutral-900/10 flex items-center justify-center shrink-0">
-                                                <GraduationCap className="w-6 h-6 text-neutral-900" />
+                                                <GraduationCap className="w-6 h-6 text-neutral-900 dark:text-neutral-100" />
                                             </div>
                                             <div>
                                                 <h4 className="font-semibold">
@@ -453,7 +453,7 @@ export function ResumeTab({
                             ) : user.university ? (
                                 <div className="flex items-start gap-4">
                                     <div className="w-12 h-12 rounded-lg bg-neutral-900/10 flex items-center justify-center">
-                                        <GraduationCap className="w-6 h-6 text-neutral-900" />
+                                        <GraduationCap className="w-6 h-6 text-neutral-900 dark:text-neutral-100" />
                                     </div>
                                     <div>
                                         <h4 className="font-semibold">{user.university}</h4>
@@ -486,7 +486,7 @@ export function ResumeTab({
                     <CardHeader className="pb-2">
                         <div className="flex items-center justify-between">
                             <CardTitle className="text-lg flex items-center gap-2">
-                                <Award className="w-5 h-5 text-neutral-900" />
+                                <Award className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                 Certifications
                             </CardTitle>
                             {
@@ -513,7 +513,7 @@ export function ResumeTab({
                                                 className="flex items-center gap-4 p-4 rounded-lg border hover:shadow-sm transition-shadow group"
                                             >
                                                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-neutral-900/20 to-neutral-900/20 flex items-center justify-center flex-shrink-0">
-                                                    <Award className="w-6 h-6 text-neutral-900" />
+                                                    <Award className="w-6 h-6 text-neutral-900 dark:text-neutral-100" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <h4 className="font-medium line-clamp-1 group-hover:text-primary transition-colors">

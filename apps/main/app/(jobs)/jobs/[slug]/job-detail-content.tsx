@@ -278,7 +278,7 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                     {job.company.name}
                                     {
                                         job.company.verificationStatus === "VERIFIED" && (
-                                            <CheckCircle2 className="w-4 h-4 text-neutral-900" />
+                                            <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                         )
                                     }
                                 </Link>
@@ -400,7 +400,7 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                     transition={{ delay: 0.4 }}
                                 >
                                     <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-3 flex items-center gap-2">
-                                        <Target className="w-5 h-5 text-neutral-900" />
+                                        <Target className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                         Responsibilities
                                     </h2>
                                     <ul className="space-y-2">
@@ -424,7 +424,7 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                     transition={{ delay: 0.5 }}
                                 >
                                     <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-3 flex items-center gap-2">
-                                        <Award className="w-5 h-5 text-neutral-900" />
+                                        <Award className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                         Requirements
                                     </h2>
                                     <ul className="space-y-2">
@@ -448,7 +448,7 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                     transition={{ delay: 0.6 }}
                                 >
                                     <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-3 flex items-center gap-2">
-                                        <Zap className="w-5 h-5 text-neutral-900" />
+                                        <Zap className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                         Nice to Have
                                     </h2>
                                     <ul className="space-y-2">
@@ -472,7 +472,7 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                     transition={{ delay: 0.7 }}
                                 >
                                     <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-3 flex items-center gap-2">
-                                        <Star className="w-5 h-5 text-neutral-900" />
+                                        <Star className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                         Benefits & Perks
                                     </h2>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -736,7 +736,7 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                             {job.company.name}
                                             {
                                                 job.company.verificationStatus === "VERIFIED" && (
-                                                    <CheckCircle2 className="w-4 h-4 text-neutral-900" />
+                                                    <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                 )
                                             }
                                         </p>

@@ -153,7 +153,7 @@ export function PageOverviewCard({ page, difficultyColors }: PageOverviewCardPro
                                         {
                                             page.coreFeatures.map((feature: string, idx: number) => (
                                                 <li key={idx} className="flex items-start gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-                                                    <CheckCircle2 className="w-4 h-4 text-neutral-800 flex-shrink-0 mt-0.5" />
+                                                    <CheckCircle2 className="w-4 h-4 text-neutral-800 dark:text-neutral-200 flex-shrink-0 mt-0.5" />
                                                     {feature}
                                                 </li>
                                             ))

@@ -229,7 +229,7 @@ export function RoundContent({ application, round }: RoundContentProps) {
                         round.whatToExpect && round.whatToExpect.length > 0 && (
                             <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6">
                                 <h3 className="font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
-                                    <BookOpen className="w-5 h-5 text-neutral-900" />
+                                    <BookOpen className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                     What to Expect
                                 </h3>
                                 <ul className="space-y-3">
@@ -252,7 +252,7 @@ export function RoundContent({ application, round }: RoundContentProps) {
                         round.topicsCovered && round.topicsCovered.length > 0 && (
                             <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6">
                                 <h3 className="font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
-                                    <Target className="w-5 h-5 text-neutral-900" />
+                                    <Target className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                     Topics Covered
                                 </h3>
                                 <div className="flex flex-wrap gap-2">
@@ -272,7 +272,7 @@ export function RoundContent({ application, round }: RoundContentProps) {
                         round.sampleQuestions && round.sampleQuestions.length > 0 && (
                             <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6">
                                 <h3 className="font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
-                                    <HelpCircle className="w-5 h-5 text-neutral-900" />
+                                    <HelpCircle className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                     Sample Questions
                                 </h3>
                                 <div className="space-y-3">
@@ -294,14 +294,14 @@ export function RoundContent({ application, round }: RoundContentProps) {
                         round.evaluationCriteria && round.evaluationCriteria.length > 0 && (
                             <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6">
                                 <h3 className="font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
-                                    <CheckCircle2 className="w-5 h-5 text-neutral-900" />
+                                    <CheckCircle2 className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                     Evaluation Criteria
                                 </h3>
                                 <ul className="space-y-2">
                                     {
                                         round.evaluationCriteria.map((criteria, index) => (
                                             <li key={index} className="flex items-start gap-2">
-                                                <CheckCircle2 className="w-4 h-4 text-neutral-900 mt-0.5 shrink-0" />
+                                                <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100 mt-0.5 shrink-0" />
                                                 <span className="text-neutral-700 dark:text-neutral-300">{criteria}</span>
                                             </li>
                                         ))
@@ -315,7 +315,7 @@ export function RoundContent({ application, round }: RoundContentProps) {
                         round.tipsForCandidates && round.tipsForCandidates.length > 0 && (
                             <div className="bg-gradient-to-br from-neutral-50 to-neutral-50 dark:from-neutral-800/20 dark:to-neutral-800/20 rounded-2xl border border-neutral-100 dark:border-neutral-800 p-6">
                                 <h3 className="font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
-                                    <Lightbulb className="w-5 h-5 text-neutral-900" />
+                                    <Lightbulb className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                     Tips for Success
                                 </h3>
                                 <ul className="space-y-3">

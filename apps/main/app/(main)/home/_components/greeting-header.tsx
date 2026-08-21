@@ -111,7 +111,7 @@ export default function GreetingHeader({ user }: GreetingHeaderProps) {
                                 transition={{ repeat: Infinity, duration: 2, delay: 1 }}
                                 className="shrink-0"
                             >
-                                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-neutral-900" />
+                                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-neutral-900 dark:text-neutral-100" />
                             </motion.div>
                         </div>
                         <p className="text-muted-foreground text-sm sm:text-base">

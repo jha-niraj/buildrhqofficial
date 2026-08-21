@@ -322,7 +322,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                                             {
                                                 job.interviewProcess && (
                                                     <div className="flex items-center gap-1 mt-2 text-xs text-neutral-400">
-                                                        <CheckCircle2 className="w-3 h-3 text-neutral-900" />
+                                                        <CheckCircle2 className="w-3 h-3 text-neutral-900 dark:text-neutral-100" />
                                                         <span>{job.interviewProcess.rounds.length} interview rounds</span>
                                                     </div>
                                                 )

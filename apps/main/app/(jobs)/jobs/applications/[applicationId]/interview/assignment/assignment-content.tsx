@@ -173,7 +173,7 @@ export function AssignmentContent({ application }: AssignmentContentProps) {
                                     : "bg-neutral-50 dark:bg-neutral-800/20 border-neutral-200 dark:border-neutral-800"
                                 }`}>
                                 <div className="flex items-center gap-3">
-                                    <Clock className={`w-5 h-5 ${isOverdue ? "text-red-600" : "text-neutral-800"}`} />
+                                    <Clock className={`w-5 h-5 ${isOverdue ? "text-red-600" : "text-neutral-800 dark:text-neutral-200"}`} />
                                     <div>
                                         <p className={`font-medium ${isOverdue ? "text-red-700 dark:text-red-400" : "text-neutral-700 dark:text-neutral-100"}`}>
                                             {isOverdue ? "Assignment Overdue" : "Deadline"}
@@ -234,7 +234,7 @@ export function AssignmentContent({ application }: AssignmentContentProps) {
                                                 {
                                                     assignment.requirements.map((req, index) => (
                                                         <li key={index} className="flex items-start gap-2">
-                                                            <CheckCircle2 className="w-4 h-4 text-neutral-900 mt-0.5 shrink-0" />
+                                                            <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100 mt-0.5 shrink-0" />
                                                             <span className="text-neutral-700 dark:text-neutral-300">{req}</span>
                                                         </li>
                                                     ))
@@ -282,7 +282,7 @@ export function AssignmentContent({ application }: AssignmentContentProps) {
                                                             rel="noopener noreferrer"
                                                             className="flex items-center gap-2 p-3 rounded-lg bg-neutral-50 dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
                                                         >
-                                                            <LinkIcon className="w-4 h-4 text-neutral-900" />
+                                                            <LinkIcon className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                             <span className="text-sm text-neutral-800 dark:text-neutral-100 truncate flex-1">
                                                                 {resource}
                                                             </span>
@@ -299,7 +299,7 @@ export function AssignmentContent({ application }: AssignmentContentProps) {
                                     {
                                         isSubmitted ? (
                                             <div className="text-center py-4">
-                                                <CheckCircle2 className="w-12 h-12 text-neutral-900 mx-auto mb-3" />
+                                                <CheckCircle2 className="w-12 h-12 text-neutral-900 dark:text-neutral-100 mx-auto mb-3" />
                                                 <h4 className="font-semibold text-neutral-900 dark:text-white mb-1">
                                                     Assignment Submitted
                                                 </h4>

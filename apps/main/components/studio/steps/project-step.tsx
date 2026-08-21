@@ -113,7 +113,7 @@ export function ProjectStep({ step }: ProjectStepProps) {
                   <div className="mb-4 space-y-1">
                     {project.features.slice(0, 5).map((feature, idx) => (
                       <div key={idx} className="flex items-start gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-                        <span className="text-neutral-900 mt-0.5">•</span>
+                        <span className="text-neutral-900 dark:text-neutral-100 mt-0.5">•</span>
                         {feature}
                       </div>
                     ))}
@@ -126,7 +126,7 @@ export function ProjectStep({ step }: ProjectStepProps) {
                     <>
                       {addedToPortfolio[project.id] ? (
                         <Button size="sm" variant="outline" disabled className="gap-2">
-                          <CheckCircle className="h-4 w-4 text-neutral-900" />
+                          <CheckCircle className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />
                           Added to Portfolio
                         </Button>
                       ) : (

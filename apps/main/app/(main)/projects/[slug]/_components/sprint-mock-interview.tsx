@@ -267,7 +267,7 @@ export default function SprintMockInterview({
             <Card className="border-neutral-200 dark:border-neutral-800">
                 <CardHeader className="pb-3">
                     <CardTitle className="text-base flex items-center gap-2">
-                        <MonitorPlay className="w-5 h-5 text-neutral-800" />
+                        <MonitorPlay className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />
                         {sprintName} Mock Interview
                     </CardTitle>
                     <CardDescription>
@@ -333,7 +333,7 @@ export default function SprintMockInterview({
             <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-base flex items-center gap-2">
-                        <MonitorPlay className="w-5 h-5 text-neutral-800" />
+                        <MonitorPlay className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />
                         Sprint {sprintNumber} Mock Interview
                     </CardTitle>
                     <Badge variant="secondary" className="text-xs">
@@ -350,21 +350,21 @@ export default function SprintMockInterview({
                         "p-3 rounded-lg",
                         "bg-neutral-50 dark:bg-neutral-900"
                     )}>
-                        <p className="text-2xl font-bold text-neutral-800">{sprintNumber}</p>
+                        <p className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">{sprintNumber}</p>
                         <p className="text-xs text-neutral-500">Sprints</p>
                     </div>
                     <div className={cn(
                         "p-3 rounded-lg",
                         "bg-neutral-50 dark:bg-neutral-900"
                     )}>
-                        <p className="text-2xl font-bold text-neutral-800">~10</p>
+                        <p className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">~10</p>
                         <p className="text-xs text-neutral-500">Minutes</p>
                     </div>
                     <div className={cn(
                         "p-3 rounded-lg",
                         "bg-neutral-50 dark:bg-neutral-900"
                     )}>
-                        <p className="text-2xl font-bold text-neutral-800">5-8</p>
+                        <p className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">5-8</p>
                         <p className="text-xs text-neutral-500">Questions</p>
                     </div>
                 </div>

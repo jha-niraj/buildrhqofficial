@@ -234,7 +234,7 @@ Keep responses brief and natural.`,
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-xl font-bold text-neutral-900 dark:text-white flex items-center gap-2">
-                            <Trophy className="w-5 h-5 text-neutral-900" />
+                            <Trophy className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                             Daily Standup
                         </h2>
                         <p className="text-sm text-neutral-500 dark:text-neutral-400">
@@ -425,7 +425,7 @@ Keep responses brief and natural.`,
                                 >
                                     <div className="flex items-center gap-3">
                                         {standup.status === 'SUBMITTED' ? (
-                                            <CheckCircle2 className="w-4 h-4 text-neutral-800" />
+                                            <CheckCircle2 className="w-4 h-4 text-neutral-800 dark:text-neutral-200" />
                                         ) : (
                                             <Calendar className="w-4 h-4 text-neutral-400" />
                                         )}
@@ -517,7 +517,7 @@ Keep responses brief and natural.`,
                                 {day.label}
                             </div>
                             {selectedDays.includes(day.value) && (
-                                <CheckCircle2 className="w-4 h-4 text-neutral-800 mx-auto mt-1" />
+                                <CheckCircle2 className="w-4 h-4 text-neutral-800 dark:text-neutral-200 mx-auto mt-1" />
                             )}
                         </button>
                     ))}

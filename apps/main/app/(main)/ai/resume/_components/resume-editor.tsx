@@ -369,7 +369,7 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
                             )}
                             {tailorResult.keywordsAdded.length > 0 && (
                                 <div>
-                                    <p className="text-xs font-medium text-neutral-800 mb-1.5">Keywords added/emphasised</p>
+                                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200 mb-1.5">Keywords added/emphasised</p>
                                     <div className="flex flex-wrap gap-1">
                                         {tailorResult.keywordsAdded.map(k => <Badge key={k} className="text-[10px] bg-neutral-50 text-neutral-700 dark:bg-neutral-800/20 dark:text-neutral-100">{k}</Badge>)}
                                     </div>
@@ -377,11 +377,11 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
                             )}
                             {tailorResult.suggestions.length > 0 && (
                                 <div>
-                                    <p className="text-xs font-medium text-neutral-800 mb-1.5">What you should add to this resume</p>
+                                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200 mb-1.5">What you should add to this resume</p>
                                     <ul className="space-y-1">
                                         {tailorResult.suggestions.map((s, i) => (
                                             <li key={i} className="text-xs text-neutral-600 dark:text-neutral-400 flex gap-1.5">
-                                                <span className="text-neutral-900 flex-shrink-0">→</span>{s}
+                                                <span className="text-neutral-900 dark:text-neutral-100 flex-shrink-0">→</span>{s}
                                             </li>
                                         ))}
                                     </ul>
@@ -395,7 +395,7 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
                         <div className="space-y-3 border-t border-neutral-200 dark:border-neutral-800 pt-4">
                             <div className="flex items-center justify-between">
                                 <span className="text-sm font-semibold">ATS Score</span>
-                                <span className={cn('text-2xl font-black', scoreResult.score >= 80 ? 'text-neutral-800' : scoreResult.score >= 60 ? 'text-neutral-800' : 'text-red-600')}>
+                                <span className={cn('text-2xl font-black', scoreResult.score >= 80 ? 'text-neutral-800 dark:text-neutral-200' : scoreResult.score >= 60 ? 'text-neutral-800 dark:text-neutral-200' : 'text-red-600')}>
                                     {scoreResult.score}/100
                                 </span>
                             </div>

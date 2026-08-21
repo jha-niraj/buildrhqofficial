@@ -677,7 +677,7 @@ export default function SprintsPageClient({
                                                                 "w-6 h-6 rounded-full flex items-center justify-center",
                                                                 selectedMockSprintId === sprint.id
                                                                     ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900"
-                                                                    : "bg-neutral-100 dark:bg-neutral-800/50 text-neutral-800"
+                                                                    : "bg-neutral-100 dark:bg-neutral-800/50 text-neutral-800 dark:text-neutral-200"
                                                             )}>
                                                                 <Brain className="w-3 h-3" />
                                                             </div>
@@ -815,7 +815,7 @@ export default function SprintsPageClient({
                             disabled={progressPercent <= 50}
                             className={cn("hidden lg:flex gap-2", progressPercent <= 50 && "opacity-50 cursor-not-allowed")}
                         >
-                            <Brain className="w-4 h-4 text-neutral-800" />
+                            <Brain className="w-4 h-4 text-neutral-800 dark:text-neutral-200" />
                             Final Quiz
                             {progressPercent <= 50 && <Lock className="w-3 h-3 ml-1" />}
                         </Button>
@@ -824,7 +824,7 @@ export default function SprintsPageClient({
                             disabled={progressPercent <= 75}
                             className={cn("hidden lg:flex gap-2", progressPercent <= 75 && "opacity-50 cursor-not-allowed")}
                         >
-                            <MonitorPlay className="w-4 h-4 text-neutral-800" />
+                            <MonitorPlay className="w-4 h-4 text-neutral-800 dark:text-neutral-200" />
                             Final Mock Interview
                             {progressPercent <= 75 && <Lock className="w-3 h-3 ml-1" />}
                         </Button>
@@ -949,7 +949,7 @@ export default function SprintsPageClient({
                                         value="standup"
                                         className="flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800"
                                     >
-                                        <Mic className="h-4 w-4 text-neutral-800" />
+                                        <Mic className="h-4 w-4 text-neutral-800 dark:text-neutral-200" />
                                         <span className="hidden sm:inline">Daily Standup</span>
                                     </TabsTrigger>
                                     <TabsTrigger
@@ -1040,7 +1040,7 @@ export default function SprintsPageClient({
                                                             selectedTask.Learns && selectedTask.Learns.length > 0 && (
                                                                 <div>
                                                                     <h4 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-3 flex items-center gap-2">
-                                                                        <Lightbulb className="w-4 h-4 text-neutral-900" />
+                                                                        <Lightbulb className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                                         Key Learns
                                                                     </h4>
                                                                     <div className="space-y-3">
@@ -1142,7 +1142,7 @@ export default function SprintsPageClient({
                                                                         {
                                                                             selectedTask.criteria.map((criterion, idx) => (
                                                                                 <li key={idx} className="flex items-start gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-                                                                                    <CheckCircle2 className="w-4 h-4 text-neutral-800 flex-shrink-0 mt-0.5" />
+                                                                                    <CheckCircle2 className="w-4 h-4 text-neutral-800 dark:text-neutral-200 flex-shrink-0 mt-0.5" />
                                                                                     {criterion}
                                                                                 </li>
                                                                             ))
@@ -1186,7 +1186,7 @@ export default function SprintsPageClient({
                                                                         Terminal Command
                                                                     </h4>
                                                                     <div className="flex items-center gap-2 p-3 bg-neutral-900 dark:bg-black rounded-xl">
-                                                                        <code className="flex-1 text-sm text-neutral-800 font-mono">
+                                                                        <code className="flex-1 text-sm text-neutral-800 dark:text-neutral-200 font-mono">
                                                                             $ {selectedTask.terminalCommand}
                                                                         </code>
                                                                         <Button
@@ -1304,7 +1304,7 @@ export default function SprintsPageClient({
                                                 ) : selectedTask ? (
                                                     isLoadingAssessment ? (
                                                         <div className="flex flex-col items-center justify-center h-[50vh]">
-                                                            <Loader2 className="w-8 h-8 animate-spin text-neutral-800 mb-4" />
+                                                            <Loader2 className="w-8 h-8 animate-spin text-neutral-800 dark:text-neutral-200 mb-4" />
                                                             <p className="text-sm text-neutral-500">Loading assessment...</p>
                                                         </div>
                                                     ) : selectedTask.assessmentType === 'QUIZ' && quizQuestions.length > 0 ? (
@@ -1356,9 +1356,9 @@ export default function SprintsPageClient({
                                                                         <div className="flex items-center gap-2 mb-2">
                                                                             {
                                                                                 codeResult.passed ? (
-                                                                                    <CheckCircle2 className="w-5 h-5 text-neutral-800" />
+                                                                                    <CheckCircle2 className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />
                                                                                 ) : (
-                                                                                    <AlertTriangle className="w-5 h-5 text-neutral-800" />
+                                                                                    <AlertTriangle className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />
                                                                                 )
                                                                             }
                                                                             <span className="font-semibold">

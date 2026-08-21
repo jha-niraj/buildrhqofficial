@@ -201,7 +201,7 @@ export function CommentThread({
     return (
         <section className={cn("w-full", className)}>
             <div className="flex items-center gap-2 mb-3">
-                <MessageSquare className="h-4 w-4 text-neutral-900" />
+                <MessageSquare className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />
                 <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
                     {count === 1 ? "1 Comment" : `${count} Comments`}
                 </h3>

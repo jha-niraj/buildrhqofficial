@@ -207,7 +207,7 @@ export function SparkContent({ initialJobs, pagination, isAuthenticated }: Spark
                 <DialogContent className="max-w-md">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2 text-xl">
-                            <PartyPopper className="w-6 h-6 text-neutral-900" />
+                            <PartyPopper className="w-6 h-6 text-neutral-900 dark:text-neutral-100" />
                             Great Choice!
                         </DialogTitle>
                         <DialogDescription>

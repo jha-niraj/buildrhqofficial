@@ -261,7 +261,7 @@ export function CompaniesContent({
             {featuredCompanies.length > 0 && !searchQuery && selectedIndustries.length === 0 && (
                 <div className="mb-10">
                     <div className="flex items-center gap-2 mb-4">
-                        <Star className="w-5 h-5 text-neutral-900" />
+                        <Star className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                         <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
                             Featured Companies
                         </h2>
@@ -299,7 +299,7 @@ export function CompaniesContent({
                                                     {company.name}
                                                 </h3>
                                                 {company.verificationStatus === "VERIFIED" && (
-                                                    <CheckCircle2 className="w-4 h-4 text-neutral-900 shrink-0" />
+                                                    <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100 shrink-0" />
                                                 )}
                                             </div>
                                             {company.industry && (
@@ -399,7 +399,7 @@ export function CompaniesContent({
                                                         {company.name}
                                                     </h3>
                                                     {company.verificationStatus === "VERIFIED" && (
-                                                        <CheckCircle2 className="w-4 h-4 text-neutral-900 shrink-0" />
+                                                        <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100 shrink-0" />
                                                     )}
                                                 </div>
                                                 {company.industry && (

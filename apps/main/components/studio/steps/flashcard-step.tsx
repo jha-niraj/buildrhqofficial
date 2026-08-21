@@ -90,12 +90,12 @@ export function FlashcardStep({ step }: FlashcardStepProps) {
 						</p>
 						<div className="flex items-center justify-center gap-8 mb-8">
 							<div className="text-center">
-								<p className="text-3xl font-bold text-neutral-800">{knownCount}</p>
+								<p className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">{knownCount}</p>
 								<p className="text-sm text-neutral-500">Known</p>
 							</div>
 							<div className="h-12 w-px bg-neutral-200 dark:bg-neutral-700" />
 							<div className="text-center">
-								<p className="text-3xl font-bold text-neutral-800">{reviewCount}</p>
+								<p className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">{reviewCount}</p>
 								<p className="text-sm text-neutral-500">Review</p>
 							</div>
 							<div className="h-12 w-px bg-neutral-200 dark:bg-neutral-700" />

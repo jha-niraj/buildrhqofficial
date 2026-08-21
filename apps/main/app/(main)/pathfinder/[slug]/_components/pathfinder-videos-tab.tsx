@@ -68,7 +68,7 @@ export function PathfinderVideosTab({ aiResources }: PathfinderVideosTabProps) {
                                                 rel="noopener noreferrer"
                                                 className="flex items-center gap-3 p-3 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
                                             >
-                                                <ListVideo className="w-5 h-5 text-neutral-900" />
+                                                <ListVideo className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                                 <div className="flex-1">
                                                     <p className="text-sm text-neutral-700 dark:text-neutral-300">
                                                         {v.description || v.url}
@@ -114,7 +114,7 @@ export function PathfinderVideosTab({ aiResources }: PathfinderVideosTabProps) {
                                     rel="noopener noreferrer"
                                     className="flex items-start gap-3 p-3 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
                                 >
-                                    <FileText className="w-4 h-4 text-neutral-900 flex-shrink-0 mt-0.5" />
+                                    <FileText className="w-4 h-4 text-neutral-900 dark:text-neutral-100 flex-shrink-0 mt-0.5" />
                                     <div className="min-w-0 flex-1">
                                         <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">
                                             {d.description || d.url}

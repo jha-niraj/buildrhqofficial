@@ -356,7 +356,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                     transition={{ delay: 0.2 }}
                                 >
                                     <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
-                                        <Code className="w-5 h-5 text-neutral-900" />
+                                        <Code className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                         Tech Stack
                                     </h2>
                                     <div className="flex flex-wrap gap-2">
@@ -379,7 +379,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                     transition={{ delay: 0.3 }}
                                 >
                                     <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
-                                        <Award className="w-5 h-5 text-neutral-900" />
+                                        <Award className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                         Benefits & Perks
                                     </h2>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -408,7 +408,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                     transition={{ delay: 0.35 }}
                                 >
                                     <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
-                                        <Briefcase className="w-5 h-5 text-neutral-900" />
+                                        <Briefcase className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                         Currently Hiring For
                                     </h2>
                                     <div className="space-y-4">
@@ -530,7 +530,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                         >
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="font-semibold text-neutral-900 dark:text-white flex items-center gap-2">
-                                    <Briefcase className="w-5 h-5 text-neutral-900" />
+                                    <Briefcase className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                     Open Positions
                                 </h3>
                                 <Badge variant="secondary">{jobs.length}</Badge>
