@@ -2,6 +2,7 @@ import {
     Code2, FolderKanban, Video, Sparkles, Briefcase, Coins,
     BookOpen, Tags, Users, Mail, Swords, Scale, ShieldCheck,
     MessagesSquare, Braces, FileText, GraduationCap, School, ClipboardList,
+    TrendingUp, GitBranch,
 } from 'lucide-react'
 
 /**
@@ -130,14 +131,21 @@ export const NAV_ITEMS: readonly NavItem[] = [
             },
         ],
     },
+    // ── Guides ──
+    //
+    // Labelled "Guides", not "Resources". The site calls these guides everywhere else -
+    // "30 guides and counting" on the blog index, "Read the guide" on every card - and a
+    // nav item nobody recognises as the thing they just read about is a nav item that does
+    // not get clicked. All seven hubs are listed rather than a sample, because the panel
+    // is the only place the full topic set is visible without loading a page.
     {
         href: '/blogs',
-        label: 'Resources',
+        label: 'Guides',
         children: [
             {
                 href: '/blogs',
-                title: 'Blog',
-                description: '30 guides on interview prep, DSA, resumes and careers',
+                title: 'All guides',
+                description: '30 written guides across seven topics, free and no account needed',
                 icon: BookOpen,
             },
             {
@@ -153,6 +161,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
                 icon: Braces,
             },
             {
+                href: '/blogs/topics/career',
+                title: 'Career',
+                description: 'Getting in, the ladder to staff, placements and new-grad hunting',
+                icon: TrendingUp,
+            },
+            {
                 href: '/blogs/topics/resume',
                 title: 'Resume and applications',
                 description: 'What a parser extracts, and the bullets a human reads',
@@ -165,10 +179,16 @@ export const NAV_ITEMS: readonly NavItem[] = [
                 icon: FolderKanban,
             },
             {
-                href: '/blogs',
-                title: 'All topics',
-                description: 'Seven hubs, each with a reading path',
-                icon: Tags,
+                href: '/blogs/topics/open-source',
+                title: 'Open source',
+                description: 'A first merged pull request, and how to present it',
+                icon: GitBranch,
+            },
+            {
+                href: '/blogs/topics/ai-tools',
+                title: 'AI and developer tools',
+                description: 'What to use, and how not to hollow out the skill',
+                icon: Sparkles,
             },
         ],
     },

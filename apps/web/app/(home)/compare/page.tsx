@@ -57,25 +57,42 @@ export default function CompareIndexPage() {
 
             <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:py-24">
                 <div className="grid gap-5 sm:grid-cols-2">
-                    {COMPARISONS.map((c) => (
-                        <Reveal key={c.slug}>
+                    {COMPARISONS.map((c, i) => (
+                        <Reveal key={c.slug} delay={Math.min(i * 0.05, 0.3)} className="flex">
+                            {/* Same shape as a blog card: the generated cover on top, then
+                                the copy. The cards used to be text-only in a bordered box,
+                                which made a ten-card grid a wall of identical rectangles -
+                                the exact failure the blog index had before its covers. */}
                             <Link
                                 href={`/compare/${c.slug}`}
-                                className="group flex h-full flex-col rounded-2xl border border-neutral-200 p-7 transition-colors hover:border-neutral-400 dark:border-neutral-800 dark:hover:border-neutral-600"
+                                className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white transition-colors hover:border-neutral-400 dark:border-neutral-800 dark:bg-neutral-900/40 dark:hover:border-neutral-600"
                             >
-                                <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400">
-                                    Comparison
-                                </p>
-                                <h2 className="mb-3 text-xl font-bold tracking-tight text-neutral-900 dark:text-white">
-                                    {c.title}
-                                </h2>
-                                <p className="mb-6 text-[15px] leading-relaxed text-neutral-600 dark:text-neutral-400">
-                                    {c.stance}
-                                </p>
-                                <span className="mt-auto inline-flex items-center gap-1.5 text-sm font-medium text-neutral-900 dark:text-white">
-                                    Read the comparison
-                                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
-                                </span>
+                                <div className="overflow-hidden border-b border-neutral-200 dark:border-neutral-800">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                        src={`/compare/${c.slug}/cover`}
+                                        alt={c.title}
+                                        width={1200}
+                                        height={630}
+                                        loading={i < 2 ? 'eager' : 'lazy'}
+                                        className="aspect-[1200/630] w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                                    />
+                                </div>
+                                <div className="flex flex-1 flex-col p-6">
+                                    <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400">
+                                        Comparison
+                                    </p>
+                                    <h2 className="mb-3 text-xl font-bold tracking-tight text-neutral-900 dark:text-white">
+                                        {c.title}
+                                    </h2>
+                                    <p className="mb-6 text-[15px] leading-relaxed text-neutral-600 dark:text-neutral-400">
+                                        {c.stance}
+                                    </p>
+                                    <span className="mt-auto inline-flex items-center gap-1.5 text-sm font-medium text-neutral-900 dark:text-white">
+                                        Read the comparison
+                                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
+                                    </span>
+                                </div>
                             </Link>
                         </Reveal>
                     ))}

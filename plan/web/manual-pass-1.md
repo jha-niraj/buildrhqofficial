@@ -310,3 +310,73 @@ Re-verified after the question. **Nothing was broken, and it was worth checking 
 a separate chunk that is not linked from the initial HTML, so the face arrives a moment after
 first paint. A production build links it up front. Checked the served dev CSS and the built
 CSS separately to confirm that is the only difference.
+
+---
+
+# Manual pass 3, 2026-08-21
+
+## MP-14 - Comparison covers, and cards that match the blog
+
+Ten generated covers at `/compare/<slug>/cover`, prerendered, same stable-URL route-handler
+pattern as the blog. The index cards now lead with the cover in the same shape as a blog
+card - the grid was ten identical bordered rectangles of text, which is exactly the failure
+the blog index had before its covers.
+
+**The competitor's logo is deliberately NOT on the card.** A logo is their trademark, and
+putting it on a card that argues against them, on our domain, is the kind of thing that
+generates a letter. It would also have to be fetched, cached and kept current for ten
+companies - and four of these compare a CATEGORY that has no logo to borrow. The right-hand
+tile is a drawn glyph plus their name, which signals the comparison without borrowing
+anybody's brand.
+
+Six glyphs cover ten pages, drawn in divs because satori renders no icon library. They were
+scaled up from 52px to 76px after the first render: our mark fills about 80px of its 128px
+tile, and at 52 the right tile read as lighter than the left - which on a versus card is a
+visual claim nobody intended to make.
+
+Each comparison page also uses its own cover as `og:image` now. Ten links sharing one
+preview image is ten pages that look like one.
+
+## MP-15 - Guides in the navbar
+
+The dropdown was labelled **Resources** and carried four of the seven hubs. The site calls
+these guides everywhere else - "30 guides and counting", "Read the guide" on every card - so
+a nav item nobody recognises as the thing they just read about does not get clicked.
+
+Now labelled **Guides**, with all seven hubs plus the index.
+
+**The scan found something the rename did not fix.** Only three of seven hubs were reachable
+from the home page's HTML, because the nav panel is conditionally rendered - it does not
+exist until somebody hovers, so a crawler never sees those links at all.
+
+The footer is the real internal-linking surface: on every page, always in the markup. It now
+carries all seven hubs and five comparisons plus both indexes. Verified from the home page's
+HTML: **7/7 hubs and 5/5 comparisons crawlable** where it was 3/7 and 2/10.
+
+## MP-16 - Legal sidebar was never sticky
+
+`sticky top-24` was on a div INSIDE the aside. A sticky element travels within its containing
+block, and that div's containing block was the aside - whose height is its own content,
+because the flex parent is `items-start`. Zero travel, so it behaved exactly like `static`.
+
+Moved to the aside itself, where the containing block becomes the flex container and is as
+tall as the article column. `self-start` keeps it from stretching, which would break sticky
+the other way.
+
+## MP-17 - Full scan
+
+55 pages: the landing page, five marketing pages, two legal pages, ten comparisons, seven
+hubs and thirty posts. Checked title length, description length, canonical, `og:image`,
+rendered repository paths, `href="#"`, and rendered `undefined`/`NaN`.
+
+**Seven real issues found and fixed:**
+
+- **The landing page had no `og:image` at all.** Its `openGraph` block REPLACES the root
+  layout's rather than merging into it, so the busiest page on the site was sharing as a
+  bare text preview. That is the kind of thing that survives indefinitely because nobody
+  looks at their own link previews.
+- Four comparison titles over 60 characters and three descriptions over 160, all introduced
+  by the new pages.
+
+Re-scan after: **55/55 clean.** Link crawl: 83 distinct internal links across 55 seed pages,
+all 200. Build prerenders 30 posts, 7 hubs, 10 comparisons and 47 covers.

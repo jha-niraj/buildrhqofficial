@@ -67,6 +67,15 @@ export interface ComparisonRow {
     learnMore?: { label: string; href: string }
 }
 
+/**
+ * Which drawn mark represents the alternative on the generated cover.
+ *
+ * A drawn glyph rather than the competitor's logo: a logo is their trademark, putting it
+ * on a card that argues against them invites a letter, and four of these compare a
+ * CATEGORY that has no logo to borrow. See `versusImage` in `lib/og.tsx`.
+ */
+export type VersusGlyphKind = 'grid' | 'cap' | 'spark' | 'book' | 'people' | 'list'
+
 export interface Comparison {
     /** URL slug. `/compare/<slug>`. */
     slug: string
@@ -96,6 +105,8 @@ export interface Comparison {
     vendorUrl?: string
     /** SEO description. */
     description: string
+    /** The mark drawn opposite ours on the generated cover. */
+    glyph: VersusGlyphKind
     /**
      * The long-form part of the page: named sections of argument, below the table.
      *
@@ -113,6 +124,7 @@ export interface Comparison {
 export const COMPARISONS: readonly Comparison[] = [
     {
         slug: 'leetcode',
+        glyph: 'grid',
         name: 'LeetCode',
         title: 'ShipItHQ vs LeetCode',
         stance: 'One is a problem bank. The other is everything that happens around the problems.',
@@ -231,6 +243,7 @@ export const COMPARISONS: readonly Comparison[] = [
     },
     {
         slug: 'interviewing-io',
+        glyph: 'people',
         name: 'interviewing.io',
         title: 'ShipItHQ vs interviewing.io',
         stance: 'Human interviewers from big companies, versus a rehearsal room that is open at 1am.',
@@ -337,6 +350,7 @@ export const COMPARISONS: readonly Comparison[] = [
     // ── Category: a coding bootcamp ────────────────────────────────────────────
     {
         slug: 'bootcamp',
+        glyph: 'cap',
         name: 'a coding bootcamp',
         title: 'ShipItHQ vs a coding bootcamp',
         stance: 'One sells structure and a cohort. The other sells repetition you can do at 1am.',
@@ -407,8 +421,9 @@ export const COMPARISONS: readonly Comparison[] = [
     // ── Category: free tutorials and YouTube ───────────────────────────────────
     {
         slug: 'youtube-tutorials',
+        glyph: 'book',
         name: 'free tutorials',
-        title: 'ShipItHQ vs free tutorials and YouTube',
+        title: 'ShipItHQ vs free tutorials',
         stance: 'The material has never been better or cheaper. What is missing is the part where something checks you.',
         description:
             'Free tutorials are genuinely excellent and cost nothing. The gap is not quality - it is that watching produces recognition, and interviews test retrieval.',
@@ -477,8 +492,9 @@ export const COMPARISONS: readonly Comparison[] = [
     // ── Category: using an AI assistant directly ───────────────────────────────
     {
         slug: 'chatgpt',
+        glyph: 'spark',
         name: 'an AI assistant',
-        title: 'ShipItHQ vs using ChatGPT directly',
+        title: 'ShipItHQ vs ChatGPT',
         stance: 'One will explain anything you ask. The other runs your code, remembers your resume, and is willing to tell you no.',
         description:
             'A general assistant is cheap, fast and genuinely good at explaining. The gaps are execution, persistence and the fact that it agrees with you.',
@@ -546,11 +562,12 @@ export const COMPARISONS: readonly Comparison[] = [
     // ── Category: a computer science degree ────────────────────────────────────
     {
         slug: 'cs-degree',
+        glyph: 'cap',
         name: 'a CS degree',
-        title: 'ShipItHQ vs a computer science degree',
+        title: 'ShipItHQ vs a CS degree',
         stance: 'These are not alternatives and this page will not pretend otherwise.',
         description:
-            'A degree buys fundamentals, a credential and a hiring pipeline that nothing else replicates. What it does not buy is interview readiness, which is a separate and much shorter project.',
+            'A degree buys fundamentals, a credential and a hiring pipeline. What it does not buy is interview readiness, which is a separate and much shorter project.',
         creditWhereDue: [
             'A degree gives you things no tool can. Three or four years on the fundamentals - operating systems, networks, compilers, theory - which are the topics people skip when self-directing and then find they needed. A credential that clears filters. Campus recruiting pipelines, which are the single easiest route into a large company and are simply not open to people outside them. And in many countries, the visa and immigration paths that follow a qualification.',
             'Nothing on this site replaces any of that, and anybody telling you a subscription substitutes for a degree is selling you something. If you have the option and the means, take the degree.',
@@ -617,11 +634,12 @@ export const COMPARISONS: readonly Comparison[] = [
     // ── NeetCode ───────────────────────────────────────────────────────────────
     {
         slug: 'neetcode',
+        glyph: 'grid',
         name: 'NeetCode',
         title: 'ShipItHQ vs NeetCode',
         stance: 'One solves "which problems, in what order". The other covers the rounds that are not problems.',
         description:
-            'NeetCode fixes the hardest thing about a problem bank - knowing what to do next. What neither a bank nor a curation layer over one can do is the rest of the loop.',
+            'NeetCode fixes the hardest thing about a problem bank: knowing what to do next. What a curation layer over a bank cannot do is the rest of the loop.',
         vendorUrl: 'https://neetcode.io/',
         creditWhereDue: [
             'NeetCode solves a real and underrated problem: a bank of thousands of problems gives you no idea what to do next, and choosing badly wastes months. Organising the classic set by pattern, with a curated list and video explanations, is exactly the intervention most people need.',
@@ -686,6 +704,7 @@ export const COMPARISONS: readonly Comparison[] = [
     // ── Pramp / peer mock interviews ───────────────────────────────────────────
     {
         slug: 'pramp',
+        glyph: 'people',
         name: 'Pramp',
         title: 'ShipItHQ vs Pramp',
         stance: 'Free, human and reciprocal - against always-available and never needing a partner.',
@@ -759,8 +778,9 @@ export const COMPARISONS: readonly Comparison[] = [
     // ── Category: a paid resume review ─────────────────────────────────────────
     {
         slug: 'resume-review-service',
+        glyph: 'book',
         name: 'a resume review service',
-        title: 'ShipItHQ vs a paid resume review',
+        title: 'ShipItHQ vs a resume review',
         stance: 'One is a human reading it once. The other is a check you run before every application.',
         description:
             'A recruiter reading your resume properly is worth a great deal, once. What it cannot be is per-application, which is what tailoring actually requires.',
@@ -831,11 +851,12 @@ export const COMPARISONS: readonly Comparison[] = [
     // ── Category: your own study plan ──────────────────────────────────────────
     {
         slug: 'diy-study-plan',
+        glyph: 'list',
         name: 'your own plan',
-        title: 'ShipItHQ vs building your own plan',
+        title: 'ShipItHQ vs your own plan',
         stance: 'The most common alternative, the cheapest, and the one this page takes most seriously.',
         description:
-            'A self-directed plan is free, tailored and entirely under your control. Its failure mode is not laziness - it is that you cannot see what you do not know to look for.',
+            'A self-directed plan is free and under your control. Its failure mode is not laziness - it is that you cannot plan for what you have not heard of.',
         creditWhereDue: [
             'This is what most people actually do, and it is the honest baseline any product should be compared against. It is free, it is tailored to you by definition, and nobody has a commercial interest in what goes in it.',
             'It also works. A large number of engineers got hired on a spreadsheet, a free problem list and a folder of notes, and anybody implying that is not viable is selling something.',

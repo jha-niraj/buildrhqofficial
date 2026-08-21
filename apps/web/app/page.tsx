@@ -17,18 +17,31 @@ import { SITE, BRAND } from "@/lib/site";
 import { faqSchema, webPageSchema, jsonLd } from "@/lib/schema";
 
 export const metadata: Metadata = {
-    // 45 chars. Google cuts near 60 and this one has no template suffix (it is the
-    // root layout's default), so it is measured as written.
+    // 40 chars. Google cuts near 60, and this one takes no template suffix - it IS the
+    // root layout's default title - so it is measured exactly as written.
     title: 'ShipItHQ - Practice, Build and Get Hired',
     description:
         'Practice DSA and system design with code that runs in a real Linux container, build projects you can be interviewed about, and fix the resume an ATS reads.',
+    alternates: { canonical: SITE },
+    // This block REPLACES the root layout's openGraph rather than merging into it, which
+    // is why the landing page was shipping with no og:image at all - the busiest page on
+    // the site shared as a bare text preview. Anything the layout declares has to be
+    // restated here.
     openGraph: {
-        // 45 chars. Google cuts near 60 and this one has no template suffix (it is the
-    // root layout's default), so it is measured as written.
-    title: 'ShipItHQ - Practice, Build and Get Hired',
+        type: 'website',
+        url: SITE,
+        siteName: BRAND.name,
+        title: 'ShipItHQ - Practice, Build and Get Hired',
         description:
             'Real container execution, projects with interviews written from your own build, voice mocks and ATS resume tooling. 100 free credits, no subscription.',
-        type: 'website',
+        images: [{ url: '/og/home.webp', width: 1200, height: 630, alt: `${BRAND.name} - ${BRAND.tagline}` }],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'ShipItHQ - Practice, Build and Get Hired',
+        description:
+            'Real container execution, projects with interviews written from your own build, voice mocks and ATS resume tooling.',
+        images: ['/og/home.webp'],
     },
 }
 

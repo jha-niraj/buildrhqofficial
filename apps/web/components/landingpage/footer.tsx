@@ -35,19 +35,32 @@ const LINK_GROUPS: {
         {
             title: "Compare",
             links: [
-                { name: "All comparisons", href: "/compare" },
+                { name: "All ten comparisons", href: "/compare" },
                 { name: "vs LeetCode", href: "/compare/leetcode" },
-                { name: "vs interviewing.io", href: "/compare/interviewing-io" },
-                { name: "Open a free account", href: APP_LINKS.signup, external: true },
+                { name: "vs a bootcamp", href: "/compare/bootcamp" },
+                { name: "vs ChatGPT", href: "/compare/chatgpt" },
+                { name: "vs a CS degree", href: "/compare/cs-degree" },
+                { name: "vs your own plan", href: "/compare/diy-study-plan" },
             ],
         },
+        // All SEVEN topic hubs, not a sample.
+        //
+        // The navbar's Guides panel lists them too, but that panel is conditionally
+        // rendered - it does not exist in the HTML until somebody hovers - so a crawler
+        // never sees those links. The footer is on every page and always in the markup,
+        // which makes it the site's real internal-linking surface. Four hubs were reachable
+        // only from /blogs before this.
         {
-            title: "Resources",
+            title: "Guides",
             links: [
-                { name: "Blog", href: "/blogs" },
+                { name: "All guides", href: "/blogs" },
                 { name: "Interview Prep", href: "/blogs/topics/interview-prep" },
-                { name: "Career Guides", href: "/blogs/topics/career" },
                 { name: "DSA & Practice", href: "/blogs/topics/dsa" },
+                { name: "Career", href: "/blogs/topics/career" },
+                { name: "Resume & Applications", href: "/blogs/topics/resume" },
+                { name: "Portfolio & Projects", href: "/blogs/topics/portfolio" },
+                { name: "Open Source", href: "/blogs/topics/open-source" },
+                { name: "AI & Developer Tools", href: "/blogs/topics/ai-tools" },
             ],
         },
         {

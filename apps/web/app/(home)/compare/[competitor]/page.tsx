@@ -51,6 +51,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         title: `${c.title} - Honest Comparison`,
         description: c.description,
         path: `/compare/${c.slug}`,
+        // Its own generated versus card, not the shared home image. Ten links shared to
+        // the same social preview is ten posts that look like one.
+        image: `/compare/${c.slug}/cover`,
     })
 }
 

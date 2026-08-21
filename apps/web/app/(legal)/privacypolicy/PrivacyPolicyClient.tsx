@@ -40,8 +40,18 @@ export default function PrivacyPolicy() {
                 <Reveal fadeOnly className="max-w-7xl mx-auto px-6 py-16 md:py-24">
                     <div className="flex gap-16 items-start">
                         {/* Sidebar */}
-                        <aside className="hidden lg:block w-[260px] shrink-0">
-                            <div className="sticky top-24">
+                        {/* `sticky` lives on the ASIDE, not on a div inside it.
+                            It was on the inner div, which never stuck: a sticky element
+                            travels within its CONTAINING BLOCK, and that div's containing
+                            block was the aside - whose height is its own content, because
+                            the flex parent is `items-start`. Zero travel, so it behaved
+                            like `static`.
+                            On the aside itself the containing block becomes the flex
+                            container, which is as tall as the article column, so it now has
+                            the whole page to stick through. `self-start` keeps it from
+                            stretching, which would break sticky the other way. */}
+                        <aside className="hidden lg:block w-[260px] shrink-0 self-start sticky top-24">
+                            <div>
                                 <p className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-6">
                                     Legal documents
                                 </p>
