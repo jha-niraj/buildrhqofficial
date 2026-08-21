@@ -149,7 +149,21 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
                             // do not put small grey text directly on this surface. Put it in
                             // a card. `text-neutral-500` on the bare backdrop measures around
                             // 1.3:1 over the photo's darker regions, which is unreadable.
-                            "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden ring-1 ring-inset ring-neutral-200/70 transition-all duration-300 dark:ring-white/10",
+                            //
+                            // NO RING. There was a `ring-1 ring-inset ring-neutral-200/70
+                            // dark:ring-white/10` here, from when this card had its own opaque
+                            // surface and the outline said where the surface ended.
+                            //
+                            // The surface is gone, so the outline delineates nothing - and
+                            // worse, a 1px hairline at 10% white sitting directly on a
+                            // photograph is only visible over the photo's darker regions. It
+                            // read as a line down the right of the page that stopped halfway,
+                            // which is exactly how Niraj described it. A border that is present
+                            // for part of its length looks like a bug, because it is one.
+                            //
+                            // The sidebar and the AI rail keep theirs: both are opaque, so
+                            // their outlines still mark a real edge.
+                            "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden transition-all duration-300",
                             isDocked ? "rounded-l-2xl" : "rounded-2xl",
                         )}
                         // The card is inset by the shell's 0.5rem margin, so "full
@@ -167,7 +181,11 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
                             others, and cannot be styled to match a surface that is now
                             transparent. `min-w-0` on the viewport keeps a wide child
                             (a table, a chart) shrinking with the column. */}
-                        <ScrollArea className="min-h-0 min-w-0 flex-1" viewportClassName="[&>div]:min-w-0">
+                        {/* `reflow` is load-bearing, not tidiness. Without it Radix's content
+                            box is `display: table` and sizes to its own content, so opening the
+                            AI rail narrowed this card but left the page inside it at full width,
+                            sliding under the panel. See the prop's note in scroll-area.tsx. */}
+                        <ScrollArea className="min-h-0 min-w-0 flex-1" reflow>
                             {children}
                         </ScrollArea>
                     </div>

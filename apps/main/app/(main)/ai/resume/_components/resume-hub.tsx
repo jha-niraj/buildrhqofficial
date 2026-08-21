@@ -14,7 +14,7 @@ import { Label } from '@repo/ui/components/ui/label'
 import { Textarea } from '@repo/ui/components/ui/textarea'
 import {
     Plus, FileText, Upload, Globe, Github, Linkedin,
-    Download, Copy, Trash2, Eye, ExternalLink, Sparkles, Store,
+    Download, Copy, Trash2, Eye, ExternalLink, Sparkles,
     LayoutTemplate, Clock, Lock, CheckCircle2, Settings, Star, FileUp
 } from 'lucide-react'
 import { DotmSquare11 } from '@repo/ui/components/ui/dotm-square-11'
@@ -546,8 +546,13 @@ export function ResumeHub({ drafts: initialDrafts, templates }: Props) {
 
     return (
         <div className="w-full">
-            {/* ── Hero header ── */}
-            <div className="border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-4 sm:px-6 lg:px-8 py-8">
+            {/* ── Header ──
+                No bar, no border, no surface of its own. This was a full-bleed
+                `bg-white dark:bg-neutral-950` strip with a `border-b`, which put a second,
+                squarer card inside the rounded page card the shell already draws, and its
+                bottom edge cut the page in half. Every other page under (main) lets its
+                title sit on the page surface; this one does now too. */}
+            <div className="px-4 sm:px-6 lg:px-8 pt-8 pb-6">
                 <div className="max-w-5xl mx-auto">
                     <div className="flex items-start justify-between gap-4">
                         <div>
@@ -557,10 +562,6 @@ export function ResumeHub({ drafts: initialDrafts, templates }: Props) {
                             </p>
                         </div>
                         <div className="flex items-center gap-2 flex-wrap justify-end">
-                            <Button variant="outline" size="sm" asChild><Link href='/blueprint/resume'>
-                                <Store className="w-3.5 h-3.5 mr-1.5" />
-                                Blueprint
-                            </Link></Button>
                             <Button variant="outline" size="sm" className="border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-100 hover:bg-neutral-50 dark:hover:bg-neutral-900" asChild><Link href='/ai/resume/import'>
                                 <Linkedin className="w-3.5 h-3.5 mr-1" />
                                 <Github className="w-3.5 h-3.5 mr-1.5" />
@@ -693,45 +694,14 @@ export function ResumeHub({ drafts: initialDrafts, templates }: Props) {
                                 </div>
                             </div>
 
-                            {/* Community / marketplace */}
-                            {communityTemplates.length > 0 && (
-                                <div>
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h2 className="text-base font-semibold">Community Templates</h2>
-                                        <Button variant="ghost" size="sm" asChild><Link href='/blueprint/resume'>
-                                            Browse Blueprint <ExternalLink className="w-3 h-3 ml-1" />
-                                        </Link></Button>
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {communityTemplates.slice(0, 6).map(t => (
-                                            <div key={t.id} className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5">
-                                                <p className="font-semibold text-sm">{t.name}</p>
-                                                <p className="text-xs text-neutral-500 mt-1 line-clamp-2">{t.description}</p>
-                                                <div className="flex items-center justify-between mt-3 pt-3 border-t border-neutral-100 dark:border-neutral-800">
-                                                    <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">{t.marketplacePrice} credits</span>
-                                                    <Button size="sm" className="h-7 text-xs" asChild><Link href='/blueprint/resume'>
-                                                        View in Blueprint
-                                                    </Link></Button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
+                            {/* A "Community Templates" grid sat here, and a
+                                "Create & Sell Your Template" panel below it. Every control in
+                                both linked to /blueprint/resume, which is not a route in this
+                                app, so neither section could be anything but a dead end.
 
-                            {/* Upload own template CTA */}
-                            <div className="rounded-2xl border-2 border-dashed border-neutral-200 dark:border-neutral-800 p-8 text-center space-y-3">
-                                <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mx-auto">
-                                    <Upload className="w-5 h-5 text-neutral-500" />
-                                </div>
-                                <div>
-                                    <p className="font-semibold text-sm">Create & Sell Your Template</p>
-                                    <p className="text-xs text-neutral-500 mt-0.5">Upload your own resume template to Blueprint marketplace and earn credits</p>
-                                </div>
-                                <Button variant="outline" size="sm" asChild><Link href='/blueprint/resume?tab=sell'>
-                                    <Store className="w-3.5 h-3.5 mr-1.5" /> Open Blueprint
-                                </Link></Button>
-                            </div>
+                                `communityTemplates` is still derived from the same data just
+                                above, so the marketplace can come back without re-deriving
+                                anything. What is gone is UI a user could not act on. */}
                         </div>
                     </TabsContent>
                 </Tabs>

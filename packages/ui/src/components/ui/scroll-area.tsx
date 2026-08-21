@@ -16,14 +16,47 @@ const ScrollArea = React.forwardRef<
 		 *  every existing call site expects. Pass "both" for horizontally scrolling
 		 *  content such as a wide code block or a table. */
 		orientation?: "vertical" | "both"
+		/**
+		 * Let the content REFLOW to the viewport width instead of sizing to itself.
+		 *
+		 * ── The Radix behaviour this exists to defeat ──
+		 *
+		 * Radix wraps children in a div with `style={{ minWidth: "100%", display: "table" }}`,
+		 * set INLINE. A `display: table` box shrink-to-fits: it takes its content's intrinsic
+		 * width and never goes below it. So a grid inside a ScrollArea lays out at whatever
+		 * width it wants, and the viewport clips the overflow rather than the grid reflowing.
+		 *
+		 * That is what made the app shell's page card look broken when the AI rail opened.
+		 * The card DID narrow - the flex maths was right all along - but the content inside
+		 * kept its old width and slid under the panel. `layout.tsx` promises the rail is
+		 * "a real column, not an overlay. The page narrows to make room for it, so nothing
+		 * the user was reading gets covered", and this was the reason it did not hold.
+		 *
+		 * `min-w-0` as a class cannot fix it: the Radix value is an inline style, and inline
+		 * beats a class whatever the specificity. Both properties have to be overridden with
+		 * `!important`, which is what this prop does.
+		 *
+		 * Opt-in rather than default, because a wide code block or table SHOULD keep its
+		 * width and scroll - that is the `orientation="both"` case, and it needs the table
+		 * box to stay.
+		 */
+		reflow?: boolean
 	}
->(({ className, children, viewportClassName, orientation = "vertical", ...props }, ref) => (
+>(({ className, children, viewportClassName, orientation = "vertical", reflow = false, ...props }, ref) => (
 	<ScrollAreaPrimitive.Root
 		ref={ref}
 		className={cn("relative overflow-hidden", className)}
 		{...props}
 	>
-		<ScrollAreaPrimitive.Viewport className={cn("h-full w-full rounded-[inherit]", viewportClassName)}>
+		<ScrollAreaPrimitive.Viewport
+			className={cn(
+				"h-full w-full rounded-[inherit]",
+				// See the `reflow` note above: both of these override an inline style, so
+				// both need the `!` escape hatch.
+				reflow && "[&>div]:!block [&>div]:!min-w-0",
+				viewportClassName,
+			)}
+		>
 			{children}
 		</ScrollAreaPrimitive.Viewport>
 		<ScrollBar />
