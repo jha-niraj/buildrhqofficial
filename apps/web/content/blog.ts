@@ -441,7 +441,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
             { q: 'What core subjects are asked in placement interviews?', a: 'Operating systems, DBMS, computer networks and object-oriented programming are asked in the large majority of interviews. Candidates over-prepare DSA and consistently under-prepare these.' },
             { q: 'How do I prepare for the HR round of a campus placement?', a: 'Prepare four or five structured stories about your projects, teamwork and setbacks, and be able to answer why this company specifically. The HR round is rarely a formality and does eliminate candidates.' },
         ],
-        relatedSlugs: ['dsa-study-plan-coding-interview', 'new-grad-software-engineer-jobs', 'star-method-interview-software-engineers'],
+        relatedSlugs: ['dsa-study-plan-coding-interview', 'system-design-interview-prep', 'github-profile-software-engineer'],
     },
 
     // ───────────────────────── Open Source ─────────────────────────
@@ -619,7 +619,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
             { q: 'Is a phone screen harder than an onsite?', a: 'Not usually harder in content, but it is more compressed and you get no visual feedback. Twenty-five minutes of coding is short, which is why the clarifying questions at the start matter more here than anywhere else.' },
             { q: 'What language should I use in a phone screen?', a: 'The one you are fastest in. A confident Python solution beats a hesitant C++ one unless the role is explicitly a C++ role. Check the shared editor beforehand - most have a practice pad - so you are not learning the tooling at minute eleven.' },
         ],
-        relatedSlugs: ['how-to-approach-coding-interview-problems', 'mock-technical-interview-guide', 'questions-to-ask-interviewer-software-engineer'],
+        relatedSlugs: ['how-to-approach-coding-interview-problems', 'mock-technical-interview-guide', 'system-design-interview-prep'],
     },
     // ───────────────────────── Resume & Applications ─────────────────────────
     'software-engineer-resume-bullet-points': {
