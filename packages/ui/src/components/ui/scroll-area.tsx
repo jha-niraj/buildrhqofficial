@@ -12,8 +12,12 @@ const ScrollArea = React.forwardRef<
 		 *  Needed for max-height caps (`max-h-56` on a dropdown list), which have
 		 *  no effect on the Root. Optional: omit it and nothing changes. */
 		viewportClassName?: string
+		/** Which axes get a visible scrollbar. Defaults to vertical only, which is what
+		 *  every existing call site expects. Pass "both" for horizontally scrolling
+		 *  content such as a wide code block or a table. */
+		orientation?: "vertical" | "both"
 	}
->(({ className, children, viewportClassName, ...props }, ref) => (
+>(({ className, children, viewportClassName, orientation = "vertical", ...props }, ref) => (
 	<ScrollAreaPrimitive.Root
 		ref={ref}
 		className={cn("relative overflow-hidden", className)}
@@ -23,6 +27,14 @@ const ScrollArea = React.forwardRef<
 			{children}
 		</ScrollAreaPrimitive.Viewport>
 		<ScrollBar />
+		{/* Horizontal too, opt-in via `orientation`.
+		    Radix's Viewport is `overflow: scroll` on BOTH axes with the native bars
+		    hidden, so content that overflows sideways scrolls whether or not a bar is
+		    rendered - and with no bar, nothing on screen says it can. That is worse than
+		    a native scrollbar, because at least the native one is visible. Rendering both
+		    means a consumer gets a bar on whichever axis actually overflows; Radix hides
+		    the one that does not. */}
+		{orientation !== "vertical" && <ScrollBar orientation="horizontal" />}
 		<ScrollAreaPrimitive.Corner />
 	</ScrollAreaPrimitive.Root>
 ))

@@ -1,6 +1,7 @@
 import {
     Code2, FolderKanban, Video, Sparkles, Briefcase, Coins,
-    BookOpen, Tags, Users, Mail, Swords,
+    BookOpen, Tags, Users, Mail, Swords, Scale, ShieldCheck,
+    MessagesSquare, Braces, FileText,
 } from 'lucide-react'
 
 /**
@@ -103,6 +104,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
                 description: 'Human interviewers, versus a rehearsal room open at 1am',
                 icon: Swords,
             },
+            {
+                href: '/compare',
+                title: 'How we write these',
+                description: 'What the alternative is good at comes first, and no prices from memory',
+                icon: Scale,
+            },
         ],
     },
     {
@@ -112,26 +119,74 @@ export const NAV_ITEMS: readonly NavItem[] = [
             {
                 href: '/blogs',
                 title: 'Blog',
-                description: 'Interview prep, DSA plans, resumes and careers, written properly',
+                description: '30 guides on interview prep, DSA, resumes and careers',
                 icon: BookOpen,
             },
             {
                 href: '/blogs/topics/interview-prep',
-                title: 'Browse by topic',
-                description: 'Seven topic hubs, from interview prep to open source',
+                title: 'Interview prep',
+                description: 'Phone screens, behavioural rounds, system design and mocks',
+                icon: MessagesSquare,
+            },
+            {
+                href: '/blogs/topics/dsa',
+                title: 'DSA and practice',
+                description: 'The fifteen patterns, complexity, and a three-month plan',
+                icon: Braces,
+            },
+            {
+                href: '/blogs/topics/resume',
+                title: 'Resume and applications',
+                description: 'What a parser extracts, and the bullets a human reads',
+                icon: FileText,
+            },
+            {
+                href: '/blogs/topics/portfolio',
+                title: 'Portfolio and projects',
+                description: 'What to build, how to finish it, and how to deploy it',
+                icon: FolderKanban,
+            },
+            {
+                href: '/blogs',
+                title: 'All topics',
+                description: 'Seven hubs, each with a reading path',
                 icon: Tags,
             },
+        ],
+    },
+    // ── Company ──
+    //
+    // Added after a manual pass found that the legal pages were reachable only from the
+    // footer, and that About and Contact were buried in Resources - which is the last
+    // place somebody looks for "who is this company". A visitor checking whether a product
+    // is real goes looking for exactly these four, and making them hunt is its own signal.
+    {
+        href: '/aboutus',
+        label: 'Company',
+        children: [
             {
                 href: '/aboutus',
                 title: 'About',
-                description: 'Who is building this and why',
+                description: 'Who is building this, and what it deliberately does not do',
                 icon: Users,
             },
             {
                 href: '/aboutus#contact',
                 title: 'Contact',
-                description: 'Questions, bugs and anything we got wrong',
+                description: 'Questions, bugs, and anything we have got wrong',
                 icon: Mail,
+            },
+            {
+                href: '/termsofservice',
+                title: 'Terms of service',
+                description: 'What you agree to, in language you can actually read',
+                icon: Scale,
+            },
+            {
+                href: '/privacypolicy',
+                title: 'Privacy policy',
+                description: 'What we store, why, and what we do not collect',
+                icon: ShieldCheck,
             },
         ],
     },

@@ -54,7 +54,7 @@ export default function PricingClient() {
 				</span>
 				<button
 					onClick={() => setCurrency(currency === "INR" ? "USD" : "INR")}
-					className="relative h-6 w-12 rounded-full bg-neutral-900 transition-colors dark:bg-white"
+					className="relative h-6 w-12 cursor-pointer rounded-full bg-neutral-900 transition-colors dark:bg-white"
 					aria-label="Toggle currency"
 				>
 					<span

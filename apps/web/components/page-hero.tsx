@@ -118,15 +118,18 @@ function Surface({ children }: { children: ReactNode }) {
             {/* Wash toward white so type sits on a light, even ground rather than on
                 whichever part of the photograph happens to be behind it. */}
             <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/45 to-white/75" />
-            {/* A fine grid, carried over from the About page's own header - it was the
-                one part of the old hand-rolled headers worth keeping. It reads as
-                drafting paper, which is the right register for an engineering product. */}
-            <div
-                aria-hidden
-                className="absolute inset-0 bg-[linear-gradient(to_right,#8080800f_1px,transparent_1px),linear-gradient(to_bottom,#8080800f_1px,transparent_1px)] bg-[size:28px_28px]"
-            />
+            {/* The grid that used to sit here is GONE, removed after a manual pass.
+                It was inherited from the old hand-rolled About header and read as
+                drafting paper on a flat surface. On top of a photograph it read as
+                noise - two textures competing, and the ridge already gives the surface
+                everything it needs. A pattern that fights the thing underneath it is
+                not texture, it is interference. Do not add it back.
+
+                pt-32 below, not py-20: the navbar floats over this header rather than
+                pushing it down, so at the old padding the eyebrow sat underneath the
+                pill. The extra top padding is the navbar's height plus its offset. */}
             {/* px-4 below sm: at 360px, 48px of horizontal padding is 13% of the screen. */}
-            <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:py-28">
+            <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-32 sm:px-6 sm:pb-24 sm:pt-36 lg:pb-28 lg:pt-40">
                 {children}
             </div>
         </header>

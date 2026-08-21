@@ -1,4 +1,5 @@
 import { Reveal } from '@/components/reveal'
+import { DockerfilePanel } from './dockerfile-panel'
 
 /**
  * The container. The one thing on this page a competitor cannot copy in a sprint.
@@ -20,6 +21,10 @@ import { Reveal } from '@/components/reveal'
  *
  * ── So it shows the Dockerfile ──
  *
+ * The panel itself is `dockerfile-panel.tsx`, which is a small client component because
+ * `ScrollArea` is Radix. The boundary sits around the panel rather than around this
+ * section, so the heading, the copy and the three facts stay server-rendered.
+ *
  * The image definition is checked into this repo at `apps/shipitworker/Dockerfile`, and
  * these lines are copied from it verbatim. It is the strongest evidence available and the
  * one thing nobody bothers to fake: a reader who does not believe the claim can go and read
@@ -28,28 +33,6 @@ import { Reveal } from '@/components/reveal'
  * When a public execution endpoint exists, this section should become the live demo, and the
  * Dockerfile can move to a caption underneath it.
  */
-
-/**
- * Copied verbatim from `apps/shipitworker/Dockerfile`.
- *
- * If that file changes, this changes with it. It is quoted rather than imported because the
- * marketing site does not depend on the worker package and should not start doing so to
- * render a code block.
- */
-const DOCKERFILE = `FROM node:20-bookworm-slim
-
-# Language runtimes: Python, C/C++ (gcc/g++), Java (JDK). TypeScript runs via tsx.
-RUN apt-get update && apt-get install -y --no-install-recommends \\
-	python3 \\
-	gcc \\
-	g++ \\
-	default-jdk \\
-	ca-certificates \\
-	&& rm -rf /var/lib/apt/lists/* \\
-	&& npm install -g tsx@4.19.2
-
-# Run the executor as a non-root user for a little extra hardening.
-RUN useradd -m runner`
 
 const FACTS = [
     {
@@ -119,25 +102,7 @@ export default function ProofSection() {
                     </Reveal>
 
                     <Reveal delay={0.1}>
-                        <figure className="m-0 overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950">
-                            <figcaption className="flex items-center gap-2 border-b border-neutral-800 px-5 py-3">
-                                <span className="flex gap-1.5" aria-hidden>
-                                    <span className="h-2.5 w-2.5 rounded-full bg-neutral-700" />
-                                    <span className="h-2.5 w-2.5 rounded-full bg-neutral-700" />
-                                    <span className="h-2.5 w-2.5 rounded-full bg-neutral-700" />
-                                </span>
-                                <span className="ml-2 font-mono text-[11px] text-neutral-400">
-                                    apps/shipitworker/Dockerfile
-                                </span>
-                            </figcaption>
-                            {/* overflow-x-auto: a Dockerfile line is long and must scroll inside
-                                this box rather than making the page scroll sideways. */}
-                            <div className="overflow-x-auto">
-                                <pre className="px-5 py-5 font-mono text-[12.5px] leading-relaxed text-neutral-300 sm:text-[13px]">
-                                    <code>{DOCKERFILE}</code>
-                                </pre>
-                            </div>
-                        </figure>
+                        <DockerfilePanel />
                     </Reveal>
                 </div>
             </div>

@@ -7,6 +7,7 @@ import { Skeleton } from "@repo/ui/components/ui/skeleton"
 import { ShaderHeroBg, SHADER_PALETTES } from "@repo/ui/components/hero-shader-bg"
 import { getPlatformStats } from "@/actions/stats.action"
 import { APP_LINKS } from "@/lib/site"
+import { HeroSlideArt } from "./hero-slide-art"
 
 interface PlatformStats {
     totalUsers: number
@@ -249,7 +250,7 @@ export default function HeroSection() {
                                         key={i}
                                         onClick={() => goTo(i)}
                                         aria-label={`Show ${SLIDES[i]?.label}`}
-                                        className={`h-1.5 rounded-full transition-all duration-300 ${
+                                        className={`h-1.5 cursor-pointer rounded-full transition-all duration-300 ${
                                             i === slideIdx
                                                 ? "w-6 bg-neutral-950 dark:bg-white"
                                                 : "w-1.5 bg-neutral-300 hover:bg-neutral-400 dark:bg-white/20 dark:hover:bg-white/40"
@@ -303,28 +304,51 @@ export default function HeroSection() {
                             <div
                                 key={slide.label}
                                 aria-hidden={i !== slideIdx}
-                                className="absolute inset-0 flex flex-col justify-center px-8 transition-opacity duration-500 sm:px-14"
+                                className="absolute inset-0 transition-opacity duration-500"
                                 style={{ opacity: i === slideIdx ? 1 : 0 }}
                             >
-                                <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-900 dark:text-white">
-                                    {slide.label}
-                                </p>
-                                <p className="mb-3 max-w-xl text-2xl font-bold leading-tight tracking-tight text-neutral-900 dark:text-white sm:text-3xl">
-                                    {slide.headline}
-                                </p>
-                                <p className="mb-6 max-w-lg text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
-                                    {slide.body}
-                                </p>
-                                <ul className="flex flex-wrap gap-2">
-                                    {slide.points.map((point) => (
-                                        <li
-                                            key={point}
-                                            className="rounded-full border border-neutral-200 px-3 py-1 text-[11px] text-neutral-500 dark:border-white/10 dark:text-neutral-400"
-                                        >
-                                            {point}
-                                        </li>
-                                    ))}
-                                </ul>
+                                {/* Two columns, not one.
+                                
+                                    This was `flex flex-col justify-center` with the copy in
+                                    a `max-w-xl`, so at desktop width the left third held
+                                    everything and the right two thirds were empty - on the
+                                    first thing below the fold on the busiest page.
+                                
+                                    The illustration is server-rendered SVG on currentColor
+                                    with CSS-only animation; it adds no JavaScript to a panel
+                                    that already pays for the rotation. */}
+                                <div className="grid h-full grid-cols-1 items-center gap-8 px-8 sm:px-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-14">
+                                    <div className="min-w-0">
+                                        <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-900 dark:text-white">
+                                            {slide.label}
+                                        </p>
+                                        <p className="mb-3 text-2xl font-bold leading-tight tracking-tight text-neutral-900 dark:text-white sm:text-3xl">
+                                            {slide.headline}
+                                        </p>
+                                        <p className="mb-6 max-w-lg text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                                            {slide.body}
+                                        </p>
+                                        <ul className="flex flex-wrap gap-2">
+                                            {slide.points.map((point) => (
+                                                <li
+                                                    key={point}
+                                                    className="rounded-full border border-neutral-200 px-3 py-1 text-[11px] text-neutral-600 dark:border-white/10 dark:text-neutral-400"
+                                                >
+                                                    {point}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+
+                                    {/* hidden below lg: at tablet width the panel is not
+                                        tall enough for both, and the copy is what matters. */}
+                                    <div className="hidden min-w-0 lg:block">
+                                        <HeroSlideArt
+                                            index={i}
+                                            className="w-full text-neutral-400 dark:text-neutral-500"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         ))}
                     </div>

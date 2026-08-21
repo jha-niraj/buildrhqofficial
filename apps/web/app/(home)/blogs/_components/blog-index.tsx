@@ -94,10 +94,21 @@ export default function BlogIndex({ posts }: Props) {
                     <Reveal className="mb-14">
                         <Link
                             href={`/blogs/${featured.slug}`}
-                            className="group grid overflow-hidden rounded-3xl border border-neutral-200 transition-colors hover:border-neutral-400 dark:border-neutral-800 dark:hover:border-neutral-600 lg:grid-cols-2"
+                            className="group grid overflow-hidden rounded-3xl border border-neutral-200 transition-colors hover:border-neutral-400 dark:border-neutral-800 dark:hover:border-neutral-600 lg:grid-cols-2 lg:items-center"
                         >
                             {/* The featured cover loads eagerly: it is the largest thing above
-                                the fold and is almost certainly this page's LCP element. */}
+                                the fold and is almost certainly this page's LCP element.
+
+                                NO `h-full` on the image. It had one, and combined with
+                                `aspect-[1200/630] object-cover` that cropped the cover
+                                horizontally - the grid row is as tall as the copy column, so
+                                `h-full` stretched the image past its own ratio and `object-cover`
+                                cut the sides off. The title on the artwork lost its first
+                                character and read "he STAR Method...".
+
+                                The box is already exactly the source ratio, so `object-cover`
+                                now crops nothing. `lg:items-center` on the grid is what keeps
+                                the shorter column vertically centred instead. */}
                             <div className="overflow-hidden border-b border-neutral-200 dark:border-neutral-800 lg:border-b-0 lg:border-r">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
@@ -107,7 +118,7 @@ export default function BlogIndex({ posts }: Props) {
                                     height={630}
                                     loading="eager"
                                     fetchPriority="high"
-                                    className="aspect-[1200/630] h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                                    className="aspect-[1200/630] w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                                 />
                             </div>
                             <div className="flex flex-col justify-center p-8 md:p-12">

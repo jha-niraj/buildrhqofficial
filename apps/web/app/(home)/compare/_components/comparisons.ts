@@ -74,6 +74,17 @@ export interface Comparison {
     vendorUrl: string
     /** SEO description. */
     description: string
+    /**
+     * The long-form part of the page: named sections of argument, below the table.
+     *
+     * Added after a manual pass found these pages thin next to the rest of the site. Every
+     * paragraph obeys the same sourcing rule as the rows above - a fact about us with the
+     * file named, a property of the category argued rather than asserted, or a quote from
+     * the vendor with a date. **No prices.**
+     */
+    deepDive: readonly { heading: string; body: readonly string[] }[]
+    /** The questions a reader arrives with. Rendered, and emitted as FAQPage. */
+    faqs: readonly { question: string; answer: string }[]
 }
 
 
@@ -150,6 +161,44 @@ export const COMPARISONS: readonly Comparison[] = [
             'You have never said a system design answer out loud and your first time will otherwise be the real one.',
             'You want practice, projects, mocks, resume tooling and applications in one place rather than five tabs.',
         ],
+        deepDive: [
+            {
+                heading: 'What a judge can and cannot tell you',
+                body: [
+                    'A judge answers one question: did the output match. That is a genuinely useful answer, and it is the only one it has. It cannot tell you that your solution is correct but unreadable, that you took eleven minutes to find an approach an interviewer would have expected in three, or that you never said a word while you were doing it.',
+                    'Interviews score four things and correctness is one of them. The other three - how you got there, how you communicated it, and whether you verified your own work - leave no trace in a submission. That is not a criticism of problem banks; it is a description of what a submission is.',
+                    'The practical consequence is that a high solve count and a failed loop are entirely compatible, which is confusing if you believe the count measures readiness. It measures one of four things.',
+                ],
+            },
+            {
+                heading: 'Where the code runs, and why it shows up in the errors',
+                body: [
+                    'Your code here goes to a Linux container built for that execution and destroyed afterwards. It has a real filesystem, a real process, and the actual toolchain: Node, tsx, Python 3, gcc, g++ and a JDK. That list is read off the image definition in `apps/shipitworker/Dockerfile`, which is in this repository.',
+                    'The visible difference is the errors. A hosted judge usually normalises compiler output into its own format, so a diagnostic arrives already interpreted. Here g++ speaks for itself, which matters because reading a real compiler message is a skill you need in the job and never practise if something keeps paraphrasing them for you.',
+                ],
+            },
+            {
+                heading: 'The rounds a problem bank does not model',
+                body: [
+                    'A full loop usually contains a recruiter screen, a technical phone screen, one or two coding rounds, a system design conversation, and a behavioural round. Problem practice prepares you for the middle of that list.',
+                    'The project rounds are the ones people are least ready for, because they require defending decisions rather than producing answers. The question is not "what is a hash map", it is "why did you pick Postgres over Mongo for this, and what did that cost you". You cannot practise that against a problem set, because the subject matter has to be something you actually built.',
+                    'That is the gap this fills: a brief to build against, then a quiz and a mock interview generated from your own project rather than from a bank. Verified in `apps/main/app/(main)/projects`.',
+                ],
+            },
+            {
+                heading: 'Using both, in a proportion that works',
+                body: [
+                    'A reasonable split for someone with a mixed loop ahead of them is roughly half on pattern-based algorithmic practice and half on everything else - the project you have to defend, the resume that has to survive a parser, the answer you have to speak.',
+                    'The mistake is not using LeetCode. The mistake is using it for all of your preparation and then being surprised by a take-home, a debugging round, or a behavioural question. Our own blog says the same thing at greater length in the LeetCode alternatives guide, and that post recommends LeetCode.',
+                ],
+            },
+        ],
+        faqs: [
+            { question: 'Is ShipItHQ a LeetCode alternative?', answer: 'Not really a replacement, no. LeetCode is a problem bank and this is the rounds around the problems - projects you can be interviewed about, spoken mock interviews, resume tooling and application tracking. Most people who use both keep using both.' },
+            { question: 'Does ShipItHQ have as many problems as LeetCode?', answer: 'No, and it is not trying to. There is no version of this where a newer product out-banks a decade-old archive. Practice here is four tracks - DSA, system design, web frontend and web backend - organised by pattern rather than by volume.' },
+            { question: 'What can ShipItHQ do that LeetCode cannot?', answer: 'Generate a project brief and then interview you about what you built, run a spoken mock interview with follow-up questions, score your resume against what an applicant tracking system actually extracts, and track your applications. None of those are what a problem bank is for.' },
+            { question: 'Should I stop using LeetCode?', answer: 'No. If the 45-minute algorithmic screen is the round you are worried about, that is where to spend your evenings. Add the other preparation rather than swapping it.' },
+        ],
     },
     {
         slug: 'interviewing-io',
@@ -215,6 +264,38 @@ export const COMPARISONS: readonly Comparison[] = [
             'You need the tenth rehearsal, not the first review, and cost per session is what is stopping you.',
             'You want the practice, the project, the resume and the applications in the same place as the mock.',
             'It is 1am the night before and there is nobody to book.',
+        ],
+        deepDive: [
+            {
+                heading: 'Rehearsal and review are different activities',
+                body: [
+                    'Preparation works by repetition. The fifth time you explain a caching decision you explain it well; the first time you do not, and the difference is fluency rather than knowledge. Everything about the answer was already in your head on attempt one.',
+                    'A booked session with a human is a review: an outside read on how you come across, from somebody who has run the loop you are about to sit. It is the most valuable single hour available and it is not the thing you need ten of.',
+                    'These are not competing products so much as different points in the same process. Rehearse until the answer is fluent, then spend a human session on the part you cannot self-assess.',
+                ],
+            },
+            {
+                heading: 'What an always-available mock is actually for',
+                body: [
+                    'The reason most people arrive at a real interview having never said their answer out loud is not that they think it is unnecessary. It is that arranging a mock takes another person, a shared calendar and a favour, so it does not happen.',
+                    'Removing the scheduling is most of the value. A voice mock at 1am the night before an onsite is not better than a senior engineer, and it is available, which is the property that decides whether the rehearsal happens at all.',
+                    'Verified in `apps/main/app/(main)/mock/voice`. One mode - voice. There is no whiteboard round and no panel.',
+                ],
+            },
+            {
+                heading: 'What each of us does outside the mock itself',
+                body: [
+                    'interviewing.io\'s own front page describes mock interviews with senior and staff engineers across coding, system design, machine learning, behavioural, front-end and engineering-management rounds, plus a free AI interviewer and dedicated coaching programmes (accessed 2026-08-20). Interview practice is the product.',
+                    'Here the mock sits alongside the rest of the process: four practice tracks with code executed in a real container, project briefs that generate their own interview, ATS resume scoring and tailoring, and an application tracker with match scoring. Whether that breadth is useful depends entirely on which part of your process is weak.',
+                    'If the only weak part is how you come across in an interview, breadth is not an advantage and a human session is the better hour.',
+                ],
+            },
+        ],
+        faqs: [
+            { question: 'Is an AI mock interview as good as a human one?', answer: 'For feedback on how you come across, no. A senior engineer who has run that company\'s loop gives you something no generated feedback matches. For repetition until an answer is fluent, availability matters more than fidelity, and that is where an always-on mock wins.' },
+            { question: 'Should I use both interviewing.io and ShipItHQ?', answer: 'That is the sensible shape for most people. Rehearse until the answer comes out cleanly, then spend a human session on the part you cannot judge yourself - your presence, your pacing, and how you handle being wrong.' },
+            { question: 'What does interviewing.io cost?', answer: 'They do not publish prices publicly. Their front page offers a free AI interviewer and paid sessions with human interviewers, and directs you to sign up for details. We do not quote a figure we cannot source.' },
+            { question: 'Does ShipItHQ offer interviews with real engineers?', answer: 'No. The mock interviews are AI, voice-based and available on demand. If you want a human who has run a specific company\'s loop, book one - that is a genuinely different product and we are not pretending otherwise.' },
         ],
     },
 ] as const

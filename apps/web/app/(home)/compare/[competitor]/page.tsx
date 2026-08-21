@@ -6,7 +6,7 @@ import { PageHero } from '@/components/page-hero'
 import { Reveal } from '@/components/reveal'
 import { SITE, BRAND, APP_LINKS } from '@/lib/site'
 import { pageMeta } from '@/lib/seo'
-import { breadcrumbSchema, webPageSchema, jsonLd } from '@/lib/schema'
+import { breadcrumbSchema, webPageSchema, faqSchema, jsonLd } from '@/lib/schema'
 import { COMPARISONS, COMPARISON_SLUGS, getComparison, SOURCING_NOTE } from '../_components/comparisons'
 
 /**
@@ -75,6 +75,7 @@ export default async function ComparePage({ params }: Props) {
         <>
             <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(crumbs)} />
             <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(page)} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(faqSchema(c.faqs))} />
 
             <PageHero
                 variant="versus"
@@ -173,6 +174,28 @@ export default async function ComparePage({ params }: Props) {
                     </p>
                 </Reveal>
 
+                {/* The long-form argument. Added after a manual pass found these pages thin
+                    next to the rest of the site - a table and two short blocks is a
+                    comparison chart, not a comparison. */}
+                {c.deepDive.map((section) => (
+                    <Reveal
+                        as="section"
+                        key={section.heading}
+                        className="mt-16 border-t border-neutral-200 pt-16 dark:border-neutral-800"
+                    >
+                        <h2 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-3xl">
+                            {section.heading}
+                        </h2>
+                        <div className="mt-5 max-w-3xl space-y-4">
+                            {section.body.map((para) => (
+                                <p key={para.slice(0, 32)} className="text-[17px] leading-relaxed text-neutral-700 dark:text-neutral-300">
+                                    {para}
+                                </p>
+                            ))}
+                        </div>
+                    </Reveal>
+                ))}
+
                 <Reveal as="section" className="mt-16 grid gap-8 border-t border-neutral-200 pt-16 dark:border-neutral-800 md:grid-cols-2">
                     {/* Them first, and the same size. A comparison page whose "pick them"
                         column is shorter than its "pick us" column is an advert wearing a
@@ -200,6 +223,31 @@ export default async function ComparePage({ params }: Props) {
                                 </li>
                             ))}
                         </ul>
+                    </div>
+                </Reveal>
+
+                {/* Rendered, not only marked up - Google requires the FAQPage answer to
+                    match what a visitor sees, and an assistant quoting the page needs the
+                    text in the HTML. details/summary rather than an accordion, because an
+                    accordion would cost a client component on a page that has none. */}
+                <Reveal as="section" className="mt-16 border-t border-neutral-200 pt-16 dark:border-neutral-800">
+                    <h2 className="mb-8 text-2xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-3xl">
+                        Common questions
+                    </h2>
+                    <div className="space-y-px overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-200 dark:border-neutral-800 dark:bg-neutral-800">
+                        {c.faqs.map((faq) => (
+                            <details key={faq.question} className="group bg-white dark:bg-neutral-950">
+                                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 font-semibold text-neutral-900 dark:text-white">
+                                    {faq.question}
+                                    <span aria-hidden className="shrink-0 text-neutral-400 transition-transform group-open:rotate-45 dark:text-neutral-500">
+                                        +
+                                    </span>
+                                </summary>
+                                <p className="px-5 pb-5 text-[15px] leading-relaxed text-neutral-600 dark:text-neutral-400">
+                                    {faq.answer}
+                                </p>
+                            </details>
+                        ))}
                     </div>
                 </Reveal>
 

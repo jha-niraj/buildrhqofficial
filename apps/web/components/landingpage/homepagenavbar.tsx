@@ -168,7 +168,7 @@ export default function Navbar() {
                     </Link>
 
                     <div
-                        className={`hidden items-center space-x-1 rounded-full p-1 transition-all duration-300 md:flex
+                        className={`hidden items-center space-x-1 rounded-full p-1 transition-all duration-300 lg:flex
                         ${isHome
                                 ? scrolled
                                     ? "bg-transparent"
@@ -176,7 +176,7 @@ export default function Navbar() {
                                 : "bg-neutral-100/60 dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-800"
                             }`}
                     >
-                        {NAV_ITEMS.map((item) => {
+                        {NAV_ITEMS.map((item, index) => {
                             const active = isActive(item.href);
 
                             if (!item.children) {
@@ -193,6 +193,9 @@ export default function Navbar() {
                             }
 
                             const open = openMenu === item.label;
+                            // Index-based rather than hardcoded: adding a sixth item keeps
+                            // the behaviour correct without anyone remembering to update this.
+                            const isLastTwo = index >= NAV_ITEMS.length - 3;
 
                             return (
                                 <div
@@ -245,7 +248,14 @@ export default function Navbar() {
                                             // still INSIDE this element while it travels - which
                                             // is what makes the 120ms delay rarely needed and
                                             // reliable when it is.
-                                            className="absolute left-1/2 top-full z-50 w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 pt-3"
+                                            // right-0 on the last two, centred on the rest.
+                                            // A 28rem panel centred on a trigger near the end
+                                            // of a five-item pill runs past the viewport edge;
+                                            // anchoring those to their own right edge keeps
+                                            // them on screen without a measurement pass.
+                                            className={`absolute top-full z-50 w-[min(30rem,calc(100vw-2rem))] pt-3 ${
+                                                isLastTwo ? "right-0" : "left-1/2 -translate-x-1/2"
+                                            }`}
                                         >
                                             <div className="rounded-2xl border border-neutral-200 bg-white p-2 shadow-xl dark:border-neutral-800 dark:bg-neutral-950">
                                                 <div className={item.children.length > 3 ? "grid gap-1 sm:grid-cols-2" : "grid gap-1"}>
@@ -281,7 +291,7 @@ export default function Navbar() {
                             variant="ghost"
                             size="icon"
                             aria-label="Open menu"
-                            className="cursor-pointer text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 md:hidden"
+                            className="cursor-pointer text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 lg:hidden"
                         >
                             <Menu className="h-6 w-6" />
                         </Button>
@@ -298,7 +308,7 @@ export default function Navbar() {
                     <div className="flex h-full flex-col">
                         <div className="flex-1 overflow-auto px-4 py-6">
                             <div className="grid grid-cols-1 gap-1">
-                                {NAV_ITEMS.map((item) => {
+                                {NAV_ITEMS.map((item, index) => {
                                     if (!item.children) {
                                         return (
                                             <Link
@@ -332,7 +342,7 @@ export default function Navbar() {
                                                 onClick={() => setOpenAccordion(expanded ? null : item.label)}
                                                 // min-h-12: a 44px tap target floor, and these are
                                                 // the primary navigation on a phone.
-                                                className="flex min-h-12 w-full items-center justify-between rounded-lg px-4 py-3 text-lg font-medium text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-900 dark:hover:text-white"
+                                                className="flex min-h-12 w-full cursor-pointer items-center justify-between rounded-lg px-4 py-3 text-lg font-medium text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-900 dark:hover:text-white"
                                             >
                                                 {item.label}
                                                 <ChevronDown

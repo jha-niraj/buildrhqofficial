@@ -422,6 +422,73 @@
 .dark .blog-content td {
     color: #d4d4d4;
 }
+/* ── Hero slide illustrations ─────────────────────────────────────────────────
+   Small looping motions for the SVGs in apps/web's hero panel. CSS rather than a
+   motion library on purpose: the panel already costs one client component for the
+   rotation, and adding an animation runtime for decoration is exactly what the
+   performance budget in plan/web/polish/06-performance.md exists to prevent.
+
+   Everything here is decoration. Nothing moves that carries meaning, so switching
+   it all off under reduced-motion loses nothing. */
+
+@keyframes sh-art-flow { to { stroke-dashoffset: -18; } }
+@keyframes sh-art-pulse {
+    0%, 100% { opacity: 0.35; transform: scale(1); }
+    50%      { opacity: 1;    transform: scale(1.06); }
+}
+@keyframes sh-art-wave {
+    0%, 100% { transform: scaleY(0.55); }
+    50%      { transform: scaleY(1); }
+}
+@keyframes sh-art-rise {
+    0%, 100% { opacity: 0.55; transform: translateY(2px); }
+    50%      { opacity: 1;    transform: translateY(-2px); }
+}
+@keyframes sh-art-scan {
+    0%, 100% { transform: translateY(-30px); opacity: 0; }
+    15%      { opacity: 1; }
+    85%      { opacity: 1; }
+    50%      { transform: translateY(30px); }
+}
+@keyframes sh-art-tick {
+    0%, 40%  { opacity: 0.35; }
+    60%, 100% { opacity: 1; }
+}
+@keyframes sh-art-caret {
+    0%, 45%  { opacity: 1; }
+    55%, 100% { opacity: 0; }
+}
+
+.sh-art-flow  { animation: sh-art-flow 1.4s linear infinite; }
+.sh-art-pulse { animation: sh-art-pulse 2.6s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+.sh-art-rise  { animation: sh-art-rise 3.2s ease-in-out infinite; }
+.sh-art-scan  { animation: sh-art-scan 3.6s ease-in-out infinite; }
+.sh-art-tick  { animation: sh-art-tick 2.8s ease-in-out infinite; }
+.sh-art-caret { animation: sh-art-caret 1.1s step-end infinite; }
+
+/* transform-box: fill-box so a percentage transform-origin resolves against the
+   element's own bounding box rather than the SVG's user-space origin, which is
+   what makes a bar scale about its own centre instead of the canvas corner. */
+.sh-art-wave > path {
+    animation: sh-art-wave 1.2s ease-in-out infinite;
+    transform-origin: center;
+    transform-box: fill-box;
+}
+.sh-art-wave > path:nth-child(2) { animation-delay: 0.12s; }
+.sh-art-wave > path:nth-child(3) { animation-delay: 0.24s; }
+.sh-art-wave > path:nth-child(4) { animation-delay: 0.36s; }
+.sh-art-wave > path:nth-child(5) { animation-delay: 0.18s; }
+.sh-art-wave > path:nth-child(6) { animation-delay: 0.3s; }
+.sh-art-wave > path:nth-child(7) { animation-delay: 0.42s; }
+.sh-art-wave > path:nth-child(8) { animation-delay: 0.06s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .sh-art-flow, .sh-art-pulse, .sh-art-rise, .sh-art-scan,
+    .sh-art-tick, .sh-art-caret, .sh-art-wave > path {
+        animation: none;
+    }
+}
+
 /* ── Animated theme switch ────────────────────────────────────────────────────
    Driven by packages/ui/src/lib/theme-transition.ts using the View Transitions
    API: a directional clip-path inset() WIPE of the new theme (light->dark wipes

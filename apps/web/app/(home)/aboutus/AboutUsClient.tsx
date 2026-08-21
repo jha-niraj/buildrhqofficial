@@ -15,57 +15,34 @@
 import Link from "next/link";
 
 import React from 'react'
-import Image, { type StaticImageData } from 'next/image'
 import { Reveal } from '@/components/reveal'
-import {
-    ArrowRight, Github, Linkedin, Twitter, Target, Users, Globe, Cpu, Mail
-} from 'lucide-react'
+import { ArrowRight, Target, Users, Globe, Cpu, Mail } from 'lucide-react'
 import { Button } from "@repo/ui/components/ui/button"
 import { Badge } from "@repo/ui/components/ui/badge"
-import nirajjha from "./images/nirajjha.jpeg"
-import harsh from "./images/harsh.jpeg"
 import { APP_LINKS, BRAND, APP_URL } from "@/lib/site"
 import ContactClient from "./_components/contact-client"
 import { PageHero } from "@/components/page-hero"
+import { GapArt, EvidenceArt, ContainerArt } from "./_components/about-art"
 
-// Filtered Team Data
-interface Leader {
-    name: string
-    role: string
-    bio: string
-    img: StaticImageData
-    links: { linkedin: string; github: string; twitter?: string }
-}
-
-const leadership: Leader[] = [
-    {
-        name: "Niraj Jha",
-        role: "Lead Developer & Architect",
-        bio: "Full-stack engineer passionate about building scalable educational infrastructure.",
-        img: nirajjha,
-        links: {
-            linkedin: "https://www.linkedin.com/in/nirajjha31/",
-            github: "https://github.com/jha-niraj",
-            twitter: "https://x.com/iamnirajjha"
-        }
-    },
-    {
-        name: "Harsh Pandey",
-        role: "Head of Operations & PR",
-        bio: "Driving growth and strategic partnerships across the tech ecosystem.",
-        img: harsh,
-        links: {
-            linkedin: "https://www.linkedin.com/in/harsh-pandey0504",
-            github: "https://github.com/HarshPandey-5804"
-        }
-    }
-]
-
+/**
+ * Facts, not vanity metrics.
+ *
+ * This block used to read "10K+ Active Developers", "500+ Projects Shipped", "12 Countries
+ * Reached" and "1M+ Lines of Code". Not one of those was sourced, and they sat on the page
+ * that DEFINES the company - the single worst place on the site to invent a number, because
+ * it is the page a reader visits specifically to decide whether to believe the rest.
+ *
+ * Everything below is checkable in this repository, and the `source` says where. Same rule
+ * as `features/_components/feature-modules.ts` and the comparison pages.
+ *
+ * If you want usage numbers here later, `actions/stats.action.ts` already returns real
+ * counts from the database. Use those, or use nothing.
+ */
 const stats = [
-    { label: "Active Developers", value: "10K+" },
-    { label: "Projects Shipped", value: "500+" },
-    { label: "Countries Reached", value: "12" },
-    { label: "Lines of Code", value: "1M+" },
+    { value: "6", label: "Languages that run", source: "apps/shipitworker/Dockerfile" },
+    { value: "100", label: "Free credits at signup", source: "lib/credits/grant.ts" },
+    { value: "0", label: "Subscriptions", source: "there is no recurring plan" },
+    { value: "30", label: "Guides published", source: "content/active-posts.ts" },
 ]
 
 export default function AboutUs() {
@@ -149,66 +126,184 @@ export default function AboutUs() {
                         {
                             stats.map((stat, i) => (
                                 <div key={i}>
-                                    <div className="text-3xl font-bold text-neutral-900 dark:text-white mb-1 font-mono">{stat.value}</div>
-                                    <div className="text-sm text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">{stat.label}</div>
+                                    <div className="mb-1 font-mono text-3xl font-bold tabular-nums text-neutral-900 dark:text-white">{stat.value}</div>
+                                    <div className="text-sm uppercase tracking-wider text-neutral-600 dark:text-neutral-400">{stat.label}</div>
+                                    {/* The source is printed, not hidden in a comment. A number
+                                        nobody can check is a number we should not have used. */}
+                                    <div className="mt-1.5 font-mono text-[11px] leading-snug text-neutral-500 dark:text-neutral-500">{stat.source}</div>
                                 </div>
                             ))
                         }
                     </div>
                 </div>
             </section>
-            <section className="py-24 bg-neutral-50 dark:bg-neutral-900/30">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="mb-16">
-                        <h2 className="text-3xl font-bold text-neutral-900 dark:text-white mb-4">Leadership</h2>
-                        <p className="text-neutral-500 dark:text-neutral-400 max-w-xl">
-                            Engineers and builders dedicated to the future of education.
-                        </p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
-                        {
-                            leadership.map((leader, index) => (
-                                <Reveal
-                                    key={index}
-                                    delay={index * 0.1}
-                                    className="group bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-6 rounded-2xl flex items-start gap-6 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all"
-                                >
-                                    <div className="relative w-20 h-20 flex-shrink-0">
-                                        <Image
-                                            src={leader.img}
-                                            alt={leader.name}
-                                            fill
-                                            className="object-cover rounded-full grayscale group-hover:grayscale-0 transition-all duration-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-1">{leader.name}</h3>
-                                        <p className="text-xs font-mono text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-3">
-                                            {leader.role}
-                                        </p>
-                                        <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4 leading-relaxed">
-                                            {leader.bio}
-                                        </p>
-                                        <div className="flex gap-4">
-                                            <a href={leader.links.linkedin} target="_blank" rel="noopener noreferrer" aria-label={`${leader.name} on LinkedIn`} className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors">
-                                                <Linkedin className="w-4 h-4" />
-                                            </a>
-                                            <a href={leader.links.github} target="_blank" rel="noopener noreferrer" aria-label={`${leader.name} on GitHub`} className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors">
-                                                <Github className="w-4 h-4" />
-                                            </a>
-                                            {leader.links.twitter && (
-                                                <a href={leader.links.twitter} target="_blank" rel="noopener noreferrer" aria-label={`${leader.name} on X`} className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors">
-                                                    <Twitter className="w-4 h-4" />
-                                                </a>
-                                            )}
-                                        </div>
-                                    </div>
-                                </Reveal>
-                            ))
-                        }
+            {/* ── Why this exists ── */}
+            <section className="border-t border-neutral-100 py-24 dark:border-neutral-800">
+                <div className="mx-auto max-w-7xl px-6">
+                    <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
+                        <Reveal>
+                            <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400">
+                                Why this exists
+                            </p>
+                            <h2 className="mb-6 text-3xl font-bold tracking-tight text-neutral-900 dark:text-white md:text-4xl">
+                                The gap is not knowledge.
+                            </h2>
+                            <div className="space-y-4 text-[17px] leading-relaxed text-neutral-700 dark:text-neutral-300">
+                                <p>
+                                    People finish the course. They finish four hundred problems. Then they
+                                    freeze on a follow-up question, cannot explain why they chose Postgres,
+                                    and find out their resume was never read because it was two columns.
+                                </p>
+                                <p>
+                                    None of that is a knowledge problem, and none of it is fixed by another
+                                    tutorial. It is the distance between knowing a thing and being able to
+                                    perform it, in front of a stranger, on a schedule you do not control.
+                                </p>
+                                <p className="border-l-2 border-neutral-900 py-1 pl-6 text-neutral-600 dark:border-white dark:text-neutral-400">
+                                    Everything here is built for that distance. Not for teaching you what a
+                                    hash map is.
+                                </p>
+                            </div>
+                        </Reveal>
+                        <Reveal delay={0.1} className="hidden lg:block">
+                            <GapArt className="w-full text-neutral-400 dark:text-neutral-500" />
+                        </Reveal>
                     </div>
                 </div>
             </section>
+
+            {/* ── The rule ── */}
+            <section className="border-t border-neutral-100 bg-neutral-50 py-24 dark:border-neutral-800 dark:bg-neutral-900/30">
+                <div className="mx-auto max-w-7xl px-6">
+                    <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
+                        <Reveal delay={0.1} className="hidden lg:block">
+                            <EvidenceArt className="w-full text-neutral-400 dark:text-neutral-500" />
+                        </Reveal>
+                        <Reveal>
+                            <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400">
+                                How we write this site
+                            </p>
+                            <h2 className="mb-6 text-3xl font-bold tracking-tight text-neutral-900 dark:text-white md:text-4xl">
+                                Every claim names the file it came from.
+                            </h2>
+                            <div className="space-y-4 text-[17px] leading-relaxed text-neutral-700 dark:text-neutral-300">
+                                <p>
+                                    This site used to advertise a notes module with spaced repetition that
+                                    had been deleted from the product. Somebody could have read that page,
+                                    signed up, gone looking for it, and found nothing.
+                                </p>
+                                <p>
+                                    So there is a rule now, and it is enforced in the code rather than in
+                                    somebody&rsquo;s memory: a claim ships only if there is a route, an action or
+                                    a constant behind it, and the evidence sits in the same file as the
+                                    sentence. The features page names the file for every module. The
+                                    comparison pages print the source in the table, on the page, where you
+                                    can see it.
+                                </p>
+                                <p>
+                                    It has teeth. Applying it deleted a section, six product claims, and five
+                                    statistics that read as researched and were not - including the ones that
+                                    used to be on this page.
+                                </p>
+                            </div>
+                            <div className="mt-8 flex flex-wrap gap-3">
+                                <Link
+                                    href="/features"
+                                    className="inline-flex min-h-11 items-center gap-2 rounded-full border border-neutral-300 px-6 text-sm font-semibold text-neutral-800 transition-colors hover:border-neutral-500 dark:border-neutral-700 dark:text-neutral-200 dark:hover:border-neutral-500"
+                                >
+                                    What each module is, and is not
+                                </Link>
+                                <Link
+                                    href="/compare"
+                                    className="inline-flex min-h-11 items-center gap-2 rounded-full border border-neutral-300 px-6 text-sm font-semibold text-neutral-800 transition-colors hover:border-neutral-500 dark:border-neutral-700 dark:text-neutral-200 dark:hover:border-neutral-500"
+                                >
+                                    How we compare ourselves
+                                </Link>
+                            </div>
+                        </Reveal>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── The one technical thing worth pointing at ── */}
+            <section className="border-t border-neutral-100 py-24 dark:border-neutral-800">
+                <div className="mx-auto max-w-7xl px-6">
+                    <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
+                        <Reveal>
+                            <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400">
+                                What is actually different
+                            </p>
+                            <h2 className="mb-6 text-3xl font-bold tracking-tight text-neutral-900 dark:text-white md:text-4xl">
+                                Your code runs on a real machine.
+                            </h2>
+                            <div className="space-y-4 text-[17px] leading-relaxed text-neutral-700 dark:text-neutral-300">
+                                <p>
+                                    Most practice platforms mark an answer by comparing it to an expected
+                                    string. When something goes wrong you get their description of the error,
+                                    which is a translation of a translation.
+                                </p>
+                                <p>
+                                    Here it goes to a Linux container that exists for that execution and is
+                                    destroyed afterwards - a real filesystem, a real process, the compiler&rsquo;s
+                                    own diagnostics. If g++ says you compared a signed int to an unsigned
+                                    size, that is g++ talking.
+                                </p>
+                                <p className="border-l-2 border-neutral-900 py-1 pl-6 text-neutral-600 dark:border-white dark:text-neutral-400">
+                                    It is the one claim on this site you can verify without trusting us: the
+                                    image is checked into the repository.
+                                </p>
+                            </div>
+                        </Reveal>
+                        <Reveal delay={0.1} className="hidden lg:block">
+                            <ContainerArt className="w-full text-neutral-400 dark:text-neutral-500" />
+                        </Reveal>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── What we are not ── */}
+            <section className="border-t border-neutral-100 bg-neutral-50 py-24 dark:border-neutral-800 dark:bg-neutral-900/30">
+                <div className="mx-auto max-w-4xl px-6">
+                    <Reveal>
+                        <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400">
+                            What this is not
+                        </p>
+                        <h2 className="mb-8 text-3xl font-bold tracking-tight text-neutral-900 dark:text-white md:text-4xl">
+                            Four things we are deliberately not doing.
+                        </h2>
+                    </Reveal>
+                    <div className="space-y-px overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-200 dark:border-neutral-800 dark:bg-neutral-800">
+                        {[
+                            {
+                                t: "Not a course.",
+                                d: "No video lessons, no curriculum to complete, and nothing that issues a certificate. If you are learning your first language, start elsewhere and come back when you can solve a basic problem unaided.",
+                            },
+                            {
+                                t: "Not a bigger problem bank.",
+                                d: "There is no version of this where a newer product out-banks a decade-old archive, and pretending otherwise would waste your time and ours. Keep using the one you use.",
+                            },
+                            {
+                                t: "Not a subscription.",
+                                d: "Operations that cost real money to run cost credits. Reading, browsing and organising cost nothing, and nobody is charged for a month they did not use.",
+                            },
+                            {
+                                t: "Not multiplayer.",
+                                d: "Projects are single-user. Teams, shared workspaces and collaborators were removed from the product, and the marketing was corrected to match rather than the other way round.",
+                            },
+                        ].map((item, i) => (
+                            <Reveal key={item.t} delay={i * 0.06} className="bg-white p-6 dark:bg-neutral-950">
+                                <h3 className="mb-2 text-lg font-bold tracking-tight text-neutral-900 dark:text-white">
+                                    {item.t}
+                                </h3>
+                                <p className="text-[15px] leading-relaxed text-neutral-600 dark:text-neutral-400">
+                                    {item.d}
+                                </p>
+                            </Reveal>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
             <section className="py-24 border-t border-neutral-100 dark:border-neutral-800">
                 <div className="max-w-4xl mx-auto px-6 text-center">
                     <h2 className="text-3xl font-bold text-neutral-900 dark:text-white mb-6">Ready to join the movement?</h2>
