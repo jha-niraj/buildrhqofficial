@@ -380,3 +380,48 @@ rendered repository paths, `href="#"`, and rendered `undefined`/`NaN`.
 
 Re-scan after: **55/55 clean.** Link crawl: 83 distinct internal links across 55 seed pages,
 all 200. Build prerenders 30 posts, 7 hubs, 10 comparisons and 47 covers.
+
+---
+
+# Manual pass 4, 2026-08-21
+
+## MP-18 - Active state on the features index
+
+**This reverses a decision I made, and mine was wrong.**
+
+The sticky index shipped CSS-only, with a comment in the file saying a scrollspy "would cost
+a client component on a page whose whole argument is that the product is fast".
+
+That traded the wrong thing. A table of contents answers two questions - what is on this
+page, and where am I in it - and without an active state it answers only the first. The
+second is most of the reason anyone looks at a sidebar rather than scrolling. The
+performance budget exists to stop decoration, not to stop a control doing its job.
+
+`components/page-toc.tsx` is a small client component, generic enough to reuse:
+
+- **One IntersectionObserver, not a scroll handler.** A scroll listener fires every frame,
+  needs throttling, and the throttling is where the bugs are.
+- **An asymmetric detection band** - `-120px 0px -55% 0px`. The top inset matches the
+  `scroll-mt-28` on each section so the band starts below the floating navbar. The bottom
+  inset is what stops the last two sections fighting: with a full-height root, a tall
+  section and a short one below it are both intersecting for most of the scroll and
+  whichever the browser reports last wins, which reads as flicker.
+- **The bottom of the page gets its own branch.** The final section is usually shorter than
+  the band, so it can never fill it, and scrolling to the very end would leave the
+  second-to-last row highlighted.
+- **Clicking sets it immediately** rather than waiting for the smooth scroll to cross a
+  boundary - on a long jump that is most of a second with the wrong row lit.
+- **`aria-current`**, so a screen reader gets what the highlight gives a sighted reader.
+
+**Two supporting changes.** `Reveal` accepts an `id` now, so each section carries its own id
+instead of a separate zero-height `<div id>` inside it - a element with no height never
+meaningfully intersects anything, which would have made the observer useless.
+
+And the effect depends on the id string rather than the `items` array. `items` is a fresh
+array literal on every parent render; it is stable today only because the caller is a server
+component, which is exactly the sort of accident that breaks the first time somebody uses
+the component from a client page.
+
+**Verified:** all six ids on their `<section>` elements, no stray anchor divs, six TOC links,
+`aria-current` on the first row in the initial HTML. Full re-scan: 55/55 clean, 83 internal
+links all 200.

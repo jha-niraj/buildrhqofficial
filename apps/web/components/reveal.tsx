@@ -53,10 +53,20 @@ export interface RevealProps {
      * child stops sticking and a fixed child stops tracking the viewport.
      */
     fadeOnly?: boolean
+    /**
+     * Put an id on the revealed element itself.
+     *
+     * Added so a section can be both the scroll anchor AND the thing an observer watches.
+     * The features page used to carry a separate zero-height `<div id>` inside each
+     * section, which works as an anchor and is useless to an IntersectionObserver - a
+     * element with no height never meaningfully intersects anything.
+     */
+    id?: string
 }
 
-export function Reveal({ children, delay = 0, className = "", as = "div", fadeOnly = false }: RevealProps) {
+export function Reveal({ children, delay = 0, className = "", as = "div", fadeOnly = false, id }: RevealProps) {
     const props = {
+        id,
         // `sh-reveal-fade` drops the translate but keeps the opacity transition.
         className: `sh-reveal${fadeOnly ? " sh-reveal-fade" : ""} ${className}`.trim(),
         style: delay ? revealDelay(delay) : undefined,

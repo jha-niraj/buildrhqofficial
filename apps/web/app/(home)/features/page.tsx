@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowRight, Check } from 'lucide-react'
 import { PageHero } from '@/components/page-hero'
 import { Reveal } from '@/components/reveal'
+import { PageToc } from '@/components/page-toc'
 import { SITE, BRAND, APP_LINKS } from '@/lib/site'
 import { pageMeta } from '@/lib/seo'
 import { breadcrumbSchema, webPageSchema, jsonLd } from '@/lib/schema'
@@ -103,37 +104,32 @@ export default function FeaturesPage() {
                 <div className="grid gap-12 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-16">
                     {/* The index. `hidden lg:block` because below lg it would push the first
                         section a full screen down, and the hero already lists the same six
-                        as tappable links - so nothing is lost on a phone. */}
-                    <nav aria-label="On this page" className="hidden lg:block">
-                        <div className="sticky top-28">
-                            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400">
-                                On this page
-                            </p>
-                            <ul className="space-y-1 border-l border-neutral-200 dark:border-neutral-800">
-                                {FEATURE_MODULES.map((m) => (
-                                    <li key={m.id}>
-                                        <a
-                                            href={`#${m.id}`}
-                                            className="-ml-px block border-l border-transparent py-1.5 pl-4 text-sm text-neutral-600 transition-colors hover:border-neutral-900 hover:text-neutral-900 dark:text-neutral-400 dark:hover:border-white dark:hover:text-white"
-                                        >
-                                            {m.name}
-                                        </a>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </nav>
+                        as tappable links - so nothing is lost on a phone.
+
+                        It tracks the current section now. This shipped CSS-only with a note
+                        saying a scrollspy "would cost a client component on a page whose whole
+                        argument is that the product is fast" - which traded the wrong thing. A
+                        contents list answers two questions, what is here and where am I, and
+                        without an active state it answers only the first. The budget exists to
+                        stop decoration, not to stop a control doing its job. */}
+                    <PageToc
+                        items={FEATURE_MODULES.map((m) => ({ id: m.id, label: m.name }))}
+                        className="hidden lg:block"
+                    />
 
                     <div className="min-w-0">
                         {FEATURE_MODULES.map((m, i) => (
                             <Reveal
                                 as="section"
                                 key={m.id}
+                                // The id is on the SECTION now, not on a zero-height div
+                                // inside it. Both work as a scroll anchor; only the section
+                                // has a box an IntersectionObserver can watch.
+                                id={m.id}
                                 // scroll-mt clears the floating navbar. Without it an anchor
                                 // from the nav dropdown lands with the heading under the pill.
                                 className={`scroll-mt-28 ${i > 0 ? 'mt-20 border-t border-neutral-200 pt-20 dark:border-neutral-800' : ''}`}
                             >
-                                <div id={m.id} />
                                 <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400">
                                     {String(i + 1).padStart(2, '0')}
                                 </p>
