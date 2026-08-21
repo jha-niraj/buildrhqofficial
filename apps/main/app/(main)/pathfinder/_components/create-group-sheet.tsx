@@ -98,7 +98,7 @@ export function CreateGroupSheet({ open, onOpenChange, onSuccess }: CreateGroupS
                     </SheetHeader>
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <div className="space-y-2">
-                            <Label className="text-xs text-neutral-500">Group Name</Label>
+                            <Label className="text-xs text-neutral-500 dark:text-neutral-400">Group Name</Label>
                             <Input
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
@@ -108,7 +108,7 @@ export function CreateGroupSheet({ open, onOpenChange, onSuccess }: CreateGroupS
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-xs text-neutral-500">Icon</Label>
+                            <Label className="text-xs text-neutral-500 dark:text-neutral-400">Icon</Label>
                             <div className="flex flex-wrap gap-1.5">
                                 {
                                     emojiOptions.map((e) => (
@@ -130,7 +130,7 @@ export function CreateGroupSheet({ open, onOpenChange, onSuccess }: CreateGroupS
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-xs text-neutral-500">Color</Label>
+                            <Label className="text-xs text-neutral-500 dark:text-neutral-400">Color</Label>
                             <div className="flex flex-wrap gap-1.5">
                                 {
                                     colorOptions.map((c) => (

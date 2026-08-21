@@ -177,7 +177,7 @@ export function NoteStep({ step, studioId }: NoteStepProps) {
 
 					<div className="flex items-center gap-2">
 						{isSaving && (
-							<span className="text-xs text-neutral-500 flex items-center gap-1">
+							<span className="text-xs text-neutral-500 dark:text-neutral-400 flex items-center gap-1">
 								<Save className="h-3 w-3 animate-pulse" />
 								Saving...
 							</span>

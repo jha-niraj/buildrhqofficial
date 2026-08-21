@@ -162,7 +162,7 @@ export function SwipeCard({
                             <h2 className="text-xl font-bold text-neutral-900 dark:text-white truncate">
                                 {job.title}
                             </h2>
-                            <p className="text-neutral-500 font-medium">{job.company.name}</p>
+                            <p className="text-neutral-500 dark:text-neutral-400 font-medium">{job.company.name}</p>
                             {job.isFollowingCompany && (
                                 <Badge className="mt-1 bg-neutral-100 text-neutral-700 dark:bg-neutral-800/30 dark:text-neutral-100 text-xs">
                                     Following
@@ -201,7 +201,7 @@ export function SwipeCard({
 
                     {/* Skills */}
                     <div className="mb-5">
-                        <p className="text-xs text-neutral-500 uppercase tracking-wider mb-2 font-medium">
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-2 font-medium">
                             Skills Match
                         </p>
                         <div className="flex flex-wrap gap-1.5">
@@ -212,7 +212,7 @@ export function SwipeCard({
                                 </Badge>
                             ))}
                             {job.missingSkills.slice(0, 3).map((skill, i) => (
-                                <Badge key={i} variant="outline" className="text-xs text-neutral-500">
+                                <Badge key={i} variant="outline" className="text-xs text-neutral-500 dark:text-neutral-400">
                                     {skill}
                                 </Badge>
                             ))}
@@ -247,7 +247,7 @@ export function SwipeCard({
                     )}
 
                     {/* Competition */}
-                    <div className="flex items-center justify-between text-sm text-neutral-500 mb-4">
+                    <div className="flex items-center justify-between text-sm text-neutral-500 dark:text-neutral-400 mb-4">
                         <div className="flex items-center gap-2">
                             <Users className="w-4 h-4" />
                             <span>{job.applicationsCount} applicants</span>

@@ -216,9 +216,9 @@ export function JobDetailSheet({ job }: JobDetailSheetProps) {
                     {
                         job.location && (
                             <div className="flex items-center gap-3 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900">
-                                <MapPin className="w-5 h-5 text-neutral-500" />
+                                <MapPin className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
                                 <div>
-                                    <p className="text-xs text-neutral-500">Location</p>
+                                    <p className="text-xs text-neutral-500 dark:text-neutral-400">Location</p>
                                     <p className="font-medium text-neutral-900 dark:text-white">{job.location}</p>
                                 </div>
                             </div>
@@ -227,9 +227,9 @@ export function JobDetailSheet({ job }: JobDetailSheetProps) {
                     {
                         formatExperience(job.experienceMin, job.experienceMax) && (
                             <div className="flex items-center gap-3 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900">
-                                <Clock className="w-5 h-5 text-neutral-500" />
+                                <Clock className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
                                 <div>
-                                    <p className="text-xs text-neutral-500">Experience</p>
+                                    <p className="text-xs text-neutral-500 dark:text-neutral-400">Experience</p>
                                     <p className="font-medium text-neutral-900 dark:text-white">
                                         {formatExperience(job.experienceMin, job.experienceMax)}
                                     </p>
@@ -251,9 +251,9 @@ export function JobDetailSheet({ job }: JobDetailSheetProps) {
                         )
                     }
                     <div className="flex items-center gap-3 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900">
-                        <Users className="w-5 h-5 text-neutral-500" />
+                        <Users className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
                         <div>
-                            <p className="text-xs text-neutral-500">Applicants</p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Applicants</p>
                             <p className="font-medium text-neutral-900 dark:text-white">{job.applicationsCount}</p>
                         </div>
                     </div>
@@ -311,7 +311,7 @@ export function JobDetailSheet({ job }: JobDetailSheetProps) {
                                                     <div className="flex-1 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
                                                         <div className="flex items-center justify-between mb-1">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="text-xs font-medium text-neutral-500">
+                                                                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
                                                                     Round {round.roundNumber}
                                                                 </span>
                                                                 <h4 className="font-medium text-neutral-900 dark:text-white">
@@ -355,7 +355,7 @@ export function JobDetailSheet({ job }: JobDetailSheetProps) {
                             <h3 className="font-medium text-neutral-900 dark:text-white mb-1">
                                 Interview Process Not Disclosed
                             </h3>
-                            <p className="text-sm text-neutral-500">
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">
                                 This company hasn&apos;t shared their interview process yet.
                             </p>
                         </div>
@@ -405,7 +405,7 @@ export function JobDetailSheet({ job }: JobDetailSheetProps) {
                                     </p>
                                     {
                                         job.company.industry && (
-                                            <p className="text-sm text-neutral-500">{job.company.industry}</p>
+                                            <p className="text-sm text-neutral-500 dark:text-neutral-400">{job.company.industry}</p>
                                         )
                                     }
                                 </div>

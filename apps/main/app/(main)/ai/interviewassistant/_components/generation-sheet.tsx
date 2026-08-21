@@ -386,7 +386,7 @@ export function GenerationSheet({ open, onClose, onConfirm, userCredits }: Gener
 											<span className="text-slate-600 dark:text-slate-400 line-through">
 												Original cost
 											</span>
-											<span className="font-medium text-slate-500 dark:text-slate-500 line-through">
+											<span className="font-medium text-slate-500 dark:text-slate-400 line-through">
 												{originalCost} credits
 											</span>
 										</div>

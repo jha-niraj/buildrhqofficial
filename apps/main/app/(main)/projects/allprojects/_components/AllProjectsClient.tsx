@@ -202,7 +202,7 @@ export default function AllProjectsPage() {
 												variant="ghost"
 												size="sm"
 												onClick={() => setSelectedTech([])}
-												className="text-xs text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 rounded-xl"
+												className="text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 rounded-xl"
 											>
 												Clear filters ({selectedTech.length})
 											</Button>
@@ -226,7 +226,7 @@ export default function AllProjectsPage() {
 								animate={{ opacity: 1, scale: 1 }}
 								transition={{ duration: 0.6 }}
 							>
-								<Code2 className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-600 mb-4" />
+								<Code2 className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-400 mb-4" />
 								<h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">
 									No projects found
 								</h3>

@@ -219,7 +219,7 @@ export function AuthDialog() {
 									</Button>
 								</form>
 								<div className="flex items-start gap-3 p-4 bg-gray-50/80 dark:bg-gray-800/50 rounded-xl backdrop-blur-sm">
-									<CircleHelp className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+									<CircleHelp className="w-4 h-4 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
 									<p className="text-sm text-gray-600 dark:text-gray-400">
 										New to our platform? You&apos;ll be able to create an account after signing in with Google, or use the signup link below.
 									</p>

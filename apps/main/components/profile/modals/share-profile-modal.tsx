@@ -189,7 +189,7 @@ export function ShareProfileModal({
 								className="flex items-center gap-3 p-4 rounded-lg border hover:bg-muted transition-colors col-span-2"
 							>
 								<div className="w-10 h-10 rounded-full bg-gray-500/10 flex items-center justify-center">
-									<Mail className="w-5 h-5 text-gray-500" />
+									<Mail className="w-5 h-5 text-gray-500 dark:text-gray-400" />
 								</div>
 								<span className="font-medium">Email</span>
 							</motion.button>

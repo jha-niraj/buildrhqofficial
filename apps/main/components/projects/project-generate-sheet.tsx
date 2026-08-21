@@ -151,7 +151,7 @@ export default function ProjectGenerateSheet({
                         </div>
                         <div className="text-center">
                             <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Building your project</h3>
-                            <p className="mt-1 text-sm text-neutral-500">{phaseLabel}</p>
+                            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{phaseLabel}</p>
                         </div>
                         <div className="w-full max-w-sm">
                             <Progress value={progress} className="h-1.5" />
@@ -193,7 +193,7 @@ export default function ProjectGenerateSheet({
                         </div>
                         <div>
                             <SheetTitle className="text-base">Generate a project</SheetTitle>
-                            <p className="text-xs text-neutral-500">Step {step + 1} of 2 · {step === 0 ? 'Details' : 'Setup'}</p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Step {step + 1} of 2 · {step === 0 ? 'Details' : 'Setup'}</p>
                         </div>
                     </div>
                     <div className="mt-3 flex gap-1.5">
@@ -227,7 +227,7 @@ export default function ProjectGenerateSheet({
                                                     <t.icon className={cn('h-4.5 w-4.5 mt-0.5 shrink-0', active ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-500')} />
                                                     <div className="min-w-0">
                                                         <p className="text-sm font-semibold text-neutral-900 dark:text-white">{t.label}</p>
-                                                        <p className="text-[11px] text-neutral-500 truncate">{t.description}</p>
+                                                        <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">{t.description}</p>
                                                     </div>
                                                 </button>
                                             )
@@ -244,7 +244,7 @@ export default function ProjectGenerateSheet({
                                                     className={cn('rounded-xl border p-3 text-center transition-colors',
                                                         active ? 'border-neutral-900 bg-neutral-50 dark:bg-neutral-200/10' : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-300')}>
                                                     <p className="text-sm font-semibold text-neutral-900 dark:text-white">{d.label}</p>
-                                                    <p className="text-[11px] text-neutral-500">{d.desc}</p>
+                                                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400">{d.desc}</p>
                                                 </button>
                                             )
                                         })}
@@ -256,7 +256,7 @@ export default function ProjectGenerateSheet({
                                 <div className="space-y-3">
                                     <div>
                                         <Label className="text-sm">Tech stack <span className="text-neutral-400 font-normal">· optional</span></Label>
-                                        <p className="text-[11px] text-neutral-500">Leave blank and the AI picks a sensible stack.</p>
+                                        <p className="text-[11px] text-neutral-500 dark:text-neutral-400">Leave blank and the AI picks a sensible stack.</p>
                                     </div>
                                     <StackRow label="Frontend" options={FRONTEND_STACKS} value={form.stacks?.frontend} onSelect={v => setStack('frontend', v)} />
                                     <StackRow label="Backend" options={BACKEND_STACKS} value={form.stacks?.backend} onSelect={v => setStack('backend', v)} />
@@ -278,7 +278,7 @@ export default function ProjectGenerateSheet({
                                                     <v.icon className={cn('h-4 w-4 mt-0.5', active ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-500')} />
                                                     <div>
                                                         <p className="text-sm font-semibold text-neutral-900 dark:text-white">{v.label}</p>
-                                                        <p className="text-[11px] text-neutral-500">{v.desc}</p>
+                                                        <p className="text-[11px] text-neutral-500 dark:text-neutral-400">{v.desc}</p>
                                                     </div>
                                                 </button>
                                             )
@@ -293,7 +293,7 @@ export default function ProjectGenerateSheet({
                                         <Cpu className={cn('h-4 w-4', form.includeAssessment ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-500')} />
                                         <div>
                                             <p className="text-sm font-semibold text-neutral-900 dark:text-white">Add skill assessment</p>
-                                            <p className="text-[11px] text-neutral-500">Auto-graded checkpoints · +30 credits</p>
+                                            <p className="text-[11px] text-neutral-500 dark:text-neutral-400">Auto-graded checkpoints · +30 credits</p>
                                         </div>
                                     </div>
                                     <div className={cn('h-5 w-9 rounded-full p-0.5 transition-colors', form.includeAssessment ? 'bg-neutral-900' : 'bg-neutral-300 dark:bg-neutral-700')}>
@@ -306,7 +306,7 @@ export default function ProjectGenerateSheet({
                                         <span className="text-sm text-neutral-600 dark:text-neutral-400">Total cost</span>
                                         <span className="font-mono text-lg font-bold text-neutral-900 dark:text-white">{cost} credits</span>
                                     </div>
-                                    <p className="mt-1 flex items-center gap-1.5 text-[11px] text-neutral-500">
+                                    <p className="mt-1 flex items-center gap-1.5 text-[11px] text-neutral-500 dark:text-neutral-400">
                                         <AlertCircle className="h-3 w-3" /> Credits are only charged once generation succeeds.
                                     </p>
                                 </div>

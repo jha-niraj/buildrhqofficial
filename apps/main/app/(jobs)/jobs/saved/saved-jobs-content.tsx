@@ -102,7 +102,7 @@ export function SavedJobsContent({ initialData, isAuthenticated }: SavedJobsCont
                         <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
                             Saved Jobs
                         </h2>
-                        <p className="text-sm text-neutral-500">
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
                             {total} job{total !== 1 ? 's' : ''} saved for later
                         </p>
                     </div>
@@ -149,7 +149,7 @@ export function SavedJobsContent({ initialData, isAuthenticated }: SavedJobsCont
 
             {/* Count */}
             {jobs.length > 0 && (
-                <p className="text-center text-sm text-neutral-500 mt-4">
+                <p className="text-center text-sm text-neutral-500 dark:text-neutral-400 mt-4">
                     Showing {jobs.length} of {total} saved jobs
                 </p>
             )}
@@ -180,7 +180,7 @@ function AuthRequiredState() {
             <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-2">
                 Sign in to see your saved jobs
             </h3>
-            <p className="text-neutral-500 max-w-md mx-auto mb-6">
+            <p className="text-neutral-500 dark:text-neutral-400 max-w-md mx-auto mb-6">
                 Create an account or sign in to save jobs and access them later.
             </p>
             <Link href="/signin">
@@ -205,7 +205,7 @@ function SavedEmptyState() {
             <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-2">
                 No saved jobs yet
             </h3>
-            <p className="text-neutral-500 max-w-md mx-auto mb-6">
+            <p className="text-neutral-500 dark:text-neutral-400 max-w-md mx-auto mb-6">
                 Swipe right on jobs you like or click the bookmark icon to save them for later.
             </p>
             <Link href="/jobs">

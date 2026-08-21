@@ -311,7 +311,7 @@ export default function PublicChatInterface({ profile }: PublicChatInterfaceProp
                                             {
                                                 message.role === "assistant" && message.wasHelpful === null && (
                                                     <div className="flex items-center gap-2 px-1">
-                                                        <span className="text-xs text-slate-500">Was this helpful?</span>
+                                                        <span className="text-xs text-slate-500 dark:text-slate-400">Was this helpful?</span>
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
@@ -403,7 +403,7 @@ export default function PublicChatInterface({ profile }: PublicChatInterfaceProp
                                 }
                             </Button>
                         </form>
-                        <div className="flex items-center justify-between mt-3 text-xs text-slate-500">
+                        <div className="flex items-center justify-between mt-3 text-xs text-slate-500 dark:text-slate-400">
                             <span>Questions remaining: {rateLimitRemaining}</span>
                             <Link href={`/profile/${profile.user.username}`} className="flex items-center gap-1 hover:text-neutral-800">
                                 <Info className="w-3 h-3" />

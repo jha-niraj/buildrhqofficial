@@ -473,11 +473,11 @@ function PlatformsStep({
                                 className="flex items-center gap-2 p-3 bg-white dark:bg-neutral-700 rounded-lg opacity-60"
                             >
                                 <div className="w-8 h-8 rounded bg-slate-200 dark:bg-neutral-600 flex items-center justify-center">
-                                    <platform.icon className="w-4 h-4 text-slate-500" />
+                                    <platform.icon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{platform.name}</p>
-                                    <p className="text-xs text-slate-500">{platform.description}</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">{platform.description}</p>
                                 </div>
                             </div>
                         ))

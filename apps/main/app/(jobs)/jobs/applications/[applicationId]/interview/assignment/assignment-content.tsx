@@ -135,7 +135,7 @@ export function AssignmentContent({ application }: AssignmentContentProps) {
                                 <h1 className="text-lg font-semibold text-neutral-900 dark:text-white">
                                     Take-Home Assignment
                                 </h1>
-                                <p className="text-sm text-neutral-500">{job.title} • {job.company.name}</p>
+                                <p className="text-sm text-neutral-500 dark:text-neutral-400">{job.title} • {job.company.name}</p>
                             </div>
                         </div>
                         {
@@ -202,7 +202,7 @@ export function AssignmentContent({ application }: AssignmentContentProps) {
                                     <h2 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">
                                         {assignment.title}
                                     </h2>
-                                    <div className="flex items-center gap-4 text-sm text-neutral-500">
+                                    <div className="flex items-center gap-4 text-sm text-neutral-500 dark:text-neutral-400">
                                         {
                                             job.assignmentDeadlineDays && (
                                                 <div className="flex items-center gap-1">
@@ -303,7 +303,7 @@ export function AssignmentContent({ application }: AssignmentContentProps) {
                                                 <h4 className="font-semibold text-neutral-900 dark:text-white mb-1">
                                                     Assignment Submitted
                                                 </h4>
-                                                <p className="text-sm text-neutral-500 mb-4">
+                                                <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
                                                     Submitted on {application.assignmentSubmittedAt &&
                                                         new Date(application.assignmentSubmittedAt).toLocaleDateString()}
                                                 </p>
@@ -379,7 +379,7 @@ export function AssignmentContent({ application }: AssignmentContentProps) {
                                 onChange={(e) => setSubmissionUrl(e.target.value)}
                                 className="mt-2"
                             />
-                            <p className="text-xs text-neutral-500 mt-1">
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                                 GitHub repository, deployed URL, or file sharing link
                             </p>
                         </div>

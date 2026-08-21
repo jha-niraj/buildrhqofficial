@@ -359,7 +359,7 @@ function TaskItemCard({
 
                                             {
                                                 isCheckingDetail && (
-                                                    <div className="flex items-center gap-2 text-sm text-neutral-500">
+                                                    <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400">
                                                         <Loader2 className="w-4 h-4 animate-spin" />
                                                         Loading...
                                                     </div>

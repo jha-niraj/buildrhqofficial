@@ -315,7 +315,7 @@ export function CreateMockSheet({
                                     </p>
                                     <div className="w-full max-w-md space-y-4">
                                         <Progress value={progressPercent} className="h-3" />
-                                        <div className="flex justify-between text-sm text-neutral-500">
+                                        <div className="flex justify-between text-sm text-neutral-500 dark:text-neutral-400">
                                             <span>{progressPercent}% complete</span>
                                         </div>
                                     </div>
@@ -377,7 +377,7 @@ export function CreateMockSheet({
                                                         )}>
                                                             {index < step ? <Check className="w-5 h-5" /> : index + 1}
                                                         </div>
-                                                        <p className="text-xs text-neutral-500">{s.title}</p>
+                                                        <p className="text-xs text-neutral-500 dark:text-neutral-400">{s.title}</p>
                                                     </div>
                                                 ))
                                             }
@@ -410,7 +410,7 @@ export function CreateMockSheet({
                                                             <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-1">
                                                                 Tell us about the role
                                                             </h3>
-                                                            <p className="text-neutral-500">What position are you preparing for?</p>
+                                                            <p className="text-neutral-500 dark:text-neutral-400">What position are you preparing for?</p>
                                                         </div>
                                                         <div className="space-y-2">
                                                             <Label>Position Title *</Label>
@@ -521,7 +521,7 @@ export function CreateMockSheet({
                                                             <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-1">
                                                                 Knowledge Base (Optional)
                                                             </h3>
-                                                            <p className="text-neutral-500">Add study materials for focused questions</p>
+                                                            <p className="text-neutral-500 dark:text-neutral-400">Add study materials for focused questions</p>
                                                         </div>
                                                         <div className="p-4 bg-neutral-50 dark:bg-neutral-900/20 border border-neutral-200 dark:border-neutral-800 rounded-xl">
                                                             <div className="flex gap-2">
@@ -541,7 +541,7 @@ export function CreateMockSheet({
                                                             rows={10}
                                                             className="font-mono text-sm"
                                                         />
-                                                        <div className="flex items-center justify-between text-sm text-neutral-500">
+                                                        <div className="flex items-center justify-between text-sm text-neutral-500 dark:text-neutral-400">
                                                             <span>{formData.knowledgeBase.length} characters</span>
                                                             {
                                                                 formData.knowledgeBase.length > 0 && (
@@ -559,7 +559,7 @@ export function CreateMockSheet({
                                                             <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-1">
                                                                 Additional Options
                                                             </h3>
-                                                            <p className="text-neutral-500">Configure resume context and visibility</p>
+                                                            <p className="text-neutral-500 dark:text-neutral-400">Configure resume context and visibility</p>
                                                         </div>
                                                         <div className="p-4 border border-neutral-200 dark:border-neutral-800 rounded-xl">
                                                             <div className="flex items-center justify-between">
@@ -569,7 +569,7 @@ export function CreateMockSheet({
                                                                         <div className="font-medium text-neutral-900 dark:text-white">
                                                                             Include Resume Context
                                                                         </div>
-                                                                        <div className="text-sm text-neutral-500">
+                                                                        <div className="text-sm text-neutral-500 dark:text-neutral-400">
                                                                             AI asks questions based on your experience
                                                                         </div>
                                                                         <Badge variant="outline" className="text-xs mt-1">+5 credits</Badge>
@@ -592,9 +592,9 @@ export function CreateMockSheet({
                                                                         : "border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900"
                                                                 )}
                                                             >
-                                                                <Lock className="w-5 h-5 text-neutral-500 mb-2" />
+                                                                <Lock className="w-5 h-5 text-neutral-500 dark:text-neutral-400 mb-2" />
                                                                 <div className="font-medium text-neutral-900 dark:text-white">Private</div>
-                                                                <div className="text-xs text-neutral-500">Only you can access</div>
+                                                                <div className="text-xs text-neutral-500 dark:text-neutral-400">Only you can access</div>
                                                             </motion.button>
                                                             <motion.button
                                                                 onClick={() => setFormData({ ...formData, isPublic: true })}

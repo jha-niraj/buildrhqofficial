@@ -97,7 +97,7 @@ export function DocumentStep({ step }: DocumentStepProps) {
                     {getDocTypeLabel(doc.type)}
                   </span>
                   {doc.url && (
-                    <span className="inline-flex items-center gap-1 text-xs text-neutral-500">
+                    <span className="inline-flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400">
                       <Globe className="h-3 w-3" />
                       {getDomain(doc.url)}
                     </span>

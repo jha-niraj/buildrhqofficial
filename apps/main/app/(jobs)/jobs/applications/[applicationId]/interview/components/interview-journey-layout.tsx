@@ -196,7 +196,7 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                                 <h1 className="text-lg font-semibold text-neutral-900 dark:text-white">
                                     {job.title}
                                 </h1>
-                                <p className="text-sm text-neutral-500">{job.company.name}</p>
+                                <p className="text-sm text-neutral-500 dark:text-neutral-400">{job.company.name}</p>
                             </div>
                         </div>
                         <Badge className={statusConfig[application.status]?.color || "bg-neutral-100"}>
@@ -213,12 +213,12 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                                 <span className="text-sm font-medium text-neutral-900 dark:text-white">
                                     Interview Progress
                                 </span>
-                                <span className="text-sm text-neutral-500">
+                                <span className="text-sm text-neutral-500 dark:text-neutral-400">
                                     {overallProgress}%
                                 </span>
                             </div>
                             <Progress value={overallProgress} className="h-2" />
-                            <p className="text-xs text-neutral-500 mt-2">
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-2">
                                 {completedRounds.length} of {rounds.length} rounds completed
                             </p>
                         </div>
@@ -306,7 +306,7 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                                                             </div>
                                                             <div className="flex-1 min-w-0">
                                                                 <span className="font-medium block truncate">{round.title}</span>
-                                                                <span className="text-xs text-neutral-500 block truncate">
+                                                                <span className="text-xs text-neutral-500 dark:text-neutral-400 block truncate">
                                                                     {roundTypeLabels[round.roundType] || round.roundType}
                                                                 </span>
                                                             </div>
@@ -358,7 +358,7 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                             <h2 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">
                                 Interview Journey Overview
                             </h2>
-                            <p className="text-neutral-500 mb-8">
+                            <p className="text-neutral-500 dark:text-neutral-400 mb-8">
                                 Track your progress through the interview process for {job.title} at {job.company.name}
                             </p>
 
@@ -370,12 +370,12 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                                         </h3>
                                         {
                                             interviewProcess.description && (
-                                                <p className="text-neutral-500 text-sm mb-4">
+                                                <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-4">
                                                     {interviewProcess.description}
                                                 </p>
                                             )
                                         }
-                                        <div className="flex items-center gap-4 text-sm text-neutral-500">
+                                        <div className="flex items-center gap-4 text-sm text-neutral-500 dark:text-neutral-400">
                                             <div className="flex items-center gap-1">
                                                 <Clock className="w-4 h-4" />
                                                 <span>{rounds.length} rounds</span>
@@ -439,7 +439,7 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                                                         )
                                                     }
                                                 </div>
-                                                <p className="text-sm text-neutral-500 mb-3">
+                                                <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-3">
                                                     {parseAssignmentDetails(job.assignmentDetails)?.title || "Complete the take-home assignment"}
                                                 </p>
                                                 {
@@ -516,7 +516,7 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                                                             )
                                                         }
                                                     </div>
-                                                    <p className="text-sm text-neutral-500 mb-3">
+                                                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-3">
                                                         {roundTypeLabels[round.roundType]} • {round.durationMinutes || 45} minutes
                                                     </p>
                                                     <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3">

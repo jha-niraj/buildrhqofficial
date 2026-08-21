@@ -187,7 +187,7 @@ function NewResumeSheet({ templates, open, onClose }: {
                                     : source === 'upload' ? 'Uploading and reading your file…'
                                     : 'Building your resume…'}
                             </p>
-                            <p className="text-xs text-neutral-500">This takes ~20 seconds</p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">This takes ~20 seconds</p>
                         </div>
                     ) : (
                         <>
@@ -223,7 +223,7 @@ function NewResumeSheet({ templates, open, onClose }: {
                                         >
                                             {s.icon}
                                             <span className="text-xs font-semibold">{s.label}</span>
-                                            <span className={cn('text-[10px]', source === s.id ? 'opacity-70' : 'text-neutral-500')}>{s.desc}</span>
+                                            <span className={cn('text-[10px]', source === s.id ? 'opacity-70' : 'text-neutral-500 dark:text-neutral-400')}>{s.desc}</span>
                                         </button>
                                     ))}
                                 </div>
@@ -242,11 +242,11 @@ function NewResumeSheet({ templates, open, onClose }: {
                                                 : 'border-neutral-300 dark:border-neutral-700 hover:border-neutral-500',
                                         )}
                                     >
-                                        <FileUp className="w-5 h-5 text-neutral-500" />
+                                        <FileUp className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
                                         <span className="text-xs font-medium text-center">
                                             {uploadFile ? uploadFile.name : 'Click to choose a PDF or DOCX'}
                                         </span>
-                                        <span className="text-[10px] text-neutral-500">Max 5MB</span>
+                                        <span className="text-[10px] text-neutral-500 dark:text-neutral-400">Max 5MB</span>
                                     </label>
                                     <input
                                         id="resume-upload-file"
@@ -264,7 +264,7 @@ function NewResumeSheet({ templates, open, onClose }: {
                                             setUploadFile(file)
                                         }}
                                     />
-                                    <p className="text-[10px] text-neutral-500">
+                                    <p className="text-[10px] text-neutral-500 dark:text-neutral-400">
                                         We read the text out of your file and let AI structure it into sections you can
                                         edit. This runs in the background - the resume shows up here when it is done.
                                     </p>
@@ -323,7 +323,7 @@ function NewResumeSheet({ templates, open, onClose }: {
                                                 />
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-xs font-semibold truncate">{t.name}</p>
-                                                    <p className="text-[10px] text-neutral-500 truncate">{t.description}</p>
+                                                    <p className="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">{t.description}</p>
                                                 </div>
                                                 {selectedTemplate === t.slug && <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100 flex-shrink-0" />}
                                             </button>
@@ -371,7 +371,7 @@ function ResumeCard({ draft, onDelete, onTogglePublic, onDuplicate, onSetDefault
                 <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm truncate text-neutral-900 dark:text-white">{draft.name}</p>
                     {draft.tailoredFor && (
-                        <p className="text-[10px] text-neutral-500 truncate mt-0.5">Tailored for: {draft.tailoredFor}</p>
+                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">Tailored for: {draft.tailoredFor}</p>
                     )}
                 </div>
                 {draft.atsScore !== null && (
@@ -397,7 +397,7 @@ function ResumeCard({ draft, onDelete, onTogglePublic, onDuplicate, onSetDefault
                 {draft.importedFrom && (
                     <Badge variant="outline" className="text-[10px] capitalize">{draft.importedFrom.split(',').join(' + ')}</Badge>
                 )}
-                <div className="ml-auto flex items-center gap-1 text-[10px] text-neutral-500">
+                <div className="ml-auto flex items-center gap-1 text-[10px] text-neutral-500 dark:text-neutral-400">
                     <Clock className="w-3 h-3" />
                     {formatDate(draft.updatedAt)}
                 </div>
@@ -557,7 +557,7 @@ export function ResumeHub({ drafts: initialDrafts, templates }: Props) {
                     <div className="flex items-start justify-between gap-4">
                         <div>
                             <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Resume Builder</h1>
-                            <p className="text-sm text-neutral-500 mt-1">
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
                                 Create, import, tailor - land the job you deserve.
                             </p>
                         </div>
@@ -583,17 +583,17 @@ export function ResumeHub({ drafts: initialDrafts, templates }: Props) {
                         <div className="flex items-center gap-1.5">
                             <FileText className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100" />
                             <span className="font-semibold">{drafts.length}</span>
-                            <span className="text-neutral-500">resumes</span>
+                            <span className="text-neutral-500 dark:text-neutral-400">resumes</span>
                         </div>
                         <div className="flex items-center gap-1.5">
                             <Globe className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100" />
                             <span className="font-semibold">{drafts.filter(d => d.isPublic).length}</span>
-                            <span className="text-neutral-500">public</span>
+                            <span className="text-neutral-500 dark:text-neutral-400">public</span>
                         </div>
                         <div className="flex items-center gap-1.5">
                             <LayoutTemplate className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100" />
                             <span className="font-semibold">{platformTemplates.length}</span>
-                            <span className="text-neutral-500">templates</span>
+                            <span className="text-neutral-500 dark:text-neutral-400">templates</span>
                         </div>
                     </div>
                 </div>
@@ -616,7 +616,7 @@ export function ResumeHub({ drafts: initialDrafts, templates }: Props) {
                                 </div>
                                 <div className="text-center">
                                     <p className="font-semibold text-neutral-700 dark:text-neutral-300">No resumes yet</p>
-                                    <p className="text-sm text-neutral-500 mt-0.5">Create your first resume in 60 seconds</p>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">Create your first resume in 60 seconds</p>
                                 </div>
                                 <Button onClick={() => setSheetOpen(true)}>
                                     <Plus className="w-4 h-4 mr-2" /> Create Resume
@@ -627,7 +627,7 @@ export function ResumeHub({ drafts: initialDrafts, templates }: Props) {
                                 {/* New resume tile */}
                                 <button
                                     onClick={() => setSheetOpen(true)}
-                                    className="rounded-2xl border-2 border-dashed border-neutral-200 dark:border-neutral-800 p-5 flex flex-col items-center justify-center gap-2 hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors min-h-[180px] text-neutral-500"
+                                    className="rounded-2xl border-2 border-dashed border-neutral-200 dark:border-neutral-800 p-5 flex flex-col items-center justify-center gap-2 hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors min-h-[180px] text-neutral-500 dark:text-neutral-400"
                                 >
                                     <Plus className="w-6 h-6" />
                                     <span className="text-sm font-medium">New Resume</span>
@@ -636,7 +636,7 @@ export function ResumeHub({ drafts: initialDrafts, templates }: Props) {
                                 <Link href='/ai/resume/import' className="rounded-2xl border-2 border-dashed border-neutral-200 dark:border-neutral-800 p-5 flex flex-col items-center justify-center gap-2 hover:border-neutral-800 dark:hover:border-neutral-700 transition-colors min-h-[180px] text-neutral-900 dark:text-neutral-100">
                                     <Globe className="w-6 h-6" />
                                     <span className="text-sm font-medium">Import from LinkedIn &amp; GitHub</span>
-                                    <span className="text-[10px] text-neutral-500">Scrape &amp; auto-fill your resume</span>
+                                    <span className="text-[10px] text-neutral-500 dark:text-neutral-400">Scrape &amp; auto-fill your resume</span>
                                 </Link>
                                 {drafts.map(d => (
                                     <ResumeCard
@@ -671,7 +671,7 @@ export function ResumeHub({ drafts: initialDrafts, templates }: Props) {
                                                 </div>
                                                 <div>
                                                     <p className="font-semibold text-sm">{t.name}</p>
-                                                    <p className="text-xs text-neutral-500 mt-0.5 line-clamp-2">{t.description}</p>
+                                                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 line-clamp-2">{t.description}</p>
                                                 </div>
                                                 <div className="flex flex-wrap gap-1">
                                                     {t.tags.slice(0, 3).map(tag => (

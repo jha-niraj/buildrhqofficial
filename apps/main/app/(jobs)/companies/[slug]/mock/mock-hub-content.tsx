@@ -169,7 +169,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                     <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">
                         No Mock Interviews Available
                     </h2>
-                    <p className="text-neutral-500 max-w-md mx-auto mb-6">
+                    <p className="text-neutral-500 dark:text-neutral-400 max-w-md mx-auto mb-6">
                         {company.name} hasn&apos;t configured their interview process for mock interviews yet.
                         Check back later!
                     </p>
@@ -268,7 +268,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                             <Briefcase className="w-4 h-4" />
                             Job Roles ({mockHub.jobs.length})
                         </h2>
-                        <p className="text-xs text-neutral-500 mt-1">
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                             Select a role to practice mock interviews
                         </p>
                     </div>
@@ -300,7 +300,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                                                     )}>
                                                         {job.title}
                                                     </h3>
-                                                    <div className="flex items-center gap-2 text-xs text-neutral-500 mt-1">
+                                                    <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                                                         <span>{employmentTypeLabels[job.employmentType]}</span>
                                                         <span>•</span>
                                                         <span>{locationTypeLabels[job.locationType]}</span>
@@ -354,7 +354,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                                                 <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">
                                                     {selectedJob.title}
                                                 </h2>
-                                                <div className="flex items-center gap-3 mt-2 text-sm text-neutral-500">
+                                                <div className="flex items-center gap-3 mt-2 text-sm text-neutral-500 dark:text-neutral-400">
                                                     <div className="flex items-center gap-1">
                                                         <MapPin className="w-4 h-4" />
                                                         <span>{selectedJob.location || locationTypeLabels[selectedJob.locationType]}</span>
@@ -390,7 +390,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                                                     </Badge>
                                                     {
                                                         selectedJob.interviewProcess.estimatedDurationWeeks && (
-                                                            <span className="text-sm text-neutral-500">
+                                                            <span className="text-sm text-neutral-500 dark:text-neutral-400">
                                                                 • ~{selectedJob.interviewProcess.estimatedDurationWeeks} weeks
                                                             </span>
                                                         )
@@ -423,7 +423,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                                                                                 </Badge>
                                                                                 {
                                                                                     round.durationMinutes && (
-                                                                                        <span className="text-xs text-neutral-500">
+                                                                                        <span className="text-xs text-neutral-500 dark:text-neutral-400">
                                                                                             <Clock className="w-3 h-3 inline mr-1" />
                                                                                             {round.durationMinutes} min
                                                                                         </span>
@@ -449,14 +449,14 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                                                                             </h4>
                                                                             {
                                                                                 round.description && (
-                                                                                    <p className="text-sm text-neutral-500 mb-3">
+                                                                                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-3">
                                                                                         {round.description}
                                                                                     </p>
                                                                                 )
                                                                             }
                                                                             {
                                                                                 progress && progress.sessionsCompleted > 0 && (
-                                                                                    <div className="mb-3 text-xs text-neutral-500">
+                                                                                    <div className="mb-3 text-xs text-neutral-500 dark:text-neutral-400">
                                                                                         <span>{progress.sessionsCompleted} sessions completed</span>
                                                                                         {
                                                                                             progress.lastPracticedAt && (
@@ -485,7 +485,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                                                                                         Practice
                                                                                     </Link></Button>
                                                                                 ) : (
-                                                                                    <Badge variant="outline" className="text-neutral-500">
+                                                                                    <Badge variant="outline" className="text-neutral-500 dark:text-neutral-400">
                                                                                         <Lock className="w-3 h-3 mr-1" />
                                                                                         Coming Soon
                                                                                     </Badge>
@@ -536,7 +536,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                                                 <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">
                                                     No Interview Process Configured
                                                 </h3>
-                                                <p className="text-neutral-500 max-w-sm mx-auto">
+                                                <p className="text-neutral-500 dark:text-neutral-400 max-w-sm mx-auto">
                                                     This role doesn&apos;t have an interview process configured yet.
                                                     Check back later!
                                                 </p>
@@ -556,7 +556,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                                     <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">
                                         Select a Job Role
                                     </h3>
-                                    <p className="text-neutral-500">
+                                    <p className="text-neutral-500 dark:text-neutral-400">
                                         Choose a job role from the sidebar to view and practice mock interviews
                                     </p>
                                 </motion.div>

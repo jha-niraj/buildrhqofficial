@@ -119,7 +119,7 @@ export function FollowingContent({ initialData, isAuthenticated }: FollowingCont
                         <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
                             From Companies You Follow
                         </h2>
-                        <p className="text-sm text-neutral-500">
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
                             {total} jobs from your followed companies
                         </p>
                     </div>
@@ -166,7 +166,7 @@ export function FollowingContent({ initialData, isAuthenticated }: FollowingCont
 
             {/* Count */}
             {jobs.length > 0 && (
-                <p className="text-center text-sm text-neutral-500 mt-4">
+                <p className="text-center text-sm text-neutral-500 dark:text-neutral-400 mt-4">
                     Showing {jobs.length} of {total} jobs
                 </p>
             )}
@@ -197,7 +197,7 @@ function AuthRequiredState() {
             <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-2">
                 Sign in to see jobs from followed companies
             </h3>
-            <p className="text-neutral-500 max-w-md mx-auto mb-6">
+            <p className="text-neutral-500 dark:text-neutral-400 max-w-md mx-auto mb-6">
                 Create an account or sign in to follow companies and see their job postings here.
             </p>
             <Link href="/signin">
@@ -222,7 +222,7 @@ function FollowingEmptyState() {
             <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-2">
                 Follow companies you love
             </h3>
-            <p className="text-neutral-500 max-w-md mx-auto mb-6">
+            <p className="text-neutral-500 dark:text-neutral-400 max-w-md mx-auto mb-6">
                 Follow companies you&apos;d love to work for and never miss a new opening. We&apos;ll show you jobs matched to your skills.
             </p>
             <Link href="/companies">
@@ -248,7 +248,7 @@ function NoJobsState() {
             <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-2">
                 No open positions right now
             </h3>
-            <p className="text-neutral-500 max-w-md mx-auto mb-6">
+            <p className="text-neutral-500 dark:text-neutral-400 max-w-md mx-auto mb-6">
                 The companies you follow don&apos;t have any active job postings at the moment. Check back later or explore more companies.
             </p>
             <Link href="/companies">

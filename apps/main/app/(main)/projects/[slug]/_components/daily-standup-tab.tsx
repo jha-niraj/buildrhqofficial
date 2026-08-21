@@ -392,13 +392,13 @@ Keep responses brief and natural.`,
                     <div className="bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 rounded-xl p-5">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg">
-                                <Clock className="w-5 h-5 text-neutral-500" />
+                                <Clock className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
                             </div>
                             <div>
                                 <h4 className="font-medium text-neutral-700 dark:text-neutral-300">
                                     No Standup Scheduled Today
                                 </h4>
-                                <p className="text-sm text-neutral-500">
+                                <p className="text-sm text-neutral-500 dark:text-neutral-400">
                                     Your next standup is on a scheduled day
                                 </p>
                             </div>

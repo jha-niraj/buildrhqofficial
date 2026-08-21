@@ -102,7 +102,7 @@ export function VideoStep({ step }: VideoStepProps) {
                       </div>
                       {
                         v.description && (
-                          <p className="text-sm text-neutral-500 mt-1 line-clamp-2">{v.description}</p>
+                          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1 line-clamp-2">{v.description}</p>
                         )
                       }
                     </div>

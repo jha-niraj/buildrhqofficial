@@ -148,9 +148,12 @@ function Section({ title, icon: Icon, action, children }: {
     );
 }
 
+// py-6, not py-8. On a new profile every card is this component, so the page is mostly empty
+// state - and each one reserving 64px of vertical padding for a single line of text is a good
+// part of what made the sections feel far apart.
 function Empty({ text, action }: { text: string; action?: { label: string; onClick: () => void } }) {
     return (
-        <div className="flex flex-col items-center gap-2 py-8 text-center">
+        <div className="flex flex-col items-center gap-2 py-6 text-center">
             <p className="text-sm text-neutral-500 dark:text-neutral-400">{text}</p>
             {action && (
                 <button
@@ -213,7 +216,7 @@ export function ProfileView({
         isOwn && handler ? { label, onClick: handler } : undefined;
 
     return (
-        <div className="mx-auto w-full max-w-5xl space-y-5 px-4 py-6 pb-12 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-5xl space-y-3 px-4 py-5 pb-8 sm:px-6 lg:px-8">
             {/* ── Identity ── */}
             <motion.section
                 initial={{ opacity: 0, y: 12 }}
@@ -221,11 +224,17 @@ export function ProfileView({
                 transition={{ duration: 0.3 }}
                 className="overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900"
             >
-                <div className="h-24 bg-gradient-to-r from-neutral-900 via-neutral-900 to-neutral-800 sm:h-28" />
-                <div className="px-5 pb-5 sm:px-6 sm:pb-6">
+                {/* The cover band is gone. It was `h-24 sm:h-28` of flat gradient with
+                    nothing in it and nothing behind it - not an uploaded image, not a
+                    fallback for one, just 96-112px of the most valuable space on the page
+                    pushing the actual profile below the fold.
+
+                    The avatar used to hang into it on a negative margin, so that comes off
+                    with it and the header gets ordinary padding. */}
+                <div className="p-5 sm:p-6">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div className="flex items-end gap-4">
-                            <div className="-mt-10 h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-neutral-100 dark:border-neutral-900 dark:bg-neutral-800 sm:-mt-12 sm:h-24 sm:w-24">
+                            <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-800 sm:h-24 sm:w-24">
                                 {profile.image ? (
                                     // `unoptimized` because avatars come from Google, GitHub and
                                     // Cloudinary; routing them through Next's optimiser would
@@ -381,8 +390,8 @@ export function ProfileView({
             {/* ── Sections. One scroll, no tabs: a profile is scanned top to
                    bottom, and tabs hide four fifths of it behind a click a
                    recruiter will not make. ── */}
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-                <div className="space-y-5 lg:col-span-2">
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+                <div className="space-y-3 lg:col-span-2">
                     <Section title="Projects" icon={FolderKanban} action={own("Add", onAddProject)}>
                         {projects.length === 0 ? (
                             <Empty
@@ -438,7 +447,7 @@ export function ProfileView({
                                 {experiences.map((e) => (
                                     <div key={e.id} className="flex gap-3">
                                         <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-800">
-                                            <Briefcase className="h-4 w-4 text-neutral-500" />
+                                            <Briefcase className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <p className="text-sm font-semibold text-neutral-900 dark:text-white">
@@ -472,7 +481,7 @@ export function ProfileView({
                                 {educations.map((ed) => (
                                     <div key={ed.id} className="flex gap-3">
                                         <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-800">
-                                            <GraduationCap className="h-4 w-4 text-neutral-500" />
+                                            <GraduationCap className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <p className="text-sm font-semibold text-neutral-900 dark:text-white">
@@ -493,7 +502,7 @@ export function ProfileView({
                     </Section>
                 </div>
 
-                <div className="space-y-5">
+                <div className="space-y-3">
                     <Section title="Skills" icon={Sparkles} action={own("Manage", onAddSkills)}>
                         {skills.length === 0 ? (
                             <Empty
@@ -573,7 +582,7 @@ export function ProfileView({
                                             <Button
                                                 size="sm"
                                                 variant="outline"
-                                                className="gap-1.5 text-neutral-500 hover:text-red-600"
+                                                className="gap-1.5 text-neutral-500 dark:text-neutral-400 hover:text-red-600"
                                                 disabled={resumeBusy}
                                                 onClick={() => void onDeleteResume()}
                                             >
@@ -601,8 +610,8 @@ export function ProfileView({
                                         )}
                                     >
                                         {resumeBusy
-                                            ? <Loader2 className="h-5 w-5 animate-spin text-neutral-500" />
-                                            : <Upload className="h-5 w-5 text-neutral-500" />}
+                                            ? <Loader2 className="h-5 w-5 animate-spin text-neutral-500 dark:text-neutral-400" />
+                                            : <Upload className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />}
                                         <span className="text-sm font-medium text-neutral-900 dark:text-white">
                                             {resumeBusy ? "Uploading…" : "Upload your resume"}
                                         </span>

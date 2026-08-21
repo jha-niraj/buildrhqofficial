@@ -175,7 +175,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                 </p>
                             )
                         }
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-neutral-500">
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-neutral-500 dark:text-neutral-400">
                             {
                                 company.industry && (
                                     <Badge variant="secondary">{company.industry}</Badge>
@@ -267,7 +267,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
 
                                     {
                                         defaultProcess.estimatedDurationWeeks && (
-                                            <div className="flex items-center gap-2 text-sm text-neutral-500 mb-6">
+                                            <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 mb-6">
                                                 <Clock className="w-4 h-4" />
                                                 <span>Typically takes {defaultProcess.estimatedDurationWeeks} week(s)</span>
                                             </div>
@@ -296,13 +296,13 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                                         <div className="flex-1 p-4 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
                                                             <div className="flex items-center justify-between">
                                                                 <div>
-                                                                    <span className="text-xs text-neutral-500">Round {round.roundNumber}</span>
+                                                                    <span className="text-xs text-neutral-500 dark:text-neutral-400">Round {round.roundNumber}</span>
                                                                     <h4 className="font-medium text-neutral-900 dark:text-white">
                                                                         {round.title}
                                                                     </h4>
                                                                     {
                                                                         round.duration && (
-                                                                            <span className="text-xs text-neutral-500">{round.duration} min</span>
+                                                                            <span className="text-xs text-neutral-500 dark:text-neutral-400">{round.duration} min</span>
                                                                         )
                                                                     }
                                                                 </div>
@@ -317,7 +317,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                                             </div>
                                                             {
                                                                 round.description && (
-                                                                    <p className="text-sm text-neutral-500 mt-2">{round.description}</p>
+                                                                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">{round.description}</p>
                                                                 )
                                                             }
                                                         </div>
@@ -335,7 +335,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                                 <h4 className="font-semibold text-neutral-900 dark:text-white mb-1">
                                                     Practice with AI Mock Interviews
                                                 </h4>
-                                                <p className="text-sm text-neutral-500 mb-3">
+                                                <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-3">
                                                     Prepare for {company.name}&apos;s interviews with company-specific mock sessions
                                                 </p>
                                                 <Button className="rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-black dark:hover:bg-neutral-200">
@@ -427,7 +427,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                                         <Badge variant="secondary" className="text-xs">
                                                             {employmentTypeLabels[type]}
                                                         </Badge>
-                                                        <span className="text-sm text-neutral-500">
+                                                        <span className="text-sm text-neutral-500 dark:text-neutral-400">
                                                             {typeJobs.length} position{typeJobs.length > 1 ? 's' : ''}
                                                         </span>
                                                     </div>
@@ -493,7 +493,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                                                     <h4 className="font-medium text-neutral-900 dark:text-white">
                                                                         {round.title}
                                                                     </h4>
-                                                                    <p className="text-xs text-neutral-500">
+                                                                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
                                                                         Round {round.roundNumber} • {round.duration ? `${round.duration} min` : 'Variable duration'}
                                                                     </p>
                                                                 </div>
@@ -551,7 +551,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                                             <h4 className="font-medium text-neutral-900 dark:text-white truncate group-hover:text-neutral-800 dark:group-hover:text-neutral-100 transition-colors">
                                                                 {job.title}
                                                             </h4>
-                                                            <div className="flex items-center gap-2 text-xs text-neutral-500 mt-1">
+                                                            <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                                                                 <span>{locationTypeLabels[job.locationType]}</span>
                                                                 <span>•</span>
                                                                 <span>{employmentTypeLabels[job.employmentType]}</span>
@@ -576,12 +576,12 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                 ) : (
                                     <div className="text-center py-8">
                                         <div className="w-16 h-16 bg-gradient-to-br from-neutral-100 to-neutral-50 dark:from-neutral-800 dark:to-neutral-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                            <Briefcase className="w-8 h-8 text-neutral-400 dark:text-neutral-600" />
+                                            <Briefcase className="w-8 h-8 text-neutral-400 dark:text-neutral-400" />
                                         </div>
                                         <h4 className="font-medium text-neutral-900 dark:text-white mb-1">
                                             No open positions at the moment
                                         </h4>
-                                        <p className="text-sm text-neutral-500 mb-4">
+                                        <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
                                             {company.name} doesn&apos;t have any active job postings right now. Follow them to get notified when they do!
                                         </p>
                                         <Button variant="outline" size="sm" className="rounded-xl">
@@ -605,7 +605,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                 {
                                     company.industry && (
                                         <div className="flex items-center justify-between text-sm">
-                                            <span className="text-neutral-500">Industry</span>
+                                            <span className="text-neutral-500 dark:text-neutral-400">Industry</span>
                                             <span className="font-medium text-neutral-900 dark:text-white">{company.industry}</span>
                                         </div>
                                     )
@@ -613,7 +613,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                 {
                                     company.companySize && (
                                         <div className="flex items-center justify-between text-sm">
-                                            <span className="text-neutral-500">Company Size</span>
+                                            <span className="text-neutral-500 dark:text-neutral-400">Company Size</span>
                                             <span className="font-medium text-neutral-900 dark:text-white">{company.companySize}</span>
                                         </div>
                                     )
@@ -621,7 +621,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                 {
                                     company.foundedYear && (
                                         <div className="flex items-center justify-between text-sm">
-                                            <span className="text-neutral-500">Founded</span>
+                                            <span className="text-neutral-500 dark:text-neutral-400">Founded</span>
                                             <span className="font-medium text-neutral-900 dark:text-white">{company.foundedYear}</span>
                                         </div>
                                     )
@@ -629,7 +629,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                 {
                                     company.headquarters && (
                                         <div className="flex items-center justify-between text-sm">
-                                            <span className="text-neutral-500">Headquarters</span>
+                                            <span className="text-neutral-500 dark:text-neutral-400">Headquarters</span>
                                             <span className="font-medium text-neutral-900 dark:text-white">{company.headquarters}</span>
                                         </div>
                                     )

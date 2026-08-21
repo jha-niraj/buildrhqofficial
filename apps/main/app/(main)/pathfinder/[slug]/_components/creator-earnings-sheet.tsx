@@ -103,7 +103,7 @@ export function CreatorEarningsSheet({
                     <TabsContent value="earnings" className="space-y-6 mt-4">
                         <div>
                             <Label htmlFor="price">Credit price for this goal</Label>
-                            <p className="text-xs text-neutral-500 mb-2">
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-2">
                                 When others copy this goal, they pay this many credits (0 = free)
                             </p>
                             <div className="flex gap-2">
@@ -143,7 +143,7 @@ export function CreatorEarningsSheet({
                                                     className="flex items-center justify-between p-2 rounded border border-neutral-200 dark:border-neutral-800 text-sm"
                                                 >
                                                     <span className="text-neutral-800 dark:text-neutral-100">+{e.amount} credits</span>
-                                                    <span className="text-neutral-500 text-xs">
+                                                    <span className="text-neutral-500 dark:text-neutral-400 text-xs">
                                                         {new Date(e.createdAt).toLocaleDateString()}
                                                     </span>
                                                 </div>
@@ -157,7 +157,7 @@ export function CreatorEarningsSheet({
                     <TabsContent value="purchases" className="space-y-4 mt-4">
                         {
                             purchases.length === 0 ? (
-                                <div className="py-8 text-center text-sm text-neutral-500">
+                                <div className="py-8 text-center text-sm text-neutral-500 dark:text-neutral-400">
                                     No purchases yet. When users copy your goal for credits, they will appear here.
                                 </div>
                             ) : (
@@ -179,7 +179,7 @@ export function CreatorEarningsSheet({
                                                                 className="w-full h-full object-cover"
                                                             />
                                                         ) : (
-                                                            <div className="w-full h-full flex items-center justify-center text-xs font-medium text-neutral-500">
+                                                            <div className="w-full h-full flex items-center justify-center text-xs font-medium text-neutral-500 dark:text-neutral-400">
                                                                 {(p.buyer.name || p.buyer.username || '?')[0]}
                                                             </div>
                                                         )
@@ -189,7 +189,7 @@ export function CreatorEarningsSheet({
                                                     <p className="text-sm font-medium truncate">
                                                         {p.buyer.name || p.buyer.username || 'Unknown'}
                                                     </p>
-                                                    <p className="text-xs text-neutral-500">
+                                                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
                                                         {p.creditsPaid} credits • {new Date(p.createdAt).toLocaleDateString()}
                                                     </p>
                                                 </div>

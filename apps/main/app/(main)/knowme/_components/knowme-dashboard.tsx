@@ -182,7 +182,7 @@ export default function KnowMeDashboard({ profile }: KnowMeDashboardProps) {
                                         <h3 className="font-semibold text-slate-900 dark:text-white">
                                             Test Your AI
                                         </h3>
-                                        <p className="text-xs text-slate-500">
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">
                                             See how your AI responds to questions
                                         </p>
                                     </div>
@@ -209,7 +209,7 @@ export default function KnowMeDashboard({ profile }: KnowMeDashboardProps) {
                                         <p className="text-slate-500 dark:text-slate-400 mb-2">
                                             No messages yet
                                         </p>
-                                        <p className="text-sm text-slate-400 dark:text-slate-500 max-w-xs mx-auto">
+                                        <p className="text-sm text-slate-400 dark:text-slate-400 max-w-xs mx-auto">
                                             Try asking about your skills, projects, or experience
                                         </p>
                                     </div>
@@ -482,7 +482,7 @@ function DataSourceItem({
                     </span>
                     {
                         subtitle && (
-                            <p className="text-xs text-slate-500">@{subtitle}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">@{subtitle}</p>
                         )
                     }
                 </div>

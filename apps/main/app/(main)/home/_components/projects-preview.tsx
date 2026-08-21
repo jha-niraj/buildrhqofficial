@@ -39,7 +39,7 @@ export default function ProjectsPreview({ projects }: ProjectsPreviewProps) {
                     </div>
                     <span className="font-semibold text-sm">My Projects</span>
                 </div>
-                <Link href="/projects" className="flex items-center gap-1 text-xs text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors">
+                <Link href="/projects" className="flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors">
                     View all <ArrowRight className="h-3 w-3" />
                 </Link>
             </div>
@@ -80,7 +80,7 @@ export default function ProjectsPreview({ projects }: ProjectsPreviewProps) {
                         </div>
                         <div>
                             <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">No active projects</p>
-                            <p className="text-xs text-neutral-500 mt-0.5">Pick a project to start building</p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Pick a project to start building</p>
                         </div>
                         <Link href="/projects" className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:text-neutral-800 transition-colors">
                             Browse projects <ArrowRight className="h-3 w-3" />

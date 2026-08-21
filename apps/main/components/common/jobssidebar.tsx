@@ -263,7 +263,7 @@ function JobsSidebarContent() {
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center">
-                                        <User className="w-4 h-4 text-neutral-500" />
+                                        <User className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
                                     </div>
                                 )}
                             </div>
@@ -272,7 +272,7 @@ function JobsSidebarContent() {
                                     <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">
                                         {session.user.name || "User"}
                                     </p>
-                                    <p className="text-xs text-neutral-500 truncate">
+                                    <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">
                                         {session.user.email}
                                     </p>
                                 </div>

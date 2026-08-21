@@ -92,7 +92,7 @@ function ExperienceSection({ items, onChange }: { items: ResumeExperienceEntry[]
             {items.map((e, idx) => (
                 <div key={e.id} className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-neutral-500">Position {idx + 1}</span>
+                        <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Position {idx + 1}</span>
                         <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-neutral-400 hover:text-red-500" onClick={() => remove(e.id)}><Trash2 className="w-3 h-3" /></Button>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
@@ -108,7 +108,7 @@ function ExperienceSection({ items, onChange }: { items: ResumeExperienceEntry[]
                         </div>
                     </div>
                     <div className="space-y-1.5">
-                        <Label className="text-xs text-neutral-500">Bullet points (one per line)</Label>
+                        <Label className="text-xs text-neutral-500 dark:text-neutral-400">Bullet points (one per line)</Label>
                         <Textarea
                             className="text-xs h-24 resize-none"
                             value={e.bullets.join('\n')}
@@ -135,7 +135,7 @@ function ProjectsSection({ items, onChange }: { items: ResumeProjectEntry[]; onC
             {items.map((p, idx) => (
                 <div key={p.id} className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-neutral-500">Project {idx + 1}</span>
+                        <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Project {idx + 1}</span>
                         <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-neutral-400 hover:text-red-500" onClick={() => remove(p.id)}><Trash2 className="w-3 h-3" /></Button>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
@@ -169,7 +169,7 @@ function EducationSection({ items, onChange }: { items: ResumeEducationEntry[]; 
             {items.map((e, idx) => (
                 <div key={e.id} className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4 space-y-2">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-neutral-500">Education {idx + 1}</span>
+                        <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Education {idx + 1}</span>
                         <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-neutral-400 hover:text-red-500" onClick={() => remove(e.id)}><Trash2 className="w-3 h-3" /></Button>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
@@ -336,7 +336,7 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
                                 {loading === 'fetch' ? 'Reading…' : 'Fetch'}
                             </Button>
                         </div>
-                        <p className="text-[10px] text-neutral-500">Or paste the description below.</p>
+                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400">Or paste the description below.</p>
                     </div>
                     <div className="space-y-1.5">
                         <Label className="text-sm font-medium">Job Description</Label>
@@ -346,7 +346,7 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
                     {loading ? (
                         <div className="flex flex-col items-center gap-3 py-6">
                             <DotmSquare11 size={40} dotSize={5} speed={1.4} />
-                            <p className="text-xs text-neutral-500">{loading === 'score' ? 'Scoring your resume…' : (phase || 'Creating your tailored copy…')}</p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">{loading === 'score' ? 'Scoring your resume…' : (phase || 'Creating your tailored copy…')}</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 gap-2">

@@ -384,7 +384,7 @@ export function AIPanel() {
 								>
 									<span className="truncate">{tag.title}</span>
 									{isAuto ? (
-										<span className="shrink-0 text-neutral-400 dark:text-neutral-500">(this page)</span>
+										<span className="shrink-0 text-neutral-400 dark:text-neutral-400">(this page)</span>
 									) : (
 										<button
 											type="button"
@@ -416,7 +416,7 @@ export function AIPanel() {
 							type="button"
 							onClick={stop}
 							aria-label="Stop generating"
-							className="shrink-0 cursor-pointer rounded-lg p-1.5 text-neutral-500 transition-colors hover:text-red-500"
+							className="shrink-0 cursor-pointer rounded-lg p-1.5 text-neutral-500 dark:text-neutral-400 transition-colors hover:text-red-500"
 						>
 							<StopCircle className="h-4.5 w-4.5" />
 						</button>

@@ -311,7 +311,7 @@ export function VoiceMainContent({
                                 }
                             </div>
                         ) : (
-                            <div className="text-center py-20 text-neutral-500">
+                            <div className="text-center py-20 text-neutral-500 dark:text-neutral-400">
                                 <p>No sessions found.</p>
                             </div>
                         )

@@ -252,7 +252,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                         <FileText className="w-7 h-7 text-neutral-900 dark:text-neutral-100" />
                         My Applications
                     </h1>
-                    <p className="text-neutral-500 mt-1">
+                    <p className="text-neutral-500 dark:text-neutral-400 mt-1">
                         {applications.length} application{applications.length !== 1 ? 's' : ''} total
                     </p>
                 </div>
@@ -287,7 +287,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                         </div>
                         <div>
                             <div className="text-2xl font-bold text-neutral-900 dark:text-white">{applications.length}</div>
-                            <div className="text-xs text-neutral-500">Total</div>
+                            <div className="text-xs text-neutral-500 dark:text-neutral-400">Total</div>
                         </div>
                     </div>
                 </motion.div>
@@ -303,7 +303,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                         </div>
                         <div>
                             <div className="text-2xl font-bold text-neutral-900 dark:text-white">{activeCount}</div>
-                            <div className="text-xs text-neutral-500">Active</div>
+                            <div className="text-xs text-neutral-500 dark:text-neutral-400">Active</div>
                         </div>
                     </div>
                 </motion.div>
@@ -319,7 +319,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                         </div>
                         <div>
                             <div className="text-2xl font-bold text-neutral-900 dark:text-white">{offersCount}</div>
-                            <div className="text-xs text-neutral-500">Offers</div>
+                            <div className="text-xs text-neutral-500 dark:text-neutral-400">Offers</div>
                         </div>
                     </div>
                 </motion.div>
@@ -335,7 +335,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                         </div>
                         <div>
                             <div className="text-2xl font-bold text-neutral-900 dark:text-white">{closedCount}</div>
-                            <div className="text-xs text-neutral-500">Closed</div>
+                            <div className="text-xs text-neutral-500 dark:text-neutral-400">Closed</div>
                         </div>
                     </div>
                 </motion.div>
@@ -397,7 +397,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                                                 </h3>
                                                             </Link>
                                                             <Link href={`/companies/${application.job.company.slug}`}>
-                                                                <p className="text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors">
+                                                                <p className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors">
                                                                     {application.job.company.name}
                                                                 </p>
                                                             </Link>
@@ -449,7 +449,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                                             </DropdownMenu>
                                                         </div>
                                                     </div>
-                                                    <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-500 mb-4">
+                                                    <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 mb-4">
                                                         <div className="flex items-center gap-1">
                                                             <MapPin className="w-4 h-4" />
                                                             <span>{application.job.location || locationTypeLabels[application.job.locationType]}</span>
@@ -480,7 +480,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                                                     </div>
                                                                     {
                                                                         application.prepProgress && (
-                                                                            <span className="text-sm text-neutral-500">
+                                                                            <span className="text-sm text-neutral-500 dark:text-neutral-400">
                                                                                 {application.prepProgress.readinessScore}% ready
                                                                             </span>
                                                                         )
@@ -524,7 +524,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                                                     }
                                                                     {
                                                                         application.job.interviewProcess.rounds.length > 4 && (
-                                                                            <span className="text-xs text-neutral-500 px-2 py-1">
+                                                                            <span className="text-xs text-neutral-500 dark:text-neutral-400 px-2 py-1">
                                                                                 +{application.job.interviewProcess.rounds.length - 4} more
                                                                             </span>
                                                                         )
@@ -629,7 +629,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                                                 <Badge className={statusColors[application.status]}>
                                                                     {statusLabels[application.status]}
                                                                 </Badge>
-                                                                <span className="text-xs text-neutral-500">
+                                                                <span className="text-xs text-neutral-500 dark:text-neutral-400">
                                                                     {formatRelativeDate(application.updatedAt)}
                                                                 </span>
                                                             </div>
@@ -638,13 +638,13 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                                                     {application.job.title}
                                                                 </h3>
                                                             </Link>
-                                                            <p className="text-sm text-neutral-500">{application.job.company.name}</p>
+                                                            <p className="text-sm text-neutral-500 dark:text-neutral-400">{application.job.company.name}</p>
 
                                                             {
                                                                 application.prepProgress && (
                                                                     <div className="mt-3 flex items-center gap-2">
                                                                         <Progress value={application.prepProgress.readinessScore} className="h-1.5 flex-1" />
-                                                                        <span className="text-xs text-neutral-500">
+                                                                        <span className="text-xs text-neutral-500 dark:text-neutral-400">
                                                                             {application.prepProgress.readinessScore}% ready
                                                                         </span>
                                                                     </div>
@@ -689,7 +689,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                             <h3 className="text-xl font-medium text-neutral-900 dark:text-white mb-2">
                                 No applications found
                             </h3>
-                            <p className="text-neutral-500 max-w-md mx-auto mb-6">
+                            <p className="text-neutral-500 dark:text-neutral-400 max-w-md mx-auto mb-6">
                                 {
                                     activeTab === "all"
                                         ? "Start exploring jobs and show your interest to begin your journey."
@@ -760,8 +760,8 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                             }
                                         </div>
                                         <div className="flex justify-between mt-2">
-                                            <span className="text-xs text-neutral-500">Started</span>
-                                            <span className="text-xs text-neutral-500">Offered</span>
+                                            <span className="text-xs text-neutral-500 dark:text-neutral-400">Started</span>
+                                            <span className="text-xs text-neutral-500 dark:text-neutral-400">Offered</span>
                                         </div>
                                     </div>
 
@@ -786,7 +786,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                                                         <Badge variant="outline" className="text-xs">
                                                                             {statusLabels[history.toStatus] || history.toStatus}
                                                                         </Badge>
-                                                                        <span className="text-xs text-neutral-500">
+                                                                        <span className="text-xs text-neutral-500 dark:text-neutral-400">
                                                                             {formatDate(history.changedAt)}
                                                                         </span>
                                                                     </div>

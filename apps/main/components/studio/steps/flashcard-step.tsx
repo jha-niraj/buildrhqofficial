@@ -54,7 +54,7 @@ export function FlashcardStep({ step }: FlashcardStepProps) {
 							</p>
 						</div>
 					</div>
-					<div className="text-center py-8 text-neutral-500">
+					<div className="text-center py-8 text-neutral-500 dark:text-neutral-400">
 						No flashcards available yet.
 					</div>
 				</div>
@@ -91,17 +91,17 @@ export function FlashcardStep({ step }: FlashcardStepProps) {
 						<div className="flex items-center justify-center gap-8 mb-8">
 							<div className="text-center">
 								<p className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">{knownCount}</p>
-								<p className="text-sm text-neutral-500">Known</p>
+								<p className="text-sm text-neutral-500 dark:text-neutral-400">Known</p>
 							</div>
 							<div className="h-12 w-px bg-neutral-200 dark:bg-neutral-700" />
 							<div className="text-center">
 								<p className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">{reviewCount}</p>
-								<p className="text-sm text-neutral-500">Review</p>
+								<p className="text-sm text-neutral-500 dark:text-neutral-400">Review</p>
 							</div>
 							<div className="h-12 w-px bg-neutral-200 dark:bg-neutral-700" />
 							<div className="text-center">
 								<p className="text-3xl font-bold text-neutral-900 dark:text-white">{percentage}%</p>
-								<p className="text-sm text-neutral-500">Score</p>
+								<p className="text-sm text-neutral-500 dark:text-neutral-400">Score</p>
 							</div>
 						</div>
 						<Button
@@ -161,7 +161,7 @@ export function FlashcardStep({ step }: FlashcardStepProps) {
 							<h3 className="font-semibold text-neutral-900 dark:text-white text-sm">
 								{metadata.topic || "Flashcards"}
 							</h3>
-							<p className="text-xs text-neutral-500">
+							<p className="text-xs text-neutral-500 dark:text-neutral-400">
 								Card {currentIndex + 1} of {cards.length}
 							</p>
 						</div>
@@ -192,7 +192,7 @@ export function FlashcardStep({ step }: FlashcardStepProps) {
 									}`}
 							>
 								<div>
-									<p className="text-xs text-neutral-500 mb-3 uppercase tracking-wider">
+									<p className="text-xs text-neutral-500 dark:text-neutral-400 mb-3 uppercase tracking-wider">
 										{isFlipped ? "Answer" : "Question"}
 									</p>
 									<p className="text-lg font-medium text-neutral-900 dark:text-white">

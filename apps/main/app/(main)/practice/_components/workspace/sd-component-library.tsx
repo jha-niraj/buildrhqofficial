@@ -106,7 +106,7 @@ export function SDComponentLibrary({ onAddComponent }: SDComponentLibraryProps) 
                                     <div key={cat.key}>
                                         <button
                                             onClick={() => toggle(cat.key)}
-                                            className="flex items-center gap-1.5 w-full px-1.5 py-1 text-[11px] font-medium text-neutral-500 hover:text-neutral-300 transition-colors cursor-pointer"
+                                            className="flex items-center gap-1.5 w-full px-1.5 py-1 text-[11px] font-medium text-neutral-500 dark:text-neutral-400 hover:text-neutral-300 transition-colors cursor-pointer"
                                         >
                                             {expanded[cat.key] ? (
                                                 <ChevronDown className="h-3 w-3" />

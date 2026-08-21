@@ -45,7 +45,7 @@ const ExcalidrawCanvas = dynamic(
     {
         ssr: false,
         loading: () => (
-            <div className="h-full flex items-center justify-center bg-neutral-900 text-neutral-500 text-sm">
+            <div className="h-full flex items-center justify-center bg-neutral-900 text-neutral-500 dark:text-neutral-400 text-sm">
                 Loading canvas...
             </div>
         ),
@@ -186,7 +186,7 @@ export function PracticeWorkspace({ problem, session, mode }: PracticeWorkspaceP
                     </div>
                     {
                         store.isSaving && (
-                            <span className="text-[10px] text-neutral-500 animate-pulse">Saving...</span>
+                            <span className="text-[10px] text-neutral-500 dark:text-neutral-400 animate-pulse">Saving...</span>
                         )
                     }
                     {
@@ -399,7 +399,7 @@ function ProblemPanel({
                                                 <div className="h-4 w-4 rounded-full border border-neutral-600 flex-shrink-0 mt-0.5" />
                                             )
                                         }
-                                        <span className={cn("text-sm", met ? "text-neutral-300" : "text-neutral-500")}>
+                                        <span className={cn("text-sm", met ? "text-neutral-300" : "text-neutral-500 dark:text-neutral-400")}>
                                             {req}
                                         </span>
                                     </div>
@@ -467,7 +467,7 @@ function WebPreview({ code, css }: { code: string; css: string }) {
     return (
         <div className="h-full flex flex-col">
             <div className="h-8 bg-neutral-900 border-b border-neutral-800 flex items-center px-3">
-                <span className="text-[10px] text-neutral-500 font-medium">Live Preview</span>
+                <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-medium">Live Preview</span>
             </div>
             <iframe srcDoc={srcDoc} className="flex-1 bg-white" sandbox="allow-scripts" title="Live Preview" />
         </div>
@@ -517,19 +517,19 @@ function OutputPanel({
                         )}
                         {result.stdout && (
                             <div>
-                                <div className="text-[10px] text-neutral-500 mb-1">STDOUT</div>
+                                <div className="text-[10px] text-neutral-500 dark:text-neutral-400 mb-1">STDOUT</div>
                                 <pre className="text-neutral-800 dark:text-neutral-200 whitespace-pre-wrap break-all">{result.stdout}</pre>
                             </div>
                         )}
                         {result.stderr && (
                             <div>
-                                <div className="text-[10px] text-neutral-500 mb-1">STDERR</div>
+                                <div className="text-[10px] text-neutral-500 dark:text-neutral-400 mb-1">STDERR</div>
                                 <pre className="text-red-400 whitespace-pre-wrap break-all">{result.stderr}</pre>
                             </div>
                         )}
                         {result.testResults && result.testResults.length > 0 && (
                             <div>
-                                <div className="text-[10px] text-neutral-500 mb-2">
+                                <div className="text-[10px] text-neutral-500 dark:text-neutral-400 mb-2">
                                     TEST CASES - {result.testResults.filter(t => t.passed).length}/{result.testResults.length} passed
                                 </div>
                                 <div className="space-y-1.5">
@@ -551,15 +551,15 @@ function OutputPanel({
                                             {!tc.passed && (
                                                 <div className="mt-1 grid grid-cols-3 gap-2 text-[10px]">
                                                     <div>
-                                                        <span className="text-neutral-500">Input: </span>
+                                                        <span className="text-neutral-500 dark:text-neutral-400">Input: </span>
                                                         <span className="text-neutral-300">{tc.input || "(none)"}</span>
                                                     </div>
                                                     <div>
-                                                        <span className="text-neutral-500">Expected: </span>
+                                                        <span className="text-neutral-500 dark:text-neutral-400">Expected: </span>
                                                         <span className="text-neutral-800 dark:text-neutral-200">{tc.expectedOutput}</span>
                                                     </div>
                                                     <div>
-                                                        <span className="text-neutral-500">Got: </span>
+                                                        <span className="text-neutral-500 dark:text-neutral-400">Got: </span>
                                                         <span className="text-red-400">{tc.actualOutput || "(none)"}</span>
                                                     </div>
                                                 </div>
@@ -822,7 +822,7 @@ function ChatPanel({
                 {
                     store.chatHistory.length === 0 && (
                         <div className="text-center py-8">
-                            <p className="text-xs text-neutral-500 leading-relaxed">
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
                                 Ask questions about the problem. I&apos;ll guide you with hints without giving away the answer.
                             </p>
                         </div>
@@ -840,7 +840,7 @@ function ChatPanel({
                 }
                 {
                     store.isChatLoading && (
-                        <div className="flex items-center gap-2 text-neutral-500">
+                        <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
                             <span className="text-xs">Thinking...</span>
                         </div>
@@ -851,7 +851,7 @@ function ChatPanel({
             {
                 scribe.isConnected && store.voiceTranscript && (
                     <div className="px-4 pb-1">
-                        <p className="text-xs text-neutral-500 italic truncate">
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400 italic truncate">
                             🎙️ {store.voiceTranscript}
                         </p>
                     </div>
@@ -931,7 +931,7 @@ function ChatBubble({
                         <button
                             onClick={onPlayTTS}
                             disabled={false}
-                            className="mt-1.5 flex items-center gap-1 text-[10px] text-neutral-500 hover:text-neutral-300 transition-colors"
+                            className="mt-1.5 flex items-center gap-1 text-[10px] text-neutral-500 dark:text-neutral-400 hover:text-neutral-300 transition-colors"
                         >
                             {
                                 isSpeaking ? (

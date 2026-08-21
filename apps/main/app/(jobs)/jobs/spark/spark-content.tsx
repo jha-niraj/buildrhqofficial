@@ -133,7 +133,7 @@ export function SparkContent({ initialJobs, pagination, isAuthenticated }: Spark
                         <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
                             Discover Jobs
                         </h2>
-                        <p className="text-sm text-neutral-500">
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
                             Swipe right on jobs you like
                         </p>
                     </div>
@@ -168,7 +168,7 @@ export function SparkContent({ initialJobs, pagination, isAuthenticated }: Spark
 
                         {/* Stats */}
                         <div className="mt-8 text-center">
-                            <p className="text-sm text-neutral-500">
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">
                                 {jobs.length} jobs remaining
                                 {swipedJobs.length > 0 && ` • ${swipedJobs.filter(j => j.swipeDirection === "right").length} interested`}
                             </p>
@@ -182,7 +182,7 @@ export function SparkContent({ initialJobs, pagination, isAuthenticated }: Spark
                         className="flex flex-col items-center justify-center py-20"
                     >
                         <Loader2 className="w-10 h-10 animate-spin text-neutral-400 mb-4" />
-                        <p className="text-neutral-500">Loading more jobs...</p>
+                        <p className="text-neutral-500 dark:text-neutral-400">Loading more jobs...</p>
                     </motion.div>
                 ) : (
                     <AllCaughtUpState 
@@ -262,7 +262,7 @@ function AllCaughtUpState({
             <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">
                 You&apos;re All Caught Up!
             </h3>
-            <p className="text-neutral-500 max-w-md mb-6">
+            <p className="text-neutral-500 dark:text-neutral-400 max-w-md mb-6">
                 You&apos;ve reviewed all available jobs. 
                 {interestedCount > 0 && (
                     <span className="block mt-1 text-neutral-800 dark:text-neutral-100 font-medium">

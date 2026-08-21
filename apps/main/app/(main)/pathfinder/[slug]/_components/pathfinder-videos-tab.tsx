@@ -40,7 +40,7 @@ export function PathfinderVideosTab({ aiResources }: PathfinderVideosTabProps) {
                 <ScrollArea className="h-full">
                     <div className="p-4 space-y-4">
                         {videos.length === 0 ? (
-                            <div className="text-center py-12 text-neutral-500">
+                            <div className="text-center py-12 text-neutral-500 dark:text-neutral-400">
                                 <ListVideo className="w-12 h-12 mx-auto mb-3 opacity-50" />
                                 <p className="text-sm">No videos for this topic yet</p>
                             </div>
@@ -74,7 +74,7 @@ export function PathfinderVideosTab({ aiResources }: PathfinderVideosTabProps) {
                                                         {v.description || v.url}
                                                     </p>
                                                     {v.duration && (
-                                                        <span className="text-xs text-neutral-500">{v.duration}</span>
+                                                        <span className="text-xs text-neutral-500 dark:text-neutral-400">{v.duration}</span>
                                                     )}
                                                 </div>
                                                 <ExternalLink className="w-4 h-4 text-neutral-400" />
@@ -86,7 +86,7 @@ export function PathfinderVideosTab({ aiResources }: PathfinderVideosTabProps) {
                                                     {v.description}
                                                 </p>
                                                 {v.duration && (
-                                                    <span className="text-xs text-neutral-500">{v.duration}</span>
+                                                    <span className="text-xs text-neutral-500 dark:text-neutral-400">{v.duration}</span>
                                                 )}
                                             </div>
                                         )}
@@ -101,7 +101,7 @@ export function PathfinderVideosTab({ aiResources }: PathfinderVideosTabProps) {
                 <ScrollArea className="h-full">
                     <div className="p-4 space-y-2">
                         {docs.length === 0 ? (
-                            <div className="text-center py-12 text-neutral-500">
+                            <div className="text-center py-12 text-neutral-500 dark:text-neutral-400">
                                 <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
                                 <p className="text-sm">No documents for this topic yet</p>
                             </div>
@@ -119,7 +119,7 @@ export function PathfinderVideosTab({ aiResources }: PathfinderVideosTabProps) {
                                         <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">
                                             {d.description || d.url}
                                         </p>
-                                        <p className="text-xs text-neutral-500 truncate mt-0.5">{d.url}</p>
+                                        <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5">{d.url}</p>
                                         {d.type && (
                                             <span className="inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400">
                                                 {d.type}

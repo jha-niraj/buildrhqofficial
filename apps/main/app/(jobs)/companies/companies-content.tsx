@@ -165,7 +165,7 @@ export function CompaniesContent({
                     <h1 className="text-2xl lg:text-3xl font-bold text-neutral-900 dark:text-white">
                         Discover Companies
                     </h1>
-                    <p className="text-neutral-500 mt-1">
+                    <p className="text-neutral-500 dark:text-neutral-400 mt-1">
                         Find companies with transparent interview processes
                     </p>
                 </div>
@@ -238,7 +238,7 @@ export function CompaniesContent({
             {/* Active Filters */}
             {(selectedIndustries.length > 0 || onlyTransparent) && (
                 <div className="flex items-center gap-2 mb-6 flex-wrap">
-                    <span className="text-sm text-neutral-500">Active filters:</span>
+                    <span className="text-sm text-neutral-500 dark:text-neutral-400">Active filters:</span>
                     {onlyTransparent && (
                         <Badge variant="secondary" className="gap-1">
                             Transparent Process
@@ -303,12 +303,12 @@ export function CompaniesContent({
                                                 )}
                                             </div>
                                             {company.industry && (
-                                                <p className="text-sm text-neutral-500">{company.industry}</p>
+                                                <p className="text-sm text-neutral-500 dark:text-neutral-400">{company.industry}</p>
                                             )}
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-4 mt-4 text-sm text-neutral-500">
+                                    <div className="flex items-center gap-4 mt-4 text-sm text-neutral-500 dark:text-neutral-400">
                                         {company.headquarters && (
                                             <div className="flex items-center gap-1">
                                                 <MapPin className="w-4 h-4" />
@@ -355,7 +355,7 @@ export function CompaniesContent({
                     <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
                         {searchQuery || selectedIndustries.length > 0 ? "Search Results" : "All Companies"}
                     </h2>
-                    <span className="text-sm text-neutral-500">
+                    <span className="text-sm text-neutral-500 dark:text-neutral-400">
                         {filteredCompanies.length} {filteredCompanies.length === 1 ? "company" : "companies"}
                     </span>
                 </div>
@@ -403,7 +403,7 @@ export function CompaniesContent({
                                                     )}
                                                 </div>
                                                 {company.industry && (
-                                                    <p className="text-sm text-neutral-500">{company.industry}</p>
+                                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">{company.industry}</p>
                                                 )}
                                             </div>
                                         </div>
@@ -414,7 +414,7 @@ export function CompaniesContent({
                                             </p>
                                         )}
 
-                                        <div className="flex items-center gap-4 mt-4 text-sm text-neutral-500">
+                                        <div className="flex items-center gap-4 mt-4 text-sm text-neutral-500 dark:text-neutral-400">
                                             {company.headquarters && (
                                                 <div className="flex items-center gap-1">
                                                     <MapPin className="w-4 h-4" />
@@ -468,7 +468,7 @@ export function CompaniesContent({
                             <h3 className="text-xl font-medium text-neutral-900 dark:text-white mb-2">
                                 No companies found
                             </h3>
-                            <p className="text-neutral-500 max-w-md mx-auto mb-4">
+                            <p className="text-neutral-500 dark:text-neutral-400 max-w-md mx-auto mb-4">
                                 Try adjusting your filters or search criteria.
                             </p>
                             <Button variant="outline" onClick={clearFilters} className="rounded-xl">

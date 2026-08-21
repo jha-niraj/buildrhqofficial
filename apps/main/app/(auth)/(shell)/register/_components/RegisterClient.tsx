@@ -386,7 +386,7 @@ function SignUpForm() {
                                         <div className="w-full border-t border-zinc-200 dark:border-zinc-700" />
                                     </div>
                                     <div className="relative flex justify-center text-sm">
-                                        <span className="px-4 bg-white dark:bg-zinc-900 text-zinc-500">
+                                        <span className="px-4 bg-white dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400">
                                             or continue with email
                                         </span>
                                     </div>

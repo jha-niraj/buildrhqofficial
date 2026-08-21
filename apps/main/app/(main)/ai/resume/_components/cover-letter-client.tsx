@@ -37,7 +37,7 @@ function LoadingOverlay({ message, sub }: { message: string; sub?: string }) {
             <DotmSquare11 size={48} dotSize={6} speed={1.4} />
             <div className="text-center space-y-1">
                 <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">{message}</p>
-                {sub && <p className="text-xs text-neutral-500">{sub}</p>}
+                {sub && <p className="text-xs text-neutral-500 dark:text-neutral-400">{sub}</p>}
             </div>
         </div>
     )
@@ -61,7 +61,7 @@ function StepIndicator({ current }: { current: number }) {
                         <div key={s.n} className="flex items-center">
                             <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${active ? "bg-neutral-900 text-white dark:bg-white dark:text-black" :
                                 done ? "text-neutral-500 dark:text-neutral-400" :
-                                    "text-neutral-400 dark:text-neutral-600"
+                                    "text-neutral-400 dark:text-neutral-400"
                                 }`}>
                                 <Icon className="w-3.5 h-3.5" />
                                 <span>{s.label}</span>
@@ -274,7 +274,7 @@ export function CoverLetterClient({
                             <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                                 Job Link
                             </Label>
-                            <p className="text-xs text-neutral-500">Paste the job posting URL and we&apos;ll auto-extract the role details.</p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Paste the job posting URL and we&apos;ll auto-extract the role details.</p>
                             <div className="flex gap-2 mt-1">
                                 <Input
                                     placeholder="https://company.com/careers/..."
@@ -343,7 +343,7 @@ export function CoverLetterClient({
                             <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                                 Paste Job Description manually
                             </Label>
-                            <p className="text-xs text-neutral-500">Use this if the URL extraction fails.</p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Use this if the URL extraction fails.</p>
                             <Textarea
                                 className="text-sm h-32 mt-1"
                                 placeholder="Paste the full job description here…"
@@ -377,7 +377,7 @@ export function CoverLetterClient({
 
                         <div>
                             <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Tailor Your Letter</h2>
-                            <p className="text-sm text-neutral-500 mt-0.5">Answer a few questions about your experience specific to this role.</p>
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">Answer a few questions about your experience specific to this role.</p>
                         </div>
 
                         {questions.map((q, idx) => (
@@ -444,7 +444,7 @@ export function CoverLetterClient({
             {/* ── History sidebar ── */}
             <div className="lg:col-span-1 space-y-3">
                 <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-neutral-500" />
+                    <Clock className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
                     <span className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">Letters</span>
                     {history.length > 0 && (
                         <Badge variant="secondary" className="text-xs ml-auto">{history.length}</Badge>
@@ -453,8 +453,8 @@ export function CoverLetterClient({
 
                 {history.length === 0 ? (
                     <div className="rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800 p-6 text-center">
-                        <FileText className="w-8 h-8 text-neutral-300 dark:text-neutral-600 mx-auto mb-2" />
-                        <p className="text-xs text-neutral-500">No letters generated yet.</p>
+                        <FileText className="w-8 h-8 text-neutral-300 dark:text-neutral-400 mx-auto mb-2" />
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">No letters generated yet.</p>
                         <p className="text-xs text-neutral-400 mt-0.5">Complete Step 1 to get started.</p>
                     </div>
                 ) : (
@@ -487,7 +487,7 @@ export function CoverLetterClient({
                                         <p className={`text-xs font-semibold truncate ${selectedId === h.id ? "text-white dark:text-black" : "text-neutral-800 dark:text-neutral-200"}`}>
                                             {h.jobTitle || "Untitled Role"}
                                         </p>
-                                        <p className={`text-[10px] truncate mt-0.5 ${selectedId === h.id ? "text-neutral-300 dark:text-neutral-600" : "text-neutral-500"}`}>
+                                        <p className={`text-[10px] truncate mt-0.5 ${selectedId === h.id ? "text-neutral-300 dark:text-neutral-400" : "text-neutral-500"}`}>
                                             {h.isDraft ? "Continue from step 2 →" : (h.companyName || "Unknown Company")}
                                         </p>
                                     </div>

@@ -146,7 +146,7 @@ export default function ActivityCalendar({ data }: ActivityCalendarProps) {
                     <div className="flex items-center gap-1.5">
                         <Flame className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />
                         <span className="font-bold text-sm">{currentStreak}</span>
-                        <span className="text-xs text-neutral-500">day streak</span>
+                        <span className="text-xs text-neutral-500 dark:text-neutral-400">day streak</span>
                     </div>
                 </div>
                 <div className="p-4">

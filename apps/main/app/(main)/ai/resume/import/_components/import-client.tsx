@@ -85,7 +85,7 @@ export function ImportClient() {
     return (
         <div className="max-w-2xl mx-auto">
             {/* Back */}
-            <Link href="/ai/resume" className="flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 mb-6 transition-colors">
+            <Link href="/ai/resume" className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 mb-6 transition-colors">
                 <ArrowLeft className="w-4 h-4" /> Back to Resume Builder
             </Link>
 
@@ -124,7 +124,7 @@ export function ImportClient() {
                         <p className="text-base font-semibold text-neutral-800 dark:text-neutral-200">
                             {STAGES[stageIdx]}
                         </p>
-                        <p className="text-sm text-neutral-500 mt-1">This takes 20-40 seconds. Please wait…</p>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">This takes 20-40 seconds. Please wait…</p>
                     </div>
                     {/* Progress bar */}
                     <div className="w-full bg-neutral-100 dark:bg-neutral-800 rounded-full h-1.5 overflow-hidden">
@@ -135,7 +135,7 @@ export function ImportClient() {
                     </div>
                     <div className="space-y-2">
                         {STAGES.map((s, i) => (
-                            <div key={s} className={`flex items-center gap-2 text-xs transition-colors ${i <= stageIdx ? "text-neutral-700 dark:text-neutral-300" : "text-neutral-300 dark:text-neutral-600"}`}>
+                            <div key={s} className={`flex items-center gap-2 text-xs transition-colors ${i <= stageIdx ? "text-neutral-700 dark:text-neutral-300" : "text-neutral-300 dark:text-neutral-400"}`}>
                                 {i < stageIdx ? (
                                     <CheckCircle2 className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100 shrink-0" />
                                 ) : i === stageIdx ? (
@@ -153,7 +153,7 @@ export function ImportClient() {
                 <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 space-y-6">
                     {/* Required */}
                     <div className="space-y-4">
-                        <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Required</p>
+                        <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Required</p>
 
                         <div className="space-y-1.5">
                             <Label className="text-sm font-medium flex items-center gap-1.5">
@@ -177,7 +177,7 @@ export function ImportClient() {
                                 <span className="text-red-500 text-xs">*</span>
                             </Label>
                             <div className="flex items-center gap-0">
-                                <span className="h-9 flex items-center px-3 rounded-l-md border border-r-0 border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-sm text-neutral-500">
+                                <span className="h-9 flex items-center px-3 rounded-l-md border border-r-0 border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-sm text-neutral-500 dark:text-neutral-400">
                                     github.com/
                                 </span>
                                 <Input
@@ -202,7 +202,7 @@ export function ImportClient() {
                                 Twitter / X Handle
                             </Label>
                             <div className="flex items-center">
-                                <span className="h-9 flex items-center px-3 rounded-l-md border border-r-0 border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-sm text-neutral-500">
+                                <span className="h-9 flex items-center px-3 rounded-l-md border border-r-0 border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-sm text-neutral-500 dark:text-neutral-400">
                                     @
                                 </span>
                                 <Input

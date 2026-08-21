@@ -205,7 +205,7 @@ export function SprintGenerationSheet({
                                             className="min-h-[120px] resize-none"
                                             autoFocus
                                         />
-                                        <p className="text-xs text-neutral-500">
+                                        <p className="text-xs text-neutral-500 dark:text-neutral-400">
                                             Press Enter to generate or describe in detail for better results
                                         </p>
                                     </div>

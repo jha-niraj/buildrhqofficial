@@ -44,7 +44,7 @@ export function MockVerification({
                         <CheckCircle2 className="w-10 h-10 text-neutral-900 dark:text-neutral-100" />
                     </div>
                     <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">Mock Interview Passed!</h3>
-                    <p className="text-neutral-500 mb-4">You scored {score}%</p>
+                    <p className="text-neutral-500 dark:text-neutral-400 mb-4">You scored {score}%</p>
                     <Badge variant="secondary">Attempts: {attempts}</Badge>
                 </div>
             </div>
@@ -60,7 +60,7 @@ export function MockVerification({
                         <Lock className="w-10 h-10 text-neutral-400" />
                     </div>
                     <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">Mock Interview Locked</h3>
-                    <p className="text-neutral-500">Complete the Coding section first to unlock Mock Interview.</p>
+                    <p className="text-neutral-500 dark:text-neutral-400">Complete the Coding section first to unlock Mock Interview.</p>
                 </div>
             </div>
         )
@@ -76,7 +76,7 @@ export function MockVerification({
                 <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">
                     {mockConfig?.title || 'Mock Interview'}
                 </h3>
-                <p className="text-neutral-500 mb-6">
+                <p className="text-neutral-500 dark:text-neutral-400 mb-6">
                     {mockConfig?.description || 'Complete an AI-powered voice interview to demonstrate your knowledge.'}
                 </p>
                 <div className="grid grid-cols-3 gap-4 mb-8">
@@ -84,17 +84,17 @@ export function MockVerification({
                         <div className="text-2xl font-bold text-neutral-900 dark:text-white">
                             {mockConfig?.duration || 15}m
                         </div>
-                        <div className="text-xs text-neutral-500">Duration</div>
+                        <div className="text-xs text-neutral-500 dark:text-neutral-400">Duration</div>
                     </div>
                     <div className="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
                         <div className="text-2xl font-bold text-neutral-900 dark:text-white">
                             {mockConfig?.questionsCount || 5}
                         </div>
-                        <div className="text-xs text-neutral-500">Questions</div>
+                        <div className="text-xs text-neutral-500 dark:text-neutral-400">Questions</div>
                     </div>
                     <div className="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
                         <div className="text-2xl font-bold text-neutral-900 dark:text-white">70%</div>
-                        <div className="text-xs text-neutral-500">To Pass</div>
+                        <div className="text-xs text-neutral-500 dark:text-neutral-400">To Pass</div>
                     </div>
                 </div>
                 <div className="space-y-4">
@@ -137,7 +137,7 @@ export function MockVerification({
 
                     {
                         attempts > 0 && (
-                            <p className="text-sm text-neutral-500">
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">
                                 Previous attempts: {attempts}
                             </p>
                         )

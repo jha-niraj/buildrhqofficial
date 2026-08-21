@@ -89,7 +89,7 @@ export function ProjectCard({ project, showProgress = false }: ProjectCardProps)
                     }
                     {
                         project.technologies.length > 4 && (
-                            <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-500 border border-neutral-200 dark:border-neutral-700">
+                            <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700">
                                 +{project.technologies.length - 4}
                             </span>
                         )
@@ -125,7 +125,7 @@ export function ProjectCard({ project, showProgress = false }: ProjectCardProps)
                     </div>
                 )}
 
-                <div className="flex items-center gap-4 text-xs text-neutral-500 dark:text-neutral-500">
+                <div className="flex items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400">
                     <div className="flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5" />
                         <span>{project.estimatedHours}h</span>

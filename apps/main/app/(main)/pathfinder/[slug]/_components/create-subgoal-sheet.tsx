@@ -152,7 +152,7 @@ export function CreateSubGoalSheet({
                                 <h3 className="font-semibold text-neutral-900 dark:text-white mb-1">
                                     Generating Content
                                 </h3>
-                                <p className="text-sm text-neutral-500 mb-2 flex items-center justify-center gap-2">
+                                <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-2 flex items-center justify-center gap-2">
                                     <Sparkles className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                     Fetching videos & docs (Exa) + creating content (OpenAI)
                                 </p>

@@ -335,7 +335,7 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: 0.4 }}
-                                className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-neutral-500"
+                                className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-neutral-500 dark:text-neutral-400"
                             >
                                 <div className="flex items-center gap-2">
                                     <Users className="w-4 h-4" />
@@ -426,7 +426,7 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
                                     className="absolute -bottom-4 -right-4 bg-white dark:bg-neutral-800 rounded-xl px-4 py-2 shadow-lg border border-neutral-200 dark:border-neutral-700"
                                 >
                                     <div className="flex items-center gap-2 text-sm">
-                                        <Sparkles className="w-4 h-4 text-neutral-500" />
+                                        <Sparkles className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
                                         <span className="text-neutral-600 dark:text-neutral-300">AI-powered answers</span>
                                     </div>
                                 </motion.div>
@@ -558,7 +558,7 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
                             <h2 className="text-3xl md:text-4xl font-bold text-white dark:text-neutral-900 mb-4">
                                 Ready to transform your portfolio?
                             </h2>
-                            <p className="text-white/80 dark:text-neutral-600 mb-8 max-w-2xl mx-auto">
+                            <p className="text-white/80 dark:text-neutral-400 mb-8 max-w-2xl mx-auto">
                                 Join hundreds of developers who are already using KnowMe
                                 to showcase their skills in a whole new way.
                             </p>
@@ -925,7 +925,7 @@ function PlatformsStep({
 
             <Button
                 variant="ghost"
-                className="w-full text-neutral-500 text-sm"
+                className="w-full text-neutral-500 dark:text-neutral-400 text-sm"
                 onClick={() => setIncludePlatformData(false)}
             >
                 Skip for now

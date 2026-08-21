@@ -99,7 +99,7 @@ export function AssignGoalSheet({ open, onOpenChange, goalId, groups, onAssign }
                         <div className="space-y-2">
                             {
                                 groups.length === 0 ? (
-                                    <p className="text-sm text-neutral-500 text-center py-8">
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center py-8">
                                         No groups created yet
                                     </p>
                                 ) : (
@@ -124,7 +124,7 @@ export function AssignGoalSheet({ open, onOpenChange, goalId, groups, onAssign }
                                                 <div className="text-sm font-medium text-neutral-900 dark:text-white">
                                                     {group.name}
                                                 </div>
-                                                <div className="text-xs text-neutral-500">
+                                                <div className="text-xs text-neutral-500 dark:text-neutral-400">
                                                     {group._count?.goals || 0} goals
                                                 </div>
                                             </div>

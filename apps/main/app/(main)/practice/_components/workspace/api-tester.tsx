@@ -49,7 +49,7 @@ export function APITester({ testCases, onRunTest, code }: APITesterProps) {
 
     if (!testCases || testCases.length === 0) {
         return (
-            <div className="p-4 text-center text-sm text-neutral-500">
+            <div className="p-4 text-center text-sm text-neutral-500 dark:text-neutral-400">
                 No API test cases for this problem.
             </div>
         );
@@ -90,7 +90,7 @@ export function APITester({ testCases, onRunTest, code }: APITesterProps) {
                 <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold text-neutral-400">API Tests</span>
                     {totalRun > 0 && (
-                        <span className="text-[10px] text-neutral-500">
+                        <span className="text-[10px] text-neutral-500 dark:text-neutral-400">
                             {passCount}/{totalRun} passed
                         </span>
                     )}
@@ -142,7 +142,7 @@ export function APITester({ testCases, onRunTest, code }: APITesterProps) {
                                     <Button
                                         size="sm"
                                         variant="ghost"
-                                        className="h-6 w-6 p-0 text-neutral-500"
+                                        className="h-6 w-6 p-0 text-neutral-500 dark:text-neutral-400"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             handleRunTest(tc);
@@ -156,9 +156,9 @@ export function APITester({ testCases, onRunTest, code }: APITesterProps) {
                                         )}
                                     </Button>
                                     {isExpanded ? (
-                                        <ChevronUp className="h-3 w-3 text-neutral-500" />
+                                        <ChevronUp className="h-3 w-3 text-neutral-500 dark:text-neutral-400" />
                                     ) : (
-                                        <ChevronDown className="h-3 w-3 text-neutral-500" />
+                                        <ChevronDown className="h-3 w-3 text-neutral-500 dark:text-neutral-400" />
                                     )}
                                 </button>
                                 <AnimatePresence>
@@ -171,7 +171,7 @@ export function APITester({ testCases, onRunTest, code }: APITesterProps) {
                                         >
                                             <div className="px-3 py-2 space-y-1.5 text-[11px]">
                                                 <p className="text-neutral-400">{tc.description}</p>
-                                                <p className="text-neutral-500">
+                                                <p className="text-neutral-500 dark:text-neutral-400">
                                                     Expected: <span className="text-neutral-300">{tc.expectedStatus}</span>
                                                     {tc.expectedBodyContains && (
                                                         <> containing <span className="text-neutral-300 font-mono">{tc.expectedBodyContains}</span></>

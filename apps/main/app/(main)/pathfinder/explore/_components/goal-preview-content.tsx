@@ -98,7 +98,7 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                             <h1 className="text-2xl font-bold text-neutral-900 dark:text-white mb-1">
                                 {goal.title}
                             </h1>
-                            <div className="flex items-center gap-3 text-sm text-neutral-500">
+                            <div className="flex items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400">
                                 <span className="flex items-center gap-1.5">
                                     <User className="w-3.5 h-3.5" />
                                     {goal.user?.name || goal.user?.username || 'Unknown'}
@@ -123,22 +123,22 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                     <div className="grid grid-cols-3 gap-3 mb-4">
                         <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200/60 dark:border-neutral-800/60">
                             <div className="flex items-center gap-2 mb-1">
-                                <BookOpen className="w-4 h-4 text-neutral-500" />
-                                <span className="text-xs text-neutral-500">Topics</span>
+                                <BookOpen className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
+                                <span className="text-xs text-neutral-500 dark:text-neutral-400">Topics</span>
                             </div>
                             <p className="text-lg font-semibold text-neutral-900 dark:text-white">{goal.totalSubGoals}</p>
                         </div>
                         <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200/60 dark:border-neutral-800/60">
                             <div className="flex items-center gap-2 mb-1">
                                 <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
-                                <span className="text-xs text-neutral-500">Completed</span>
+                                <span className="text-xs text-neutral-500 dark:text-neutral-400">Completed</span>
                             </div>
                             <p className="text-lg font-semibold text-neutral-900 dark:text-white">{goal.completedSubGoals}</p>
                         </div>
                         <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200/60 dark:border-neutral-800/60">
                             <div className="flex items-center gap-2 mb-1">
                                 <Sparkles className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
-                                <span className="text-xs text-neutral-500">Progress</span>
+                                <span className="text-xs text-neutral-500 dark:text-neutral-400">Progress</span>
                             </div>
                             <p className="text-lg font-semibold text-neutral-900 dark:text-white">{progressPercent}%</p>
                         </div>
@@ -167,7 +167,7 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                             {isPaid ? `Copy for ${price} credits` : 'Copy to My Goals'}
                         </Button>
                         {isPaid && (
-                            <span className="text-sm text-neutral-500">
+                            <span className="text-sm text-neutral-500 dark:text-neutral-400">
                                 {canAfford
                                     ? `You have ${credits ?? 0} credits`
                                     : `Need ${price - (credits ?? 0)} more credits`}
@@ -180,7 +180,7 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                 {goal.subGoals && goal.subGoals.length > 0 && (
                     <div>
                         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
-                            <BookOpen className="w-4 h-4 text-neutral-500" />
+                            <BookOpen className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
                             Study Plan ({goal.subGoals.length} topics)
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -190,7 +190,7 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                                     className="group p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/50 hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-sm transition-all"
                                 >
                                     <div className="flex items-start gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-semibold text-neutral-500 shrink-0">
+                                        <div className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 shrink-0">
                                             {idx + 1}
                                         </div>
                                         <div className="flex-1 min-w-0">
@@ -198,7 +198,7 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                                                 {sg.title}
                                             </p>
                                             {sg.description && (
-                                                <p className="text-xs text-neutral-500 mt-1 line-clamp-2 leading-relaxed">
+                                                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 line-clamp-2 leading-relaxed">
                                                     {sg.description}
                                                 </p>
                                             )}
@@ -214,7 +214,7 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                                                     </Badge>
                                                 )}
                                                 {sg.isAIGenerated && (
-                                                    <Badge variant="secondary" className="text-[10px] h-5 gap-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-500 border-0">
+                                                    <Badge variant="secondary" className="text-[10px] h-5 gap-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border-0">
                                                         <Sparkles className="w-2.5 h-2.5" />
                                                         AI
                                                     </Badge>
@@ -238,7 +238,7 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                 {goal.subGoals && goal.subGoals.length === 0 && (
                     <div className="py-12 text-center border border-dashed border-neutral-200 dark:border-neutral-800 rounded-xl">
                         <BookOpen className="w-10 h-10 text-neutral-300 mx-auto mb-3" />
-                        <p className="text-sm text-neutral-500">This goal has no topics yet.</p>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400">This goal has no topics yet.</p>
                     </div>
                 )}
             </div>

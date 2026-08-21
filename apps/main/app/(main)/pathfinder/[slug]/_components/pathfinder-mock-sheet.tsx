@@ -146,7 +146,7 @@ export function PathfinderMockSheet({
                             <Loader2 className="w-8 h-8 animate-spin text-neutral-900 dark:text-neutral-100" />
                         </div>
                     ) : allSubGoals.length === 0 ? (
-                        <p className="text-sm text-neutral-500 text-center py-8">
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center py-8">
                             No sub-goals yet. Add learning tasks first.
                         </p>
                     ) : (
@@ -157,7 +157,7 @@ export function PathfinderMockSheet({
                             <div className="space-y-2 max-h-[300px] overflow-y-auto">
                                 {sessions.map((sess) => (
                                     <div key={sess.id} className="space-y-2">
-                                        <p className="text-xs font-medium text-neutral-500">
+                                        <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
                                             {new Date(sess.date).toLocaleDateString('en-US', {
                                                 weekday: 'short',
                                                 month: 'short',

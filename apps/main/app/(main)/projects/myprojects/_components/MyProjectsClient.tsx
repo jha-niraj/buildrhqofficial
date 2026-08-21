@@ -385,7 +385,7 @@ export default function MyProjectsPage() {
 							) : (
 								<Card className="bg-white dark:bg-neutral-900 shadow-2xl p-5 rounded-xl border border-neutral-200 dark:border-neutral-800">
 									<CardContent className="text-center py-12">
-										<Code2 className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+										<Code2 className="w-16 h-16 text-gray-400 dark:text-gray-400 mx-auto mb-4" />
 										<h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
 											{
 												searchQuery || statusFilter !== "ALL" || visibilityFilter !== "ALL"

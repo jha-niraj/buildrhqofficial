@@ -278,7 +278,7 @@ export default function HomeDashboard({
 							href={s.href}
 							className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-sm font-semibold text-neutral-700 transition-colors hover:border-neutral-500 hover:text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-neutral-500 dark:hover:text-white"
 						>
-							<s.icon className="h-3 w-3 text-neutral-400 dark:text-neutral-500" />
+							<s.icon className="h-3 w-3 text-neutral-400 dark:text-neutral-400" />
 							{s.label}
 						</Link>
 					))}

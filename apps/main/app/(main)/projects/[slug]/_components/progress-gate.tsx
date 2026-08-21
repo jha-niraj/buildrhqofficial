@@ -83,7 +83,7 @@ export function ProgressGate({ type, currentProgress, requiredProgress, projectS
                                 <p className="text-sm text-neutral-600 dark:text-neutral-400">
                                     Complete <span className="font-semibold text-neutral-900 dark:text-white">{requiredProgress}% of {projectTitle}</span> to unlock this feature.
                                 </p>
-                                <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                                <p className="text-xs text-neutral-500 dark:text-neutral-400">
                                     You need {requiredProgress - Math.round(currentProgress)}% more progress
                                 </p>
                             </div>

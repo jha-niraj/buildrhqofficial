@@ -111,7 +111,7 @@ export function CommentItem({
                     ) : comment.isDeleted ? (
                         // Tombstone. The row survives so its replies keep their place in
                         // the thread; the server never sent us the original body.
-                        <p className="mt-0.5 text-sm italic text-neutral-400 dark:text-neutral-500">
+                        <p className="mt-0.5 text-sm italic text-neutral-400 dark:text-neutral-400">
                             This comment was deleted
                         </p>
                     ) : (
@@ -127,7 +127,7 @@ export function CommentItem({
                                     type="button"
                                     variant="ghost"
                                     size="sm"
-                                    className="h-7 px-2 text-xs text-neutral-500 hover:text-neutral-900"
+                                    className="h-7 px-2 text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-900"
                                     onClick={() => setReplying((v) => !v)}
                                 >
                                     <MessageSquare className="h-3 w-3 mr-1" />

@@ -380,7 +380,7 @@ export default function PurchasePage() {
 											className="h-auto py-2 text-6xl md:text-7xl font-bold bg-transparent border-0 border-b-2 border-neutral-100 dark:border-neutral-800 rounded-none px-0 focus-visible:ring-0 focus-visible:border-neutral-900 dark:focus-visible:border-white transition-colors tracking-tight placeholder:text-neutral-200 dark:placeholder:text-neutral-800 leading-none"
 											placeholder="50"
 										/>
-										<span className="absolute right-0 bottom-3 text-xs font-medium text-neutral-400 dark:text-neutral-500">
+										<span className="absolute right-0 bottom-3 text-xs font-medium text-neutral-400 dark:text-neutral-400">
 											credits
 										</span>
 									</div>
@@ -503,7 +503,7 @@ export default function PurchasePage() {
 								</div>
 								<div>
 									<p className="text-sm font-bold text-neutral-900 dark:text-white leading-snug">{item.label}</p>
-									<p className="text-xs text-neutral-500 mt-0.5">{item.sub}</p>
+									<p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{item.sub}</p>
 								</div>
 							</div>
 						))}
@@ -520,7 +520,7 @@ export default function PurchasePage() {
 						</div>
 						<SheetHeader className="p-0 text-left">
 							<SheetTitle className="text-xl font-bold">Bounty Program</SheetTitle>
-							<SheetDescription className="text-neutral-500 mt-1">
+							<SheetDescription className="text-neutral-500 dark:text-neutral-400 mt-1">
 								Complete social tasks to earn credits.
 							</SheetDescription>
 						</SheetHeader>
@@ -576,7 +576,7 @@ export default function PurchasePage() {
 						{/* Warning note */}
 						<div className="flex gap-2.5 p-3.5 bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800">
 							<AlertTriangle className="w-4 h-4 text-neutral-400 flex-shrink-0 mt-px" />
-							<p className="text-xs text-neutral-500 leading-relaxed">
+							<p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
 								Post must be public and mention <span className="font-semibold text-neutral-700 dark:text-neutral-300">@shipithq</span> to pass verification.
 							</p>
 						</div>
@@ -598,7 +598,7 @@ export default function PurchasePage() {
 					<div className="p-8 border-b border-neutral-100 dark:border-neutral-800">
 						<SheetHeader className="p-0 text-left">
 							<SheetTitle className="text-xl font-bold">Confirm purchase</SheetTitle>
-							<SheetDescription className="text-neutral-500 mt-1">
+							<SheetDescription className="text-neutral-500 dark:text-neutral-400 mt-1">
 								Verify allocation before executing transaction.
 							</SheetDescription>
 						</SheetHeader>
@@ -607,7 +607,7 @@ export default function PurchasePage() {
 					<div className="p-8 space-y-6">
 						{/* Summary pill */}
 						<div className="flex justify-between items-center px-4 py-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-							<span className="text-sm text-neutral-500">Total Allocation</span>
+							<span className="text-sm text-neutral-500 dark:text-neutral-400">Total Allocation</span>
 							<span className="text-lg font-bold font-mono text-neutral-900 dark:text-white tracking-tight">
 								{pendingCredits} credits
 							</span>
@@ -626,7 +626,7 @@ export default function PurchasePage() {
 									<span className="text-xl leading-none">{item.icon}</span>
 									<div className="flex-1 min-w-0">
 										<p className="text-sm font-bold text-neutral-900 dark:text-white">{item.title}</p>
-										<p className="text-xs text-neutral-500 mt-0.5">{formatCountRange(item.privateCount)} units</p>
+										<p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{formatCountRange(item.privateCount)} units</p>
 									</div>
 								</div>
 							))}
@@ -669,7 +669,7 @@ export default function PurchasePage() {
 								{processingStatus === 'verifying'    && 'Confirming payment'}
 								{processingStatus === 'redirecting'  && 'Credits added'}
 							</h3>
-							<p className="text-sm text-neutral-500 max-w-[180px] mx-auto leading-relaxed">
+							<p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-[180px] mx-auto leading-relaxed">
 								{processingStatus === 'processing'
 									? 'Complete the secure payment in the popup.'
 									: 'This only takes a moment.'}

@@ -132,7 +132,7 @@ export function JobCard({
                         <h3 className="font-medium text-neutral-900 dark:text-white group-hover:text-neutral-800 dark:group-hover:text-neutral-100 transition-colors truncate">
                             {job.title}
                         </h3>
-                        <p className="text-sm text-neutral-500 truncate">{job.company.name}</p>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400 truncate">{job.company.name}</p>
                     </div>
                     {showPracticeButton && hasMockInterview && (
                         <Button
@@ -215,7 +215,7 @@ export function JobCard({
                                     </TooltipProvider>
                                 )}
                             </div>
-                            <p className="text-neutral-500">{job.company.name}</p>
+                            <p className="text-neutral-500 dark:text-neutral-400">{job.company.name}</p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                             {showMatchScore && (
@@ -256,7 +256,7 @@ export function JobCard({
                     </div>
 
                     {/* Job Details */}
-                    <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-500 mb-3">
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 mb-3">
                         <div className="flex items-center gap-1">
                             <MapPin className="w-4 h-4" />
                             <span>{job.location || locationTypeLabels[job.locationType]}</span>
@@ -288,7 +288,7 @@ export function JobCard({
                             </Badge>
                         ))}
                         {job.missingSkills.slice(0, 2).map((skill, i) => (
-                            <Badge key={i} variant="outline" className="text-xs text-neutral-500">
+                            <Badge key={i} variant="outline" className="text-xs text-neutral-500 dark:text-neutral-400">
                                 {skill}
                             </Badge>
                         ))}

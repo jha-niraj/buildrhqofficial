@@ -661,7 +661,7 @@ export default function CodingQuestionsPage({ params }: { params: Promise<{ slug
 																		Submission #{previousSubmissions.length - index}
 																	</span>
 																</div>
-																<span className="text-xs text-gray-500">
+																<span className="text-xs text-gray-500 dark:text-gray-400">
 																	{new Date(submission.submittedAt).toLocaleString()}
 																</span>
 															</div>
@@ -676,7 +676,7 @@ export default function CodingQuestionsPage({ params }: { params: Promise<{ slug
 											}
 										</div>
 									) : (
-										<div className="text-center py-8 text-gray-500">
+										<div className="text-center py-8 text-gray-500 dark:text-gray-400">
 											<Send className="h-8 w-8 mx-auto mb-3 opacity-50" />
 											<p>No submissions yet</p>
 											<p className="text-sm">Submit your solution to see it here</p>

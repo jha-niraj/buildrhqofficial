@@ -351,21 +351,21 @@ export default function SprintMockInterview({
                         "bg-neutral-50 dark:bg-neutral-900"
                     )}>
                         <p className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">{sprintNumber}</p>
-                        <p className="text-xs text-neutral-500">Sprints</p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">Sprints</p>
                     </div>
                     <div className={cn(
                         "p-3 rounded-lg",
                         "bg-neutral-50 dark:bg-neutral-900"
                     )}>
                         <p className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">~10</p>
-                        <p className="text-xs text-neutral-500">Minutes</p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">Minutes</p>
                     </div>
                     <div className={cn(
                         "p-3 rounded-lg",
                         "bg-neutral-50 dark:bg-neutral-900"
                     )}>
                         <p className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">5-8</p>
-                        <p className="text-xs text-neutral-500">Questions</p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">Questions</p>
                     </div>
                 </div>
 

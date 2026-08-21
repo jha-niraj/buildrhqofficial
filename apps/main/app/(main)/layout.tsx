@@ -73,7 +73,24 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
     // Width is committed to the store on every move (a cheap set, and the store
     // is the single source of truth for the rail width), and the listeners live
     // on `window` so the drag survives the cursor leaving the handle.
+    // ── Why the drag needs its own flag ──
+    //
+    // The rail's width is a framer `animate` prop with a spring on it. That is right when
+    // the rail opens and closes, and wrong during a drag: every mousemove set a new target
+    // and started a NEW spring toward it, so the panel chased the cursor, overshot, and
+    // sprang back on its own. That is the "it goes to the side and comes again
+    // automatically" - nothing was repositioning it, the spring was still settling.
+    //
+    // The inner content div is pinned to the target width while the aside is mid-spring, so
+    // during that lag the chat was laid out wider than its own container and spilled left
+    // under the page card, which is the other half of what Niraj saw.
+    //
+    // While `isResizing`, width is applied with no transition at all - the drag IS the
+    // animation. The spring comes back the moment the pointer is released.
+    const [isResizing, setIsResizing] = useState(false);
+
     const handleResizeStart = useCallback((startX: number, startWidth: number) => {
+        setIsResizing(true);
         // The rail is docked RIGHT, so dragging left (smaller clientX) widens it.
         const onMove = (clientX: number) => setAIWidth(clampPanelWidth(startWidth + (startX - clientX)));
         const onMouseMove = (e: MouseEvent) => { e.preventDefault(); onMove(e.clientX); };
@@ -82,6 +99,7 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
             if (touch) onMove(touch.clientX);
         };
         const stop = () => {
+            setIsResizing(false);
             window.removeEventListener('mousemove', onMouseMove);
             window.removeEventListener('mouseup', stop);
             window.removeEventListener('touchmove', onTouchMove);
@@ -147,7 +165,7 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
                             //
                             // The thing to watch when building a new page under (main):
                             // do not put small grey text directly on this surface. Put it in
-                            // a card. `text-neutral-500` on the bare backdrop measures around
+                            // a card. `text-neutral-500 dark:text-neutral-400` on the bare backdrop measures around
                             // 1.3:1 over the photo's darker regions, which is unreadable.
                             //
                             // NO RING. There was a `ring-1 ring-inset ring-neutral-200/70
@@ -164,7 +182,10 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
                             // The sidebar and the AI rail keep theirs: both are opaque, so
                             // their outlines still mark a real edge.
                             "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden transition-all duration-300",
-                            isDocked ? "rounded-l-2xl" : "rounded-2xl",
+                            // Always fully rounded now. This was `rounded-l-2xl` while docked
+                            // so its square right edge met the rail's square left one; the rail
+                            // is a separate rounded card with a gutter now, so both stay round.
+                            "rounded-2xl",
                         )}
                         // The card is inset by the shell's 0.5rem margin, so "full
                         // height" inside it is 1.5rem short of the viewport. `--page-h`
@@ -199,8 +220,14 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
                                 initial={{ width: 0, opacity: 0 }}
                                 animate={{ width: railWidth, opacity: 1 }}
                                 exit={{ width: 0, opacity: 0 }}
-                                transition={{ type: 'spring', stiffness: 320, damping: 34 }}
-                                className="relative h-full shrink-0 overflow-hidden rounded-r-2xl border-l border-neutral-200 ring-1 ring-inset ring-neutral-200 dark:border-neutral-800 dark:ring-neutral-800"
+                                transition={isResizing ? { duration: 0 } : { type: 'spring', stiffness: 320, damping: 34 }}
+                                // Rounded on ALL four corners, and separated from the page by
+                                // `ml-3`. It used to be `rounded-r-2xl` with a `border-l`, on
+                                // the reasoning that the page and the rail should read as one
+                                // card split in two - but a hard square edge butted against
+                                // the page looked like a seam rather than a join, and the AI
+                                // panel is its own surface, not half of the page's.
+                                className="relative ml-3 h-full shrink-0 overflow-hidden rounded-2xl border border-neutral-200 bg-background dark:border-neutral-800"
                             >
                                 {/* Resize handle. Keyboard-operable too - a drag handle
                                     that only works with a mouse is not a control everyone

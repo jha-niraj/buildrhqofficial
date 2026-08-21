@@ -59,7 +59,7 @@ export default function AuthError() {
                 {/* Optional: Display raw error for debugging */}
                 {process.env.NODE_ENV === 'development' && (
                     <div className="mt-6 p-4 bg-gray-100 rounded">
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                             Debug Info: {error}
                         </p>
                     </div>

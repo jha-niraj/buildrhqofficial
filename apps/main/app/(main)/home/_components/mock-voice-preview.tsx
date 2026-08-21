@@ -46,7 +46,7 @@ export default function MockVoicePreview({ sessions }: MockVoicePreviewProps) {
                     </div>
                     <span className="font-semibold text-sm">Mock Interviews</span>
                 </div>
-                <Link href="/mock/voice" className="flex items-center gap-1 text-xs text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors">
+                <Link href="/mock/voice" className="flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors">
                     View all <ArrowRight className="h-3 w-3" />
                 </Link>
             </div>
@@ -90,7 +90,7 @@ export default function MockVoicePreview({ sessions }: MockVoicePreviewProps) {
                         </div>
                         <div>
                             <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">No sessions yet</p>
-                            <p className="text-xs text-neutral-500 mt-0.5">Practice with an AI interviewer</p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Practice with an AI interviewer</p>
                         </div>
                         <Link href="/mock/voice" className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:text-neutral-800 transition-colors">
                             <Play className="h-3 w-3" />

@@ -197,12 +197,12 @@ export function IntegrationsTab({ isOwnProfile }: IntegrationsTabProps) {
                                                     href={githubProfile.profileUrl || `https://github.com/${githubProfile.username}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                                                    className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
                                                 >
                                                     <ExternalLink className="w-4 h-4" />
                                                 </a>
                                             </div>
-                                            <p className="text-sm text-neutral-500">
+                                            <p className="text-sm text-neutral-500 dark:text-neutral-400">
                                                 Connected {new Date(githubProfile.connectedAt).toLocaleDateString()}
                                             </p>
                                             {
@@ -327,7 +327,7 @@ export function IntegrationsTab({ isOwnProfile }: IntegrationsTabProps) {
                                             <h4 className="font-medium text-neutral-900 dark:text-white text-sm">
                                                 Track PRs
                                             </h4>
-                                            <p className="text-xs text-neutral-500 mt-1">
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                                                 Automatic PR tracking and status updates
                                             </p>
                                         </div>
@@ -336,7 +336,7 @@ export function IntegrationsTab({ isOwnProfile }: IntegrationsTabProps) {
                                             <h4 className="font-medium text-neutral-900 dark:text-white text-sm">
                                                 Claim Issues
                                             </h4>
-                                            <p className="text-xs text-neutral-500 mt-1">
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                                                 Claim and work on issues directly
                                             </p>
                                         </div>
@@ -345,7 +345,7 @@ export function IntegrationsTab({ isOwnProfile }: IntegrationsTabProps) {
                                             <h4 className="font-medium text-neutral-900 dark:text-white text-sm">
                                                 Earn Recognition
                                             </h4>
-                                            <p className="text-xs text-neutral-500 mt-1">
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                                                 Get badges and XP for contributions
                                             </p>
                                         </div>
@@ -354,7 +354,7 @@ export function IntegrationsTab({ isOwnProfile }: IntegrationsTabProps) {
                                             <h4 className="font-medium text-neutral-900 dark:text-white text-sm">
                                                 Profile Integration
                                             </h4>
-                                            <p className="text-xs text-neutral-500 mt-1">
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                                                 Showcase work on your profile
                                             </p>
                                         </div>
@@ -387,7 +387,7 @@ export function IntegrationsTab({ isOwnProfile }: IntegrationsTabProps) {
                         <h3 className="font-semibold text-neutral-900 dark:text-white mb-1">
                             More Integrations Coming Soon
                         </h3>
-                        <p className="text-sm text-neutral-500 max-w-md mx-auto">
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-md mx-auto">
                             We&apos;re working on integrations with LinkedIn, GitLab, Bitbucket, and more. Stay tuned!
                         </p>
                     </CardContent>

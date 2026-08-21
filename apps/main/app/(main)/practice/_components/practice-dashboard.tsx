@@ -173,7 +173,7 @@ function DailyChallengeCard({ challenge }: { challenge: DailyChallengeData }) {
                         <h3 className="text-sm font-semibold text-neutral-900 dark:text-white group-hover:text-neutral-700 dark:group-hover:text-neutral-100 transition-colors">
                             {challenge.title}
                         </h3>
-                        <p className="text-xs text-neutral-500 mt-0.5">
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
                             {config.icon} {config.label}
                         </p>
                     </div>
@@ -215,7 +215,7 @@ function EmptyDashboard({ dailyChallenge }: { dailyChallenge?: DailyChallengeDat
                                         <h3 className="font-semibold text-neutral-900 dark:text-white">
                                             {config.label}
                                         </h3>
-                                        <p className="text-xs text-neutral-500">
+                                        <p className="text-xs text-neutral-500 dark:text-neutral-400">
                                             {Object.keys(config.categories).length} topics
                                         </p>
                                     </div>
@@ -248,7 +248,7 @@ function StatCard({
         <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4">
             <div className="flex items-center gap-2 mb-2">
                 <Icon className="h-4 w-4 text-neutral-400" />
-                <span className="text-xs text-neutral-500 font-medium">{label}</span>
+                <span className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">{label}</span>
             </div>
             <p className="text-2xl font-bold text-neutral-900 dark:text-white">{value}</p>
             {

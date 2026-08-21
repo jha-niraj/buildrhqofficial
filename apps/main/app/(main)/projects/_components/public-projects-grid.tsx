@@ -61,7 +61,7 @@ export function PublicProjectsGrid() {
         return (
             <div className="w-full py-16 border border-dashed border-neutral-300 dark:border-neutral-700 rounded-xl bg-neutral-50/50 dark:bg-neutral-900/50 flex flex-col items-center justify-center text-center">
                 <div className="w-12 h-12 rounded-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center mb-4">
-                    <Terminal className="w-6 h-6 text-neutral-500" />
+                    <Terminal className="w-6 h-6 text-neutral-500 dark:text-neutral-400" />
                 </div>
                 <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">Registry Empty</h3>
                 <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-sm mx-auto mb-6">

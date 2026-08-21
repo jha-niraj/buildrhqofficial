@@ -42,11 +42,11 @@ export function SetupGuideTab({ setupGuide }: SetupGuideTabProps) {
     if (!setupGuide) {
         return (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-                <Settings className="w-12 h-12 text-neutral-300 dark:text-neutral-600 mb-4" />
+                <Settings className="w-12 h-12 text-neutral-300 dark:text-neutral-400 mb-4" />
                 <h3 className="text-lg font-semibold text-neutral-600 dark:text-neutral-400 mb-2">
                     No Setup Guide Available
                 </h3>
-                <p className="text-sm text-neutral-500 dark:text-neutral-500 max-w-md">
+                <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-md">
                     This project doesn&apos;t have a setup guide yet. The project creator can add one to help users get started.
                 </p>
             </div>

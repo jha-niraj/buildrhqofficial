@@ -130,7 +130,7 @@ function SectionTab({
                 </div>
                 {
                     score !== null && score !== undefined && (
-                        <span className="text-xs text-neutral-500">{score}%</span>
+                        <span className="text-xs text-neutral-500 dark:text-neutral-400">{score}%</span>
                     )
                 }
             </div>
@@ -320,7 +320,7 @@ function VerificationHeader({ goal, verification }: { goal: Goal; verification: 
 
     return (
         <div className="border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-6 py-4">
-            <Link href={`/pathfinder/${(goal as { slug?: string }).slug ?? goal.id}`} className="inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-900 dark:hover:text-white mb-4">
+            <Link href={`/pathfinder/${(goal as { slug?: string }).slug ?? goal.id}`} className="inline-flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white mb-4">
                 <ArrowLeft className="w-4 h-4" />
                 Back to Goal
             </Link>
@@ -333,12 +333,12 @@ function VerificationHeader({ goal, verification }: { goal: Goal; verification: 
                         <h1 className="text-xl font-bold text-neutral-900 dark:text-white">
                             Skill Verification
                         </h1>
-                        <p className="text-sm text-neutral-500">{goal.title}</p>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400">{goal.title}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
                     <div className="text-right">
-                        <div className="text-sm text-neutral-500">Progress</div>
+                        <div className="text-sm text-neutral-500 dark:text-neutral-400">Progress</div>
                         <div className="text-lg font-semibold text-neutral-900 dark:text-white">
                             {completedSections}/{totalSections} sections
                         </div>

@@ -94,7 +94,7 @@ function GoalCard({ goal, onAssign }: { goal: Goal; onAssign: () => void }) {
                             </div>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3 text-[11px] text-neutral-500 mb-3">
+                    <div className="flex items-center gap-3 text-[11px] text-neutral-500 dark:text-neutral-400 mb-3">
                         <div className="flex items-center gap-1">
                             <CheckCircle2 className="w-3 h-3 text-neutral-900 dark:text-neutral-100" />
                             <span>{goal.completedSubGoals}/{goal.totalSubGoals}</span>
@@ -194,7 +194,7 @@ function StatsSection({ goals }: { goals: Goal[] }) {
                 <div key={stat.label} className={cn("p-3 rounded-xl", stat.bg)}>
                     <div className="flex items-center gap-1.5 mb-1">
                         <div className={stat.color}>{stat.icon}</div>
-                        <span className="text-[10px] text-neutral-500">{stat.label}</span>
+                        <span className="text-[10px] text-neutral-500 dark:text-neutral-400">{stat.label}</span>
                     </div>
                     <div className={cn("text-lg font-semibold", stat.color)}>{stat.value}</div>
                 </div>
@@ -218,7 +218,7 @@ function ActivityChart({ goals }: { goals: Goal[] }) {
 
     return (
         <div>
-            <h3 className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">Goal Activity</h3>
+            <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-3">Goal Activity</h3>
             <div className="bg-white dark:bg-neutral-900/50 rounded-xl border border-neutral-200/60 dark:border-neutral-800/60 p-3">
                 <ResponsiveContainer width="100%" height={180}>
                     <BarChart data={chartData} barSize={12} barGap={2}>
@@ -235,9 +235,9 @@ function ActivityChart({ goals }: { goals: Goal[] }) {
                     </BarChart>
                 </ResponsiveContainer>
                 <div className="flex items-center justify-center gap-4 mt-2">
-                    <span className="flex items-center gap-1.5 text-[10px] text-neutral-500"><span className="w-2 h-2 rounded-sm bg-neutral-900" />Tasks</span>
-                    <span className="flex items-center gap-1.5 text-[10px] text-neutral-500"><span className="w-2 h-2 rounded-sm bg-neutral-900" />Quiz</span>
-                    <span className="flex items-center gap-1.5 text-[10px] text-neutral-500"><span className="w-2 h-2 rounded-sm bg-neutral-900" />Code</span>
+                    <span className="flex items-center gap-1.5 text-[10px] text-neutral-500 dark:text-neutral-400"><span className="w-2 h-2 rounded-sm bg-neutral-900" />Tasks</span>
+                    <span className="flex items-center gap-1.5 text-[10px] text-neutral-500 dark:text-neutral-400"><span className="w-2 h-2 rounded-sm bg-neutral-900" />Quiz</span>
+                    <span className="flex items-center gap-1.5 text-[10px] text-neutral-500 dark:text-neutral-400"><span className="w-2 h-2 rounded-sm bg-neutral-900" />Code</span>
                 </div>
             </div>
         </div>
@@ -261,7 +261,7 @@ function CategoryChart({ goals }: { goals: Goal[] }) {
 
     return (
         <div>
-            <h3 className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">By Category</h3>
+            <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-3">By Category</h3>
             <div className="bg-white dark:bg-neutral-900/50 rounded-xl border border-neutral-200/60 dark:border-neutral-800/60 p-3">
                 <div className="flex items-center gap-4">
                     <div className="w-[120px] h-[120px]">
@@ -304,7 +304,7 @@ function ProgressOverview({ goals }: { goals: Goal[] }) {
 
     return (
         <div>
-            <h3 className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">Active Progress</h3>
+            <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-3">Active Progress</h3>
             <div className="space-y-2.5">
                 {activeGoals.map((goal) => {
                     const pct = goal.totalSubGoals > 0 ? Math.round((goal.completedSubGoals / goal.totalSubGoals) * 100) : 0
@@ -341,7 +341,7 @@ function RecentActivity({ goals }: { goals: Goal[] }) {
 
     return (
         <div>
-            <h3 className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">Recent Activity</h3>
+            <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-3">Recent Activity</h3>
             <div className="space-y-1">
                 {recentGoals.map((goal) => {
                     const category = categoryConfig[goal.category]
@@ -398,7 +398,7 @@ export function EmptyState({ onCreateGoal }: { onCreateGoal: () => void }) {
                 <Target className="w-7 h-7 text-neutral-400" />
             </div>
             <h3 className="text-base font-medium text-neutral-900 dark:text-white mb-1">Start Your Learning Journey</h3>
-            <p className="text-sm text-neutral-500 max-w-xs mb-4">Create your first learning goal and track progress with AI-powered practice.</p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-xs mb-4">Create your first learning goal and track progress with AI-powered practice.</p>
             <Button onClick={onCreateGoal} size="sm">
                 <Plus className="w-4 h-4 mr-1.5" />
                 Create Goal
@@ -526,7 +526,7 @@ export function PathfinderDashboard({ initialGoals, initialGroups }: PathfinderD
                         </div>
                         <div>
                             <h1 className="text-base font-semibold text-neutral-900 dark:text-white">Pathfinder</h1>
-                            <p className="text-xs text-neutral-500">Track your learning goals</p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Track your learning goals</p>
                         </div>
                     </div>
                     <QuickActions

@@ -49,7 +49,7 @@ export default async function PublicResumePage({ params }: { params: Promise<{ s
                     </Button>
                 </Link>
                 <div className="flex items-center gap-2">
-                    {user?.name && <span className="text-sm text-neutral-500">Resume by {user.name}</span>}
+                    {user?.name && <span className="text-sm text-neutral-500 dark:text-neutral-400">Resume by {user.name}</span>}
                     <a href={`/api/resume/pdf/${draft.id}`} target="_blank" rel="noopener noreferrer">
                         <Button size="sm" className="bg-neutral-900 text-white dark:bg-white dark:text-black hover:opacity-90">
                             <Download className="w-3.5 h-3.5 mr-1.5" />

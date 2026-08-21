@@ -58,7 +58,7 @@ export function ProjectVerification({
                         <CheckCircle2 className="w-10 h-10 text-neutral-900 dark:text-neutral-100" />
                     </div>
                     <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">Project Submitted!</h3>
-                    <p className="text-neutral-500">Your project has been verified.</p>
+                    <p className="text-neutral-500 dark:text-neutral-400">Your project has been verified.</p>
                 </div>
             </div>
         )
@@ -73,7 +73,7 @@ export function ProjectVerification({
                         <Lock className="w-10 h-10 text-neutral-400" />
                     </div>
                     <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">Project Locked</h3>
-                    <p className="text-neutral-500">Complete the Mock Interview section first to unlock Project submission.</p>
+                    <p className="text-neutral-500 dark:text-neutral-400">Complete the Mock Interview section first to unlock Project submission.</p>
                 </div>
             </div>
         )
@@ -106,7 +106,7 @@ export function ProjectVerification({
                         <Wrench className="w-10 h-10 text-white" />
                     </div>
                     <h2 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">Project Verification</h2>
-                    <p className="text-neutral-500 max-w-md mx-auto">
+                    <p className="text-neutral-500 dark:text-neutral-400 max-w-md mx-auto">
                         Build a project to demonstrate your practical skills. Choose one of the options below.
                     </p>
                 </div>
@@ -166,7 +166,7 @@ export function ProjectVerification({
                         <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
                             Already built something? Add your existing project to your portfolio and verify your skills.
                         </p>
-                        <div className="space-y-2 mb-4 text-sm text-neutral-500">
+                        <div className="space-y-2 mb-4 text-sm text-neutral-500 dark:text-neutral-400">
                             <div className="flex items-center gap-2">
                                 <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                 <span>Add GitHub repository</span>
@@ -203,7 +203,7 @@ export function ProjectVerification({
                                                 <div>
                                                     <Badge variant="secondary" className="mb-2">Minor Project</Badge>
                                                     <h4 className="font-semibold text-neutral-900 dark:text-white">{minorProject.title}</h4>
-                                                    <p className="text-sm text-neutral-500 mt-1">{minorProject.description}</p>
+                                                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">{minorProject.description}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -216,7 +216,7 @@ export function ProjectVerification({
                                                 <div>
                                                     <Badge className="mb-2 bg-neutral-900">Major Project (Recommended)</Badge>
                                                     <h4 className="font-semibold text-neutral-900 dark:text-white">{majorProject.title}</h4>
-                                                    <p className="text-sm text-neutral-500 mt-1">{majorProject.description}</p>
+                                                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">{majorProject.description}</p>
                                                 </div>
                                             </div>
                                         </div>

@@ -636,7 +636,7 @@ export default function SprintsPageClient({
                                                 )}>
                                                     {sprint.name}
                                                 </h3>
-                                                <div className="flex items-center gap-2 text-xs text-neutral-500">
+                                                <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
                                                     <span className="flex items-center">
                                                         <Clock className="w-3 h-3 mr-1" />
                                                         {sprint.duration}
@@ -690,7 +690,7 @@ export default function SprintsPageClient({
                                                                 )}>
                                                                     Mock Interview
                                                                 </p>
-                                                                <p className="text-[10px] text-neutral-500 truncate">
+                                                                <p className="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">
                                                                     Sprints 1-{sprint.sprintNumber}
                                                                 </p>
                                                             </div>
@@ -718,7 +718,7 @@ export default function SprintsPageClient({
                 <div className="h-14 px-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between bg-white/50 dark:bg-neutral-950/50 backdrop-blur-sm sticky top-0 z-10 shrink-0">
                     <div className="flex items-center gap-4 overflow-hidden">
                         <Link href={`/projects/${project.slug}`} className="md:hidden">
-                            <ChevronLeft className="w-5 h-5 text-neutral-500" />
+                            <ChevronLeft className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
                         </Link>
                         {
                             activeSprint ? (
@@ -919,7 +919,7 @@ export default function SprintsPageClient({
                                             </div>
                                         )
                                     ) : (
-                                        <div className="flex flex-col items-center justify-center h-[50vh] text-neutral-500">
+                                        <div className="flex flex-col items-center justify-center h-[50vh] text-neutral-500 dark:text-neutral-400">
                                             <p className="text-sm">Select a sprint from the sidebar</p>
                                         </div>
                                     )
@@ -1243,7 +1243,7 @@ export default function SprintsPageClient({
                                                                                             )}>
                                                                                                 {assessmentStatus.score ?? 0}%
                                                                                             </p>
-                                                                                            <p className="text-xs text-neutral-500">
+                                                                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
                                                                                                 {assessmentStatus.attempts} attempt{assessmentStatus.attempts !== 1 ? 's' : ''}
                                                                                             </p>
                                                                                         </div>
@@ -1280,7 +1280,7 @@ export default function SprintsPageClient({
                                                         }
                                                     </div>
                                                 ) : (
-                                                    <div className="flex flex-col items-center justify-center h-[50vh] text-neutral-500">
+                                                    <div className="flex flex-col items-center justify-center h-[50vh] text-neutral-500 dark:text-neutral-400">
                                                         <FileText className="w-12 h-12 text-neutral-300 mb-4" />
                                                         <p className="text-sm">Select a task to view details</p>
                                                     </div>
@@ -1305,7 +1305,7 @@ export default function SprintsPageClient({
                                                     isLoadingAssessment ? (
                                                         <div className="flex flex-col items-center justify-center h-[50vh]">
                                                             <Loader2 className="w-8 h-8 animate-spin text-neutral-800 dark:text-neutral-200 mb-4" />
-                                                            <p className="text-sm text-neutral-500">Loading assessment...</p>
+                                                            <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading assessment...</p>
                                                         </div>
                                                     ) : selectedTask.assessmentType === 'QUIZ' && quizQuestions.length > 0 ? (
                                                         <Quiz
@@ -1411,7 +1411,7 @@ export default function SprintsPageClient({
                                                             </div>
                                                         </div>
                                                     ) : (
-                                                        <div className="flex flex-col items-center justify-center h-[50vh] text-neutral-500">
+                                                        <div className="flex flex-col items-center justify-center h-[50vh] text-neutral-500 dark:text-neutral-400">
                                                             <Brain className="w-12 h-12 text-neutral-300 mb-4" />
                                                             <p className="text-sm">
                                                                 {
@@ -1423,7 +1423,7 @@ export default function SprintsPageClient({
                                                         </div>
                                                     )
                                                 ) : (
-                                                    <div className="flex flex-col items-center justify-center h-[50vh] text-neutral-500">
+                                                    <div className="flex flex-col items-center justify-center h-[50vh] text-neutral-500 dark:text-neutral-400">
                                                         <Brain className="w-12 h-12 text-neutral-300 mb-4" />
                                                         <p className="text-sm">Select a task or mock interview to view assessments</p>
                                                     </div>

@@ -42,7 +42,7 @@ export default function PathfinderGoalsCard({ goals }: PathfinderGoalsCardProps)
                     {
                         goals.length > 0 && (
                             <div className="mt-4 space-y-1.5">
-                                <div className="flex justify-between text-xs text-neutral-500">
+                                <div className="flex justify-between text-xs text-neutral-500 dark:text-neutral-400">
                                     <span>Overall progress</span>
                                     <span className="font-medium text-neutral-700 dark:text-neutral-300">
                                         {completedCount}/{total} done
@@ -66,7 +66,7 @@ export default function PathfinderGoalsCard({ goals }: PathfinderGoalsCardProps)
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">No active goals</p>
-                                    <p className="text-xs text-neutral-500 mt-0.5">Set a learning goal to track progress</p>
+                                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Set a learning goal to track progress</p>
                                 </div>
                                 <Link href="/pathfinder" className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:text-neutral-800 transition-colors">
                                     <Plus className="h-3 w-3" />
@@ -107,7 +107,7 @@ export default function PathfinderGoalsCard({ goals }: PathfinderGoalsCardProps)
                                 }
                                 {
                                     activeGoals.length > 4 && (
-                                        <Link href="/pathfinder" className="w-full text-xs text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 py-1.5 transition-colors">
+                                        <Link href="/pathfinder" className="w-full text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 py-1.5 transition-colors">
                                             +{activeGoals.length - 4} more goals
                                         </Link>
                                     )

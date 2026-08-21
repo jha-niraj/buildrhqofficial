@@ -111,7 +111,7 @@ export default function AddResourceSheet({ projectId }: AddResourceSheetProps) {
                                 maxLength={200}
                                 required
                             />
-                            <p className="text-xs text-neutral-500">
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
                                 {formData.title.length}/200 characters
                             </p>
                         </div>
@@ -162,13 +162,13 @@ export default function AddResourceSheet({ projectId }: AddResourceSheetProps) {
                                 onChange={(e) => setFormData({ ...formData, link: e.target.value })}
                                 required
                             />
-                            <p className="text-xs text-neutral-500">
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
                                 Full URL to the resource
                             </p>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="description">
-                                Description <span className="text-neutral-500">(Optional)</span>
+                                Description <span className="text-neutral-500 dark:text-neutral-400">(Optional)</span>
                             </Label>
                             <Textarea
                                 id="description"

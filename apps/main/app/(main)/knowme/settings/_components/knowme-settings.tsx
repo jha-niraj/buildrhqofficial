@@ -305,7 +305,7 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                                             <span className="text-sm font-medium">{conn.platform}</span>
                                                             {
                                                                 conn.platformUsername && (
-                                                                    <span className="text-sm text-slate-500">@{conn.platformUsername}</span>
+                                                                    <span className="text-sm text-slate-500 dark:text-slate-400">@{conn.platformUsername}</span>
                                                                 )
                                                             }
                                                         </div>
@@ -370,7 +370,7 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                 </div>
                                 {
                                     profile.nextScheduledUpdate && (
-                                        <p className="text-sm text-slate-500 flex items-center gap-2">
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
                                             <Clock className="w-4 h-4" />
                                             Next update: {new Date(profile.nextScheduledUpdate).toLocaleDateString()}
                                         </p>
@@ -462,7 +462,7 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                     <h3 className="font-medium text-slate-900 dark:text-white">
                                         API Access
                                     </h3>
-                                    <p className="text-sm text-slate-500">
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">
                                         Enable external API requests
                                     </p>
                                 </div>
@@ -535,19 +535,19 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                                 <p className="text-2xl font-bold text-slate-900 dark:text-white">
                                                     {apiConfig.apiUsageToday}
                                                 </p>
-                                                <p className="text-sm text-slate-500">Today</p>
+                                                <p className="text-sm text-slate-500 dark:text-slate-400">Today</p>
                                             </div>
                                             <div className="p-4 bg-slate-50 dark:bg-neutral-800 rounded-xl">
                                                 <p className="text-2xl font-bold text-slate-900 dark:text-white">
                                                     {apiConfig.apiUsageTotal}
                                                 </p>
-                                                <p className="text-sm text-slate-500">Total</p>
+                                                <p className="text-sm text-slate-500 dark:text-slate-400">Total</p>
                                             </div>
                                             <div className="p-4 bg-slate-50 dark:bg-neutral-800 rounded-xl">
                                                 <p className="text-2xl font-bold text-slate-900 dark:text-white">
                                                     {apiConfig.apiRateLimit}
                                                 </p>
-                                                <p className="text-sm text-slate-500">Daily Limit</p>
+                                                <p className="text-sm text-slate-500 dark:text-slate-400">Daily Limit</p>
                                             </div>
                                         </div>
                                         <div className="bg-slate-900 dark:bg-neutral-800 rounded-xl p-4 text-white">
@@ -611,7 +611,7 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Suggested Questions</Label>
-                                    <p className="text-xs text-slate-500 mb-2">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
                                         One question per line
                                     </p>
                                     <Textarea
@@ -700,7 +700,7 @@ function DataToggle({
                         {title}
                         {locked && <Lock className="w-3 h-3 text-slate-400" />}
                     </h4>
-                    <p className="text-sm text-slate-500">{description}</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{description}</p>
                 </div>
             </div>
             {

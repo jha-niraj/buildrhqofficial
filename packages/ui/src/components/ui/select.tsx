@@ -111,6 +111,16 @@ const SelectContent = React.forwardRef<
         border-gray-200 dark:border-neutral-700
         shadow-xl
         `,
+				// Open/close animation, matching dropdown-menu and popover. This was the one
+				// overlay in the set with none at all - it just appeared.
+				//
+				// Safe to combine with the `translate-y-1` offset below, even though Tailwind
+				// v4 compiles that to the standalone `translate` property while the keyframe
+				// animates `transform` (the pairing that broke DialogContent - see the note in
+				// dialog.tsx). It is fine HERE because the offset is 4px, not a -50% centring:
+				// the two compose to a slide that starts 4px shallower than written and still
+				// ENDS exactly where the offset puts it. Nothing lands in the wrong place.
+				"data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
 				position === "popper" &&
 				"data-[side=bottom]:translate-y-1 data-[side=top]:-translate-y-1",
 				className

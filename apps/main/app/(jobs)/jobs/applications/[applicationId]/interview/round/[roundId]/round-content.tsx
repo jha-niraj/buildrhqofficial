@@ -144,7 +144,7 @@ export function RoundContent({ application, round }: RoundContentProps) {
                                 <h1 className="text-lg font-semibold text-neutral-900 dark:text-white">
                                     Round {round.roundNumber}: {round.title}
                                 </h1>
-                                <p className="text-sm text-neutral-500">{job.title} • {job.company.name}</p>
+                                <p className="text-sm text-neutral-500 dark:text-neutral-400">{job.title} • {job.company.name}</p>
                             </div>
                         </div>
                         {
@@ -177,14 +177,14 @@ export function RoundContent({ application, round }: RoundContentProps) {
                                 <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-1">
                                     {round.title}
                                 </h2>
-                                <p className="text-neutral-500">
+                                <p className="text-neutral-500 dark:text-neutral-400">
                                     {roundTypeLabels[round.roundType] || round.roundType}
                                 </p>
                             </div>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                             <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800">
-                                <div className="flex items-center gap-2 text-neutral-500 mb-1">
+                                <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400 mb-1">
                                     <Clock className="w-4 h-4" />
                                     <span className="text-xs font-medium">Duration</span>
                                 </div>
@@ -193,7 +193,7 @@ export function RoundContent({ application, round }: RoundContentProps) {
                                 </p>
                             </div>
                             <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800">
-                                <div className="flex items-center gap-2 text-neutral-500 mb-1">
+                                <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400 mb-1">
                                     <FormatIcon className="w-4 h-4" />
                                     <span className="text-xs font-medium">Format</span>
                                 </div>

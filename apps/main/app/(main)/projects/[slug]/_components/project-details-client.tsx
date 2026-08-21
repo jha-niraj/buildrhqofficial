@@ -463,7 +463,7 @@ export default function ProjectDetailsClient({
                                                         </span>
                                                     </div>
                                                     <Progress value={progressPercentage} className="h-3" />
-                                                    <p className="text-xs text-neutral-500 mt-1">
+                                                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                                                         {userProgress?.tasksCompleted || 0} of {userProgress?.totalTasks || totalTasks} tasks
                                                     </p>
                                                 </div>
@@ -545,7 +545,7 @@ export default function ProjectDetailsClient({
                                                     <Coins className="w-4 h-4 mr-2" />
                                                     Enroll Now
                                                 </Button>
-                                                <p className="text-xs text-center text-neutral-500">
+                                                <p className="text-xs text-center text-neutral-500 dark:text-neutral-400">
                                                     50% discount for public projects!
                                                 </p>
                                             </>

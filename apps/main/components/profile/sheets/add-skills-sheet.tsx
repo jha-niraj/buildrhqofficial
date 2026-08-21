@@ -142,7 +142,7 @@ export function AddSkillsSheet({ open, onOpenChange, onSuccess, existingSkills =
                     {/* Pending skills */}
                     {pending.length > 0 && (
                         <div className="space-y-2">
-                            <p className="text-xs font-medium text-neutral-500">Ready to save ({pending.length})</p>
+                            <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Ready to save ({pending.length})</p>
                             <div className="flex flex-wrap gap-2">
                                 {pending.map(s => (
                                     <Badge key={s.name} className="gap-1.5 pr-1.5 bg-neutral-50 text-neutral-700 dark:bg-neutral-800/20 dark:text-neutral-100 border-neutral-200 dark:border-neutral-800/40">
@@ -160,7 +160,7 @@ export function AddSkillsSheet({ open, onOpenChange, onSuccess, existingSkills =
                     {/* Existing skills */}
                     {existingSkills.length > 0 && (
                         <div className="space-y-2">
-                            <p className="text-xs font-medium text-neutral-500">Your Skills ({existingSkills.length})</p>
+                            <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Your Skills ({existingSkills.length})</p>
                             <div className="space-y-1.5">
                                 {existingSkills.map(skill => (
                                     <div

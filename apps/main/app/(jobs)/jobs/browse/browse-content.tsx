@@ -103,7 +103,7 @@ export function BrowseContent({ initialData, isAuthenticated }: BrowseContentPro
                         <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
                             Browse All Jobs
                         </h2>
-                        <p className="text-sm text-neutral-500">
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
                             {total} job{total !== 1 ? 's' : ''} available
                         </p>
                     </div>
@@ -178,7 +178,7 @@ export function BrowseContent({ initialData, isAuthenticated }: BrowseContentPro
 
             {/* Count */}
             {jobs.length > 0 && (
-                <p className="text-center text-sm text-neutral-500 mt-4">
+                <p className="text-center text-sm text-neutral-500 dark:text-neutral-400 mt-4">
                     Showing {jobs.length} of {total} jobs
                 </p>
             )}
@@ -203,7 +203,7 @@ export function BrowseContent({ initialData, isAuthenticated }: BrowseContentPro
                         </SheetDescription>
                     </SheetHeader>
                     <div className="mt-6 space-y-6">
-                        <p className="text-neutral-500 text-sm">Filter controls coming soon...</p>
+                        <p className="text-neutral-500 dark:text-neutral-400 text-sm">Filter controls coming soon...</p>
                     </div>
                 </SheetContent>
             </Sheet>
@@ -224,7 +224,7 @@ function BrowseEmptyState() {
             <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-2">
                 No jobs available
             </h3>
-            <p className="text-neutral-500 max-w-md mx-auto mb-6">
+            <p className="text-neutral-500 dark:text-neutral-400 max-w-md mx-auto mb-6">
                 There are no job postings at the moment. Check back later or explore companies to follow.
             </p>
             <Link href="/companies">

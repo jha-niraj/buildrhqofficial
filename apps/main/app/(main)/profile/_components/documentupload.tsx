@@ -149,7 +149,7 @@ const DocumentUploadDialog = ({
                                 <h3 className="text-lg font-medium mb-2">
                                     {dragActive ? "Drop your file here" : "Drag & drop your file here"}
                                 </h3>
-                                <p className="text-gray-500 text-sm mb-4">or click to browse</p>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">or click to browse</p>
                                 <p className="text-xs text-gray-400 mb-4">Supported formats: PDF, DOC, DOCX (Max 5MB)</p>
                                 <Button
                                     variant="outline"
@@ -175,7 +175,7 @@ const DocumentUploadDialog = ({
                                     </div>
                                     <div className="flex-1">
                                         <h3 className="font-medium truncate" title={selectedFile.name}>{selectedFile.name}</h3>
-                                        <p className="text-sm text-gray-500">{formatFileSize(selectedFile.size)}</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">{formatFileSize(selectedFile.size)}</p>
                                     </div>
                                 </div>
                                 <Button

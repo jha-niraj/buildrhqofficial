@@ -21,7 +21,7 @@ export function PathfinderFlashcardsTab({
         <ScrollArea className="h-full">
             <div className="p-4">
                 {flashcards.length === 0 ? (
-                    <div className="text-center py-12 text-neutral-500">
+                    <div className="text-center py-12 text-neutral-500 dark:text-neutral-400">
                         <p className="text-sm">No flashcards for this topic yet</p>
                     </div>
                 ) : (

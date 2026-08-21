@@ -26,7 +26,7 @@ const DIFFICULTY_COLORS = {
 const STATUS_ICON = {
     COMPLETED: <CheckCircle2 className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />,
     IN_PROGRESS: <Clock className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />,
-    NOT_STARTED: <Circle className="h-4 w-4 text-neutral-300 dark:text-neutral-600" />,
+    NOT_STARTED: <Circle className="h-4 w-4 text-neutral-300 dark:text-neutral-400" />,
 };
 
 const MODULE_PATHS: Record<PracticeModule, string> = {
@@ -96,7 +96,7 @@ export function ModuleContent({
                     <h1 className="text-xl font-bold text-neutral-900 dark:text-white">
                         {activeCategoryName ?? moduleLabel}
                     </h1>
-                    <p className="text-sm text-neutral-500 mt-0.5">
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
                         {filteredProblems.length} problem{filteredProblems.length !== 1 ? "s" : ""}
                     </p>
                 </div>
@@ -135,7 +135,7 @@ export function ModuleContent({
                                 <Link href={`${basePath}?topic=${cat.slug}`} key={cat.slug} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 text-xs font-medium text-neutral-600 dark:text-neutral-400 hover:border-neutral-400 dark:hover:border-neutral-500 transition-colors">
                                     <span>{cat.icon}</span>
                                     <span>{cat.name}</span>
-                                    <span className="text-neutral-300 dark:text-neutral-600 ml-1">
+                                    <span className="text-neutral-300 dark:text-neutral-400 ml-1">
                                         {cat.completedCount}/{cat.problemCount}
                                     </span>
                                 </Link>
@@ -241,7 +241,7 @@ function ProblemRow({
             </Badge>
             {
                 problem.userBestScore !== undefined && problem.userBestScore > 0 && (
-                    <span className="text-xs font-medium text-neutral-500">
+                    <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
                         {problem.userBestScore}%
                     </span>
                 )
@@ -275,7 +275,7 @@ function ModeSelectionDialog({
                         <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
                             Choose Practice Mode
                         </h2>
-                        <p className="text-xs text-neutral-500 mt-0.5 truncate max-w-[280px]">
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 truncate max-w-[280px]">
                             {problem.title}
                         </p>
                     </div>
@@ -304,7 +304,7 @@ function ModeSelectionDialog({
                                         Recommended
                                     </Badge>
                                 </div>
-                                <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
+                                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 leading-relaxed">
                                     Get AI mentoring with hints, guidance, and real-time chat.
                                     Perfect for learning new concepts.
                                 </p>
@@ -331,7 +331,7 @@ function ModeSelectionDialog({
                                 <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
                                     Exam Mode
                                 </h3>
-                                <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
+                                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 leading-relaxed">
                                     No AI help. Solve the problem on your own like a real interview.
                                     Higher XP rewards.
                                 </p>

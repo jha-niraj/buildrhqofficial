@@ -112,21 +112,21 @@ export function QuizStep({ step, quizData }: QuizStepProps) {
 								<p className="text-4xl font-bold text-neutral-800 dark:text-neutral-100">
 									{score}
 								</p>
-								<p className="text-sm text-neutral-500">Correct</p>
+								<p className="text-sm text-neutral-500 dark:text-neutral-400">Correct</p>
 							</div>
 							<div className="h-16 w-px bg-neutral-200 dark:bg-neutral-700" />
 							<div className="text-center">
 								<p className="text-4xl font-bold text-neutral-900 dark:text-white">
 									{totalQuestions}
 								</p>
-								<p className="text-sm text-neutral-500">Total</p>
+								<p className="text-sm text-neutral-500 dark:text-neutral-400">Total</p>
 							</div>
 							<div className="h-16 w-px bg-neutral-200 dark:bg-neutral-700" />
 							<div className="text-center">
 								<p className="text-4xl font-bold text-neutral-900 dark:text-white">
 									{percentage}%
 								</p>
-								<p className="text-sm text-neutral-500">Score</p>
+								<p className="text-sm text-neutral-500 dark:text-neutral-400">Score</p>
 							</div>
 						</div>
 

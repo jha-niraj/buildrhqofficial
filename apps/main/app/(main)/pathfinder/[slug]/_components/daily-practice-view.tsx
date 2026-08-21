@@ -126,7 +126,7 @@ function PracticeHeader({ goal, onOpenEarnings, onOpenNotes }: { goal: Goal; onO
                             <Target className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                             {goal.title}
                         </h1>
-                        <p className="text-xs text-neutral-500 truncate max-w-[200px]">
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate max-w-[200px]">
                             Add tasks, take quizzes, solve coding problems
                         </p>
                     </div>
@@ -299,7 +299,7 @@ function SubGoalItem({
                     }
                     {
                         subGoal.isAIGenerated && (
-                            <Badge variant="secondary" className="text-[10px] h-4 px-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-500">
+                            <Badge variant="secondary" className="text-[10px] h-4 px-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400">
                                 AI
                             </Badge>
                         )
@@ -664,7 +664,7 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
                                     <h3 className="font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
                                         Select a Task
                                     </h3>
-                                    <p className="text-sm text-neutral-500">
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
                                         Click on a task to view its quiz and coding challenge
                                     </p>
                                 </div>

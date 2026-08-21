@@ -140,7 +140,7 @@ export function VerificationPageClient({ goal: initialGoal, verification }: Veri
                 <div className="border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-6 py-4">
                     <Link
                         href={`/pathfinder/${initialGoal.slug ?? initialGoal.id}`}
-                        className="inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-900 dark:hover:text-white mb-4"
+                        className="inline-flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white mb-4"
                     >
                         <ArrowLeft className="w-4 h-4" />
                         Back to Goal
@@ -153,7 +153,7 @@ export function VerificationPageClient({ goal: initialGoal, verification }: Veri
                             <h1 className="text-xl font-bold text-neutral-900 dark:text-white">
                                 Verify this Goal
                             </h1>
-                            <p className="text-sm text-neutral-500">{initialGoal.title}</p>
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">{initialGoal.title}</p>
                         </div>
                     </div>
                 </div>
@@ -240,7 +240,7 @@ export function VerificationPageClient({ goal: initialGoal, verification }: Veri
 
                                 {/* The main benefit of moving this to a worker, said plainly:
                                     the run no longer depends on this tab staying open. */}
-                                <p className="mt-5 max-w-sm text-center text-xs text-neutral-400 dark:text-neutral-500">
+                                <p className="mt-5 max-w-sm text-center text-xs text-neutral-400 dark:text-neutral-400">
                                     This runs on our servers - you can close this tab and come back.
                                     It usually takes 30&ndash;60 seconds.
                                 </p>
@@ -289,19 +289,19 @@ export function VerificationPageClient({ goal: initialGoal, verification }: Veri
                                     <h4 className="font-semibold text-neutral-900 dark:text-white mb-2">What you&apos;ll get</h4>
                                     <ul className="space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
                                         <li className="flex items-center gap-2">
-                                            <Brain className="w-4 h-4 text-neutral-500" />
+                                            <Brain className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
                                             20-25 personalized quiz questions
                                         </li>
                                         <li className="flex items-center gap-2">
-                                            <Code className="w-4 h-4 text-neutral-500" />
+                                            <Code className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
                                             3-8 coding challenges
                                         </li>
                                         <li className="flex items-center gap-2">
-                                            <Mic className="w-4 h-4 text-neutral-500" />
+                                            <Mic className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
                                             Mock interview setup
                                         </li>
                                         <li className="flex items-center gap-2">
-                                            <Wrench className="w-4 h-4 text-neutral-500" />
+                                            <Wrench className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
                                             Project verification (if applicable)
                                         </li>
                                     </ul>

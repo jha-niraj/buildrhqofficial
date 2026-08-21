@@ -69,8 +69,8 @@ export function QuizVerification({ goalId, questions, status, score, attempts }:
                         <span className="text-3xl">✓</span>
                     </div>
                     <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">Quiz Passed!</h3>
-                    <p className="text-neutral-500 mb-4">You scored {score}%</p>
-                    <span className="text-xs text-neutral-500">Attempts: {attempts}</span>
+                    <p className="text-neutral-500 dark:text-neutral-400 mb-4">You scored {score}%</p>
+                    <span className="text-xs text-neutral-500 dark:text-neutral-400">Attempts: {attempts}</span>
                 </div>
             </div>
         )
@@ -84,9 +84,9 @@ export function QuizVerification({ goalId, questions, status, score, attempts }:
                         <span className="text-3xl">✗</span>
                     </div>
                     <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">Quiz Not Passed</h3>
-                    <p className="text-neutral-500 mb-4">You scored {score}%. You need 70% to pass.</p>
+                    <p className="text-neutral-500 dark:text-neutral-400 mb-4">You scored {score}%. You need 70% to pass.</p>
                     <div className="flex items-center justify-center gap-4">
-                        <span className="text-xs text-neutral-500">Attempts: {attempts}</span>
+                        <span className="text-xs text-neutral-500 dark:text-neutral-400">Attempts: {attempts}</span>
                         <Button onClick={handleRetry} variant="outline" className="bg-neutral-900 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-neutral-900 border-0">
                             <RotateCcw className="w-4 h-4 mr-2" />
                             Try Again
@@ -99,7 +99,7 @@ export function QuizVerification({ goalId, questions, status, score, attempts }:
 
     if (quizQuestions.length === 0) {
         return (
-            <div className="flex-1 flex items-center justify-center text-neutral-500">
+            <div className="flex-1 flex items-center justify-center text-neutral-500 dark:text-neutral-400">
                 No questions available.
             </div>
         )

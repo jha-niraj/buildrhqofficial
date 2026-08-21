@@ -69,7 +69,7 @@ export function SubGoalCoding({ subGoal, onComplete }: SubGoalCodingProps) {
 
     if (!currentProblem && problems.length === 0) {
         return (
-            <div className="h-full flex items-center justify-center text-neutral-500">
+            <div className="h-full flex items-center justify-center text-neutral-500 dark:text-neutral-400">
                 No coding problem available for this task.
             </div>
         )
@@ -96,7 +96,7 @@ export function SubGoalCoding({ subGoal, onComplete }: SubGoalCodingProps) {
                 <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">
                     {subGoal.codingPassed ? 'Challenge Completed!' : 'Not Quite Right'}
                 </h3>
-                <p className="text-neutral-500 mb-4">
+                <p className="text-neutral-500 dark:text-neutral-400 mb-4">
                     {
                         subGoal.codingPassed
                             ? 'Great work on solving this coding challenge!'
@@ -283,7 +283,7 @@ export function SubGoalCoding({ subGoal, onComplete }: SubGoalCodingProps) {
                                 {
                                     p.sampleInput && (
                                         <div className="p-2 rounded bg-neutral-100 dark:bg-neutral-900">
-                                            <div className="text-[10px] text-neutral-500 mb-1">Sample Input</div>
+                                            <div className="text-[10px] text-neutral-500 dark:text-neutral-400 mb-1">Sample Input</div>
                                             <code className="text-xs text-neutral-700 dark:text-neutral-300">{p.sampleInput}</code>
                                         </div>
                                     )
@@ -291,7 +291,7 @@ export function SubGoalCoding({ subGoal, onComplete }: SubGoalCodingProps) {
                                 {
                                     p.sampleOutput && (
                                         <div className="p-2 rounded bg-neutral-100 dark:bg-neutral-900">
-                                            <div className="text-[10px] text-neutral-500 mb-1">Expected Output</div>
+                                            <div className="text-[10px] text-neutral-500 dark:text-neutral-400 mb-1">Expected Output</div>
                                             <code className="text-xs text-neutral-700 dark:text-neutral-300">{p.sampleOutput}</code>
                                         </div>
                                     )

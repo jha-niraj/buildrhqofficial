@@ -296,7 +296,7 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                     }
                                     {
                                         daysAgo !== null && (
-                                            <span className="text-sm text-neutral-500">
+                                            <span className="text-sm text-neutral-500 dark:text-neutral-400">
                                                 Posted {daysAgo === 0 ? "today" : daysAgo === 1 ? "yesterday" : `${daysAgo} days ago`}
                                             </span>
                                         )
@@ -313,9 +313,9 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                             {
                                 job.location && (
                                     <div className="flex items-center gap-3 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-                                        <MapPin className="w-5 h-5 text-neutral-500" />
+                                        <MapPin className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
                                         <div>
-                                            <p className="text-xs text-neutral-500">Location</p>
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Location</p>
                                             <p className="font-medium text-neutral-900 dark:text-white text-sm">{job.location}</p>
                                         </div>
                                     </div>
@@ -324,9 +324,9 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                             {
                                 formatExperience(job.experienceMin, job.experienceMax) && (
                                     <div className="flex items-center gap-3 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-                                        <Clock className="w-5 h-5 text-neutral-500" />
+                                        <Clock className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
                                         <div>
-                                            <p className="text-xs text-neutral-500">Experience</p>
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Experience</p>
                                             <p className="font-medium text-neutral-900 dark:text-white text-sm">
                                                 {formatExperience(job.experienceMin, job.experienceMax)}
                                             </p>
@@ -348,9 +348,9 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                 )
                             }
                             <div className="flex items-center gap-3 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-                                <Users className="w-5 h-5 text-neutral-500" />
+                                <Users className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
                                 <div>
-                                    <p className="text-xs text-neutral-500">Applicants</p>
+                                    <p className="text-xs text-neutral-500 dark:text-neutral-400">Applicants</p>
                                     <p className="font-medium text-neutral-900 dark:text-white text-sm">{job.applicationsCount}</p>
                                 </div>
                             </div>
@@ -521,7 +521,7 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                         }
                                         {
                                             job.interviewProcess.estimatedDurationWeeks && (
-                                                <div className="flex items-center gap-2 text-sm text-neutral-500 mb-6">
+                                                <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 mb-6">
                                                     <Calendar className="w-4 h-4" />
                                                     <span>Estimated duration: {job.interviewProcess.estimatedDurationWeeks} weeks</span>
                                                 </div>
@@ -553,19 +553,19 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                                                 <div className="flex items-start justify-between gap-4">
                                                                     <div className="flex-1">
                                                                         <div className="flex items-center gap-2 mb-1">
-                                                                            <span className="text-xs font-medium text-neutral-500 px-2 py-0.5 rounded-full bg-neutral-200 dark:bg-neutral-800">
+                                                                            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 px-2 py-0.5 rounded-full bg-neutral-200 dark:bg-neutral-800">
                                                                                 Round {round.roundNumber}
                                                                             </span>
                                                                             {
                                                                                 round.format && (
-                                                                                    <span className="text-xs text-neutral-500">
+                                                                                    <span className="text-xs text-neutral-500 dark:text-neutral-400">
                                                                                         • {formatLabels[round.format] || round.format}
                                                                                     </span>
                                                                                 )
                                                                             }
                                                                             {
                                                                                 round.durationMinutes && (
-                                                                                    <span className="text-xs text-neutral-500">
+                                                                                    <span className="text-xs text-neutral-500 dark:text-neutral-400">
                                                                                         • {round.durationMinutes} min
                                                                                     </span>
                                                                                 )
@@ -646,7 +646,7 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                         <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">
                                             Interview Process Not Disclosed
                                         </h3>
-                                        <p className="text-neutral-500 max-w-md mx-auto">
+                                        <p className="text-neutral-500 dark:text-neutral-400 max-w-md mx-auto">
                                             This company hasn&apos;t shared their interview process yet.
                                             You can still apply and practice with our general mock interviews.
                                         </p>
@@ -673,7 +673,7 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                             <CheckCircle2 className="w-5 h-5" />
                                             <span className="font-semibold">Already Applied</span>
                                         </div>
-                                        <p className="text-sm text-neutral-500 mb-4">
+                                        <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
                                             You&apos;ve shown interest in this position. Check your applications for status updates.
                                         </p>
                                         <Button className="w-full rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-black dark:hover:bg-neutral-200 h-12" asChild><Link href="/jobs/applications">
@@ -701,7 +701,7 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                                 )
                                             }
                                         </Button>
-                                        <p className="text-xs text-neutral-500 text-center">
+                                        <p className="text-xs text-neutral-500 dark:text-neutral-400 text-center">
                                             Click to start preparing for this role
                                         </p>
                                     </>
@@ -742,7 +742,7 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                         </p>
                                         {
                                             job.company.industry && (
-                                                <p className="text-sm text-neutral-500">{job.company.industry}</p>
+                                                <p className="text-sm text-neutral-500 dark:text-neutral-400">{job.company.industry}</p>
                                             )
                                         }
                                     </div>

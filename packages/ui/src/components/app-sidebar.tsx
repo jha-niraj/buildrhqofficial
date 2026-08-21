@@ -351,14 +351,23 @@ export function AppSidebar(props: AppSidebarProps) {
 
     const renderContent = (collapsed = isCollapsed) => (
         <>
-            {/* Header: brand + collapse toggle */}
-            <div className={cn("shrink-0 border-b border-neutral-200 dark:border-neutral-800", collapsed ? "flex flex-col items-center gap-1 px-3 py-3" : "flex items-center gap-2 px-4 py-4 pr-3")}>
-                <Link href={brand.homeHref ?? "/home"} className="flex min-w-0 flex-1 items-center gap-2.5">
+            {/* Header: brand + collapse toggle
+                Collapsed puts the two side by side, not stacked. It used to be
+                `flex-col`, which pushed the toggle under the mark and made the header
+                twice as tall as every other collapsed row. Side by side fits: the rail is
+                90px, `px-2` leaves 74, and 32 + 4 + 32 = 68. It does NOT fit at the `px-3`
+                this used to carry, which is presumably why it was stacked. */}
+            <div className={cn("shrink-0 border-b border-neutral-200 dark:border-neutral-800", collapsed ? "flex items-center justify-center gap-1 px-2 py-3" : "flex items-center gap-2 px-4 py-4 pr-3")}>
+                <Link href={brand.homeHref ?? "/home"} className={cn("flex min-w-0 items-center gap-2.5", !collapsed && "flex-1")}>
                     {brandTile}
                     {!collapsed && (
                         <div className="min-w-0">
                             <p className="truncate text-sm font-bold text-foreground dark:text-white leading-tight">{brand.name}</p>
-                            {brand.subtitle && <p className="truncate text-[11px] font-mono uppercase tracking-widest text-neutral-400 dark:text-neutral-500">{brand.subtitle}</p>}
+                            {/* Was `text-neutral-400 dark:text-neutral-500`, which measured
+                                2.50:1 on white and 4.18:1 on neutral-950 - failing the 4.5:1
+                                body floor in BOTH themes, not just the dark one Niraj spotted.
+                                This pair is 4.74:1 and 7.85:1. */}
+                            {brand.subtitle && <p className="truncate text-[11px] font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-400">{brand.subtitle}</p>}
                         </div>
                     )}
                 </Link>

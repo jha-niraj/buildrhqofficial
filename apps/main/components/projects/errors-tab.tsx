@@ -204,13 +204,13 @@ function ErrorCard({
                                 {
                                     error.task && (
                                         <div className="bg-neutral-50 dark:bg-neutral-900/50 rounded-lg p-2 border border-neutral-200 dark:border-neutral-800">
-                                            <p className="text-xs text-neutral-500">
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
                                                 Related to task: <span className="font-medium text-neutral-700 dark:text-neutral-300">{error.task.title}</span>
                                             </p>
                                         </div>
                                     )
                                 }
-                                <div className="flex items-center gap-2 text-xs text-neutral-500">
+                                <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
                                     <span>Submitted by</span>
                                     <span className="font-medium text-neutral-700 dark:text-neutral-300">
                                         {error.submittedBy.name || error.submittedBy.username || 'Anonymous'}

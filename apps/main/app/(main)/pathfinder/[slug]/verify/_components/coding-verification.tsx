@@ -56,7 +56,7 @@ export function CodingVerification({ goalId, questions, status, score }: CodingV
                         <CheckCircle2 className="w-10 h-10 text-neutral-900 dark:text-neutral-100" />
                     </div>
                     <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">Coding Passed!</h3>
-                    <p className="text-neutral-500 mb-4">You scored {score}%</p>
+                    <p className="text-neutral-500 dark:text-neutral-400 mb-4">You scored {score}%</p>
                     <Badge variant="secondary">Problems Solved: {questions.length}</Badge>
                 </div>
             </div>
@@ -72,7 +72,7 @@ export function CodingVerification({ goalId, questions, status, score }: CodingV
                         <Lock className="w-10 h-10 text-neutral-400" />
                     </div>
                     <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">Coding Locked</h3>
-                    <p className="text-neutral-500">Complete the Quiz section first to unlock Coding challenges.</p>
+                    <p className="text-neutral-500 dark:text-neutral-400">Complete the Quiz section first to unlock Coding challenges.</p>
                 </div>
             </div>
         )
@@ -85,7 +85,7 @@ export function CodingVerification({ goalId, questions, status, score }: CodingV
                 <div className="text-center">
                     <Code className="w-12 h-12 mx-auto text-neutral-400 mb-4" />
                     <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">No Coding Questions</h3>
-                    <p className="text-neutral-500">This goal doesn&apos;t have any coding challenges.</p>
+                    <p className="text-neutral-500 dark:text-neutral-400">This goal doesn&apos;t have any coding challenges.</p>
                 </div>
             </div>
         )
@@ -158,7 +158,7 @@ export function CodingVerification({ goalId, questions, status, score }: CodingV
             <div className="w-64 border-r border-neutral-200 dark:border-neutral-800 flex flex-col">
                 <div className="p-4 border-b border-neutral-200 dark:border-neutral-800">
                     <h3 className="font-semibold text-neutral-900 dark:text-white">Problems</h3>
-                    <p className="text-xs text-neutral-500">{solvedProblems.size}/{questions.length} solved</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400">{solvedProblems.size}/{questions.length} solved</p>
                 </div>
                 <ScrollArea className="flex-1">
                     <div className="p-2 space-y-1">
@@ -259,7 +259,7 @@ export function CodingVerification({ goalId, questions, status, score }: CodingV
                                                             </div>
                                                             {
                                                                 ex.explanation && (
-                                                                    <div className="text-neutral-500">
+                                                                    <div className="text-neutral-500 dark:text-neutral-400">
                                                                         <span className="font-medium">Explanation:</span> {ex.explanation}
                                                                     </div>
                                                                 )

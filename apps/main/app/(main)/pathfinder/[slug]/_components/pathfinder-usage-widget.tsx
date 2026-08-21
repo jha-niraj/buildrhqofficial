@@ -54,7 +54,7 @@ export function PathfinderUsageWidget({ goalId, className }: PathfinderUsageWidg
                 usage?.totalInputTokens !== undefined && usage.totalInputTokens > 0 && (
                     <>
                         <div className="h-4 w-px bg-neutral-200 dark:bg-neutral-700" />
-                        <span className="text-xs text-neutral-500">
+                        <span className="text-xs text-neutral-500 dark:text-neutral-400">
                             ~{(usage.totalInputTokens + usage.totalOutputTokens).toLocaleString()} tokens
                         </span>
                     </>

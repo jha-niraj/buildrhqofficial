@@ -73,7 +73,7 @@ export default function ForgotPassword() {
 
             <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-2">
-                    <Label className="text-xs font-semibold uppercase tracking-wider text-neutral-500" htmlFor="email">
+                    <Label className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400" htmlFor="email">
                         Email address
                     </Label>
                     <div className="relative">

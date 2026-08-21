@@ -195,7 +195,7 @@ export default function KnowMeAnalytics({ analytics, initialRange }: KnowMeAnaly
                                                 <span className="text-slate-700 dark:text-slate-300">
                                                     {categoryLabels[cat.category] || cat.category}
                                                 </span>
-                                                <span className="text-slate-500">
+                                                <span className="text-slate-500 dark:text-slate-400">
                                                     {cat.count} ({cat.percentage}%)
                                                 </span>
                                             </div>
@@ -245,7 +245,7 @@ export default function KnowMeAnalytics({ analytics, initialRange }: KnowMeAnaly
                                                 <p className="text-sm text-slate-700 dark:text-slate-300 truncate">
                                                     {q.question}
                                                 </p>
-                                                <p className="text-xs text-slate-500 mt-1">
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                     Asked {q.count} time{q.count > 1 ? "s" : ""}
                                                 </p>
                                             </div>
@@ -290,7 +290,7 @@ export default function KnowMeAnalytics({ analytics, initialRange }: KnowMeAnaly
                                                     <p className="font-medium text-slate-900 dark:text-white">
                                                         {visitor.userName || "Anonymous Visitor"}
                                                     </p>
-                                                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                                                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                                                         <Badge variant="secondary" className="text-xs">
                                                             {visitor.viewerType.replace("_", " ")}
                                                         </Badge>
@@ -306,7 +306,7 @@ export default function KnowMeAnalytics({ analytics, initialRange }: KnowMeAnaly
                                                 <p className="text-sm font-medium text-slate-900 dark:text-white">
                                                     {visitor.questionsAsked} questions
                                                 </p>
-                                                <p className="text-xs text-slate-500">
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">
                                                     {formatRelativeTime(visitor.lastActive)}
                                                 </p>
                                             </div>
@@ -368,7 +368,7 @@ export default function KnowMeAnalytics({ analytics, initialRange }: KnowMeAnaly
                                 }
                             </div>
                         ) : (
-                            <div className="text-center py-8 text-slate-500">
+                            <div className="text-center py-8 text-slate-500 dark:text-slate-400">
                                 <Info className="w-8 h-8 mx-auto mb-2 opacity-50" />
                                 <p className="text-sm">Not enough data for insights yet</p>
                             </div>
@@ -478,7 +478,7 @@ function StatCard({
             <p className="text-2xl font-bold text-slate-900 dark:text-white mb-1">
                 {value}
             </p>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
                 {label}
             </p>
         </div>
@@ -487,7 +487,7 @@ function StatCard({
 
 function EmptyState({ message }: { message: string }) {
     return (
-        <div className="text-center py-12 text-slate-500">
+        <div className="text-center py-12 text-slate-500 dark:text-slate-400">
             <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">{message}</p>
         </div>

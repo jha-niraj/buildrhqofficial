@@ -237,7 +237,7 @@ export default function ProjectsHomePage() {
 											</div>
 											<div className="text-3xl font-bold text-neutral-900 dark:text-white mb-1 tracking-tight">
 												{stat.value}
-												<span className="text-neutral-400 dark:text-neutral-600 ml-0.5 text-2xl">{stat.suffix}</span>
+												<span className="text-neutral-400 dark:text-neutral-400 ml-0.5 text-2xl">{stat.suffix}</span>
 											</div>
 											<div className="text-sm text-neutral-500 dark:text-neutral-400 font-medium">
 												{stat.label}

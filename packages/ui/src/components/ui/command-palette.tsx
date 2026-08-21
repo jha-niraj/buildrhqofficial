@@ -183,7 +183,12 @@ export function SidebarSearchButton({
 			)}
 		>
 			<Search className="h-3.5 w-3.5 shrink-0" />
-			<span className="flex-1 text-left">{placeholder}</span>
+			{/* `truncate`, because `collapsed` flips the instant the toggle is clicked while
+			    the rail's width animates over 300ms. For those 300ms this expanded button is
+			    laid out inside a 90px container, and without a nowrap the placeholder wrapped
+			    onto two lines and the whole header jumped. Truncating means it clips and
+			    slides into view instead - no timing logic, nothing to keep in sync. */}
+			<span className="flex-1 truncate text-left">{placeholder}</span>
 			<kbd className="pointer-events-none hidden shrink-0 select-none items-center gap-0.5 rounded border border-border bg-background px-1.5 font-sans text-[11px] font-medium text-muted-foreground sm:inline-flex">
 				{isMac ? "⌘" : "Ctrl"}K
 			</kbd>

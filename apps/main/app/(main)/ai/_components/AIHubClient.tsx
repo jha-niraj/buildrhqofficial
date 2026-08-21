@@ -84,7 +84,7 @@ export default function AiToolsPage() {
                                 transition={{ delay: 0.3 }}
                             >
                                 Tools specifically engineered <br className="hidden md:block" />
-                                <span className="text-neutral-400 dark:text-neutral-500">for the modern developer.</span>
+                                <span className="text-neutral-400 dark:text-neutral-400">for the modern developer.</span>
                             </motion.h1>
                             <motion.p
                                 className="text-xl text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto leading-relaxed font-light"
@@ -121,11 +121,11 @@ export default function AiToolsPage() {
                                         transition={{ delay: index * 0.1 }}
                                         className="flex flex-col items-center text-center group"
                                     >
-                                        <div className="mb-3 text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
+                                        <div className="mb-3 text-neutral-400 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
                                             <stat.icon className="w-6 h-6" />
                                         </div>
                                         <div className="text-3xl font-bold text-neutral-900 dark:text-white tracking-tight">
-                                            {stat.value}<span className="text-neutral-400 dark:text-neutral-600 ml-0.5 text-2xl">{stat.suffix}</span>
+                                            {stat.value}<span className="text-neutral-400 dark:text-neutral-400 ml-0.5 text-2xl">{stat.suffix}</span>
                                         </div>
                                         <div className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mt-1">
                                             {stat.label}

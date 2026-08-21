@@ -488,7 +488,7 @@ function SignInForm({ searchParams }: SignInFormProps) {
                                         <span className="w-full border-t border-neutral-200 dark:border-neutral-700" />
                                     </div>
                                     <div className="relative flex justify-center text-xs uppercase">
-                                        <span className="bg-white dark:bg-neutral-900 px-2 text-neutral-500">Or continue with</span>
+                                        <span className="bg-white dark:bg-neutral-900 px-2 text-neutral-500 dark:text-neutral-400">Or continue with</span>
                                     </div>
                                 </div>
 

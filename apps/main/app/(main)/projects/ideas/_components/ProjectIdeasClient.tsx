@@ -235,7 +235,7 @@ export default function ProjectIdeasPage() {
                             {/* LEFT SIDEBAR - Categories */}
                             <aside className="w-64 lg:w-72 border-r border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 flex-shrink-0 hidden md:block overflow-y-auto sticky top-16 h-[calc(100vh-4rem)]">
                                 <div className="p-4">
-                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-3 px-2">
+                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-400 mb-3 px-2">
                                         Categories
                                     </p>
                                     {loadingCategories ? (
@@ -272,7 +272,7 @@ export default function ProjectIdeasPage() {
                                                         )}>
                                                             {cat.name}
                                                         </p>
-                                                        <p className="text-[10px] text-neutral-400 dark:text-neutral-500">
+                                                        <p className="text-[10px] text-neutral-400 dark:text-neutral-400">
                                                             {cat.technologies.length} technologies
                                                         </p>
                                                     </div>
@@ -280,7 +280,7 @@ export default function ProjectIdeasPage() {
                                                         "w-3.5 h-3.5 flex-shrink-0 transition-transform",
                                                         selectedCategory?.id === cat.id
                                                             ? "text-neutral-900 dark:text-white rotate-90"
-                                                            : "text-neutral-300 dark:text-neutral-600"
+                                                            : "text-neutral-300 dark:text-neutral-400"
                                                     )} />
                                                 </button>
                                             ))}
@@ -321,7 +321,7 @@ export default function ProjectIdeasPage() {
                                                 </div>
                                                 <div>
                                                     <h2 className="text-xl font-bold text-neutral-900 dark:text-white">{selectedCategory.name}</h2>
-                                                    <p className="text-sm text-neutral-500">{selectedCategory.description}</p>
+                                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">{selectedCategory.description}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -397,7 +397,7 @@ export default function ProjectIdeasPage() {
                                             ) : platformProjects.length === 0 ? (
                                                 <div className="text-center py-12 rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50">
                                                     <Zap className="w-8 h-8 text-neutral-300 dark:text-neutral-700 mx-auto mb-3" />
-                                                    <p className="text-sm text-neutral-500">No curated projects for this selection yet.</p>
+                                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">No curated projects for this selection yet.</p>
                                                     <p className="text-xs text-neutral-400 mt-1">Try selecting a different technology or check back soon!</p>
                                                 </div>
                                             ) : (
@@ -491,7 +491,7 @@ export default function ProjectIdeasPage() {
                                             </div>
                                             <div className="text-center py-8 rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800">
                                                 <Target className="w-6 h-6 text-neutral-300 dark:text-neutral-700 mx-auto mb-2" />
-                                                <p className="text-sm text-neutral-500">No ideas for this technology yet.</p>
+                                                <p className="text-sm text-neutral-500 dark:text-neutral-400">No ideas for this technology yet.</p>
                                             </div>
                                         </div>
                                     </div>
@@ -521,7 +521,7 @@ export default function ProjectIdeasPage() {
                             </div>
                             <Select value={problemDifficulty} onValueChange={setProblemDifficulty}>
                                 <SelectTrigger className="w-full sm:w-44 h-10 rounded-lg">
-                                    <Filter className="w-3.5 h-3.5 mr-1.5 text-neutral-500" />
+                                    <Filter className="w-3.5 h-3.5 mr-1.5 text-neutral-500 dark:text-neutral-400" />
                                     <SelectValue placeholder="Difficulty" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -541,7 +541,7 @@ export default function ProjectIdeasPage() {
                             <div className="text-center py-16 border border-dashed border-neutral-200 dark:border-neutral-800 rounded-xl bg-neutral-50/50 dark:bg-neutral-900/50">
                                 <Target className="w-10 h-10 text-neutral-300 dark:text-neutral-700 mx-auto mb-3" />
                                 <h3 className="text-base font-medium text-neutral-900 dark:text-white mb-1">No problem statements found</h3>
-                                <p className="text-sm text-neutral-500">Nothing here yet - check back soon.</p>
+                                <p className="text-sm text-neutral-500 dark:text-neutral-400">Nothing here yet - check back soon.</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -565,11 +565,11 @@ export default function ProjectIdeasPage() {
                                         <h3 className="text-base font-bold text-neutral-900 dark:text-white mb-2 line-clamp-2 group-hover:text-neutral-800 dark:group-hover:text-neutral-100 transition-colors">
                                             {problem.projectTitle}
                                         </h3>
-                                        <p className="text-xs text-neutral-500 mb-3 line-clamp-2 flex-grow">
+                                        <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-3 line-clamp-2 flex-grow">
                                             {problem.overview || problem.projectDescription}
                                         </p>
                                         {problem.coreRequirements?.slice(0, 2).map((req, i) => (
-                                            <div key={i} className="flex items-center gap-1 text-[10px] text-neutral-500 mb-1">
+                                            <div key={i} className="flex items-center gap-1 text-[10px] text-neutral-500 dark:text-neutral-400 mb-1">
                                                 <CheckCircle2 className="w-3 h-3 text-neutral-900 dark:text-neutral-100" />
                                                 <span className="truncate">{req}</span>
                                             </div>

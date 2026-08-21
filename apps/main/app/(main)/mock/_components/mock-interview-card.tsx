@@ -338,7 +338,7 @@ export function MockInterviewCard({ mock, onStart, variant = 'default', showAdmi
                     </div>
                     {
                         isUserGenerated && mock.createdBy && (
-                            <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-500 pt-2 border-t border-neutral-200 dark:border-neutral-800">
+                            <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 pt-2 border-t border-neutral-200 dark:border-neutral-800">
                                 <Users className="w-3 h-3" />
                                 <span>By <span className="font-medium text-neutral-700 dark:text-neutral-300">{mock.createdBy.name}</span></span>
                             </div>

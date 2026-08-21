@@ -476,15 +476,15 @@ export default function AIMockInterviewClient({
                         <Card className="bg-neutral-50 dark:bg-neutral-900 border-0 max-w-md mx-auto">
                             <CardContent className="p-6 space-y-4">
                                 <div className="flex items-center gap-4">
-                                    <Clock className="w-5 h-5 text-neutral-500" />
+                                    <Clock className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
                                     <span className="text-neutral-600 dark:text-neutral-400">~15 minutes</span>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <Mic className="w-5 h-5 text-neutral-500" />
+                                    <Mic className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
                                     <span className="text-neutral-600 dark:text-neutral-400">Voice-based interview</span>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <Brain className="w-5 h-5 text-neutral-500" />
+                                    <Brain className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
                                     <span className="text-neutral-600 dark:text-neutral-400">AI-powered feedback</span>
                                 </div>
                             </CardContent>

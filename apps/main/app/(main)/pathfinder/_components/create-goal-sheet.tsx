@@ -307,7 +307,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                     <h3 className="text-lg font-medium mb-1 text-neutral-900 dark:text-white">
                                         {progressPercent === 100 ? 'Goal Created!' : formData.generateAIPlan ? 'Creating Goal & Study Plan...' : 'Creating Goal...'}
                                     </h3>
-                                    <p className="text-sm text-neutral-500 mb-6">
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6">
                                         {progressPercent === 100
                                             ? 'Redirecting to your goal'
                                             : formData.generateAIPlan
@@ -360,10 +360,10 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                             <h3 className="text-lg font-medium text-neutral-900 dark:text-white">
                                                                 {steps[0]?.title}
                                                             </h3>
-                                                            <p className="text-sm text-neutral-500">Be specific about your goal</p>
+                                                            <p className="text-sm text-neutral-500 dark:text-neutral-400">Be specific about your goal</p>
                                                         </div>
                                                         <div className="space-y-2">
-                                                            <Label className="text-xs text-neutral-500">Goal Title</Label>
+                                                            <Label className="text-xs text-neutral-500 dark:text-neutral-400">Goal Title</Label>
                                                             <Input
                                                                 placeholder="e.g., Master Arrays and Strings in DSA"
                                                                 value={formData.title}
@@ -377,7 +377,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                             formData.title.trim() && (
                                                                 <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-100 dark:bg-neutral-800">
                                                                     <LinkIcon className="w-3.5 h-3.5 text-neutral-400" />
-                                                                    <span className="text-xs text-neutral-500">URL:</span>
+                                                                    <span className="text-xs text-neutral-500 dark:text-neutral-400">URL:</span>
                                                                     <code className="text-xs text-neutral-700 dark:text-neutral-300 font-mono">
                                                                         /pathfinder/{slugPreview || '...'}
                                                                     </code>
@@ -400,7 +400,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                             }
                                                         </div>
                                                         <div>
-                                                            <Label className="text-xs text-neutral-500 mb-2 block">Category</Label>
+                                                            <Label className="text-xs text-neutral-500 dark:text-neutral-400 mb-2 block">Category</Label>
                                                             <div className="grid grid-cols-5 gap-2">
                                                                 {
                                                                     categories.map((cat) => (
@@ -436,7 +436,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                 </h3>
                                                             </div>
                                                             <div>
-                                                                <Label className="text-xs text-neutral-500 mb-2 block">Experience Level</Label>
+                                                                <Label className="text-xs text-neutral-500 dark:text-neutral-400 mb-2 block">Experience Level</Label>
                                                                 <div className="grid grid-cols-4 gap-2">
                                                                     {
                                                                         levels.map((level) => (
@@ -453,7 +453,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                                 <p className="text-xs font-medium text-neutral-900 dark:text-white">
                                                                                     {level.label}
                                                                                 </p>
-                                                                                <p className="text-[10px] text-neutral-500 mt-0.5">
+                                                                                <p className="text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5">
                                                                                     {level.desc}
                                                                                 </p>
                                                                             </button>
@@ -462,7 +462,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                 </div>
                                                             </div>
                                                             <div>
-                                                                <Label className="text-xs text-neutral-500 mb-2 block">Expected duration</Label>
+                                                                <Label className="text-xs text-neutral-500 dark:text-neutral-400 mb-2 block">Expected duration</Label>
                                                                 <div className="grid grid-cols-4 gap-2">
                                                                     {
                                                                         GOAL_DURATION_OPTIONS.filter((o) => o.value !== 'CUSTOM').map((opt) => (
@@ -515,7 +515,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                 <h3 className="text-lg font-medium text-neutral-900 dark:text-white">
                                                                     {steps[2]?.title}
                                                                 </h3>
-                                                                <p className="text-sm text-neutral-500">Select at least one</p>
+                                                                <p className="text-sm text-neutral-500 dark:text-neutral-400">Select at least one</p>
                                                             </div>
                                                             <div className="grid grid-cols-2 gap-2">
                                                                 {
@@ -551,7 +551,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                             <h3 className="text-lg font-medium text-neutral-900 dark:text-white">
                                                                 {steps[3]?.title}
                                                             </h3>
-                                                            <p className="text-sm text-neutral-500">Group your goal for better organization</p>
+                                                            <p className="text-sm text-neutral-500 dark:text-neutral-400">Group your goal for better organization</p>
                                                         </div>
 
                                                         {/* AI Study Plan Toggle */}
@@ -568,7 +568,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                             onCheckedChange={(checked) => setFormData(prev => ({ ...prev, generateAIPlan: checked }))}
                                                                         />
                                                                     </div>
-                                                                    <p className="text-xs text-neutral-500 mt-0.5">
+                                                                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
                                                                         Generate 8-15 study topics tailored to your level with AI
                                                                     </p>
                                                                 </div>
@@ -576,7 +576,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                         </div>
 
                                                         <div className="space-y-2">
-                                                            <Label className="text-xs text-neutral-500">Visibility</Label>
+                                                            <Label className="text-xs text-neutral-500 dark:text-neutral-400">Visibility</Label>
                                                             <div className="grid grid-cols-2 gap-2">
                                                                 <button
                                                                     type="button"
@@ -589,7 +589,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                     )}
                                                                 >
                                                                     <p className="font-medium text-sm">Public</p>
-                                                                    <p className="text-xs text-neutral-500">Free • Others can copy</p>
+                                                                    <p className="text-xs text-neutral-500 dark:text-neutral-400">Free • Others can copy</p>
                                                                 </button>
                                                                 <button
                                                                     type="button"
@@ -602,7 +602,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                     )}
                                                                 >
                                                                     <p className="font-medium text-sm">Private</p>
-                                                                    <p className="text-xs text-neutral-500">{PATHFINDER_CREDITS.privateGoalCreation} credits</p>
+                                                                    <p className="text-xs text-neutral-500 dark:text-neutral-400">{PATHFINDER_CREDITS.privateGoalCreation} credits</p>
                                                                     {
                                                                         (credits ?? 0) < PATHFINDER_CREDITS.privateGoalCreation && (
                                                                             <p className="text-xs text-neutral-800 dark:text-neutral-200 mt-0.5">Need {PATHFINDER_CREDITS.privateGoalCreation - (credits ?? 0)} more</p>
@@ -632,7 +632,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                         </div>
                                                                         <div className="flex-1">
                                                                             <p className="text-sm font-medium text-neutral-900 dark:text-white">No Group</p>
-                                                                            <p className="text-xs text-neutral-500">Keep ungrouped</p>
+                                                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Keep ungrouped</p>
                                                                         </div>
                                                                         {formData.groupId === null && <Check className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />}
                                                                     </button>
@@ -668,7 +668,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                         className="w-full p-3 rounded-lg border border-dashed border-neutral-300 dark:border-neutral-700 text-left transition-all flex items-center gap-3 hover:border-neutral-400 dark:hover:border-neutral-600"
                                                                     >
                                                                         <div className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
-                                                                            <FolderPlus className="w-4 h-4 text-neutral-500" />
+                                                                            <FolderPlus className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
                                                                         </div>
                                                                         <p className="text-sm text-neutral-600 dark:text-neutral-400">Create New Group</p>
                                                                     </button>
@@ -676,7 +676,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                             ) : (
                                                                 <div className="space-y-4 p-4 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50">
                                                                     <div className="space-y-2">
-                                                                        <Label className="text-xs text-neutral-500">Group Name</Label>
+                                                                        <Label className="text-xs text-neutral-500 dark:text-neutral-400">Group Name</Label>
                                                                         <Input
                                                                             placeholder="e.g., Frontend, DSA Practice"
                                                                             value={newGroupName}
@@ -686,7 +686,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                         />
                                                                     </div>
                                                                     <div className="space-y-2">
-                                                                        <Label className="text-xs text-neutral-500">Icon</Label>
+                                                                        <Label className="text-xs text-neutral-500 dark:text-neutral-400">Icon</Label>
                                                                         <div className="flex gap-1.5">
                                                                             {
                                                                                 defaultEmojis.map((emoji) => (
@@ -707,7 +707,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                         </div>
                                                                     </div>
                                                                     <div className="space-y-2">
-                                                                        <Label className="text-xs text-neutral-500">Color</Label>
+                                                                        <Label className="text-xs text-neutral-500 dark:text-neutral-400">Color</Label>
                                                                         <div className="flex gap-1.5">
                                                                             {
                                                                                 defaultColors.map((color) => (

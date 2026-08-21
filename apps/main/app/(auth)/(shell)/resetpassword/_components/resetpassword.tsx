@@ -165,7 +165,7 @@ const ResetPassword = (): JSX.Element | null => {
                 </div>
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-3">
-                            <Label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Verification Code</Label>
+                            <Label className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Verification Code</Label>
                             <div className="flex justify-between gap-2">
                                 {
                                     otp.map((digit, index) => (
@@ -186,7 +186,7 @@ const ResetPassword = (): JSX.Element | null => {
                         </div>
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider" htmlFor="password">New Password</Label>
+                                <Label className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider" htmlFor="password">New Password</Label>
                                 <Input
                                     id="password"
                                     type="password"
@@ -197,7 +197,7 @@ const ResetPassword = (): JSX.Element | null => {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider" htmlFor="confirmPassword">Confirm Password</Label>
+                                <Label className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider" htmlFor="confirmPassword">Confirm Password</Label>
                                 <Input
                                     id="confirmPassword"
                                     type="password"
@@ -221,7 +221,7 @@ const ResetPassword = (): JSX.Element | null => {
                                 variant="ghost"
                                 onClick={handleResend}
                                 disabled={!canResend}
-                                className="text-xs text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
+                                className="text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                             >
                                 {/* Not a loader: this is the resend cooldown, and the icon spinning
                                     is what tells the user the timer is running rather than stuck. */}

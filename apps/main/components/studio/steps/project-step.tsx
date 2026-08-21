@@ -33,7 +33,7 @@ export function ProjectStep({ step }: ProjectStepProps) {
   if (!metadata.suggestions || metadata.suggestions.length === 0) {
     return (
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="py-8">
-        <div className="text-center py-12 text-neutral-500">
+        <div className="text-center py-12 text-neutral-500 dark:text-neutral-400">
           No project suggestions available
         </div>
       </motion.div>

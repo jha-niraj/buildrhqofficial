@@ -84,7 +84,7 @@ export function ExploreSidebar({ goals }: ExploreSidebarProps) {
                     }
                     {
                         goals.length === 0 && (
-                            <div className="py-12 text-center text-sm text-neutral-500">
+                            <div className="py-12 text-center text-sm text-neutral-500 dark:text-neutral-400">
                                 No public goals yet. Be the first to share!
                                 <EmptyState onCreateGoal={() => setCreateSheetOpen(true)} />
                             </div>
@@ -147,7 +147,7 @@ function ExploreGoalCard({
                             by {goal.user?.name || goal.user?.username || 'Unknown'}
                         </p>
                         <div className="flex items-center gap-2 mt-2 text-[10px]">
-                            <span className="flex items-center gap-1 text-neutral-500">
+                            <span className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400">
                                 <CheckCircle2 className="w-3 h-3" />
                                 {goal.completedSubGoals}/{goal.totalSubGoals} tasks
                             </span>

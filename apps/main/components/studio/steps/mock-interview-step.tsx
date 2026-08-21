@@ -88,7 +88,7 @@ export function MockInterviewStep({ step }: MockInterviewStepProps) {
               >
                 <Mic className="h-10 w-10 text-white" />
               </motion.div>
-              <p className="text-sm text-neutral-500 mb-6">Interview in progress...</p>
+              <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6">Interview in progress...</p>
               <div className="flex items-center justify-center gap-3">
                 <Button
                   variant="outline"

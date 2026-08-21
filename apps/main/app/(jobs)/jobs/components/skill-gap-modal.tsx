@@ -81,7 +81,7 @@ export function SkillGapModal({ job, open, onClose }: SkillGapModalProps) {
                         </div>
                         <div>
                             <span className="block">{job.title}</span>
-                            <span className="text-sm font-normal text-neutral-500">{job.company.name}</span>
+                            <span className="text-sm font-normal text-neutral-500 dark:text-neutral-400">{job.company.name}</span>
                         </div>
                     </DialogTitle>
                     <DialogDescription>
@@ -109,7 +109,7 @@ export function SkillGapModal({ job, open, onClose }: SkillGapModalProps) {
                                 <div className="grid grid-cols-3 gap-4 mb-4">
                                     <div className="text-center p-3 bg-white dark:bg-neutral-800 rounded-lg">
                                         <div className="text-2xl font-bold text-neutral-900 dark:text-white">{shouldApply.score}%</div>
-                                        <div className="text-xs text-neutral-500">Match Score</div>
+                                        <div className="text-xs text-neutral-500 dark:text-neutral-400">Match Score</div>
                                     </div>
                                     <div className="text-center p-3 bg-white dark:bg-neutral-800 rounded-lg">
                                         <div className={cn(
@@ -119,13 +119,13 @@ export function SkillGapModal({ job, open, onClose }: SkillGapModalProps) {
                                         )}>
                                             {shouldApply.competition.level}
                                         </div>
-                                        <div className="text-xs text-neutral-500">Competition</div>
+                                        <div className="text-xs text-neutral-500 dark:text-neutral-400">Competition</div>
                                     </div>
                                     <div className="text-center p-3 bg-white dark:bg-neutral-800 rounded-lg">
                                         <div className="text-2xl font-bold text-neutral-900 dark:text-white">
                                             {shouldApply.competition.applicantsCount}
                                         </div>
-                                        <div className="text-xs text-neutral-500">Applicants</div>
+                                        <div className="text-xs text-neutral-500 dark:text-neutral-400">Applicants</div>
                                     </div>
                                 </div>
                                 <div className="space-y-2">
@@ -154,7 +154,7 @@ export function SkillGapModal({ job, open, onClose }: SkillGapModalProps) {
                                             </Badge>
                                         ))}
                                         {data.matchedSkills.length === 0 && (
-                                            <p className="text-sm text-neutral-500">No matching skills found</p>
+                                            <p className="text-sm text-neutral-500 dark:text-neutral-400">No matching skills found</p>
                                         )}
                                     </div>
                                 </div>
@@ -181,7 +181,7 @@ export function SkillGapModal({ job, open, onClose }: SkillGapModalProps) {
                                             <GraduationCap className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                             Learn & Boost Your Match
                                         </h3>
-                                        <p className="text-sm text-neutral-500 mb-4">
+                                        <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
                                             Complete these projects to increase your match to {data.potentialMatchAfterLearning}%
                                         </p>
 
@@ -196,7 +196,7 @@ export function SkillGapModal({ job, open, onClose }: SkillGapModalProps) {
                                                         <div className="font-medium text-neutral-900 dark:text-white group-hover:text-neutral-800 dark:group-hover:text-neutral-100 transition-colors">
                                                             {rec.projectTitle}
                                                         </div>
-                                                        <div className="text-xs text-neutral-500">
+                                                        <div className="text-xs text-neutral-500 dark:text-neutral-400">
                                                             learn: <span className="text-neutral-800 dark:text-neutral-200">{rec.skill}</span> • ~{rec.estimatedHours}h
                                                         </div>
                                                     </div>
