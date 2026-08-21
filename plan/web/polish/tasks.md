@@ -45,10 +45,10 @@ is not started.
 | WEB-44 | Delete the raster files | 5 | **done (2026-08-20)** |
 | WEB-45 | Verify social cards still generate | 5 | **done (2026-08-20)** |
 | **Performance** | | | |
-| WEB-50 | Baseline Lighthouse run | 7 | not started |
+| WEB-50 | Baseline Lighthouse run | 7 | **measured, method changed (2026-08-21)** |
 | WEB-51 | Lazily mount every below-fold section | 7 | **deferred - see note** |
 | WEB-52 | `use client` audit | 7 | **done for landingpage (2026-08-20)** |
-| WEB-53 | Final measured run against the budget | 7 | not started |
+| WEB-53 | Final measured run against the budget | 7 | **partly done - Lighthouse needs a deploy** |
 
 ---
 
@@ -732,34 +732,49 @@ fixed now: `ImageResponse` has no format option, and a second smaller variant do
 build artifacts to save bytes on images that are already lazy.
 
 ---
-
 ## Performance
 
-### WEB-50 - Baseline
+> The WEB-51 and WEB-52 write-ups live above, next to the landing-composition work they
+> came out of. They were stubs down here and are not repeated.
 
-**Status:** not started
+### WEB-50 / WEB-53 - Measure it
+
+**Status:** measured, **by a different method than planned** (2026-08-21)
 **Serves:** DoD 7
 
-Mobile Lighthouse on `/`, `/pricing`, `/blogs`, one post, against the deployed
-Worker. Record TBT, LCP, CLS, client JS. **Do this before any section work**, or
-there is nothing to compare against.
+**What could not be done, said plainly.** The budget specifies *"a mobile Lighthouse run
+against the deployed Worker, not local dev, not desktop"*. Lighthouse is not installed on
+this machine and the site is not deployed from here, so **TBT, LCP and CLS have not been
+measured** and remain open. No number in this file should be read as covering them.
 
-### WEB-51 - Lazily mount below-fold sections
+**What was measured instead** is the one budget line a build can produce honestly:
+*"Client JS on `/`: record the number at the start of the work and do not let it grow
+without a reason written in the task."*
 
-**Status:** not started
-**Serves:** DoD 7
-**Blocked by:** WEB-30, WEB-35
+Method: production `next build` at `16c2d82` - the commit before any of this work - in a
+detached worktree against the same `node_modules`, then the same build on `HEAD`. For every
+prerendered page, each `<script src>` in the HTML was resolved to its chunk and gzipped at
+level 6, because raw bytes are not what crosses the wire.
 
-### WEB-52 - `use client` audit
+| route | JS gzip before | after | change |
+|---|---|---|---|
+| `/` | 310,717 B | 295,739 B | **-14,978 B (-5%)** |
+| `/pricing` | 285,149 B | 291,839 B | +6,690 B (+2%) |
+| `/blogs` | 299,605 B | 308,215 B | +8,610 B (+2%) |
+| `/aboutus` | 280,431 B | 287,730 B | +7,299 B (+2%) |
 
-**Status:** not started
-**Serves:** DoD 7
+**The landing page is 15KB lighter** and carries two fewer chunks - the four framer-motion
+sections coming off it (WEB-52), minus what the new sections cost. Problem, Proof and
+Compare are server components and contributed **zero** client JS, which is exactly what the
+WEB-31 deviation bought.
 
-Every client component justified in one sentence. Decoration is not state.
+**Every other page is ~7KB heavier, and that is the navbar.** It is on every page and it
+grew a dropdown state machine, eleven lucide icons and the row descriptions. A real
+regression on pages that shed nothing, and the price of the navigation in
+`02-navigation.md`. Recorded rather than buried, per rule 6 of the budget.
 
-### WEB-53 - Final run
+`/blogs` also gained 26KB of HTML: the seventeen cover `<img>` elements, sixteen of them
+`loading="lazy"`.
 
-**Status:** not started
-**Serves:** DoD 7
-
-Against the budget in `06-performance.md`. Real numbers written into this task.
+**Still open:** the mobile Lighthouse run on the deployed Worker - TBT < 200ms, LCP < 2.5s,
+CLS < 0.1. That is the remaining half of WEB-53 and it needs `pnpm release` first.
