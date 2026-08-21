@@ -31,12 +31,12 @@ is not started.
 | WEB-23 | Contrast audit across every public page | 8 | **hero + OG card done (2026-08-20); landing/blog open** |
 | **Landing composition** | | | |
 | WEB-30 | Port `reveal.tsx` and `lazy-mount.tsx` | 7 | **done (2026-08-20)** |
-| WEB-31 | Port `problem-scroll` as the Problem section | 6 | not started |
-| WEB-32 | Collapse four feature sections into one | 6 | not started |
-| WEB-33 | Port the FAQ section structure | 6 | not started |
-| WEB-34 | Container demo section | 6 | not started (optional) |
-| WEB-35 | Reorder the landing page | 6 | not started |
-| WEB-36 | Compare section on the landing page | 6 | not started |
+| WEB-31 | Port `problem-scroll` as the Problem section | 6 | **done, adapted (2026-08-21)** |
+| WEB-32 | Collapse four feature sections into one | 6 | **done (2026-08-21)** |
+| WEB-33 | Port the FAQ section structure | 6 | **done (2026-08-21)** |
+| WEB-34 | Container demo section | 6 | **done, reshaped (2026-08-21)** |
+| WEB-35 | Reorder the landing page | 6 | **done (2026-08-21)** |
+| WEB-36 | Compare section on the landing page | 6 | **done (2026-08-21)** |
 | **Blog images** | | | |
 | WEB-40 | Confirm the OG generator does not read `heroImage` | 5 | **done (2026-08-20) - GATE OPEN** |
 | WEB-41 | Build the topic glyph set | 5 | **done (2026-08-20)** |
@@ -471,60 +471,135 @@ after WEB-35 with the measured numbers from WEB-50 rather than on principle.
 
 ### WEB-31 - Problem section
 
-**Status:** not started
+**Status:** done, **adapted rather than ported** (2026-08-21)
 **Serves:** DoD 6
-**Blocked by:** WEB-1
 
-Port `problem-scroll.tsx` structure; content written fresh. **Research:** what do
-students actually find broken about interview prep? Real sources - forums, the
-existing blog's own research - not invention.
+`components/landingpage/problem-section.tsx`. Five clauses, one per line, staggered in.
 
-### WEB-32 - One feature section
+**The deviation, and why.** The reference animates each WORD's opacity and blur against
+scroll progress with `useScroll`/`useTransform`. It is a lovely effect and it costs a
+framer-motion client component with a scroll listener on the landing page. Four sections
+had just been converted OFF framer-motion for exactly that reason (WEB-52), and adding a
+heavier one back in the same pass would be spending the performance budget on the first
+decorative thing that asked for it.
 
-**Status:** not started
+The clauses stagger in with the zero-JS `Reveal` primitive instead: same reading rhythm,
+one idea at a time, no runtime. If the per-word focus-pull is wanted later it should arrive
+with a Lighthouse number beside it, per rule 6 of the budget.
+
+**Clauses, not a paragraph**, was ported as-is - it is a list of five places preparation
+leaks, and set as one justified block that structure disappears.
+
+### WEB-32 - Four feature sections into one
+
+**Status:** done (2026-08-21)
 **Serves:** DoD 6
-**Blocked by:** WEB-1
 
-Collapse Features + AI Tools + Assessments into one. Consider `feature-stack.tsx`.
+`capabilities-section.tsx` replaces `featuressection`, `aitoolssection`,
+`assessments-section` and `credits-section`. All four are deleted.
+
+**They really did duplicate.** Two of them made *literally the same claim*: "Real Linux
+Sandbox" in one and "Interactive Labs - learn by deploying real code in cloud-based
+sandboxes" in another. A reader met the container twice with no way to know it was one
+feature. The credits section's three points were already in the pricing section
+("Credits never expire. Your balance is yours forever.").
+
+**The new one reads from `FEATURE_MODULES`** - the same array `/features` renders. That is
+the whole value: the landing page cannot drift from the features page, because there is one
+list. The icons come from `nav-links.ts` for the same reason.
+
+**Three claims were checked while collapsing, and one was nearly wrong.** "Job Matching -
+get matched to roles that actually fit" had never been verified. It IS real - the
+`jobRecommendations` table has a `matchScore`, `actions/jobs/browse.ts` orders by it, and
+`actions/jobs/applications.ts` gates an application on it - so it survived, and the
+**features page was corrected** because it had understated Jobs. Two others did not survive:
+"sprints and tasks with acceptance criteria" (no `acceptanceCriteria` anywhere in the repo)
+and "timed simulations with deadlines" were not carried over. XP and streaks are real
+(`total_xp`, `current_streak`, `longest_streak` in the schema).
 
 ### WEB-33 - FAQ structure
 
-**Status:** not started
+**Status:** done (2026-08-21)
 **Serves:** DoD 6
 
-Adopt the reference's structure. Check whether it emits `FAQPage` JSON-LD; if the
-current one does not, that is an SEO gain to capture.
+The plan predicted this: *"Check whether it emits `FAQPage` JSON-LD - if so that is an SEO
+win the current one may lack."* **It lacked it.** `/pricing` emitted `FAQPage`; the landing
+page did not, so nine well-written answers on the highest-authority page on the site were
+invisible to the one rich result that quotes answers directly.
 
-### WEB-34 - Container demo (optional)
+The list is now `faq-data.ts`, and `app/page.tsx` builds the schema from the SAME array the
+accordion renders. It could not before, because the data lived inside a `"use client"`
+module - the only alternative was a second copy of nine questions, which would have drifted
+the first time one was edited. Google requires the marked-up answer to match the visible
+one, and one array is the only way to guarantee that without a test.
 
-**Status:** not started (optional)
+**Two content bugs found in there and fixed.** The section intro read *"Everything you need
+to know about the platform, certifications, and technical capabilities"* - directly above an
+answer saying "Do I get a certificate? No, and that is deliberate." And the support button
+pointed at a `gmail.com` address while `BRAND.email` is used everywhere else, so there were
+two inboxes and one of them unwatched.
+
+### WEB-34 - Container demo
+
+**Status:** done, but **reshaped** (2026-08-21)
 **Serves:** DoD 6
 
-The one section this product can build and no competitor can: real code running in
-a real container. Interactive against a rate-limited endpoint if feasible, a
-recorded terminal if not.
+`proof-section.tsx`. It shows the **Dockerfile**, quoted verbatim from
+`apps/shipitworker/Dockerfile`.
 
-Scoped separately and marked optional because it could absorb a week alone. **Do
-not start it before WEB-35.**
+**Both of the plan's options were rejected, and the second one is the interesting refusal.**
+
+A live demo needs a public rate-limited execution endpoint that does not exist, with its own
+abuse surface. That is a separate piece of work, as the plan already said.
+
+The fallback was "a recorded terminal is still better than a bullet point". That transcript
+has to be generated somewhere, and the only compilers on this machine are **Apple clang**,
+which prints a visibly different diagnostic from the GNU g++ that actually runs in the
+container. There is no Docker here to generate a real one. Shipping clang output captioned
+"real compiler output" would be a fabricated screenshot on a page whose entire argument is
+that nothing here is faked - so it was not shipped.
+
+The Dockerfile is better evidence anyway, and it is the one thing nobody bothers to fake: a
+reader who does not believe the claim can go and read the file. When a public execution
+endpoint exists, this section should become the live demo and the Dockerfile moves to a
+caption underneath it.
 
 ### WEB-35 - Reorder
 
-**Status:** not started
+**Status:** done (2026-08-21)
 **Serves:** DoD 6
-**Blocked by:** WEB-4, WEB-31, WEB-32
 
-Land the order in `04-landing-composition.md`.
+```
+Hero          the promise
+Problem       what is broken about how people prepare today
+Capabilities  what the product does about it - one section, not four
+Proof         the container, the thing a competitor cannot show
+Projects      the concrete output you walk away with
+Compare       why this and not the free alternative
+Pricing       the ask
+FAQs          the objections
+```
 
-**Verification:** a stranger reads the page and can say what the product does and
-who it is for.
+The rule for adding a section is written into `app/page.tsx`: it has to answer a question
+one of these raises and that none of them answer. If it answers a question already answered,
+it belongs inside an existing section. That is what stops the page returning to a catalogue.
 
-### WEB-36 - Compare section on the landing page
+Also added `WebSite` JSON-LD with an `@id` matching the one the blog's Article schema uses,
+so the two describe one publisher rather than two.
 
-**Status:** not started
+### WEB-36 - Compare section
+
+**Status:** done (2026-08-21)
 **Serves:** DoD 6
-**Blocked by:** WEB-11
 
-A summary that links to the full pages. Same sourcing rule.
+`compare-section.tsx`, reading from the same `COMPARISONS` array as `/compare`.
+
+The heading is **"Keep using LeetCode."** That is not modesty - a reader who has spent six
+months on LeetCode knows it works, and a section implying otherwise has told them the page
+is dishonest before they reach the argument. Quotes no competitor price, for the reasons at
+the top of `comparisons.ts`.
+
+---
 
 ---
 

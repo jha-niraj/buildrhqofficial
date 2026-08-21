@@ -128,16 +128,18 @@ export const FEATURE_MODULES: readonly FeatureModule[] = [
         summary: 'Browse roles, save the ones worth a real application, and keep track of where you applied.',
         body: [
             'The application tracker most people use is a spreadsheet that stops being updated in week three. This is the same job in the same place as the resume you are tailoring and the interview you are practising for.',
+            'Roles are scored against your profile, and the tracker uses that score: apply to something well below your match and it says so before you send it rather than after you are ghosted.',
             'Browse, save, follow companies you want to hear from, and see the state of everything you have sent.',
         ],
         points: [
             'Browse and filter open roles',
+            'A match score against your profile, used to flag a long-shot application before you send it',
             'Save roles to come back to',
             'Follow companies',
             'Track the applications you have sent',
         ],
-        scope: 'It surfaces and tracks roles. It does not auto-apply on your behalf, and it is not a recruiter.',
-        evidence: 'apps/main/app/(jobs)/jobs/{browse,saved,applications,following}',
+        scope: 'It surfaces, scores and tracks roles. It does not auto-apply on your behalf, and it is not a recruiter.',
+        evidence: 'apps/main/app/(jobs)/jobs/{browse,saved,applications,following}; match scores from the jobRecommendations table in packages/db/src/schema/jobs.ts, gated in actions/jobs/applications.ts',
     },
     {
         id: 'credits',
