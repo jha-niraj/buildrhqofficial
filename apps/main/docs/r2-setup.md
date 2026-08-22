@@ -114,6 +114,29 @@ If you enable a custom domain **and** you previously enabled `r2.dev`, turn
 `r2.dev` back off. Otherwise the bucket stays reachable through it, bypassing
 whatever access controls you attached to the custom domain.
 
+## What you do NOT need to turn on
+
+**CORS.** The bucket settings page offers a CORS policy and it is tempting to add
+one. This app does not need it, and that is a property of how it uploads rather
+than a guess:
+
+- Writes go through `uploadToR2()` in `lib/r2-client.ts`, which issues a
+  `PutObjectCommand` from a **server action** or a route handler. The browser
+  posts the file to this app; this app puts it in R2. No cross-origin request is
+  ever made by the browser.
+- Reads use `getR2SignedUrl()` and reach the user via `window.open(url)` - a
+  top-level navigation. The same-origin policy does not apply to navigations, so
+  no preflight happens and no CORS headers are consulted.
+
+A CORS policy becomes necessary the day the browser talks to R2 directly, which
+means either a presigned PUT uploaded with `fetch`, or a signed GET read with
+`fetch`/XHR instead of opened. If either of those is ever added, come back here.
+
+**Public Development URL.** Leave it disabled - see step 5.
+
+**R2 Data Catalog, Object Lifecycle Rules, Bucket Lock, Event Notifications.**
+None are used by this app.
+
 ## 6. Put the values in
 
 Locally, `apps/main/.env`. For a deploy, `apps/main/.env.production`, then
