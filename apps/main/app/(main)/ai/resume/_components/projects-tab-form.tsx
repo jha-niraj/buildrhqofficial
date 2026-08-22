@@ -68,7 +68,7 @@ export function TechSelect({
                     Add <ChevronDown className="w-3 h-3" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[260px] p-0" align="start">
+            <PopoverContent className="w-[260px] p-0" align="start" portal={false}>
                 <Command>
                     <CommandInput
                         placeholder="Search or type custom..."

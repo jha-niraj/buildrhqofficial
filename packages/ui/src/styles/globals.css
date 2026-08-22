@@ -499,6 +499,50 @@
     }
 }
 
+/* -- Thin scrollbar, matching the ScrollArea thumb ------------------------------
+   For scroll containers that CANNOT be a Radix ScrollArea.
+
+   Radix Select owns its own scroll viewport: `SelectPrimitive.Viewport` is what
+   Select scrolls into view on keyboard navigation, what its ScrollUp/ScrollDown
+   buttons drive, and what it measures for positioning. Nesting a ScrollArea inside
+   it puts a second scroll container in the middle of that, so arrow-key navigation
+   scrolls the wrong box and the highlighted item can sit outside the visible area.
+   The same is true of cmdk's Command.List.
+
+   So these keep their native scrolling and are given the ScrollArea's LOOK instead:
+   the same 10px track and the same `--border` thumb. Same result on screen, without
+   breaking the keyboard.
+
+   `scrollbar-width`/`scrollbar-color` cover Firefox; the `::-webkit-` rules cover
+   Chrome and Safari. Both are needed - neither is a superset of the other. */
+
+.sh-thin-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+
+.sh-thin-scroll::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.sh-thin-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sh-thin-scroll::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 9999px;
+    /* Transparent border with background-clip is how a scrollbar thumb gets inset
+       padding - there is no padding property that applies to it. */
+    border: 3px solid transparent;
+    background-clip: content-box;
+}
+
+.sh-thin-scroll::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
 /* -- Thinking indicator --------------------------------------------------------
    The word itself breathes, instead of a ring spinning beside it.
 

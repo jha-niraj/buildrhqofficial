@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
     Sheet, SheetContent, SheetHeader, SheetTitle
 } from "@repo/ui/components/ui/sheet";
@@ -136,14 +136,24 @@ export function EditProfileModal({
     const [openCompanyPicker, setOpenCompanyPicker] = useState(false);
     const [companyInput, setCompanyInput] = useState("");
 
-    // Fetch companies
-    useState(() => {
-        getCompanies().then(result => {
-            if (result.success) {
-                setCompanies(result.companies);
-            }
+    // useEffect, not useState.
+    //
+    // This was `useState(() => { getCompanies().then(...) })` - useState's initializer used as
+    // a lifecycle hook. That runs DURING render, so a server action was dispatched mid-render
+    // and its `setCompanies` resolved while React was still rendering. React said so plainly:
+    // "Cannot update a component (Router) while rendering a different component
+    // (EditProfileModal)". Dispatching a server action during render also nudges the router,
+    // which is where the `Router` in that message comes from.
+    //
+    // An empty dep array is correct here: the list is a static set of companies, so it is
+    // fetched once per mount and never refetched.
+    useEffect(() => {
+        let cancelled = false;
+        getCompanies().then((result) => {
+            if (!cancelled && result.success) setCompanies(result.companies);
         });
-    });
+        return () => { cancelled = true };
+    }, []);
 
     const handleChange = (field: string, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
@@ -431,7 +441,7 @@ export function EditProfileModal({
                                             <Plus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-[400px] p-0" align="start">
+                                    <PopoverContent className="w-[400px] p-0" align="start" portal={false}>
                                         <Command>
                                             <CommandInput
                                                 placeholder="Search company..."

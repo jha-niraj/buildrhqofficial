@@ -144,8 +144,8 @@ export function ShareProfileModal({
 								onClick={() => shareToSocial("twitter")}
 								className="flex items-center gap-3 p-4 rounded-lg border hover:bg-muted transition-colors"
 							>
-								<div className="w-10 h-10 rounded-full bg-[#1DA1F2]/10 flex items-center justify-center">
-									<Twitter className="w-5 h-5 text-[#1DA1F2]" />
+								<div className="w-10 h-10 rounded-full bg-[#525252]/10 flex items-center justify-center">
+									<Twitter className="w-5 h-5 text-[#525252]" />
 								</div>
 								<span className="font-medium">Twitter</span>
 							</motion.button>
@@ -155,8 +155,8 @@ export function ShareProfileModal({
 								onClick={() => shareToSocial("linkedin")}
 								className="flex items-center gap-3 p-4 rounded-lg border hover:bg-muted transition-colors"
 							>
-								<div className="w-10 h-10 rounded-full bg-[#0A66C2]/10 flex items-center justify-center">
-									<Linkedin className="w-5 h-5 text-[#0A66C2]" />
+								<div className="w-10 h-10 rounded-full bg-[#525252]/10 flex items-center justify-center">
+									<Linkedin className="w-5 h-5 text-[#525252]" />
 								</div>
 								<span className="font-medium">LinkedIn</span>
 							</motion.button>
@@ -166,8 +166,8 @@ export function ShareProfileModal({
 								onClick={() => shareToSocial("facebook")}
 								className="flex items-center gap-3 p-4 rounded-lg border hover:bg-muted transition-colors"
 							>
-								<div className="w-10 h-10 rounded-full bg-[#1877F2]/10 flex items-center justify-center">
-									<Facebook className="w-5 h-5 text-[#1877F2]" />
+								<div className="w-10 h-10 rounded-full bg-[#525252]/10 flex items-center justify-center">
+									<Facebook className="w-5 h-5 text-[#525252]" />
 								</div>
 								<span className="font-medium">Facebook</span>
 							</motion.button>

@@ -286,7 +286,7 @@ export function Voice({
                     volumeMode="auto"
                     getInputVolume={conversation.getInputVolume}
                     getOutputVolume={conversation.getOutputVolume}
-                    colors={config.orbColors || ['#6366f1', '#404040']}
+                    colors={config.orbColors || ['#737373', '#404040']}
                 />
             </motion.div>
             <div className="text-center mb-8">

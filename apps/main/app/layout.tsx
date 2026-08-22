@@ -109,7 +109,7 @@ export const metadata: Metadata = {
 		// google: "your-google-verification-code",
 	},
 	other: {
-		"theme-color": "#0f172a",
+		"theme-color": "#0a0a0a",
 	},
 };
 

@@ -40,7 +40,7 @@ export const creditEmailTemplates = {
 
         <div style="margin:20px 0;border:1px solid #e5e5e5;border-radius:10px;overflow:hidden;">
           <table style="width:100%;border-collapse:collapse;">
-            <tr style="border-bottom:1px solid #f3f4f6;">
+            <tr style="border-bottom:1px solid #f5f5f5;">
               <td style="padding:12px 16px;font-size:12px;color:#737373;text-transform:uppercase;letter-spacing:0.08em;width:50%;">Credits awarded</td>
               <td style="padding:12px 16px;font-size:18px;font-weight:700;color:#111111;text-align:right;">+${creditsAwarded}</td>
             </tr>
@@ -140,15 +140,15 @@ export const creditEmailTemplates = {
 
         <div style="margin:20px 0;border:1px solid #e5e5e5;border-radius:10px;overflow:hidden;">
           <table style="width:100%;border-collapse:collapse;">
-            <tr style="border-bottom:1px solid #f3f4f6;">
+            <tr style="border-bottom:1px solid #f5f5f5;">
               <td style="padding:12px 16px;font-size:12px;color:#737373;text-transform:uppercase;letter-spacing:0.08em;width:50%;">Credits requested</td>
               <td style="padding:12px 16px;font-size:14px;font-weight:700;color:#111111;text-align:right;">${creditsRequested}</td>
             </tr>
-            <tr style="border-bottom:1px solid #f3f4f6;">
+            <tr style="border-bottom:1px solid #f5f5f5;">
               <td style="padding:12px 16px;font-size:12px;color:#737373;text-transform:uppercase;letter-spacing:0.08em;">From</td>
               <td style="padding:12px 16px;font-size:14px;color:#111111;text-align:right;">ShipItHQ</td>
             </tr>
-            <tr style="border-bottom:1px solid #f3f4f6;">
+            <tr style="border-bottom:1px solid #f5f5f5;">
               <td style="padding:12px 16px;font-size:12px;color:#737373;text-transform:uppercase;letter-spacing:0.08em;">To</td>
               <td style="padding:12px 16px;font-size:14px;color:#111111;text-align:right;">TrueFolio</td>
             </tr>
@@ -194,7 +194,7 @@ export const creditEmailTemplates = {
 
         <div style="margin:20px 0;border:1px solid #e5e5e5;border-radius:10px;overflow:hidden;">
           <table style="width:100%;border-collapse:collapse;">
-            <tr style="border-bottom:1px solid #f3f4f6;">
+            <tr style="border-bottom:1px solid #f5f5f5;">
               <td style="padding:12px 16px;font-size:12px;color:#737373;text-transform:uppercase;letter-spacing:0.08em;width:50%;">Credits transferred</td>
               <td style="padding:12px 16px;font-size:18px;font-weight:700;color:#111111;text-align:right;">+${creditsTransferred}</td>
             </tr>

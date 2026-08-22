@@ -116,7 +116,7 @@ export function AssignGoalSheet({ open, onOpenChange, goalId, groups, onAssign }
                                         >
                                             <div
                                                 className="w-9 h-9 rounded-lg flex items-center justify-center text-base"
-                                                style={{ backgroundColor: `${group.color || '#7c3aed'}20` }}
+                                                style={{ backgroundColor: `${group.color || '#525252'}20` }}
                                             >
                                                 {group.emoji || '📁'}
                                             </div>

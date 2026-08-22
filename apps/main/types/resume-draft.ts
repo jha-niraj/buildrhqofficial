@@ -88,7 +88,7 @@ export const PLATFORM_TEMPLATES: PlatformTemplate[] = [
         description: "Polished, results-driven layout for senior and leadership roles.",
         tags: ["executive", "leadership", "classic"],
         sectionOrder: ["header", "summary", "experience", "education", "skills", "certifications"],
-        config: { primaryColor: "#1e293b", fontFamily: "georgia", layout: "single", showPhoto: false, fontSize: "medium" },
+        config: { primaryColor: "#262626", fontFamily: "georgia", layout: "single", showPhoto: false, fontSize: "medium" },
         previewColor: "#525252",
     },
     {

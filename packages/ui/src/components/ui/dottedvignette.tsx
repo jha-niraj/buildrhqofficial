@@ -19,7 +19,7 @@ interface DottedBackgroundProps {
 }
 
 const DottedBackground: React.FC<DottedBackgroundProps> = ({
-    dotColor = '#215769',
+    dotColor = '#404040',
     backgroundColor = 'transparent',
     dotSize = 2,
     dotSpacing = 10,

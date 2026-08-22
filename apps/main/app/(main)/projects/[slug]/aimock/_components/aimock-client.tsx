@@ -533,7 +533,7 @@ export default function AIMockInterviewClient({
                                 volumeMode="auto"
                                 getInputVolume={conversation.getInputVolume}
                                 getOutputVolume={conversation.getOutputVolume}
-                                colors={['#6366f1', '#404040']}
+                                colors={['#737373', '#404040']}
                             />
                         </div>
                         <div className="text-center mb-8">

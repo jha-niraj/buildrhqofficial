@@ -27,6 +27,7 @@ import { getOwnProfile, getUserProfileStats } from "@/actions/(main)/user/profil
 import { uploadResume, deleteResume, getResumeSignedUrl } from "@/actions/(main)/user/resume.action";
 import { ProfileSkeleton } from "@/components/profile/profile-view-skeleton";
 import { uploadProfileImage } from "@/actions/(common)/shared/upload.action";
+import { updateUserProfile } from "@/actions/(main)/user/user.action";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -240,6 +241,15 @@ export default function ProfilePage() {
                 toast.error(result.message || "Could not upload that image");
                 return;
             }
+
+            // PERSIST IT. `uploadProfileImage` is a pure uploader by design - it puts the
+            // bytes in R2 and hands back a URL, and every caller saves that URL itself
+            // (onboarding folds it into its own save). Without this line the object landed
+            // in the bucket, the action reported success, and the profile still showed the
+            // old avatar - which is exactly what it looked like from the outside: "it
+            // uploaded but it will not read back".
+            await updateUserProfile({ image: result.url });
+
             await refreshProfileData();
             toast.success("Photo updated");
         } catch {

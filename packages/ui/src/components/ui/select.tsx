@@ -128,9 +128,12 @@ const SelectContent = React.forwardRef<
 			{...props}
 		>
 			<SelectScrollUpButton />
+			{/* `sh-thin-scroll` rather than a nested ScrollArea - see the note beside that
+				class in globals.css. Select manages this viewport itself, and putting a
+				second scroll container inside it breaks keyboard scroll-into-view. */}
 			<SelectPrimitive.Viewport
 				className={cn(
-					"p-1",
+					"sh-thin-scroll p-1",
 					position === "popper" &&
 					"min-w-[var(--radix-select-trigger-width)]"
 				)}

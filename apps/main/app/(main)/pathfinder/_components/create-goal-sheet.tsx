@@ -66,7 +66,7 @@ const focusOptions: { id: string; label: string }[] = [
 ]
 
 const defaultEmojis = ['📁', '🎯', '💻', '📚', '🔥', '⭐', '🚀', '💡']
-const defaultColors = ['#7c3aed', '#059669', '#dc2626', '#2563eb', '#d97706', '#db2777', '#0891b2', '#4f46e5']
+const defaultColors = ['#525252', '#059669', '#dc2626', '#404040', '#737373', '#db2777', '#525252', '#404040']
 
 function generateSlug(title: string): string {
     return title
@@ -99,7 +99,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
     const [showNewGroup, setShowNewGroup] = useState(false)
     const [newGroupName, setNewGroupName] = useState('')
     const [newGroupEmoji, setNewGroupEmoji] = useState('📁')
-    const [newGroupColor, setNewGroupColor] = useState('#7c3aed')
+    const [newGroupColor, setNewGroupColor] = useState('#525252')
     const [creatingGroup, setCreatingGroup] = useState(false)
     const [localGroups, setLocalGroups] = useState<Group[]>(groups)
 
@@ -136,7 +136,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
         setShowNewGroup(false)
         setNewGroupName('')
         setNewGroupEmoji('📁')
-        setNewGroupColor('#7c3aed')
+        setNewGroupColor('#525252')
     }
 
     const canProceed = () => {
@@ -651,7 +651,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                             >
                                                                                 <div
                                                                                     className="w-8 h-8 rounded-lg flex items-center justify-center text-sm"
-                                                                                    style={{ backgroundColor: `${group.color || '#7c3aed'}20` }}
+                                                                                    style={{ backgroundColor: `${group.color || '#525252'}20` }}
                                                                                 >
                                                                                     {group.emoji || '📁'}
                                                                                 </div>

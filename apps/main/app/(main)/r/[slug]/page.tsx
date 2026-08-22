@@ -63,15 +63,15 @@ export default async function PublicResumePage({ params }: { params: Promise<{ s
             <div className="max-w-[700px] mx-auto bg-white shadow-xl rounded-lg p-10 text-[11px] leading-relaxed" style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#1a1a1a' }}>
                 {/* Header */}
                 <div style={{ borderBottomWidth: 2, borderBottomColor: accent, paddingBottom: 10, marginBottom: 14 }}>
-                    <h1 style={{ fontSize: 26, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px' }}>{header.name}</h1>
-                    {header.title && <p style={{ fontSize: 13, color: '#64748b', marginTop: 3 }}>{header.title}</p>}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 6, color: '#64748b', fontSize: 11 }}>
+                    <h1 style={{ fontSize: 26, fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.5px' }}>{header.name}</h1>
+                    {header.title && <p style={{ fontSize: 13, color: '#737373', marginTop: 3 }}>{header.title}</p>}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 6, color: '#737373', fontSize: 11 }}>
                         {[header.email, header.phone, header.location, header.github, header.linkedin, header.website].filter(Boolean).map((v, i) => <span key={i}>{v}</span>)}
                     </div>
                 </div>
 
                 {header.summary && (
-                    <p style={{ color: '#475569', marginBottom: 14, lineHeight: 1.6, fontSize: 11 }}>{header.summary}</p>
+                    <p style={{ color: '#525252', marginBottom: 14, lineHeight: 1.6, fontSize: 11 }}>{header.summary}</p>
                 )}
 
                 {experience.length > 0 && (
@@ -80,11 +80,11 @@ export default async function PublicResumePage({ params }: { params: Promise<{ s
                         {experience.map(e => (
                             <div key={e.id} style={{ marginBottom: 10 }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                                    <span style={{ fontWeight: 700, fontSize: 12 }}>{e.role} <span style={{ color: '#64748b', fontWeight: 400 }}>at {e.company}</span></span>
-                                    <span style={{ color: '#94a3b8', fontSize: 10 }}>{fmt(e.startDate)} - {e.current ? 'Present' : fmt(e.endDate)}</span>
+                                    <span style={{ fontWeight: 700, fontSize: 12 }}>{e.role} <span style={{ color: '#737373', fontWeight: 400 }}>at {e.company}</span></span>
+                                    <span style={{ color: '#a3a3a3', fontSize: 10 }}>{fmt(e.startDate)} - {e.current ? 'Present' : fmt(e.endDate)}</span>
                                 </div>
                                 {e.bullets.filter(Boolean).map((b, i) => (
-                                    <p key={i} style={{ paddingLeft: 14, color: '#374151', marginTop: 2, lineHeight: 1.5 }}>• {b}</p>
+                                    <p key={i} style={{ paddingLeft: 14, color: '#404040', marginTop: 2, lineHeight: 1.5 }}>• {b}</p>
                                 ))}
                             </div>
                         ))}
@@ -97,7 +97,7 @@ export default async function PublicResumePage({ params }: { params: Promise<{ s
                         {skills.map(g => (
                             <div key={g.category} style={{ marginBottom: 4 }}>
                                 <span style={{ fontWeight: 700 }}>{g.category}: </span>
-                                <span style={{ color: '#475569' }}>{g.items.join(' · ')}</span>
+                                <span style={{ color: '#525252' }}>{g.items.join(' · ')}</span>
                             </div>
                         ))}
                     </div>
@@ -112,8 +112,8 @@ export default async function PublicResumePage({ params }: { params: Promise<{ s
                                     <span style={{ fontWeight: 700 }}>{p.name}</span>
                                     {p.liveUrl && <a href={p.liveUrl} style={{ color: accent, fontSize: 10 }} target="_blank" rel="noopener noreferrer">{p.liveUrl}</a>}
                                 </div>
-                                {p.technologies.length > 0 && <p style={{ color: '#94a3b8', marginTop: 1, fontSize: 10 }}>{p.technologies.join(', ')}</p>}
-                                {p.bullets.filter(Boolean).map((b, i) => <p key={i} style={{ paddingLeft: 14, color: '#374151', marginTop: 2, lineHeight: 1.5 }}>• {b}</p>)}
+                                {p.technologies.length > 0 && <p style={{ color: '#a3a3a3', marginTop: 1, fontSize: 10 }}>{p.technologies.join(', ')}</p>}
+                                {p.bullets.filter(Boolean).map((b, i) => <p key={i} style={{ paddingLeft: 14, color: '#404040', marginTop: 2, lineHeight: 1.5 }}>• {b}</p>)}
                             </div>
                         ))}
                     </div>
@@ -124,8 +124,8 @@ export default async function PublicResumePage({ params }: { params: Promise<{ s
                         <SectionHeader title="Education" color={accent} />
                         {education.map(e => (
                             <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                                <span><span style={{ fontWeight: 700 }}>{e.institution}</span>{e.degree && <span style={{ color: '#64748b' }}> · {e.degree}{e.field ? `, ${e.field}` : ''}</span>}</span>
-                                <span style={{ color: '#94a3b8', fontSize: 10 }}>{fmt(e.startDate)} - {fmt(e.endDate)}</span>
+                                <span><span style={{ fontWeight: 700 }}>{e.institution}</span>{e.degree && <span style={{ color: '#737373' }}> · {e.degree}{e.field ? `, ${e.field}` : ''}</span>}</span>
+                                <span style={{ color: '#a3a3a3', fontSize: 10 }}>{fmt(e.startDate)} - {fmt(e.endDate)}</span>
                             </div>
                         ))}
                     </div>
@@ -137,14 +137,14 @@ export default async function PublicResumePage({ params }: { params: Promise<{ s
                         {certifications.map(c => (
                             <div key={c.id} style={{ marginBottom: 3 }}>
                                 <span style={{ fontWeight: 700 }}>{c.name}</span>
-                                {c.issuer && <span style={{ color: '#64748b' }}> · {c.issuer}{c.date ? `, ${fmt(c.date)}` : ''}</span>}
+                                {c.issuer && <span style={{ color: '#737373' }}> · {c.issuer}{c.date ? `, ${fmt(c.date)}` : ''}</span>}
                             </div>
                         ))}
                     </div>
                 )}
 
                 {/* Footer */}
-                <div style={{ marginTop: 24, borderTopWidth: 1, borderTopColor: '#f1f5f9', paddingTop: 8, textAlign: 'center', color: '#94a3b8', fontSize: 9 }}>
+                <div style={{ marginTop: 24, borderTopWidth: 1, borderTopColor: '#f5f5f5', paddingTop: 8, textAlign: 'center', color: '#a3a3a3', fontSize: 9 }}>
                     Built with ShipItHQ Resume Builder
                 </div>
             </div>
@@ -156,7 +156,7 @@ function SectionHeader({ title, color }: { title: string; color: string }) {
     return (
         <p style={{
             fontSize: 9, fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: 1.5,
-            borderBottomWidth: 0.5, borderBottomColor: '#e2e8f0', paddingBottom: 3, marginBottom: 8
+            borderBottomWidth: 0.5, borderBottomColor: '#e5e5e5', paddingBottom: 3, marginBottom: 8
         }}>
             {title}
         </p>

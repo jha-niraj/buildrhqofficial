@@ -296,8 +296,8 @@ export default function BlueprintFlowchart({
                 target: sortedTasks[0]?.id ?? '',
                 type: 'smoothstep',
                 animated: progressPercentage < 100,
-                style: { stroke: '#6366f1', strokeWidth: 2 },
-                markerEnd: { type: MarkerType.ArrowClosed, color: '#6366f1' },
+                style: { stroke: '#737373', strokeWidth: 2 },
+                markerEnd: { type: MarkerType.ArrowClosed, color: '#737373' },
             })
         }
 
@@ -317,13 +317,13 @@ export default function BlueprintFlowchart({
                 type: currentRow !== nextRow ? 'smoothstep' : 'smoothstep',
                 animated: !isCompleted && progressPercentage < 100,
                 style: {
-                    stroke: isCompleted ? '#22c55e' : '#6366f1',
+                    stroke: isCompleted ? '#22c55e' : '#737373',
                     strokeWidth: 2,
                     opacity: isCompleted ? 1 : 0.6,
                 },
                 markerEnd: {
                     type: MarkerType.ArrowClosed,
-                    color: isCompleted ? '#22c55e' : '#6366f1'
+                    color: isCompleted ? '#22c55e' : '#737373'
                 },
             })
         }
@@ -337,8 +337,8 @@ export default function BlueprintFlowchart({
                 target: 'end',
                 type: 'smoothstep',
                 animated: lastTask?.status !== 'COMPLETED',
-                style: { stroke: '#6366f1', strokeWidth: 2, opacity: 0.6 },
-                markerEnd: { type: MarkerType.ArrowClosed, color: '#6366f1' },
+                style: { stroke: '#737373', strokeWidth: 2, opacity: 0.6 },
+                markerEnd: { type: MarkerType.ArrowClosed, color: '#737373' },
             })
         }
 
@@ -432,7 +432,7 @@ export default function BlueprintFlowchart({
                                     variant={BackgroundVariant.Dots}
                                     gap={20}
                                     size={1}
-                                    color="#d4d4d8"
+                                    color="#d4d4d4"
                                     className="dark:opacity-30"
                                 />
                                 <Controls

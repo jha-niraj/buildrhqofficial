@@ -3,7 +3,7 @@ import {
 } from '@react-pdf/renderer'
 import { ResumeDraftContent } from '@/types/resume-draft'
 
-const ACCENT = '#111827'
+const ACCENT = '#171717'
 
 const styles = StyleSheet.create({
     page: { fontFamily: 'Helvetica', fontSize: 9, color: '#1a1a1a', paddingHorizontal: 40, paddingVertical: 36 },
@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
     muted: { color: '#666' },
     bullet: { marginLeft: 8, marginTop: 1 },
     dot: { width: 3, marginRight: 4, marginTop: 3, height: 3, backgroundColor: '#999', borderRadius: 2 },
-    tag: { backgroundColor: '#f1f5f9', borderRadius: 2, paddingHorizontal: 4, paddingVertical: 1, marginRight: 3, marginBottom: 2, fontSize: 7.5 },
+    tag: { backgroundColor: '#f5f5f5', borderRadius: 2, paddingHorizontal: 4, paddingVertical: 1, marginRight: 3, marginBottom: 2, fontSize: 7.5 },
     tagsRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 2 },
     skillGroup: { marginBottom: 4 },
     summary: { color: '#444', lineHeight: 1.5, marginBottom: 8 },

@@ -53,7 +53,7 @@ const statusConfig: Record<PathfinderStatus, { label: string; icon: React.ReactN
     ABANDONED: { label: 'Paused', icon: <PauseCircle className="w-3 h-3" />, color: 'text-neutral-600', bg: 'bg-neutral-500/10' },
 }
 
-const PIE_COLORS = ['#10b981', '#525252', '#3b82f6', '#404040', '#ec4899', '#06b6d4', '#171717', '#6366f1', '#14b8a6', '#e11d48']
+const PIE_COLORS = ['#10b981', '#525252', '#737373', '#404040', '#ec4899', '#a3a3a3', '#171717', '#737373', '#14b8a6', '#e11d48']
 
 function GoalCard({ goal, onAssign }: { goal: Goal; onAssign: () => void }) {
     const category = categoryConfig[goal.category]
@@ -151,7 +151,7 @@ function GroupSection({ group, goals, onAssignGoal }: { group: Group; goals: Goa
     return (
         <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-3">
             <CollapsibleTrigger className="flex items-center gap-2 w-full px-2 py-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800/50 transition-colors group">
-                <div className="w-5 h-5 rounded flex items-center justify-center text-xs" style={{ backgroundColor: `${group.color || '#7c3aed'}20` }}>
+                <div className="w-5 h-5 rounded flex items-center justify-center text-xs" style={{ backgroundColor: `${group.color || '#525252'}20` }}>
                     {group.emoji || '📁'}
                 </div>
                 <span className="font-medium text-xs text-neutral-700 dark:text-neutral-300 flex-1 text-left">{group.name}</span>
@@ -231,7 +231,7 @@ function ActivityChart({ goals }: { goals: Goal[] }) {
                         />
                         <Bar dataKey="tasks" fill="#10b981" radius={[3, 3, 0, 0]} name="Tasks" />
                         <Bar dataKey="quiz" fill="#404040" radius={[3, 3, 0, 0]} name="Quiz" />
-                        <Bar dataKey="code" fill="#3b82f6" radius={[3, 3, 0, 0]} name="Code" />
+                        <Bar dataKey="code" fill="#737373" radius={[3, 3, 0, 0]} name="Code" />
                     </BarChart>
                 </ResponsiveContainer>
                 <div className="flex items-center justify-center gap-4 mt-2">
@@ -488,7 +488,7 @@ export function PathfinderDashboard({ initialGoals, initialGroups }: PathfinderD
                             <p className="text-[10px] font-medium text-neutral-400 uppercase tracking-wider mb-2 px-2">Empty Groups</p>
                             {groupedGoals.filter(g => g.goals.length === 0).map(({ group }) => (
                                 <div key={group.id} className="flex items-center gap-2 px-2 py-1.5 text-xs text-neutral-400">
-                                    <span style={{ backgroundColor: `${group.color || '#7c3aed'}20` }} className="w-4 h-4 rounded flex items-center justify-center text-[10px]">
+                                    <span style={{ backgroundColor: `${group.color || '#525252'}20` }} className="w-4 h-4 rounded flex items-center justify-center text-[10px]">
                                         {group.emoji || '📁'}
                                     </span>
                                     {group.name}

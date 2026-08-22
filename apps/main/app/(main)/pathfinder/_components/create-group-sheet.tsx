@@ -22,8 +22,8 @@ interface CreateGroupSheetProps {
 }
 
 const colorOptions = [
-    '#7c3aed', '#3b82f6', '#10b981', '#525252',
-    '#ef4444', '#ec4899', '#404040', '#06b6d4',
+    '#525252', '#737373', '#10b981', '#525252',
+    '#ef4444', '#ec4899', '#404040', '#a3a3a3',
 ]
 
 const emojiOptions = ['📁', '🎯', '💻', '🚀', '📚', '🧠', '⚡', '🔥', '💡', '🎨']
@@ -31,13 +31,13 @@ const emojiOptions = ['📁', '🎯', '💻', '🚀', '📚', '🧠', '⚡', '�
 export function CreateGroupSheet({ open, onOpenChange, onSuccess }: CreateGroupSheetProps) {
     const [name, setName] = useState('')
     const [emoji, setEmoji] = useState('📁')
-    const [color, setColor] = useState('#7c3aed')
+    const [color, setColor] = useState('#525252')
     const [isLoading, setIsLoading] = useState(false)
 
     const resetForm = () => {
         setName('')
         setEmoji('📁')
-        setColor('#7c3aed')
+        setColor('#525252')
     }
 
     const handleSubmit = async (e: React.FormEvent) => {

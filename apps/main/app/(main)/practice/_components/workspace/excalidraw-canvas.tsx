@@ -54,7 +54,7 @@ export function ExcalidrawCanvas({ initialData, onChange, darkMode = true }: Exc
         : {
               elements: [],
               appState: {
-                  viewBackgroundColor: darkMode ? "#1a1a2e" : "#ffffff",
+                  viewBackgroundColor: darkMode ? "#171717" : "#ffffff",
                   theme: darkMode ? "dark" : "light",
               },
           };

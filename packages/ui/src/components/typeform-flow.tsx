@@ -224,9 +224,9 @@ function firstIncompleteRequiredIdx(steps: FlowStep[], answers: Record<string, u
 
 const THEMED_VAR_CLASSES =
 	"[--tf-accent:#171717] [--tf-accent-ink:#ffffff] [--tf-accent-tint:#17171712] " +
-	"[--tf-surface:#ffffff] [--tf-bg:#fafaf9] [--tf-text:#171717] [--tf-text-dim:#6b7280] [--tf-border:#e5e5e5] [--tf-scrim:rgba(250,250,249,0.28)] " +
+	"[--tf-surface:#ffffff] [--tf-bg:#fafaf9] [--tf-text:#171717] [--tf-text-dim:#737373] [--tf-border:#e5e5e5] [--tf-scrim:rgba(250,250,249,0.28)] " +
 	"dark:[--tf-accent:#fafafa] dark:[--tf-accent-ink:#171717] dark:[--tf-accent-tint:#ffffff14] " +
-	"dark:[--tf-surface:#161616] dark:[--tf-bg:#0a0a0a] dark:[--tf-text:#fafafa] dark:[--tf-text-dim:#9ca3af] dark:[--tf-border:#2a2a2a] dark:[--tf-scrim:rgba(10,10,10,0.58)]"
+	"dark:[--tf-surface:#161616] dark:[--tf-bg:#0a0a0a] dark:[--tf-text:#fafafa] dark:[--tf-text-dim:#a3a3a3] dark:[--tf-border:#2a2a2a] dark:[--tf-scrim:rgba(10,10,10,0.58)]"
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
@@ -625,8 +625,8 @@ export function TypeformFlow({
 			"--tf-surface": "#ffffff",
 			"--tf-bg": "#fffbf5",
 			"--tf-text": "#171717",
-			"--tf-text-dim": "#6b7280",
-			"--tf-border": "#e5e7eb",
+			"--tf-text-dim": "#737373",
+			"--tf-border": "#e5e5e5",
 			"--tf-scrim": "rgba(255,251,245,0.82)",
 		} as React.CSSProperties)
 

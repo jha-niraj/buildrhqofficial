@@ -191,7 +191,7 @@ export const rewards = pgTable("reward", {
 export const userProfiles = pgTable("user_profile", {
     id: text("id").primaryKey().$defaultFn(() => createId()),
     userId: text("user_id").unique().notNull().references(() => users.id, { onDelete: "cascade" }),
-    coverGradient: text("cover_gradient").default("#F59E0B,#FBBF24"),
+    coverGradient: text("cover_gradient").default("#525252,#a3a3a3"),
     theme: profileThemeEnum("theme").notNull().default("OCEAN_BLUE"),
     layout: profileLayoutEnum("layout").notNull().default("DEFAULT"),
     tagline: text("tagline"),

@@ -9,11 +9,30 @@ const Popover = PopoverPrimitive.Root
 
 const PopoverTrigger = PopoverPrimitive.Trigger
 
+/**
+ * ── `portal={false}` when this popover lives inside a Dialog ──
+ *
+ * Radix Dialog wraps its content in `react-remove-scroll` with `shards: [contentRef]` and
+ * without `noIsolation`. That library's wheel handler is explicit: for an event whose target
+ * is outside the lock AND outside every shard, `shouldStop = !noIsolation`, and it calls
+ * `preventDefault()`.
+ *
+ * A portalled popover renders to `document.body`, which is outside both. So the list inside
+ * it paints a scrollbar, reports the right `scrollHeight`, responds to the keyboard - and
+ * ignores the wheel completely, because the wheel event is being cancelled before it reaches
+ * the element. That is the whole bug behind "the dropdown has a scrollbar but will not
+ * scroll", and no amount of `overflow-auto` on the list can fix it.
+ *
+ * Rendering in place puts the content inside the dialog's subtree, so it falls within the
+ * shard and scrolls. The cost is that it is no longer immune to an ancestor's clipping, which
+ * is why this is opt-in rather than the default: every popover outside a dialog is better off
+ * portalled.
+ */
 const PopoverContent = React.forwardRef<
 	React.ElementRef<typeof PopoverPrimitive.Content>,
-	React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
->(({ className, align = "center", sideOffset = 4, ...props }, ref) => (
-	<PopoverPrimitive.Portal>
+	React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & { portal?: boolean }
+>(({ className, align = "center", sideOffset = 4, portal = true, ...props }, ref) => {
+	const content = (
 		<PopoverPrimitive.Content
 			ref={ref}
 			align={align}
@@ -24,8 +43,10 @@ const PopoverContent = React.forwardRef<
 			)}
 			{...props}
 		/>
-	</PopoverPrimitive.Portal>
-))
+	)
+
+	return portal ? <PopoverPrimitive.Portal>{content}</PopoverPrimitive.Portal> : content
+})
 PopoverContent.displayName = PopoverPrimitive.Content.displayName
 
 export { Popover, PopoverTrigger, PopoverContent }

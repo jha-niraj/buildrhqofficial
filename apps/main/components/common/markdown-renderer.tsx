@@ -24,11 +24,11 @@ function MermaidBlock({ code }: { code: string }) {
                     securityLevel: "loose",
                     fontFamily: "inherit",
                     themeVariables: {
-                        primaryColor: "#3b82f6",
+                        primaryColor: "#737373",
                         primaryTextColor: "#f5f5f5",
                         primaryBorderColor: "#525252",
                         lineColor: "#737373",
-                        secondaryColor: "#1e3a5f",
+                        secondaryColor: "#262626",
                         tertiaryColor: "#171717",
                         background: "#0a0a0a",
                         mainBkg: "#171717",

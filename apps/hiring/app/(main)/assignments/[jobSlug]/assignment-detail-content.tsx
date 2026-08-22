@@ -126,16 +126,16 @@ function CandidateCard({
                                 fill
                             />
                         ) : (
-                            <div className="h-10 w-10 rounded-full bg-[#0F172A] flex items-center justify-center text-white font-medium">
+                            <div className="h-10 w-10 rounded-full bg-[#0a0a0a] flex items-center justify-center text-white font-medium">
                                 {application.user?.name?.charAt(0) || application.user?.email?.charAt(0)?.toUpperCase() || "?"}
                             </div>
                         )
                     }
                     <div>
-                        <h4 className="font-medium text-[#0F172A]">
+                        <h4 className="font-medium text-[#0a0a0a]">
                             {application.user?.name || "Unknown"}
                         </h4>
-                        <p className="text-sm text-[#64748B]">{application.user?.email}</p>
+                        <p className="text-sm text-[#737373]">{application.user?.email}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -159,7 +159,7 @@ function CandidateCard({
                     </DropdownMenu>
                 </div>
             </div>
-            <div className="mt-4 flex items-center gap-6 text-sm text-[#64748B]">
+            <div className="mt-4 flex items-center gap-6 text-sm text-[#737373]">
                 {
                     application.assignmentStartedAt && (
                         <div className="flex items-center gap-1.5">
@@ -192,7 +192,7 @@ function CandidateCard({
                             size="sm"
                             onClick={() => onSendAssignment(application.id)}
                             disabled={isPending}
-                            className="bg-[#0F172A] hover:bg-[#1e293b] text-white"
+                            className="bg-[#0a0a0a] hover:bg-[#262626] text-white"
                         >
                             <Send className="h-3.5 w-3.5 mr-1.5" />
                             Send Assignment
@@ -270,7 +270,7 @@ function ScoreDialog({
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                     <div className="space-y-2">
-                        <Label className="text-sm font-medium text-[#0F172A]">
+                        <Label className="text-sm font-medium text-[#0a0a0a]">
                             Score (0-100)
                         </Label>
                         <Input
@@ -284,7 +284,7 @@ function ScoreDialog({
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label className="text-sm font-medium text-[#0F172A]">
+                        <Label className="text-sm font-medium text-[#0a0a0a]">
                             Feedback
                         </Label>
                         <Textarea
@@ -302,7 +302,7 @@ function ScoreDialog({
                     <Button
                         onClick={handleSubmit}
                         disabled={isPending || !score}
-                        className="bg-[#0F172A] hover:bg-[#1e293b] text-white"
+                        className="bg-[#0a0a0a] hover:bg-[#262626] text-white"
                     >
                         {isPending ? "Saving..." : "Save Score"}
                     </Button>
@@ -362,15 +362,15 @@ export default function AssignmentDetailContent({ job, submissions }: Assignment
                 <div className="container mx-auto px-6 py-6">
                     <Link
                         href="/assignments"
-                        className="inline-flex items-center gap-2 text-[#64748B] hover:text-[#0F172A] text-sm mb-4 transition-colors"
+                        className="inline-flex items-center gap-2 text-[#737373] hover:text-[#0a0a0a] text-sm mb-4 transition-colors"
                     >
                         <ArrowLeft className="h-4 w-4" />
                         Back to Assignments
                     </Link>
                     <div className="flex items-start justify-between">
                         <div>
-                            <h1 className="text-2xl font-semibold text-[#0F172A]">{job.title}</h1>
-                            <p className="text-[#64748B] mt-1">
+                            <h1 className="text-2xl font-semibold text-[#0a0a0a]">{job.title}</h1>
+                            <p className="text-[#737373] mt-1">
                                 Manage assignments and review submissions
                             </p>
                         </div>
@@ -382,21 +382,21 @@ export default function AssignmentDetailContent({ job, submissions }: Assignment
                         </Badge>
                     </div>
                     <div className="flex items-center gap-6 mt-6 text-sm">
-                        <div className="flex items-center gap-2 text-[#64748B]">
+                        <div className="flex items-center gap-2 text-[#737373]">
                             <Clock className="h-4 w-4" />
                             <span>{awaitingCount} awaiting</span>
                         </div>
-                        <div className="flex items-center gap-2 text-[#64748B]">
+                        <div className="flex items-center gap-2 text-[#737373]">
                             <CheckCircle2 className="h-4 w-4 text-neutral-800" />
                             <span>{submittedCount} submitted</span>
                         </div>
-                        <div className="flex items-center gap-2 text-[#64748B]">
+                        <div className="flex items-center gap-2 text-[#737373]">
                             <Star className="h-4 w-4 text-neutral-900" />
                             <span>{scoredCount} scored</span>
                         </div>
                         {
                             avgScore > 0 && (
-                                <div className="flex items-center gap-2 text-[#64748B]">
+                                <div className="flex items-center gap-2 text-[#737373]">
                                     <span className="font-medium">Avg Score: {avgScore}/100</span>
                                 </div>
                             )
@@ -428,13 +428,13 @@ export default function AssignmentDetailContent({ job, submissions }: Assignment
                                     animate={{ opacity: 1 }}
                                     className="bg-white rounded-xl border border-[#e6e6e6] p-12 text-center"
                                 >
-                                    <div className="mx-auto w-12 h-12 rounded-full bg-[#F1F5F9] flex items-center justify-center mb-4">
-                                        <Users className="h-6 w-6 text-[#64748B]" />
+                                    <div className="mx-auto w-12 h-12 rounded-full bg-[#f5f5f5] flex items-center justify-center mb-4">
+                                        <Users className="h-6 w-6 text-[#737373]" />
                                     </div>
-                                    <h3 className="text-lg font-medium text-[#0F172A] mb-2">
+                                    <h3 className="text-lg font-medium text-[#0a0a0a] mb-2">
                                         No candidates yet
                                     </h3>
-                                    <p className="text-[#64748B] max-w-md mx-auto">
+                                    <p className="text-[#737373] max-w-md mx-auto">
                                         Candidates who are shortlisted or have been sent assignments will appear here.
                                     </p>
                                 </motion.div>
@@ -463,13 +463,13 @@ export default function AssignmentDetailContent({ job, submissions }: Assignment
                                     animate={{ opacity: 1 }}
                                     className="bg-white rounded-xl border border-[#e6e6e6] p-12 text-center"
                                 >
-                                    <div className="mx-auto w-12 h-12 rounded-full bg-[#F1F5F9] flex items-center justify-center mb-4">
-                                        <FileText className="h-6 w-6 text-[#64748B]" />
+                                    <div className="mx-auto w-12 h-12 rounded-full bg-[#f5f5f5] flex items-center justify-center mb-4">
+                                        <FileText className="h-6 w-6 text-[#737373]" />
                                     </div>
-                                    <h3 className="text-lg font-medium text-[#0F172A] mb-2">
+                                    <h3 className="text-lg font-medium text-[#0a0a0a] mb-2">
                                         No submissions yet
                                     </h3>
-                                    <p className="text-[#64748B] max-w-md mx-auto">
+                                    <p className="text-[#737373] max-w-md mx-auto">
                                         When candidates submit their assignments, they will appear here for review.
                                     </p>
                                 </motion.div>
@@ -494,27 +494,27 @@ export default function AssignmentDetailContent({ job, submissions }: Assignment
                                                                     fill
                                                                 />
                                                             ) : (
-                                                                <div className="h-10 w-10 rounded-full bg-[#0F172A] flex items-center justify-center text-white font-medium">
+                                                                <div className="h-10 w-10 rounded-full bg-[#0a0a0a] flex items-center justify-center text-white font-medium">
                                                                     {submission.user?.name?.charAt(0) || submission.user?.email?.charAt(0)?.toUpperCase() || "?"}
                                                                 </div>
                                                             )
                                                         }
                                                         <div>
-                                                            <h4 className="font-medium text-[#0F172A]">
+                                                            <h4 className="font-medium text-[#0a0a0a]">
                                                                 {submission.user?.name || "Unknown"}
                                                             </h4>
-                                                            <p className="text-sm text-[#64748B]">{submission.user?.email}</p>
+                                                            <p className="text-sm text-[#737373]">{submission.user?.email}</p>
                                                         </div>
                                                     </div>
 
                                                     {
                                                         submission.assignmentScore !== null ? (
                                                             <div className="text-right">
-                                                                <div className="text-2xl font-bold text-[#0F172A]">
+                                                                <div className="text-2xl font-bold text-[#0a0a0a]">
                                                                     {submission.assignmentScore}
-                                                                    <span className="text-sm font-normal text-[#64748B]">/100</span>
+                                                                    <span className="text-sm font-normal text-[#737373]">/100</span>
                                                                 </div>
-                                                                <p className="text-xs text-[#64748B]">Scored</p>
+                                                                <p className="text-xs text-[#737373]">Scored</p>
                                                             </div>
                                                         ) : (
                                                             <Badge variant="outline" className="bg-neutral-50 text-neutral-700 border-neutral-200">
@@ -526,12 +526,12 @@ export default function AssignmentDetailContent({ job, submissions }: Assignment
 
                                                 {
                                                     submission.assignmentFeedback && (
-                                                        <div className="mt-4 p-3 bg-[#F1F5F9] rounded-lg">
-                                                            <div className="flex items-center gap-2 text-sm font-medium text-[#0F172A] mb-1">
+                                                        <div className="mt-4 p-3 bg-[#f5f5f5] rounded-lg">
+                                                            <div className="flex items-center gap-2 text-sm font-medium text-[#0a0a0a] mb-1">
                                                                 <MessageSquare className="h-3.5 w-3.5" />
                                                                 Feedback
                                                             </div>
-                                                            <p className="text-sm text-[#64748B]">{submission.assignmentFeedback}</p>
+                                                            <p className="text-sm text-[#737373]">{submission.assignmentFeedback}</p>
                                                         </div>
                                                     )
                                                 }
@@ -550,7 +550,7 @@ export default function AssignmentDetailContent({ job, submissions }: Assignment
                                                             ...submission,
                                                             createdAt: new Date()
                                                         } as AssignmentApplication)}
-                                                        className="bg-[#0F172A] hover:bg-[#1e293b] text-white"
+                                                        className="bg-[#0a0a0a] hover:bg-[#262626] text-white"
                                                     >
                                                         <Star className="h-3.5 w-3.5 mr-1.5" />
                                                         {submission.assignmentScore !== null ? "Update Score" : "Score"}
@@ -570,18 +570,18 @@ export default function AssignmentDetailContent({ job, submissions }: Assignment
                             className="bg-white rounded-xl border border-[#e6e6e6] p-6"
                         >
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="p-2 rounded-lg bg-[#F1F5F9]">
-                                    <Clipboard className="h-5 w-5 text-[#0F172A]" />
+                                <div className="p-2 rounded-lg bg-[#f5f5f5]">
+                                    <Clipboard className="h-5 w-5 text-[#0a0a0a]" />
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-[#0F172A]">Assignment Configuration</h3>
-                                    <p className="text-sm text-[#64748B]">Details of the take-home assignment</p>
+                                    <h3 className="font-semibold text-[#0a0a0a]">Assignment Configuration</h3>
+                                    <p className="text-sm text-[#737373]">Details of the take-home assignment</p>
                                 </div>
                             </div>
                             <div className="space-y-4">
-                                <div className="p-4 bg-[#F8FAFC] rounded-lg">
-                                    <label className="text-sm font-medium text-[#64748B]">Deadline</label>
-                                    <p className="text-[#0F172A] mt-1">
+                                <div className="p-4 bg-[#fafafa] rounded-lg">
+                                    <label className="text-sm font-medium text-[#737373]">Deadline</label>
+                                    <p className="text-[#0a0a0a] mt-1">
                                         {job.assignmentDeadlineDays
                                             ? `${job.assignmentDeadlineDays} days after receiving`
                                             : "No deadline set"}
@@ -590,9 +590,9 @@ export default function AssignmentDetailContent({ job, submissions }: Assignment
 
                                 {
                                     job.assignmentInstructions && (
-                                        <div className="p-4 bg-[#F8FAFC] rounded-lg">
-                                            <Label className="text-sm font-medium text-[#64748B]">Instructions</Label>
-                                            <p className="text-[#0F172A] mt-1 whitespace-pre-wrap">
+                                        <div className="p-4 bg-[#fafafa] rounded-lg">
+                                            <Label className="text-sm font-medium text-[#737373]">Instructions</Label>
+                                            <p className="text-[#0a0a0a] mt-1 whitespace-pre-wrap">
                                                 {job.assignmentInstructions}
                                             </p>
                                         </div>
@@ -601,9 +601,9 @@ export default function AssignmentDetailContent({ job, submissions }: Assignment
 
                                 {
                                     job.assignmentDetails !== null && job.assignmentDetails !== undefined && (
-                                        <div className="p-4 bg-[#F8FAFC] rounded-lg">
-                                            <Label className="text-sm font-medium text-[#64748B]">Assignment Details</Label>
-                                            <pre className="text-sm text-[#0F172A] mt-2 overflow-auto">
+                                        <div className="p-4 bg-[#fafafa] rounded-lg">
+                                            <Label className="text-sm font-medium text-[#737373]">Assignment Details</Label>
+                                            <pre className="text-sm text-[#0a0a0a] mt-2 overflow-auto">
                                                 {JSON.stringify(job.assignmentDetails, null, 2)}
                                             </pre>
                                         </div>

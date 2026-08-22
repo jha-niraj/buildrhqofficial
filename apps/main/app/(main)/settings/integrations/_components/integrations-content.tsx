@@ -40,19 +40,25 @@ interface IntegrationsContentProps {
     socialConnections: Connection[]
 }
 
+// No brand colours. Each of these carried its own hex - Twitter blue and LinkedIn blue -
+// painted onto the icon tile AND the Connect button, which put two different saturated blues
+// on a page whose palette is pinned to monochrome black/neutral (CLAUDE.md rules out blue
+// explicitly). The GitHub row directly above them was already neutral, so the section did not
+// even agree with itself.
+//
+// The icons still identify the platforms; they do not need to be the platform's blue to do
+// it, and a Connect button has no reason to be a different colour per row.
 const SOCIAL_PLATFORMS = [
     {
         id: 'TWITTER' as const,
         name: 'Twitter / X',
         icon: Twitter,
-        color: '#1DA1F2',
         description: 'Share achievements on Twitter',
     },
     {
         id: 'LINKEDIN' as const,
         name: 'LinkedIn',
         icon: Linkedin,
-        color: '#0A66C2',
         description: 'Share achievements on LinkedIn',
     },
 ]
@@ -327,11 +333,9 @@ export function IntegrationsContent({ socialConnections }: IntegrationsContentPr
                                 )}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div
-                                        className="w-10 h-10 rounded-lg flex items-center justify-center"
-                                        style={{ backgroundColor: `${platform.color}20` }}
-                                    >
-                                        <Icon className="w-5 h-5" style={{ color: platform.color }} />
+                                    {/* Same neutral tile as the GitHub row above. */}
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-800">
+                                        <Icon className="h-5 w-5 text-neutral-700 dark:text-neutral-200" />
                                     </div>
                                     <div>
                                         <p className="font-medium">{platform.name}</p>
@@ -351,9 +355,9 @@ export function IntegrationsContent({ socialConnections }: IntegrationsContentPr
                                     </Button>
                                 ) : (
                                     <Button
+                                        variant="outline"
                                         size="sm"
                                         onClick={() => handleConnectSocial(platform)}
-                                        style={{ backgroundColor: platform.color, color: 'white' }}
                                     >
                                         <Link2 className="w-4 h-4 mr-2" />
                                         Connect

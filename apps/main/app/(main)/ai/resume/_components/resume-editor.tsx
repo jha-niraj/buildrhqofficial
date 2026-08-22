@@ -430,26 +430,26 @@ function LivePreview({ content, templateSlug }: { content: ResumeDraftContent; t
     const accent = platDef?.config.primaryColor ?? '#1a1a1a'
 
     return (
-        <div className="bg-white text-[10px] leading-relaxed p-8 min-h-full" style={{ fontFamily: 'Inter, sans-serif', color: '#0f172a' }}>
+        <div className="bg-white text-[10px] leading-relaxed p-8 min-h-full" style={{ fontFamily: 'Inter, sans-serif', color: '#0a0a0a' }}>
             <div style={{ borderBottomWidth: 2, borderBottomColor: accent, paddingBottom: 8, marginBottom: 12 }}>
-                <p style={{ fontSize: 20, fontWeight: 700, color: '#0f172a' }}>{header.name || 'Your Name'}</p>
-                {header.title && <p style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{header.title}</p>}
-                <div style={{ display: 'flex', gap: 12, marginTop: 4, color: '#64748b', fontSize: 9 }}>
+                <p style={{ fontSize: 20, fontWeight: 700, color: '#0a0a0a' }}>{header.name || 'Your Name'}</p>
+                {header.title && <p style={{ fontSize: 11, color: '#737373', marginTop: 2 }}>{header.title}</p>}
+                <div style={{ display: 'flex', gap: 12, marginTop: 4, color: '#737373', fontSize: 9 }}>
                     {[header.email, header.phone, header.location, header.github, header.linkedin].filter(Boolean).map((v, i) => <span key={i}>{v}</span>)}
                 </div>
             </div>
-            {header.summary && <p style={{ color: '#475569', marginBottom: 10, lineHeight: 1.5 }}>{header.summary}</p>}
+            {header.summary && <p style={{ color: '#525252', marginBottom: 10, lineHeight: 1.5 }}>{header.summary}</p>}
 
             {experience.length > 0 && (
                 <div style={{ marginBottom: 10 }}>
-                    <p style={{ fontSize: 9, fontWeight: 700, color: '#111827', textTransform: 'uppercase', letterSpacing: 1, borderBottomWidth: 0.5, borderBottomColor: '#e2e8f0', paddingBottom: 2, marginBottom: 6 }}>Experience</p>
+                    <p style={{ fontSize: 9, fontWeight: 700, color: '#171717', textTransform: 'uppercase', letterSpacing: 1, borderBottomWidth: 0.5, borderBottomColor: '#e5e5e5', paddingBottom: 2, marginBottom: 6 }}>Experience</p>
                     {experience.map(e => (
                         <div key={e.id} style={{ marginBottom: 8 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ fontWeight: 600, color: '#111827' }}>{e.role} - {e.company}</span>
-                                <span style={{ color: '#94a3b8' }}>{e.startDate?.split('T')[0]} - {e.current ? 'Present' : e.endDate?.split('T')[0]}</span>
+                                <span style={{ fontWeight: 600, color: '#171717' }}>{e.role} - {e.company}</span>
+                                <span style={{ color: '#a3a3a3' }}>{e.startDate?.split('T')[0]} - {e.current ? 'Present' : e.endDate?.split('T')[0]}</span>
                             </div>
-                            {e.bullets.filter(Boolean).map((b, i) => <p key={i} style={{ paddingLeft: 12, color: '#374151', marginTop: 1 }}>• {b}</p>)}
+                            {e.bullets.filter(Boolean).map((b, i) => <p key={i} style={{ paddingLeft: 12, color: '#404040', marginTop: 1 }}>• {b}</p>)}
                         </div>
                     ))}
                 </div>
@@ -457,11 +457,11 @@ function LivePreview({ content, templateSlug }: { content: ResumeDraftContent; t
 
             {skills.length > 0 && (
                 <div style={{ marginBottom: 10 }}>
-                    <p style={{ fontSize: 9, fontWeight: 700, color: '#111827', textTransform: 'uppercase', letterSpacing: 1, borderBottomWidth: 0.5, borderBottomColor: '#e2e8f0', paddingBottom: 2, marginBottom: 6 }}>Skills</p>
+                    <p style={{ fontSize: 9, fontWeight: 700, color: '#171717', textTransform: 'uppercase', letterSpacing: 1, borderBottomWidth: 0.5, borderBottomColor: '#e5e5e5', paddingBottom: 2, marginBottom: 6 }}>Skills</p>
                     {skills.map(g => (
                         <div key={g.category} style={{ marginBottom: 3 }}>
-                            <span style={{ fontWeight: 600, color: '#111827' }}>{g.category}: </span>
-                            <span style={{ color: '#475569' }}>{g.items.join(' · ')}</span>
+                            <span style={{ fontWeight: 600, color: '#171717' }}>{g.category}: </span>
+                            <span style={{ color: '#525252' }}>{g.items.join(' · ')}</span>
                         </div>
                     ))}
                 </div>
@@ -469,12 +469,12 @@ function LivePreview({ content, templateSlug }: { content: ResumeDraftContent; t
 
             {projects.length > 0 && (
                 <div style={{ marginBottom: 10 }}>
-                    <p style={{ fontSize: 9, fontWeight: 700, color: '#111827', textTransform: 'uppercase', letterSpacing: 1, borderBottomWidth: 0.5, borderBottomColor: '#e2e8f0', paddingBottom: 2, marginBottom: 6 }}>Projects</p>
+                    <p style={{ fontSize: 9, fontWeight: 700, color: '#171717', textTransform: 'uppercase', letterSpacing: 1, borderBottomWidth: 0.5, borderBottomColor: '#e5e5e5', paddingBottom: 2, marginBottom: 6 }}>Projects</p>
                     {projects.map(p => (
                         <div key={p.id} style={{ marginBottom: 6 }}>
-                            <span style={{ fontWeight: 600, color: '#111827' }}>{p.name}</span>
-                            {p.technologies.length > 0 && <span style={{ color: '#94a3b8', marginLeft: 6 }}>{p.technologies.join(', ')}</span>}
-                            {p.bullets.filter(Boolean).map((b, i) => <p key={i} style={{ paddingLeft: 12, color: '#374151', marginTop: 1 }}>• {b}</p>)}
+                            <span style={{ fontWeight: 600, color: '#171717' }}>{p.name}</span>
+                            {p.technologies.length > 0 && <span style={{ color: '#a3a3a3', marginLeft: 6 }}>{p.technologies.join(', ')}</span>}
+                            {p.bullets.filter(Boolean).map((b, i) => <p key={i} style={{ paddingLeft: 12, color: '#404040', marginTop: 1 }}>• {b}</p>)}
                         </div>
                     ))}
                 </div>
@@ -482,11 +482,11 @@ function LivePreview({ content, templateSlug }: { content: ResumeDraftContent; t
 
             {education.length > 0 && (
                 <div>
-                    <p style={{ fontSize: 9, fontWeight: 700, color: '#111827', textTransform: 'uppercase', letterSpacing: 1, borderBottomWidth: 0.5, borderBottomColor: '#e2e8f0', paddingBottom: 2, marginBottom: 6 }}>Education</p>
+                    <p style={{ fontSize: 9, fontWeight: 700, color: '#171717', textTransform: 'uppercase', letterSpacing: 1, borderBottomWidth: 0.5, borderBottomColor: '#e5e5e5', paddingBottom: 2, marginBottom: 6 }}>Education</p>
                     {education.map(e => (
                         <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                            <span style={{ fontWeight: 600, color: '#111827' }}>{e.degree ? `${e.degree}, ${e.institution}` : e.institution}</span>
-                            <span style={{ color: '#94a3b8' }}>{e.startDate?.split('T')[0]} - {e.endDate?.split('T')[0]}</span>
+                            <span style={{ fontWeight: 600, color: '#171717' }}>{e.degree ? `${e.degree}, ${e.institution}` : e.institution}</span>
+                            <span style={{ color: '#a3a3a3' }}>{e.startDate?.split('T')[0]} - {e.endDate?.split('T')[0]}</span>
                         </div>
                     ))}
                 </div>

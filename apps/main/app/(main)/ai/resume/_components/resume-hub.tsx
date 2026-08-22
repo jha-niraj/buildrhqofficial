@@ -319,7 +319,7 @@ function NewResumeSheet({ templates, open, onClose }: {
                                             >
                                                 <div
                                                     className="w-8 h-8 rounded-lg flex-shrink-0"
-                                                    style={{ backgroundColor: platDef?.previewColor ?? '#6366f1', opacity: 0.8 }}
+                                                    style={{ backgroundColor: platDef?.previewColor ?? '#525252', opacity: 0.8 }}
                                                 />
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-xs font-semibold truncate">{t.name}</p>
@@ -666,8 +666,8 @@ export function ResumeHub({ drafts: initialDrafts, templates }: Props) {
                                         const platDef = PLATFORM_TEMPLATES.find(p => p.slug === t.slug)
                                         return (
                                             <div key={t.slug} className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 flex flex-col gap-3">
-                                                <div className="h-24 rounded-xl flex items-center justify-center text-white text-sm font-semibold" style={{ background: `linear-gradient(135deg, ${platDef?.previewColor ?? '#6366f1'}20, ${platDef?.previewColor ?? '#6366f1'}40)`, border: `1px solid ${platDef?.previewColor ?? '#6366f1'}30` }}>
-                                                    <span style={{ color: platDef?.previewColor ?? '#6366f1' }}>{t.name}</span>
+                                                <div className="h-24 rounded-xl flex items-center justify-center text-white text-sm font-semibold" style={{ background: `linear-gradient(135deg, ${platDef?.previewColor ?? '#525252'}20, ${platDef?.previewColor ?? '#525252'}40)`, border: `1px solid ${platDef?.previewColor ?? '#525252'}30` }}>
+                                                    <span style={{ color: platDef?.previewColor ?? '#525252' }}>{t.name}</span>
                                                 </div>
                                                 <div>
                                                     <p className="font-semibold text-sm">{t.name}</p>

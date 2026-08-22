@@ -87,7 +87,7 @@ export const pathfinderGroups = pgTable(
             .references(() => users.id, { onDelete: "cascade" }),
         name: text("name").notNull(),
         emoji: text("emoji").default("📁"),
-        color: text("color").default("#7c3aed"),
+        color: text("color").default("#525252"),
         description: text("description"),
         order: integer("order").notNull().default(0),
         createdAt: timestamp("created_at").notNull().defaultNow(),

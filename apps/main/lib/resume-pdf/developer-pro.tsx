@@ -1,30 +1,30 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 import { ResumeDraftContent } from '@/types/resume-draft'
 
-const DARK = '#0f172a'
-const ACCENT = '#111827'
-const SIDEBAR_BG = '#111827'
+const DARK = '#0a0a0a'
+const ACCENT = '#171717'
+const SIDEBAR_BG = '#171717'
 
 const styles = StyleSheet.create({
     page: { fontFamily: 'Helvetica', fontSize: 8.5, color: '#1a1a1a', flexDirection: 'row' },
-    sidebar: { width: '32%', backgroundColor: SIDEBAR_BG, padding: 20, color: '#e2e8f0' },
+    sidebar: { width: '32%', backgroundColor: SIDEBAR_BG, padding: 20, color: '#e5e5e5' },
     main: { flex: 1, padding: 24 },
     sName: { fontSize: 13, fontFamily: 'Helvetica-Bold', color: '#fff', marginBottom: 2 },
-    sTitle: { fontSize: 9, color: '#94a3b8', marginBottom: 12 },
+    sTitle: { fontSize: 9, color: '#a3a3a3', marginBottom: 12 },
     sSection: { fontSize: 8, fontFamily: 'Helvetica-Bold', color: ACCENT, textTransform: 'uppercase', letterSpacing: 1, marginTop: 12, marginBottom: 5 },
-    sText: { fontSize: 8, color: '#cbd5e1', lineHeight: 1.4 },
-    sContact: { fontSize: 7.5, color: '#94a3b8', marginBottom: 2 },
-    skillPill: { backgroundColor: '#334155', borderRadius: 3, paddingHorizontal: 5, paddingVertical: 2, marginRight: 3, marginBottom: 3, fontSize: 7.5, color: '#e2e8f0' },
+    sText: { fontSize: 8, color: '#d4d4d4', lineHeight: 1.4 },
+    sContact: { fontSize: 7.5, color: '#a3a3a3', marginBottom: 2 },
+    skillPill: { backgroundColor: '#404040', borderRadius: 3, paddingHorizontal: 5, paddingVertical: 2, marginRight: 3, marginBottom: 3, fontSize: 7.5, color: '#e5e5e5' },
     mSection: { fontSize: 9, fontFamily: 'Helvetica-Bold', color: DARK, textTransform: 'uppercase', letterSpacing: 1, marginTop: 10, marginBottom: 4, borderBottomWidth: 1, borderBottomColor: ACCENT, paddingBottom: 2 },
     row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 1 },
     bold: { fontFamily: 'Helvetica-Bold' },
-    muted: { color: '#64748b' },
+    muted: { color: '#737373' },
     bullet: { flexDirection: 'row', marginTop: 1.5 },
     dot: { width: 3, height: 3, backgroundColor: ACCENT, borderRadius: 2, marginRight: 5, marginTop: 3 },
 })
 
 function MBullet({ text }: { text: string }) {
-    return <View style={styles.bullet}><View style={styles.dot} /><Text style={{ color: '#374151', flex: 1, lineHeight: 1.4 }}>{text}</Text></View>
+    return <View style={styles.bullet}><View style={styles.dot} /><Text style={{ color: '#404040', flex: 1, lineHeight: 1.4 }}>{text}</Text></View>
 }
 function fmt(d?: string) {
     if (!d) return ''
@@ -99,7 +99,7 @@ export function DeveloperProTemplate({ content }: { content: ResumeDraftContent 
                     {/* Summary */}
                     {header.summary && (
                         <View style={{ marginBottom: 8, borderLeftWidth: 3, borderLeftColor: ACCENT, paddingLeft: 8 }}>
-                            <Text style={{ color: '#475569', lineHeight: 1.5 }}>{header.summary}</Text>
+                            <Text style={{ color: '#525252', lineHeight: 1.5 }}>{header.summary}</Text>
                         </View>
                     )}
 
@@ -133,8 +133,8 @@ export function DeveloperProTemplate({ content }: { content: ResumeDraftContent 
                                     {p.technologies.length > 0 && (
                                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 2 }}>
                                             {p.technologies.map((t, i) => (
-                                                <View key={i} style={{ backgroundColor: '#ede9fe', borderRadius: 2, paddingHorizontal: 4, paddingVertical: 1, marginRight: 3, marginBottom: 2 }}>
-                                                    <Text style={{ fontSize: 7, color: '#7c3aed' }}>{t}</Text>
+                                                <View key={i} style={{ backgroundColor: '#f5f5f5', borderRadius: 2, paddingHorizontal: 4, paddingVertical: 1, marginRight: 3, marginBottom: 2 }}>
+                                                    <Text style={{ fontSize: 7, color: '#525252' }}>{t}</Text>
                                                 </View>
                                             ))}
                                         </View>

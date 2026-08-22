@@ -151,7 +151,7 @@ export default function SprintMockInterview({
             sprintNumber: sprintNumber.toString(),
             sprintName
         },
-        orbColors: ['#6366f1', '#404040'],
+        orbColors: ['#737373', '#404040'],
         title: `Sprint ${sprintNumber} Mock Interview`,
         subtitle: sprintName,
         stateLabels: {

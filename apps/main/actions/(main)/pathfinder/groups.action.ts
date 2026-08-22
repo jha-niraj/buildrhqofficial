@@ -55,7 +55,7 @@ export async function createPathfinderGroup(input: CreateGroupInput) {
             userId: session.user.id,
             name: input.name,
             emoji: input.emoji || '📁',
-            color: input.color || '#7c3aed',
+            color: input.color || '#525252',
             description: input.description,
             order: (maxResult?.maxOrder || 0) + 1,
         }).returning()
