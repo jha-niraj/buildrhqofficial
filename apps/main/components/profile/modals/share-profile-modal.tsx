@@ -197,15 +197,23 @@ export function ShareProfileModal({
 					</TabsContent>
 					<TabsContent value="embed" className="space-y-4 mt-4">
 						<div className="space-y-2">
-							<Label>Embed Code</Label>
-							<div className="relative">
-								<pre className="p-3 bg-muted rounded-lg text-xs overflow-x-auto">
-									<code>{embedCode}</code>
-								</pre>
+							{/* The snippet WRAPS, and the copy button has its own row.
+								It used to be one line in an `overflow-x-auto` pre with the
+								button absolutely positioned over its top-right corner, which
+								gave the worst of both: the line ran under the button and off
+								the panel, so the one thing this tab exists to show could not
+								be read without horizontal scrolling past a control sitting on
+								top of it.
+
+								`break-all` rather than `break-words`: this is a URL and an
+								attribute list with no spaces to break on, so word-boundary
+								wrapping would not wrap it at all. */}
+							<div className="flex items-center justify-between gap-2">
+								<Label>Embed Code</Label>
 								<Button
 									variant="outline"
 									size="sm"
-									className="absolute top-2 right-2 gap-1.5"
+									className="h-7 gap-1.5 text-xs"
 									onClick={() => copyToClipboard(embedCode, "embed")}
 								>
 									{
@@ -223,6 +231,9 @@ export function ShareProfileModal({
 									}
 								</Button>
 							</div>
+							<pre className="rounded-lg bg-muted p-3 text-xs whitespace-pre-wrap break-all">
+								<code>{embedCode}</code>
+							</pre>
 						</div>
 						<div className="p-4 bg-muted/50 rounded-lg">
 							<p className="text-sm text-muted-foreground">

@@ -14,8 +14,10 @@ import {
 } from 'lucide-react'
 import toast from '@repo/ui/components/ui/sonner'
 import { useUserStore } from '@/app/store/useUserStore'
-import { changePassword } from '@/actions/(auth)/auth/auth.actions'
+import { changePassword, setPassword } from '@/actions/(auth)/auth/auth.actions'
 import { updateUserProfile } from '@/actions/(main)/user/user.action'
+import { useRouter } from "next/navigation"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface AccountSettingsContentProps {
     user: {
@@ -31,6 +33,7 @@ interface AccountSettingsContentProps {
 }
 
 export function AccountSettingsContent({ user, linkedProviders }: AccountSettingsContentProps) {
+    const router = useRouter()
     const { updateUser, fetchUser } = useUserStore()
     const [name, setName] = useState(user.name || '')
     const [isSavingName, setIsSavingName] = useState(false)
@@ -54,6 +57,36 @@ export function AccountSettingsContent({ user, linkedProviders }: AccountSetting
             toast.error('Failed to update name')
         } finally {
             setIsSavingName(false)
+        }
+    }
+
+    const handleSetPassword = async () => {
+        if (newPassword.length < 8) {
+            toast.error('Password must be at least 8 characters')
+            return
+        }
+        if (newPassword !== confirmPassword) {
+            toast.error('Those passwords do not match')
+            return
+        }
+        setIsChangingPassword(true)
+        try {
+            const res = await setPassword(newPassword)
+            if (!res.success) {
+                toast.error(res.error ?? 'Could not set a password')
+                return
+            }
+            setNewPassword('')
+            setConfirmPassword('')
+            toast.success('Password set. You can now sign in with your email.')
+            // The card has to switch to the change-password branch, and `hasPassword` is
+            // derived on the server from the linked providers - so this needs a real
+            // refresh, not local state.
+            router.refresh()
+        } catch {
+            toast.error('Could not set a password')
+        } finally {
+            setIsChangingPassword(false)
         }
     }
 
@@ -133,7 +166,7 @@ export function AccountSettingsContent({ user, linkedProviders }: AccountSetting
                                     disabled={isSavingName || name.trim() === user.name}
                                 >
                                     {isSavingName ? (
-                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        <InlineLoader size="sm" />
                                     ) : (
                                         'Save'
                                     )}
@@ -222,16 +255,57 @@ export function AccountSettingsContent({ user, linkedProviders }: AccountSetting
                                 }
                             >
                                 {isChangingPassword ? (
-                                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                    <InlineLoader size="sm" className="mr-2" />
                                 ) : null}
                                 Change Password
                             </Button>
                         </>
                     ) : (
-                        <p className="text-sm text-muted-foreground">
-                            You signed up with a social provider. Use the password reset flow from the
-                            login page to set a password for email sign-in.
-                        </p>
+                        /* No password yet - Google, GitHub or a magic link. There is no current
+                           password to ask for, so this branch does not, and `setPassword` is
+                           guarded by the session instead.
+
+                           This used to be a paragraph telling the user to go and use the
+                           forgot-password flow on the sign-in page: sign out of the thing you
+                           are signed in to, in order to prove you own an address you have
+                           already proved you own. */
+                        <>
+                            <div className="space-y-2">
+                                <Label htmlFor="set-password">New Password</Label>
+                                <Input
+                                    id="set-password"
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    placeholder="At least 8 characters"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="set-password-confirm">Confirm Password</Label>
+                                <Input
+                                    id="set-password-confirm"
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    placeholder="Confirm password"
+                                />
+                            </div>
+                            <Button
+                                onClick={handleSetPassword}
+                                disabled={
+                                    isChangingPassword ||
+                                    newPassword.length < 8 ||
+                                    newPassword !== confirmPassword
+                                }
+                            >
+                                {isChangingPassword ? <InlineLoader size="sm" className="mr-2" /> : null}
+                                Set Password
+                            </Button>
+                            <p className="text-sm text-muted-foreground">
+                                You currently sign in with {linkedProviders.filter((p) => p !== "credential").join(", ") || "a provider"}.
+                                Setting a password adds email sign-in; it does not remove that.
+                            </p>
+                        </>
                     )}
                 </CardContent>
             </Card>
@@ -288,7 +362,7 @@ export function AccountSettingsContent({ user, linkedProviders }: AccountSetting
                                 disabled={isConnectingGoogle}
                             >
                                 {isConnectingGoogle ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <InlineLoader size="sm" />
                                 ) : (
                                     'Connect'
                                 )}

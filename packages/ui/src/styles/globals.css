@@ -499,6 +499,39 @@
     }
 }
 
+/* -- Thinking indicator --------------------------------------------------------
+   The word itself breathes, instead of a ring spinning beside it.
+
+   A rotating ring is the one loading affordance every product uses, which makes it
+   the one that says nothing about this one - the same reason the working agreement
+   bans it for buttons and pages. Here it was also saying the wrong thing: a spinner
+   means "waiting on something", and what is actually happening is a model composing
+   a reply. A slow pulse on the word reads as deliberation rather than as a stall.
+
+   Opacity only, so there is no reflow and nothing for the text to jump against.
+   2.2s because a fast pulse reads as urgency; this should feel unhurried. */
+
+@keyframes sh-thinking {
+    0%, 100% { opacity: 0.35; }
+    50%      { opacity: 1; }
+}
+
+.sh-thinking {
+    animation: sh-thinking 2.2s ease-in-out infinite;
+}
+
+/* The dots trail the word so the phrase resolves left to right. */
+.sh-thinking-dot {
+    animation: sh-thinking 2.2s ease-in-out infinite;
+}
+.sh-thinking-dot:nth-child(1) { animation-delay: 0.15s; }
+.sh-thinking-dot:nth-child(2) { animation-delay: 0.3s; }
+.sh-thinking-dot:nth-child(3) { animation-delay: 0.45s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .sh-thinking, .sh-thinking-dot { animation: none; opacity: 0.75; }
+}
+
 /* -- Mobile bottom nav height ---------------------------------------------------
    The bar in `components/ui/mobile-bottom-nav.tsx` is position:fixed, so it covers
    the page unless a layout subtracts it. This token is that subtraction, and it is

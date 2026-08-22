@@ -73,6 +73,25 @@ function systemPrompt(ctx: {
         "- Don't call a tool for general knowledge, code review, or explanations - just answer.",
         "- If a tool returns nothing or errors, say so plainly and answer with what you have. Never fabricate rows.",
         "",
+        // The read tools are safe to call speculatively; this one is not. The model needs to
+        // be told the difference explicitly, because nothing in a function signature says
+        // "this one takes the user's money".
+        "Making things (these WRITE, and most spend the user's credits):",
+        "- `create_cover_letter` - creates a cover letter and starts generating it. Costs credits.",
+        "- `create_project` - creates a project and generates its sprints and tasks. Costs credits (13 public / 25 private, +30 with an assessment).",
+        "- `create_goal` - adds a Pathfinder goal. Free when public; private ones cost credits.",
+        "",
+        "Rules for all three:",
+        "- Never call one speculatively, and never twice for the same thing.",
+        "- Only act on something the user actually agreed to. Suggesting is free; creating is not.",
+        "- After one succeeds the user is shown a BUTTON automatically. Do not write a link, do not paste a URL, and do not describe where to click.",
+        "- Prefer the free/cheap option (public project, public goal) unless the user asks otherwise.",
+        "",
+        "Patterns worth following:",
+        "- Project ideas: when you list ideas from `search_project_ideas` and the user picks one, call `create_project` with THAT idea's title and description. Do not re-list the ideas afterwards and do not ask the user to retype anything you already showed them.",
+        "- Goals: if `list_my_goals` returns fewer than three, finish by suggesting two or three concrete goals that fit their profile and practice history, and offer to add them. Create only the ones they choose.",
+        "- Resume: `get_my_resume` returns a `gaps` list. Give the summary first, then what is missing, worst first. The button to their profile appears on its own.",
+        "",
         "About the person you're talking to:",
         `- Name: ${ctx.name ?? "unknown"}`,
     ];
@@ -257,29 +276,44 @@ export async function POST(request: NextRequest) {
                     calls.forEach((call, i) => {
                         const id = call.id ?? `${round}-${call.function?.name ?? "tool"}`;
                         const name = call.function?.name ?? "tool";
-                        const result = results[i] ?? null;
+                        const outcome = results[i] ?? null;
 
-                        if (result === null) {
+                        if (outcome === null) {
                             send({ t: "tool", phase: "error", id, name });
-                        } else {
-                            // A tool may return `_summary` to describe what it found
-                            // in its own words ("Found 3 projects"). Better than the
-                            // generic label, and it is the tool that knows.
-                            let summary: string | undefined;
-                            try {
-                                const parsed = JSON.parse(result) as { _summary?: unknown };
-                                if (typeof parsed._summary === "string") summary = parsed._summary;
-                            } catch {
-                                // Not JSON, or no summary. The client falls back to
-                                // its own label for the tool name.
-                            }
-                            send({ t: "tool", phase: "result", id, name, ...(summary ? { summary } : {}) });
+                            conversation.push({
+                                role: "tool",
+                                tool_call_id: call.id,
+                                content: JSON.stringify({ error: "No result." }),
+                            });
+                            return;
+                        }
+
+                        const payload = outcome.result as { _summary?: unknown } | null;
+                        // A tool may return `_summary` to describe what it found in its
+                        // own words ("Found 3 projects"). Better than the generic label,
+                        // and it is the tool that knows.
+                        const summary =
+                            payload && typeof payload === "object" && typeof payload._summary === "string"
+                                ? payload._summary
+                                : undefined;
+                        send({ t: "tool", phase: "result", id, name, ...(summary ? { summary } : {}) });
+
+                        // A control the tool produced - a link to the thing it made. Emitted
+                        // here, from the tool's own return value, so the href never passes
+                        // through the model and cannot come back paraphrased or invented.
+                        if (outcome.action) {
+                            send({
+                                t: "action",
+                                label: outcome.action.label,
+                                href: outcome.action.href,
+                                ...(outcome.action.kind ? { kind: outcome.action.kind } : {}),
+                            });
                         }
 
                         conversation.push({
                             role: "tool",
                             tool_call_id: call.id,
-                            content: result ?? JSON.stringify({ error: "No result." }),
+                            content: JSON.stringify(outcome.result),
                         });
                     });
                 }

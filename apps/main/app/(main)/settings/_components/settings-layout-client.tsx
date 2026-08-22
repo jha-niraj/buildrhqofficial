@@ -2,13 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { User, Plug, Shield, ChevronRight } from 'lucide-react'
+import { User, Plug, ChevronRight } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 
+// "Auth & Security" was removed. It rendered one card saying "More security options coming
+// soon. For now, manage your password and connected accounts from the Account settings" -
+// a tab whose only content was a pointer at another tab. /settings/auth now redirects there.
 const navItems = [
     { id: 'account', label: 'Account', href: '/settings/account', icon: User },
     { id: 'integrations', label: 'Integrations', href: '/settings/integrations', icon: Plug },
-    { id: 'auth', label: 'Auth & Security', href: '/settings/auth', icon: Shield },
 ]
 
 export function SettingsLayoutClient({

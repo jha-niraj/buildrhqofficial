@@ -17,8 +17,7 @@ import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@repo/ui/components/ui/select"
 import {
-    Command, CommandEmpty, CommandGroup, CommandInput, CommandItem
-} from "@repo/ui/components/ui/command"
+    Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@repo/ui/components/ui/command"
 import toast from "@repo/ui/components/ui/sonner"
 
 type ProjectLink = { id?: string; linkType: string; url: string; description?: string | null }
@@ -93,7 +92,17 @@ export function TechSelect({
                             )
                         }
                     </CommandEmpty>
-                    <CommandGroup className="max-h-[200px] overflow-auto">
+{/* CommandList, not `overflow-auto` on the group.
+                    cmdk owns the scroll VIEWPORT and it is
+                    Command.List - it is what it scrolls into view
+                    on arrow-key navigation, and what it measures.
+                    Putting the height cap on CommandGroup instead
+                    gave a box with a visible scrollbar that did
+                    not respond to the wheel, because the element
+                    cmdk manages was not the element being
+                    clipped. */}
+                    <CommandList className="max-h-[200px]">
+                    <CommandGroup>
                         {
                             filtered.map((tech) => (
                                 <CommandItem
@@ -108,6 +117,7 @@ export function TechSelect({
                             ))
                         }
                     </CommandGroup>
+                    </CommandList>
                 </Command>
             </PopoverContent>
         </Popover>

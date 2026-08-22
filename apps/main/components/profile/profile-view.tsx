@@ -4,13 +4,10 @@ import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import {
-    Pencil, Share2, Settings, Plus, MapPin, Building2, Globe, GraduationCap,
-    Briefcase, Sparkles, Zap, FolderKanban, Users, ExternalLink, Calendar,
-    FileText, ArrowRight, UserPlus, UserCheck, Loader2, Upload, Eye, Trash2,
-} from "lucide-react";
+import { Pencil, Share2, Settings, Plus, MapPin, Building2, Globe, GraduationCap, Briefcase, Sparkles, Zap, FolderKanban, Users, ExternalLink, Calendar, FileText, ArrowRight, UserPlus, UserCheck, Loader2, Upload, Eye, Trash2, Camera } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Badge } from "@repo/ui/components/ui/badge";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader";
 import { cn } from "@repo/ui/lib/utils";
 import toast from "@repo/ui/components/ui/sonner";
 import { validateResumeFile } from "@/lib/resume-extractor.client";
@@ -105,6 +102,10 @@ export interface ProfileViewProps {
     // ── Resume. Owner only. The view owns the input and the client-side size /
     //    type check; the actual upload is the caller's, so this component stays
     //    free of server actions.
+    /** Same contract as the resume: the view owns the picker, the caller owns the upload. */
+    onUploadAvatar?: (file: File) => void | Promise<void>;
+    avatarBusy?: boolean;
+
     onUploadResume?: (file: File) => void | Promise<void>;
     onViewResume?: () => void | Promise<void>;
     onDeleteResume?: () => void | Promise<void>;
@@ -180,10 +181,28 @@ function dateRange(start: Date | string | null | undefined, end: Date | string |
 export function ProfileView({
     profile, stats, isOwn,
     onEdit, onShare, onAddSkills, onAddExperience, onAddEducation, onAddProject,
+    onUploadAvatar, avatarBusy,
     onUploadResume, onViewResume, onDeleteResume, resumeBusy,
     isFollowing, followPending, onFollow,
 }: ProfileViewProps) {
     const resumeInputRef = useRef<HTMLInputElement>(null);
+    const avatarInputRef = useRef<HTMLInputElement>(null);
+
+    // Checked here rather than server-side only, so an obviously wrong file is refused
+    // before it costs a round trip. The server checks again regardless - this is a
+    // courtesy, not a control.
+    const uploadAvatar = async (file: File) => {
+        if (!onUploadAvatar) return;
+        if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+            toast.error("Use a PNG, JPEG or WebP image.");
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("That image is over 5MB.");
+            return;
+        }
+        await onUploadAvatar(file);
+    };
 
     const handleResumeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -234,7 +253,33 @@ export function ProfileView({
                 <div className="p-5 sm:p-6">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div className="flex items-end gap-4">
-                            <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-800 sm:h-24 sm:w-24">
+                            {/* The avatar is the uploader when it is your own profile.
+                                Previously the only way to change it was Edit -> a field in a
+                                modal, which is a long way round for the one thing on this page
+                                that is obviously an image you would click to replace.
+
+                                `isOwn` gates it: on someone else's profile this is a plain
+                                picture and must not offer a file picker. */}
+                            <div
+                                className={cn(
+                                    "group relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-800 sm:h-24 sm:w-24",
+                                    isOwn && onUploadAvatar && "cursor-pointer",
+                                )}
+                                onClick={isOwn && onUploadAvatar ? () => avatarInputRef.current?.click() : undefined}
+                                role={isOwn && onUploadAvatar ? "button" : undefined}
+                                tabIndex={isOwn && onUploadAvatar ? 0 : undefined}
+                                aria-label={isOwn && onUploadAvatar ? "Change profile photo" : undefined}
+                                onKeyDown={
+                                    isOwn && onUploadAvatar
+                                        ? (e) => {
+                                            if (e.key === "Enter" || e.key === " ") {
+                                                e.preventDefault()
+                                                avatarInputRef.current?.click()
+                                            }
+                                        }
+                                        : undefined
+                                }
+                            >
                                 {profile.image ? (
                                     // `unoptimized` because avatars come from Google, GitHub and
                                     // Cloudinary; routing them through Next's optimiser would
@@ -251,6 +296,31 @@ export function ProfileView({
                                     <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-neutral-400">
                                         {(profile.name ?? "?").charAt(0).toUpperCase()}
                                     </div>
+                                )}
+                                {isOwn && onUploadAvatar && (
+                                    <>
+                                        <input
+                                            ref={avatarInputRef}
+                                            type="file"
+                                            accept="image/png,image/jpeg,image/webp"
+                                            className="hidden"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0]
+                                                if (file) void uploadAvatar(file)
+                                                // Reset, or picking the SAME file twice in a
+                                                // row fires no change event.
+                                                e.target.value = ""
+                                            }}
+                                        />
+                                        <span
+                                            className={cn(
+                                                "absolute inset-0 flex items-center justify-center bg-neutral-900/60 text-white transition-opacity",
+                                                avatarBusy ? "opacity-100" : "opacity-0 group-hover:opacity-100 group-focus:opacity-100",
+                                            )}
+                                        >
+                                            {avatarBusy ? <InlineLoader size="md" /> : <Camera className="h-5 w-5" />}
+                                        </span>
+                                    </>
                                 )}
                             </div>
                             <div className="min-w-0 pb-1">

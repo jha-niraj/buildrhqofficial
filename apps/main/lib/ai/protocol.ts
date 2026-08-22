@@ -39,6 +39,26 @@ export interface ToolFrame {
     summary?: string;
 }
 
+/**
+ * Something the agent MADE, offered as a control rather than described in prose.
+ *
+ * When a tool creates a thing that lives at a URL - a cover letter, a resume draft - the
+ * reply saying "I've written it, you can find it under AI Tools" is a worse answer than a
+ * button that opens it. The model cannot be trusted to render a correct link in markdown
+ * (it does not know the id until the tool returns, and it will cheerfully invent a path), so
+ * the action is emitted by the ROUTE from the tool's own return value and never passes
+ * through the model at all.
+ *
+ * `href` is always an internal path. The panel refuses anything else - see the note there.
+ */
+export interface ActionFrame {
+    t: "action";
+    label: string;
+    href: string;
+    /** Free-form; the panel picks an icon from it. Unknown kinds get a neutral one. */
+    kind?: string;
+}
+
 /** The turn ended cleanly. Carries nothing; its arrival is the signal. */
 export interface DoneFrame {
     t: "done";
@@ -55,7 +75,7 @@ export interface ErrorFrame {
     message: string;
 }
 
-export type ChatFrame = TextFrame | ToolFrame | DoneFrame | ErrorFrame;
+export type ChatFrame = TextFrame | ToolFrame | ActionFrame | DoneFrame | ErrorFrame;
 
 /** Serialise one frame for the wire. The trailing newline is the delimiter. */
 export function encodeFrame(frame: ChatFrame): string {

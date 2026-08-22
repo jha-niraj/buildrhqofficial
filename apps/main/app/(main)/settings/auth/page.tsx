@@ -1,46 +1,15 @@
-import { getSession } from '@repo/auth'
-import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/components/ui/card'
-import { Shield } from 'lucide-react'
 
-export const metadata = {
-    title: 'Auth & Security | Settings | ShipItHQ',
-    description: 'Manage authentication and security settings',
-}
-
-export default async function AuthSettingsPage() {
-    const session = await getSession(headers())
-
-    if (!session?.user?.id) {
-        redirect('/signin')
-    }
-
-    return (
-        <div className="space-y-6">
-            <div>
-                <h2 className="text-lg font-semibold text-foreground">Auth & Security</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                    Additional security settings and session management
-                </p>
-            </div>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Shield className="w-5 h-5" />
-                        Security
-                    </CardTitle>
-                    <CardDescription>
-                        Manage your security preferences
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                        More security options coming soon. For now, manage your password
-                        and connected accounts from the Account settings.
-                    </p>
-                </CardContent>
-            </Card>
-        </div>
-    )
+/**
+ * Retired tab.
+ *
+ * This rendered a single card reading "More security options coming soon. For now, manage
+ * your password and connected accounts from the Account settings" - a whole tab whose only
+ * content was a pointer at another tab.
+ *
+ * It redirects rather than 404s because the path may be bookmarked, and because everything it
+ * ever pointed at genuinely does live on the Account page.
+ */
+export default function AuthSettingsPage() {
+    redirect('/settings/account')
 }

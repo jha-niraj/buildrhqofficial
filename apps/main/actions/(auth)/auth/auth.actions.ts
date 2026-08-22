@@ -34,6 +34,47 @@ interface AuthResponse {
 // only until the schema cleanup drops them.
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Give an account its FIRST password.
+ *
+ * For someone who signed up with Google or a magic link there is no current password to
+ * verify, so `changePassword` cannot be used - it would always fail the comparison. The
+ * settings page used to say so and send them to the forgot-password flow on the sign-in
+ * page, which means signing out of the thing they are already signed in to in order to
+ * prove they own an address they have already proved they own.
+ *
+ * `auth.api.setPassword` is the path better-auth provides for exactly this. It is guarded by
+ * the SESSION rather than by a password, which is the right guard here: the caller is already
+ * authenticated, and requiring a credential they do not have is not a security property.
+ *
+ * It refuses if a credential account already exists, so this cannot be used to bypass
+ * `changePassword` and overwrite a password without knowing the old one.
+ */
+export async function setPassword(newPassword: string): Promise<AuthResponse> {
+    try {
+        const session = await getSession(headers())
+        if (!session?.user?.id) {
+            return { success: false, error: "Not authenticated" }
+        }
+        if (newPassword.length < 8) {
+            return { success: false, error: "Password must be at least 8 characters" }
+        }
+
+        await auth.api.setPassword({
+            body: { newPassword },
+            headers: await headers(),
+        })
+
+        return { success: true, message: "Password set. You can now sign in with your email." }
+    } catch (error: unknown) {
+        // The common case is "this account already has a password", which is not an error
+        // worth a stack trace - it means the UI showed the wrong branch.
+        const message = error instanceof Error ? error.message : "Could not set a password"
+        console.error("[auth] setPassword failed:", error)
+        return { success: false, error: message }
+    }
+}
+
 export async function changePassword(
     currentPassword: string,
     newPassword: string

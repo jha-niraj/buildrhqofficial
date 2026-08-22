@@ -26,6 +26,7 @@ import { AddProjectSheet } from "@/components/profile/sheets/add-project-sheet";
 import { getOwnProfile, getUserProfileStats } from "@/actions/(main)/user/profile.action";
 import { uploadResume, deleteResume, getResumeSignedUrl } from "@/actions/(main)/user/resume.action";
 import { ProfileSkeleton } from "@/components/profile/profile-view-skeleton";
+import { uploadProfileImage } from "@/actions/(common)/shared/upload.action";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -172,6 +173,7 @@ export default function ProfilePage() {
     const [educationOpen, setEducationOpen] = useState(false);
     const [projectOpen, setProjectOpen] = useState(false);
     const [resumeBusy, setResumeBusy] = useState(false);
+    const [avatarBusy, setAvatarBusy] = useState(false);
 
     const loadProfile = useCallback(async () => {
         setIsLoading(true);
@@ -221,6 +223,32 @@ export default function ProfilePage() {
     //
     // The third argument is what names that draft. Omitting it is not an error,
     // it just produces "Imported resume" instead of something recognisable.
+    /**
+     * Replace the profile photo from the avatar itself.
+     *
+     * `refreshProfileData()` afterwards is what makes it appear immediately - the R2 key is
+     * new on every upload, so there is no browser cache to defeat and the refreshed row
+     * carries the new URL straight into the view.
+     */
+    const handleUploadAvatar = useCallback(async (file: File) => {
+        setAvatarBusy(true);
+        try {
+            const form = new FormData();
+            form.append("file", file);
+            const result = await uploadProfileImage(form);
+            if (!result.success || !result.url) {
+                toast.error(result.message || "Could not upload that image");
+                return;
+            }
+            await refreshProfileData();
+            toast.success("Photo updated");
+        } catch {
+            toast.error("Could not upload that image");
+        } finally {
+            setAvatarBusy(false);
+        }
+    }, [refreshProfileData]);
+
     const handleUploadResume = useCallback(async (file: File) => {
         setResumeBusy(true);
         try {
@@ -381,6 +409,8 @@ export default function ProfilePage() {
                 onAddExperience={() => setExperienceOpen(true)}
                 onAddEducation={() => setEducationOpen(true)}
                 onAddProject={() => setProjectOpen(true)}
+                onUploadAvatar={handleUploadAvatar}
+                avatarBusy={avatarBusy}
                 onUploadResume={handleUploadResume}
                 onViewResume={handleViewResume}
                 onDeleteResume={handleDeleteResume}

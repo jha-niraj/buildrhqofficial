@@ -40,6 +40,12 @@ const TOOL_LABELS: Record<string, { running: string; done: string }> = {
     get_my_practice_stats: { running: "Reading your practice stats", done: "Read your practice stats" },
     search_project_ideas: { running: "Searching project ideas", done: "Searched project ideas" },
     search_jobs: { running: "Searching jobs", done: "Searched jobs" },
+    // The one tool that writes. Present tense says what it is doing to the user's account,
+    // because this is the step where credits get spent and a vague "Working" would be
+    // hiding that.
+    create_cover_letter: { running: "Writing your cover letter", done: "Started your cover letter" },
+    create_project: { running: "Setting up your project", done: "Started your project" },
+    create_goal: { running: "Adding your goal", done: "Added your goal" },
 }
 
 /** Unknown tool: say something honest rather than printing a function name. */

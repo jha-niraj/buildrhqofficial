@@ -3,11 +3,41 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
+/**
+ * A control attached to an assistant message - a link to something a tool MADE.
+ *
+ * Persisted with the message rather than held in transient turn state, unlike the tool
+ * steps: the steps describe work that is over, but "open the cover letter you asked me to
+ * write" is still true when the session is reopened tomorrow.
+ */
+export interface AIChatAction {
+	label: string;
+	href: string;
+	kind?: string;
+}
+
+/**
+ * A document the user attached to a turn.
+ *
+ * `text` is the EXTRACTED text, not the file - `/api/ai/upload-doc` stores nothing, so this
+ * is the only copy. It is capped at 20k characters there, which matters here too: this store
+ * persists to localStorage, so anything kept is kept in every future page load.
+ */
+export interface AIChatAttachment {
+	id: string;
+	name: string;
+	chars: number;
+	truncated?: boolean;
+	text: string;
+}
+
 export interface AIChatMessage {
 	id: string;
 	role: "user" | "assistant";
 	content: string;
 	createdAt: number;
+	actions?: AIChatAction[];
+	attachments?: AIChatAttachment[];
 }
 
 export interface AIChatSession {
@@ -47,10 +77,11 @@ interface AIPanelState {
 	newSession: () => string;
 	selectSession: (id: string) => void;
 	deleteSession: (id: string) => void;
-	addUserMessage: (content: string) => void;
+	addUserMessage: (content: string, attachments?: AIChatAttachment[]) => void;
 	addAssistantPlaceholder: () => void;
 	appendToLastAssistant: (chunk: string) => void;
 	replaceLastAssistant: (content: string) => void;
+	addActionToLastAssistant: (action: AIChatAction) => void;
 	setStreaming: (streaming: boolean) => void;
 }
 
@@ -117,17 +148,28 @@ export const useAIPanelStore = create<AIPanelState>()(
 					};
 				}),
 
-			addUserMessage: (content) => {
+			addUserMessage: (content, attachments) => {
 				// Typing into an empty panel implicitly starts a conversation, so the
 				// user never has to press "new chat" before their first question.
 				if (!get().activeSessionId) get().newSession();
 				set((s) =>
 					patchActive(s, (session) => ({
 						...session,
-						title: session.messages.length === 0 ? titleFrom(content) : session.title,
+						// Attachments alone can start a turn ("here, read this"), so the
+						// title falls back to the file name rather than being blank.
+						title:
+							session.messages.length === 0
+								? titleFrom(content || attachments?.[0]?.name || "Document")
+								: session.title,
 						messages: [
 							...session.messages,
-							{ id: makeId(), role: "user" as const, content, createdAt: Date.now() },
+							{
+								id: makeId(),
+								role: "user" as const,
+								content,
+								createdAt: Date.now(),
+								...(attachments?.length ? { attachments } : {}),
+							},
 						],
 					})),
 				);
@@ -151,6 +193,26 @@ export const useAIPanelStore = create<AIPanelState>()(
 						const last = messages[messages.length - 1];
 						if (!last || last.role !== "assistant") return session;
 						messages[messages.length - 1] = { ...last, content: last.content + chunk };
+						return { ...session, messages };
+					}),
+				),
+
+			/**
+			 * Attach a control to the assistant message in flight.
+			 *
+			 * Deduped by href: a tool round can re-run within one turn, and two identical
+			 * "Open cover letter" buttons under one reply is a bug the user has to reason
+			 * about ("did it make two?").
+			 */
+			addActionToLastAssistant: (action) =>
+				set((s) =>
+					patchActive(s, (session) => {
+						const messages = [...session.messages];
+						const last = messages[messages.length - 1];
+						if (!last || last.role !== "assistant") return session;
+						const existing = last.actions ?? [];
+						if (existing.some((a) => a.href === action.href)) return session;
+						messages[messages.length - 1] = { ...last, actions: [...existing, action] };
 						return { ...session, messages };
 					}),
 				),

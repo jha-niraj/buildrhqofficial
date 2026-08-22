@@ -46,21 +46,10 @@ export function AssistantMark({ className = "" }: { className?: string }) {
 
     return (
         <svg viewBox="0 0 40 40" className={className} aria-hidden focusable="false">
-            {/* A ring that never quite closes, turning slowly. It reads as attention without
-                being a spinner - which the working agreement rules out as a loading
-                affordance, and which would be wrong here anyway: nothing is loading. */}
-            <circle
-                className="sh-glyph-orbit"
-                cx="20"
-                cy="20"
-                r="18.5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1"
-                strokeLinecap="round"
-                strokeDasharray="34 22"
-                opacity={0.25}
-            />
+            {/* No ring. There was a slow open circle around the mark, and at 56px it read as
+                a stray arc clipped by nothing rather than as an orbit - the gap in the dash
+                landed differently at every size and there was no size where it looked
+                deliberate. The staircase carries the mark on its own. */}
             <g className="sh-glyph-seq">
                 {TILES.map((t) => (
                     <rect
