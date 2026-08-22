@@ -1,10 +1,11 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { usePathname } from "next/navigation"
 import { Logo } from "@repo/ui/components/logo"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Zap, Sparkles, User, Settings } from "lucide-react"
+import { Zap, Sparkles, User, Settings, Home, Code2, FolderKanban, Briefcase } from "lucide-react"
 import { useSession, signOut } from "@repo/auth/client"
 import { toast } from "@repo/ui/components/ui/sonner"
 import { cn } from "@repo/ui/lib/utils"
@@ -19,6 +20,7 @@ export default function Sidebar() {
     const { isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar()
     const { data: session, isPending } = useSession()
     const router = useRouter()
+    const pathname = usePathname()
 
     const credits = useUserStore((s) => s.credits)
     const fetchCreditsAndXp = useUserStore((s) => s.fetchCreditsAndXp)
@@ -75,6 +77,50 @@ export default function Sidebar() {
         if (n.actionUrl) router.push(n.actionUrl)
     }
 
+    // ── The four that get a thumb-reach tap ──
+    //
+    // Not the first four of `mainNavigation`, and not the ones with the most sub-items. These
+    // are the four a phone user opens: check the dashboard, do a practice set, look at a
+    // project, look at jobs. Pathfinder, Mock Interview and the AI tools all live one tap
+    // away under "More", which opens the same full sheet the hamburger used to.
+    //
+    // Four is the cap the bar enforces, and it is a real one: with the centre action and
+    // "More" the row already holds six targets, and a fifth link makes every label
+    // unreadable at 360px.
+    const BOTTOM_NAV = [
+        { label: "Home", href: "/home", icon: Home },
+        { label: "Practice", href: "/practice", icon: Code2 },
+        { label: "Projects", href: "/projects", icon: FolderKanban },
+        { label: "Jobs", href: "/jobs", icon: Briefcase },
+    ] as const
+
+    const bottomNavItems = useMemo(
+        () =>
+            BOTTOM_NAV.map(({ label, href, icon: Icon }) => ({
+                label,
+                href,
+                icon: <Icon />,
+                // Prefix match so /practice/dsa/two-sum still lights up Practice, with the
+                // separator included - otherwise /projects would also match /projectsomething.
+                active: pathname === href || pathname.startsWith(`${href}/`),
+            })),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [pathname],
+    )
+
+    // The centre tile. An ACTION, not a destination: it opens the assistant over whatever
+    // page you are on. Below lg the shell mounts that panel in a Sheet, so this works
+    // everywhere the bar is visible.
+    const aiCentreAction = useMemo(
+        () => ({
+            label: "Ask ShipItHQ AI",
+            icon: <Sparkles />,
+            onClick: () => { setIsMobileOpen(false); toggleAI() },
+            active: aiOpen,
+        }),
+        [aiOpen, toggleAI, setIsMobileOpen],
+    )
+
     const handleSignOut = async () => {
         await signOut()
         toast.success("Signed out")
@@ -92,6 +138,7 @@ export default function Sidebar() {
                 ),
             }}
             primary={mainNavigation.primary}
+            bottomNav={{ items: bottomNavItems, centreAction: aiCentreAction }}
             isCollapsed={isCollapsed}
             setIsCollapsed={setIsCollapsed}
             isMobileOpen={isMobileOpen}

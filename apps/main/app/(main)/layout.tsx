@@ -144,7 +144,12 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
                     page is opaque, and 8px of it is a hairline rather than a frame. 12px is
                     enough to read as deliberate. `--page-h` below is derived from this, so
                     the two cannot drift. */}
-                <main className="m-3 flex h-[calc(100vh-1.5rem)] overflow-hidden lg:ml-0">
+                {/* `--app-bottom-nav-h` is 4rem plus the safe-area inset below lg, and 0px
+                    above it - see the note beside its definition in globals.css. Subtracting
+                    it here is what stops the fixed bottom bar covering the last row of every
+                    page, and because the token is already 0 on desktop this one expression is
+                    correct at every width. */}
+                <main className="m-3 flex h-[calc(100vh-1.5rem-var(--app-bottom-nav-h))] overflow-hidden lg:ml-0">
                     {/* Page surface */}
                     <div
                         data-app-page
@@ -194,7 +199,7 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
                         // [data-app-page] at it. Without that, the ~49 full-height
                         // pages under (main) would each overflow by exactly 24px and
                         // show a scrollbar over a strip of nothing.
-                        style={{ ["--page-h" as string]: "calc(100vh - 1.5rem)" }}
+                        style={{ ["--page-h" as string]: "calc(100vh - 1.5rem - var(--app-bottom-nav-h))" }}
                     >
                         {/* ScrollArea, not native overflow. The native scrollbar is an
                             OS control: it paints outside the card's rounded corner on
@@ -326,7 +331,9 @@ const Layout = ({ children }: LayoutProps) => {
     // If in full-screen mode, render children without sidebar and navbar
     if (isFullScreenMode) {
         return (
-            <div className="h-screen w-screen bg-neutral-950 overflow-y-auto">
+            // Outside the shell, so it does not inherit the height above - but the bottom
+            // bar is fixed to the viewport and covers this too.
+            <div className="w-screen overflow-y-auto bg-neutral-950 h-[calc(100vh-var(--app-bottom-nav-h))]">
                 {children}
             </div>
         );

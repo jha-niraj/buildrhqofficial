@@ -499,6 +499,32 @@
     }
 }
 
+/* -- Mobile bottom nav height ---------------------------------------------------
+   The bar in `components/ui/mobile-bottom-nav.tsx` is position:fixed, so it covers
+   the page unless a layout subtracts it. This token is that subtraction, and it is
+   defined here rather than in the shell so the value lives beside the component it
+   describes.
+
+   Zero at lg and up, where the bar is not rendered at all. That is what lets the
+   shell write one calc() that is correct at every width instead of carrying its own
+   breakpoint - and it means a layout that forgets the media query still gets the
+   right answer on desktop.
+
+   The safe-area inset is included: on an iPhone the bar pads itself clear of the
+   home indicator, so the space it occupies is taller than the row itself.
+
+   Keep 4rem in step with the `h-16` on the row. */
+
+:root {
+    --app-bottom-nav-h: 0px;
+}
+
+@media (max-width: 1023.98px) {
+    :root {
+        --app-bottom-nav-h: calc(4rem + env(safe-area-inset-bottom, 0px));
+    }
+}
+
 /* -- Small glyph illustrations -------------------------------------------------
    The sh-art set above is calibrated for the large hero SVGs in apps/web. Most of
    it is scale-independent and reused here: pulse and wave are transforms, tick and

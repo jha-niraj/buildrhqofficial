@@ -29,6 +29,7 @@ import {
 } from "@repo/ui/components/ui/sheet"
 import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 import { ThemeToggle } from "@repo/ui/components/themetoggle"
+import { MobileBottomNav, type BottomNavItem, type BottomNavCentreAction } from "./ui/mobile-bottom-nav"
 import {
     CommandPalette, SidebarSearchButton, useCommandPaletteShortcut,
     type CommandPaletteGroup,
@@ -82,6 +83,23 @@ export interface AppSidebarProps {
 
     isCollapsed: boolean
     setIsCollapsed: (v: boolean) => void
+    /**
+     * Small-screen bottom bar. Optional, and OPT-IN on purpose.
+     *
+     * When present it replaces the floating hamburger below `lg`: the bar's own "More" tab
+     * opens the same sheet the hamburger did, so having both would be two controls for one
+     * job, one of them floating over the page.
+     *
+     * Consumers that do not pass this keep the hamburger exactly as before - apps/admin does,
+     * and its nav has no four destinations that would earn a permanent bar.
+     *
+     * The items are the app's call: it has the pathname and the nav shape, so it decides
+     * which four are worth a thumb-reach tap and what counts as active.
+     */
+    bottomNav?: {
+        items: BottomNavItem[]
+        centreAction?: BottomNavCentreAction
+    }
     isMobileOpen: boolean
     setIsMobileOpen: (v: boolean) => void
 
@@ -148,7 +166,7 @@ function timeAgo(d: Date | string): string {
 export function AppSidebar(props: AppSidebarProps) {
     const {
         brand, primary, secondary = [], secondaryLabel = "Management",
-        isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen,
+        isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen, bottomNav,
         user, isPending, onSignOut, profileHref = "/profile", profileLinks = [],
         notifications, footerExtra, footerExtraCollapsed,
     } = props
@@ -513,10 +531,22 @@ export function AppSidebar(props: AppSidebarProps) {
 
     return (
         <TooltipProvider delayDuration={0}>
-            {/* Mobile hamburger. Hidden while the sheet is open: the sheet covers
-                this corner, so the button is a target nothing can reach, and the
-                sheet's own dismiss is the control at that point. */}
-            {!isMobileOpen && (
+            {/* Bottom bar, where the app asked for one. See the `bottomNav` prop. */}
+            {bottomNav && (
+                <MobileBottomNav
+                    linkComponent={Link}
+                    items={bottomNav.items}
+                    centreAction={bottomNav.centreAction}
+                    onMore={() => setIsMobileOpen(true)}
+                    moreActive={isMobileOpen}
+                />
+            )}
+
+            {/* Mobile hamburger, only where there is no bottom bar. Hidden while the
+                sheet is open: the sheet covers this corner, so the button is a target
+                nothing can reach, and the sheet's own dismiss is the control at that
+                point. */}
+            {!bottomNav && !isMobileOpen && (
                 <button onClick={() => setIsMobileOpen(true)} className="fixed top-3 right-3 z-50 lg:hidden bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 text-foreground dark:text-white p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all shadow-lg cursor-pointer" aria-label="Open sidebar">
                     <Menu className="h-5 w-5" />
                 </button>
