@@ -21,9 +21,16 @@ export interface AuthCopy {
     quote: string
 }
 
-/** Muted half of a headline. Dark, because the panel is light in both themes. */
+/**
+ * Muted half of a headline.
+ *
+ * `text-neutral-900/45` with NO dark variant. The comment above this function already said
+ * "dark, because the panel is light in both themes" - and a `dark:text-neutral-100/45` was
+ * added underneath it anyway, which turned the muted half of every headline near-white on a
+ * light panel. The opacity is what mutes it; the hue must not change with the theme.
+ */
 function Muted({ children }: { children: ReactNode }) {
-    return <span className="text-neutral-900 dark:text-neutral-100/45">{children}</span>
+    return <span className="text-neutral-900/45">{children}</span>
 }
 
 const COPY: Record<string, AuthCopy> = {

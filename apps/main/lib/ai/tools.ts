@@ -2,6 +2,7 @@ import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { generateAndSaveCoverLetter } from "@/actions/(main)/ai/cover-letter.action";
 import { startProjectGeneration } from "@/actions/(main)/workers/projectsworker.action";
 import { createPathfinderGoal } from "@/actions/(main)/pathfinder/goals.action";
+import { resolveDestination, DESTINATION_IDS } from "@/lib/ai/destinations";
 import {
     db, users, projectsV2, projectIdeas, userProjectV2Progress,
     pathfinderGoals, practiceModuleProgress, jobs, companies, resumeDraft,
@@ -65,7 +66,10 @@ type Handler = (args: Record<string, unknown>, userId: string) => Promise<unknow
 export interface ToolOutcome {
     /** Goes to the model as the tool message. */
     result: unknown;
+    /** One control, from a tool that made one thing. */
     action?: { label: string; href: string; kind?: string };
+    /** Several, from a tool that offers a choice of destinations. */
+    actions?: Array<{ label: string; href: string; kind?: string }>;
 }
 
 /** Clamp a model-supplied count into a range we're willing to pay for. */
@@ -80,6 +84,45 @@ function stringArg(raw: unknown, max = 120): string | null {
     const s = raw.trim().slice(0, max);
     return s.length ? s : null;
 }
+
+
+// ── link_to ──────────────────────────────────────────────────────────────────
+//
+// Not a write, and not really a lookup: it turns an answer into somewhere to go.
+//
+// The model picks an id from `lib/ai/destinations.ts` and the route renders the href on that
+// row as a button. The model never writes a path, because a model writing a URL is a model
+// guessing one - it does not know this app's routes and will invent plausible ones.
+//
+// Up to three, because a reply ending in six buttons is a menu, and the point is a next step.
+
+const linkTo: Handler = async (args) => {
+    const raw = Array.isArray(args.destinations)
+        ? args.destinations
+        : args.destination != null
+            ? [args.destination]
+            : [];
+
+    const resolved = raw
+        .map((id) => resolveDestination(id))
+        .filter((d): d is NonNullable<typeof d> => d !== null)
+        .slice(0, 3);
+
+    if (!resolved.length) {
+        return {
+            error: "unknown_destination",
+            message:
+                "None of those ids exist. Pick from the enum on this tool, or answer without a button.",
+        };
+    }
+
+    return {
+        _summary: resolved.length === 1 ? "Found the page" : `Found ${resolved.length} pages`,
+        destinations: resolved.map((d) => ({ id: d.id, label: d.label })),
+        message: "The user is shown these as buttons. Do not repeat the links in your reply.",
+        __actions: resolved.map((d) => ({ label: d.label, href: d.href, kind: "page" })),
+    };
+};
 
 // ── create_project ───────────────────────────────────────────────────────────
 //
@@ -851,6 +894,32 @@ const TOOLS: Tool[] = [
         spec: {
             type: "function",
             function: {
+                name: "link_to",
+                description:
+                    "Give the user a button to a page in ShipItHQ. Call this whenever your answer " +
+                    "points at something they can go and DO - practice, an idea catalogue, the resume " +
+                    "builder, buying credits. Never write a URL or a path in your reply; call this " +
+                    "instead. Up to three, and only ones that follow from the answer.",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        destinations: {
+                            type: "array",
+                            description: "Ids of the pages to offer, most relevant first. Max 3.",
+                            items: { type: "string", enum: [...DESTINATION_IDS] },
+                        },
+                    },
+                    required: ["destinations"],
+                    additionalProperties: false,
+                },
+            },
+        },
+        handler: linkTo,
+    },
+    {
+        spec: {
+            type: "function",
+            function: {
                 name: "create_project",
                 description:
                     "Build a project for the user: creates it and starts generating its sprints and tasks. " +
@@ -960,6 +1029,18 @@ const TOOLS: Tool[] = [
 
 export const TOOL_SPECS: ToolSpec[] = TOOLS.map((t) => t.spec);
 
+/**
+ * Names of the tools that change something or spend credits.
+ *
+ * Exported so the route can enforce "once per turn" on them. The tool descriptions and the
+ * system prompt both say not to call these twice, and the model did it anyway - two
+ * `create_project` calls in one round, which is two charges for one project. A sentence in a
+ * prompt is guidance; this is the control.
+ */
+export const WRITE_TOOLS: ReadonlySet<string> = new Set(
+    TOOLS.filter((t) => t.writes).map((t) => t.spec.function.name),
+);
+
 const HANDLERS = new Map(TOOLS.map((t) => [t.spec.function.name, t.handler]));
 
 /**
@@ -995,6 +1076,28 @@ export async function runTool(
         // A handler signals a control for the panel with `__action`. It is STRIPPED before
         // the result goes to the model: the model has no use for the href, and every token
         // of it is a token it might decide to paraphrase into a link of its own.
+        // `__actions` (plural) for a tool that offers several - `link_to` does. Same
+        // stripping rule: the hrefs never reach the model.
+        if (raw && typeof raw === "object" && !Array.isArray(raw) && "__actions" in raw) {
+            const { __actions, ...rest } = raw as Record<string, unknown>;
+            const list = Array.isArray(__actions) ? __actions : [];
+            const actions = list
+                .map((a) => a as { label?: unknown; href?: unknown; kind?: unknown })
+                .filter(
+                    (a) =>
+                        typeof a.href === "string" &&
+                        typeof a.label === "string" &&
+                        a.href.startsWith("/") &&
+                        !a.href.startsWith("//"),
+                )
+                .map((a) => ({
+                    label: a.label as string,
+                    href: a.href as string,
+                    kind: typeof a.kind === "string" ? a.kind : undefined,
+                }));
+            return { result: rest, actions };
+        }
+
         if (raw && typeof raw === "object" && !Array.isArray(raw) && "__action" in raw) {
             const { __action, ...rest } = raw as Record<string, unknown>;
             const a = __action as { label?: unknown; href?: unknown; kind?: unknown } | undefined;

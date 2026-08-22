@@ -56,7 +56,22 @@ export function AuthShell({ children }: { children: ReactNode }) {
                 photograph needs to look like it is floating. */}
             <div className="relative flex h-full w-full max-w-7xl overflow-hidden bg-white ring-neutral-200 xl:rounded-3xl xl:shadow-2xl xl:shadow-neutral-900/10 xl:ring-1 dark:bg-neutral-950 dark:ring-neutral-800 dark:xl:shadow-black/40">
                 {/* ── Brand column. Light in both themes; see the note above. ── */}
-                <aside className="relative hidden h-full w-1/2 flex-col overflow-hidden bg-neutral-100 p-10 lg:flex xl:p-12">
+                {/* CONSTANT INK. Every `dark:text-*` inside this panel is a bug, and they have been
+                    removed twice now - once when this was `bg-neutral-950` with white type, and
+                    again when an automated pass that pairs unpaired inks added them back.
+
+                    The surface is `bg-neutral-100` with no `dark:` variant, so it is LIGHT in
+                    both themes. Near-white ink on it in dark mode is invisible, which is
+                    exactly what the screenshots showed. The rule from CLAUDE.md: if a surface
+                    is constant across themes, its ink must be constant too.
+
+                    A sweep that reads only the element's own className cannot see this,
+                    because the background lives on this aside and the text lives on its
+                    descendants. Anything automated touching ink needs to skip this subtree. */}
+                <aside
+                    data-constant-surface
+                    className="relative hidden h-full w-1/2 flex-col overflow-hidden bg-neutral-100 p-10 lg:flex xl:p-12"
+                >
                     <AuthBackdropPanel />
 
                     {/* A soft wash at the foot of the panel, under the artwork rather
@@ -73,9 +88,9 @@ export function AuthShell({ children }: { children: ReactNode }) {
 
                     <Link href="/" className="relative z-10 flex w-fit shrink-0 items-center gap-2.5">
                         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900/10 ring-1 ring-neutral-900/15">
-                            <Logo className="h-5 w-5 text-neutral-900 dark:text-neutral-100" />
+                            <Logo className="h-5 w-5 text-neutral-900" />
                         </span>
-                        <span className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">ShipItHQ</span>
+                        <span className="text-lg font-semibold tracking-tight text-neutral-900">ShipItHQ</span>
                     </Link>
 
                     {/* Copy block - high in the panel, left aligned. Keyed on the
@@ -87,14 +102,14 @@ export function AuthShell({ children }: { children: ReactNode }) {
                             made the change feel abrupt - the whole panel's text
                             appeared at once rather than composing itself. */}
                         <h2
-                            className="auth-copy-enter text-3xl font-bold leading-tight tracking-tight text-neutral-900 dark:text-neutral-100 xl:text-4xl"
+                            className="auth-copy-enter text-3xl font-bold leading-tight tracking-tight text-neutral-900 xl:text-4xl"
                             style={{ ["--enter-delay" as string]: "0ms" }}
                         >
                             {headline}
                         </h2>
                         {sub && (
                             <p
-                                className="auth-copy-enter mt-4 text-base leading-relaxed text-neutral-700 dark:text-neutral-300"
+                                className="auth-copy-enter mt-4 text-base leading-relaxed text-neutral-700"
                                 style={{ ["--enter-delay" as string]: "70ms" }}
                             >
                                 {sub}
@@ -124,7 +139,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
                         >
                             <AuthVisual
                                 variant={variant}
-                                className="h-full max-h-[340px] w-full max-w-[420px] text-neutral-900 dark:text-neutral-100/70"
+                                className="h-full max-h-[340px] w-full max-w-[420px] text-neutral-900"
                             />
                         </div>
                     </div>

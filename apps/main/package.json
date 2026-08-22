@@ -16,7 +16,8 @@
     "deploy:no-secrets": "NODE_OPTIONS='--max-old-space-size=8192' opennextjs-cloudflare build && wrangler deploy",
     "release": "NODE_OPTIONS='--max-old-space-size=8192' opennextjs-cloudflare build && wrangler deploy --secrets-file .env.production",
     "release:no-secrets": "NODE_OPTIONS='--max-old-space-size=8192' opennextjs-cloudflare build && wrangler deploy",
-    "check-nav": "node scripts/check-nav.mjs"
+    "check-nav": "node scripts/check-nav.mjs",
+    "check-destinations": "node scripts/check-destinations.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.958.0",

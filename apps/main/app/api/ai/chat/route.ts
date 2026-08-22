@@ -3,7 +3,7 @@ import { getSession } from "@repo/auth";
 import { db, users } from "@repo/db";
 import { eq } from "drizzle-orm";
 import { openai } from "@/lib/openai-client";
-import { TOOL_SPECS, runTool } from "@/lib/ai/tools";
+import { TOOL_SPECS, WRITE_TOOLS, runTool } from "@/lib/ai/tools";
 import { encodeFrame, type ChatFrame } from "@/lib/ai/protocol";
 
 export const runtime = "nodejs";
@@ -91,6 +91,11 @@ function systemPrompt(ctx: {
         "- Project ideas: when you list ideas from `search_project_ideas` and the user picks one, call `create_project` with THAT idea's title and description. Do not re-list the ideas afterwards and do not ask the user to retype anything you already showed them.",
         "- Goals: if `list_my_goals` returns fewer than three, finish by suggesting two or three concrete goals that fit their profile and practice history, and offer to add them. Create only the ones they choose.",
         "- Resume: `get_my_resume` returns a `gaps` list. Give the summary first, then what is missing, worst first. The button to their profile appears on its own.",
+        "",
+        "Sending them somewhere:",
+        "- You do NOT know this app's URLs. Never write a path, a link, or 'go to Settings > Account' in a reply.",
+        "- Call `link_to` instead: pick page ids and the user gets real buttons. Do this whenever your answer points at something they can go and do.",
+        "- A plan, a list of ideas, or an explanation of a feature should almost always end with one. A 4-week DSA plan ends with a button to DSA practice; a list of project ideas ends with one to the idea catalogue.",
         "",
         "About the person you're talking to:",
         `- Name: ${ctx.name ?? "unknown"}`,
@@ -224,7 +229,11 @@ export async function POST(request: NextRequest) {
             const send = (frame: ChatFrame) => controller.enqueue(encoder.encode(encodeFrame(frame)));
 
             try {
-                for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+                // Fingerprints of write-tool calls already executed in THIS turn. See the note
+            // beside the check below.
+            const writesThisTurn = new Set<string>();
+
+            for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
                     const decision = (await openai.chat.completions.create({
                         model: MODEL,
                         messages: conversation,
@@ -260,14 +269,37 @@ export async function POST(request: NextRequest) {
                     // a round trip to the database per call.
                     const results = await Promise.all(
                         calls.map(async (call) => {
+                            const name = call.function?.name ?? "";
+                            const args = call.function?.arguments ?? "";
+
+                            // ── Write tools run at most once per turn ──
+                            //
+                            // The model asked to create the same project TWICE in one round.
+                            // Both the tool description and the system prompt tell it not to;
+                            // it did anyway, and two calls is two credit charges for one
+                            // project. Prompts are guidance, this is the control.
+                            //
+                            // Keyed on name + arguments, so a genuine second call with
+                            // different arguments (two different cover letters) still runs.
+                            if (WRITE_TOOLS.has(name)) {
+                                const fingerprint = `${name}:${args}`;
+                                if (writesThisTurn.has(fingerprint)) {
+                                    return {
+                                        result: {
+                                            error: "already_done",
+                                            message:
+                                                "This exact call already ran in this turn and was not repeated. " +
+                                                "Tell the user it is underway; do not call it again.",
+                                        },
+                                    };
+                                }
+                                writesThisTurn.add(fingerprint);
+                            }
+
                             try {
-                                return await runTool(
-                                    call.function?.name ?? "",
-                                    call.function?.arguments ?? "",
-                                    session.user.id,
-                                );
+                                return await runTool(name, args, session.user.id);
                             } catch (error: unknown) {
-                                console.error(`[ai/chat] tool ${call.function?.name} failed:`, error);
+                                console.error(`[ai/chat] tool ${name} failed:`, error);
                                 return null;
                             }
                         }),
@@ -301,12 +333,15 @@ export async function POST(request: NextRequest) {
                         // A control the tool produced - a link to the thing it made. Emitted
                         // here, from the tool's own return value, so the href never passes
                         // through the model and cannot come back paraphrased or invented.
-                        if (outcome.action) {
+                        for (const a of [
+                            ...(outcome.action ? [outcome.action] : []),
+                            ...(outcome.actions ?? []),
+                        ]) {
                             send({
                                 t: "action",
-                                label: outcome.action.label,
-                                href: outcome.action.href,
-                                ...(outcome.action.kind ? { kind: outcome.action.kind } : {}),
+                                label: a.label,
+                                href: a.href,
+                                ...(a.kind ? { kind: a.kind } : {}),
                             });
                         }
 

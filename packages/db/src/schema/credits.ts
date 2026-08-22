@@ -179,26 +179,11 @@ export const creditRequests = pgTable(
     ]
 );
 
-export const creditTransferOuts = pgTable(
-    "credit_transfer_out",
-    {
-        id: text("id").primaryKey().$defaultFn(() => createId()),
-        userId: text("user_id").notNull().references(() => users.id),
-        userEmail: text("user_email").notNull(),
-        creditsTransferred: integer("credits_transferred").notNull(),
-        destinationPlatform: text("destination_platform").notNull().default("truefool"),
-        transferId: text("transfer_id").notNull(),
-        status: text("status").notNull().default("COMPLETED"),
-        ipAddress: text("ip_address"),
-        userAgent: text("user_agent"),
-        createdAt: timestamp("created_at").notNull().defaultNow(),
-    },
-    (t) => [
-        index("credit_transfer_out_user_id_idx").on(t.userId),
-        index("credit_transfer_out_transfer_id_idx").on(t.transferId),
-        index("credit_transfer_out_created_at_idx").on(t.createdAt),
-    ]
-);
+// `creditTransferOuts` ("Platform Transfers" - credits sent out to TrueFool) was removed
+// here. The concept is dropped; nothing reads or writes it any more.
+//
+// NOTE: `creditTransfers` below is a DIFFERENT table - user-to-user transfers inside the
+// product - and is still used by the admin app and by credits.action.ts. Do not confuse them.
 
 export const payments = pgTable(
     "payment",
@@ -276,13 +261,6 @@ export const creditTransactionsRelations = relations(creditTransactions, ({ one,
 export const creditRequestsRelations = relations(creditRequests, ({ one }) => ({
     user: one(users, {
         fields: [creditRequests.userId],
-        references: [users.id],
-    }),
-}));
-
-export const creditTransferOutsRelations = relations(creditTransferOuts, ({ one }) => ({
-    user: one(users, {
-        fields: [creditTransferOuts.userId],
         references: [users.id],
     }),
 }));

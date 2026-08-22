@@ -46,6 +46,7 @@ const TOOL_LABELS: Record<string, { running: string; done: string }> = {
     create_cover_letter: { running: "Writing your cover letter", done: "Started your cover letter" },
     create_project: { running: "Setting up your project", done: "Started your project" },
     create_goal: { running: "Adding your goal", done: "Added your goal" },
+    link_to: { running: "Finding the page", done: "Found the page" },
 }
 
 /** Unknown tool: say something honest rather than printing a function name. */
@@ -58,14 +59,18 @@ export function ToolSteps({ steps }: { steps: ToolStep[] }) {
 
     return (
         <div
-            className="flex w-full max-w-full flex-col gap-1 rounded-xl border border-neutral-200 bg-neutral-50/80 px-2.5 py-1.5 dark:border-neutral-700 dark:bg-neutral-900/60"
+            // A ROW that wraps, not a column. One step per line turned a two-tool round into
+            // a tall stack above the reply, which reads as a list of things to do rather than
+            // a trace of what just happened - and pushed the answer itself off the screen.
+            // Wrapping keeps it to one line when it fits and two when it does not.
+            className="flex w-full max-w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-neutral-200 bg-neutral-50/80 px-2.5 py-1.5 dark:border-neutral-700 dark:bg-neutral-900/60"
             // A live region: the steps are the only feedback that anything is
             // happening, so a screen reader has to hear them too.
             role="status"
             aria-live="polite"
         >
             {steps.map((s) => (
-                <div key={s.id} className="flex min-w-0 items-center gap-2 text-[12px] font-medium">
+                <div key={s.id} className="flex min-w-0 max-w-full items-center gap-1.5 text-[12px] font-medium">
                     {s.status === "running" ? (
                         <InlineLoader size="sm" className="shrink-0 text-neutral-400" />
                     ) : s.status === "error" ? (

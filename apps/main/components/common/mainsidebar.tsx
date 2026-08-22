@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import { Logo } from "@repo/ui/components/logo"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Zap, Sparkles, User, Settings, Home, Code2, FolderKanban, Briefcase } from "lucide-react"
+import { Zap, Sparkles, User, Settings, Home, Code2, FolderKanban, Briefcase, Gift } from "lucide-react"
 import { useSession, signOut } from "@repo/auth/client"
 import { toast } from "@repo/ui/components/ui/sonner"
 import { cn } from "@repo/ui/lib/utils"
@@ -149,6 +149,10 @@ export default function Sidebar() {
             profileHref="/profile"
             profileLinks={[
                 { label: "Profile", href: "/profile", icon: User },
+                // Referrals have worked since signup was written - the row is inserted, the
+                // referrer gets XP - but there was nowhere to find your own code, so nobody
+                // could use the feature deliberately. This is that place.
+                { label: "Referrals", href: "/transactions?tab=referrals", icon: Gift },
                 { label: "Settings", href: "/settings", icon: Settings },
             ]}
             notifications={{

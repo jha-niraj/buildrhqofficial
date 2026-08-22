@@ -90,26 +90,28 @@ function PricingCard({ pkg, currency, className, onSelect, hrefFor }: PricingCar
                 </p>
             )}
 
-            <ul className="grid flex-1 gap-3 p-5 text-sm text-neutral-600 dark:text-neutral-400">
-                {pkg.highlights.map((f) => (
-                    <li key={f} className="flex items-center gap-3">
-                        <FilledCheck />
-                        <span>{f}</span>
-                    </li>
-                ))}
-            </ul>
+            {/* CTA above the features, not below them.
+                Two reasons. The price is the decision and the button is the action, so they
+                belong together - a feature list between them makes the reader travel back up.
+                And on a tall card the button fell below the fold, which is what made these
+                look like they had no button at all.
 
-            <div className="p-5 pt-0">
+                The colour was the other half of that: it was `bg-neutral-900` with no dark
+                variant, on a `dark:bg-neutral-900` card. Identical to its own background, so
+                it only appeared when hover flipped it to neutral-800 - which reads as "the
+                button appears on hover" and is exactly how Niraj described it. Inverted in
+                dark mode now, like every other primary button in the product. */}
+            <div className="px-5 pb-4">
                 {onSelect ? (
                     <Button
                         onClick={() => onSelect(pkg)}
-                        className="w-full border-0 bg-neutral-900 text-white hover:bg-neutral-800"
+                        className="w-full cursor-pointer border-0 bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
                     >
                         {cta}
                         <ArrowRight className="ml-2 size-4" />
                     </Button>
                 ) : (
-                    <Button asChild variant="outline" className="w-full">
+                    <Button asChild variant="outline" className="w-full cursor-pointer">
                         <a href={hrefFor?.(pkg) ?? '#'}>
                             {cta}
                             <ArrowRight className="ml-2 size-4" />
@@ -117,6 +119,15 @@ function PricingCard({ pkg, currency, className, onSelect, hrefFor }: PricingCar
                     </Button>
                 )}
             </div>
+
+            <ul className="grid flex-1 gap-3 px-5 pb-5 text-sm text-neutral-600 dark:text-neutral-400">
+                {pkg.highlights.map((f) => (
+                    <li key={f} className="flex items-center gap-3">
+                        <FilledCheck />
+                        <span>{f}</span>
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }
@@ -197,7 +208,7 @@ function FeaturedCard({ pkg, currency, onSelect, hrefFor }: PricingCardProps) {
                     <Button
                         onClick={() => onSelect(pkg)}
                         size="lg"
-                        className="bg-white text-neutral-900 hover:bg-neutral-100 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
+                        className="cursor-pointer bg-white text-neutral-900 hover:bg-neutral-100 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
                     >
                         {cta}
                         <ArrowRight className="ml-2 size-4" />
@@ -206,7 +217,7 @@ function FeaturedCard({ pkg, currency, onSelect, hrefFor }: PricingCardProps) {
                     <Button
                         asChild
                         size="lg"
-                        className="bg-white text-neutral-900 hover:bg-neutral-100 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
+                        className="cursor-pointer bg-white text-neutral-900 hover:bg-neutral-100 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
                     >
                         <a href={hrefFor?.(pkg) ?? '#'}>
                             {cta}
