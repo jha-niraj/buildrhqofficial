@@ -24,7 +24,7 @@ export default function CtaSection() {
                         </Button>
                     </Link>
                     <Link href="/contact">
-                        <Button variant="outline" className="cursor-pointer h-14 px-8 rounded-full border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white dark:text-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-900 dark:bg-white font-bold text-lg">
+                        <Button variant="outline" className="cursor-pointer h-14 px-8 rounded-full border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-900 dark:bg-white font-bold text-lg">
                             Contact Engineering
                         </Button>
                     </Link>

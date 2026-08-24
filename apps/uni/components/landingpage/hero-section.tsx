@@ -51,7 +51,7 @@ export default function HeroSection() {
                             <GraduationCap className="mr-2 h-4 w-4" />
                             Register Institution
                         </Link></Button>
-                        <Button variant="outline" className="cursor-pointer h-12 px-8 rounded-full border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white dark:text-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-900 dark:bg-white" asChild><Link href="#how-it-works">
+                        <Button variant="outline" className="cursor-pointer h-12 px-8 rounded-full border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-900 dark:bg-white" asChild><Link href="#how-it-works">
                             System Architecture
                             <ArrowRight className="ml-2 h-4 w-4" />
                         </Link></Button>

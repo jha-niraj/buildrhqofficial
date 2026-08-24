@@ -1,7 +1,7 @@
 "use server"
 
-import { db, adminAccess, adminAuditLogs, adminSystemSettings, adminNotifications, users, feedbacks, mockInterviewVoice, creditTransactions } from "@repo/db"
-import { eq, and, count, sql } from "drizzle-orm"
+import { db, adminSystemSettings, adminNotifications, users } from "@repo/db"
+import { eq, and, count } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import type { AdminResponse } from "@/types/admin"
 import { logAdminAudit } from "@/lib/audit-log"
@@ -102,101 +102,12 @@ export async function updateSystemSetting(key: string, data: {
     }
 }
 
-// Get database stats
-export async function getDatabaseStats(): Promise<AdminResponse<{
-    users: number
-    projects: number
-    communities: number
-    mockInterviews: number
-    feedback: number
-    creditTransactions: number
-    assessmentQuestions: number
-    forgeTracks: number
-    crucibleEvents: number
-}>> {
-    try {
-        const check = await checkAdminAccess("system", "read")
-        if (!check.authorized) {
-            return { success: false, error: check.error }
-        }
-
-        const [
-            totalUsersResult,
-            totalMockInterviewsResult,
-            totalFeedbackResult,
-            totalCreditTransactionsResult,
-        ] = await Promise.all([
-            db.select({ totalUsers: count() }).from(users),
-            db.select({ totalMockInterviews: count() }).from(mockInterviewVoice),
-            db.select({ totalFeedback: count() }).from(feedbacks),
-            db.select({ totalCreditTransactions: count() }).from(creditTransactions),
-        ])
-        const totalUsers = totalUsersResult[0]?.totalUsers ?? 0
-        const totalMockInterviews = totalMockInterviewsResult[0]?.totalMockInterviews ?? 0
-        const totalFeedback = totalFeedbackResult[0]?.totalFeedback ?? 0
-        const totalCreditTransactions = totalCreditTransactionsResult[0]?.totalCreditTransactions ?? 0
-
-        return {
-            success: true,
-            data: {
-                users: totalUsers,
-                projects: 0,
-                communities: 0,
-                mockInterviews: totalMockInterviews,
-                feedback: totalFeedback,
-                creditTransactions: totalCreditTransactions,
-                assessmentQuestions: 0,
-                forgeTracks: 0,
-                crucibleEvents: 0,
-            }
-        }
-    } catch (error) {
-        console.error("Get database stats error:", error)
-        return { success: false, error: "Failed to fetch database stats" }
-    }
-}
-
-// Get system health
-export async function getSystemHealth(): Promise<AdminResponse<{
-    databaseStatus: "healthy" | "unhealthy"
-    recentErrors: number
-    recentActivitiesLast24h: number
-    timestamp: Date
-}>> {
-    try {
-        const check = await checkAdminAccess("system", "read")
-        if (!check.authorized) {
-            return { success: false, error: check.error }
-        }
-
-        // Check database connection
-        await db.execute(sql`SELECT 1`)
-
-        // Get recent errors from audit log
-        const recentErrorsResult = await db.select({ recentErrors: count() })
-            .from(adminAuditLogs)
-            .where(
-                and(
-                    eq(adminAuditLogs.action, "ERROR"),
-                    sql`${adminAuditLogs.createdAt} >= NOW() - INTERVAL '24 hours'`
-                )
-            )
-        const recentErrors = recentErrorsResult[0]?.recentErrors ?? 0
-
-        return {
-            success: true,
-            data: {
-                databaseStatus: "healthy",
-                recentErrors,
-                recentActivitiesLast24h: 0,
-                timestamp: new Date()
-            }
-        }
-    } catch (error) {
-        console.error("Get system health error:", error)
-        return { success: false, error: "Failed to check system health" }
-    }
-}
+// `getDatabaseStats` and `getSystemHealth` were removed here along with the
+// /system/database page they existed for (2026-08-24 nav removal, page and server code
+// removed on request). Nothing else called either one.
+//
+// The rest of this file is still live: settings, cache clearing and admin notifications all
+// have callers elsewhere in the console.
 
 // Clear cache
 export async function clearCache(cacheKeys?: string[]): Promise<AdminResponse<{ cleared: string[] }>> {

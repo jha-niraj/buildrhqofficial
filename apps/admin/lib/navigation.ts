@@ -103,9 +103,9 @@ export const adminNavigation: NavigationConfig = {
             requiredPermission: "system",
             children: [
                 { name: "Settings", path: "system/settings", icon: Settings },
-                // "Database" removed from the tree (2026-08-24, approved by
-                // Niraj). The page itself is untouched at system/database -
-                // only the nav entry is gone.
+                // "Database" was removed from the tree on 2026-08-24, and the page,
+                // its two server actions and its types were deleted afterwards on
+                // request. Nothing at system/database remains.
             ],
         },
     ],

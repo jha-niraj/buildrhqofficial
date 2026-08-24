@@ -8,7 +8,7 @@ export default function Loading() {
 
             {/* Hero */}
             <section className="border-b border-neutral-100 pb-20 pt-32 dark:border-neutral-800">
-                <div className="mx-auto max-w-7xl px-6">
+                <div className="mx-auto max-w-3xl px-6">
                     <div className="max-w-3xl space-y-4">
                         <Shimmer className="h-8 w-32 rounded-full" />
                         <Shimmer className="h-12 w-full" delay={0.06} />

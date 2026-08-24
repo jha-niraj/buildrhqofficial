@@ -21,7 +21,7 @@ export default function Loading() {
                 ))}
             </div>
             <div className="min-h-0 flex-1 overflow-hidden p-6">
-                <div className="mx-auto max-w-4xl space-y-4">
+                <div className="max-w-7xl mx-auto px-6 py-4 space-y-4">
                     <Shimmer className="h-7 w-2/3" />
                     {Array.from({ length: 10 }).map((_, i) => (
                         <Shimmer key={i} className="h-4 w-full" delay={i * 0.04} />

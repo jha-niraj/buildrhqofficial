@@ -30,30 +30,8 @@ export type AdminResponse<T = unknown> =
     | { success: true; data: T }
     | { success: false; error: string }
 
-// Matches getDatabaseStats()'s actual return exactly (actions/system.action.ts)
-// - it used to declare `companies` and `universities` fields the action has
-// never returned, silently accepted because both consumers cast through
-// `as DatabaseStats` instead of letting the compiler check them.
-export interface DatabaseStats {
-    users: number
-    projects: number
-    communities: number
-    mockInterviews: number
-    feedback: number
-    creditTransactions: number
-    assessmentQuestions: number
-    forgeTracks: number
-    crucibleEvents: number
-}
-
-// Matches getSystemHealth()'s actual return - it only ever produces "healthy"
-// or "unhealthy", never "degraded" or "down".
-export interface SystemHealth {
-    databaseStatus: "healthy" | "unhealthy"
-    recentErrors: number
-    recentActivitiesLast24h: number
-    timestamp: Date
-}
+// `DatabaseStats` and `SystemHealth` were removed with the /system/database page and the
+// two actions that produced them. They had no other consumer.
 
 export interface StatsData {
     totalUsers?: number

@@ -139,8 +139,8 @@ export default function Navbar() {
                                     <div className="flex-1 overflow-auto py-6 px-4 font-medium">
                                         <div className="grid grid-cols-1 gap-2">
                                             <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="rounded-lg px-4 py-3 text-lg bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-white">Overview</Link>
-                                            <Link href="#features" onClick={(e) => handleSmoothScroll(e, "#features")} className="rounded-lg px-4 py-3 text-lg text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-900 dark:bg-white hover:text-neutral-900 dark:hover:text-white dark:text-neutral-900 transition-all cursor-pointer">Modules</Link>
-                                            <Link href="#pricing" onClick={(e) => handleSmoothScroll(e, "#pricing")} className="rounded-lg px-4 py-3 text-lg text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-900 dark:bg-white hover:text-neutral-900 dark:hover:text-white dark:text-neutral-900 transition-all cursor-pointer">Allocation</Link>
+                                            <Link href="#features" onClick={(e) => handleSmoothScroll(e, "#features")} className="rounded-lg px-4 py-3 text-lg text-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-900 dark:bg-white hover:text-neutral-900 dark:hover:text-white dark:text-neutral-900 transition-all cursor-pointer">Modules</Link>
+                                            <Link href="#pricing" onClick={(e) => handleSmoothScroll(e, "#pricing")} className="rounded-lg px-4 py-3 text-lg text-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-900 dark:bg-white hover:text-neutral-900 dark:hover:text-white dark:text-neutral-900 transition-all cursor-pointer">Allocation</Link>
                                         </div>
                                         <hr className="border-neutral-200 dark:border-neutral-800 my-4" />
                                         {

@@ -209,7 +209,7 @@ export default function AiToolsPage() {
                                 <Button
                                     size="lg"
                                     variant="outline"
-                                    className="h-14 px-8 bg-transparent text-neutral-900 dark:text-white dark:text-neutral-900 border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 dark:bg-white font-semibold text-lg rounded-full"
+                                    className="h-14 px-8 bg-transparent text-neutral-900 dark:text-neutral-900 border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 dark:bg-white font-semibold text-lg rounded-full"
                                 >
                                     View Pricing
                                 </Button>

@@ -6,7 +6,7 @@ export default function Loading() {
         <div className="w-full">
             <ShimmerStyles />
             <section className="pb-20 pt-32">
-                <div className="mx-auto max-w-3xl space-y-4 px-6 text-center">
+                <div className="mx-auto max-w-7xl space-y-4 px-6 text-center">
                     <Shimmer className="mx-auto h-8 w-40 rounded-full" />
                     <Shimmer className="mx-auto h-12 w-full" delay={0.06} />
                     <Shimmer className="mx-auto h-5 w-3/4" delay={0.1} />

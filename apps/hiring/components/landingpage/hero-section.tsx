@@ -52,7 +52,7 @@ export default function HeroSection() {
                         </Link></Button>
                         <Button
                             variant="outline"
-                            className="cursor-pointer h-12 px-8 rounded-full border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white dark:text-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-900 dark:bg-white"
+                            className="cursor-pointer h-12 px-8 rounded-full border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-900 dark:bg-white"
                         >
                             View Schematic
                             <ArrowRight className="ml-2 h-4 w-4" />

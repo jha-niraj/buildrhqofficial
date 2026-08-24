@@ -111,7 +111,12 @@ export default function PricingSection() {
                 >
                     <div className="relative z-10">
                         <h3 className="text-2xl font-bold mb-4 text-white dark:text-neutral-900">Need High-Volume Compute?</h3>
-                        <p className="text-neutral-500 dark:text-neutral-400 mb-8 max-w-2xl mx-auto">
+                        {/* INVERTED, like the h3 above it. This card is `bg-neutral-900 dark:bg-white`, so
+                            it is dark in light mode and WHITE in dark mode - the ink has to flip with
+                            it. `text-neutral-500 dark:text-neutral-400` did not: it measured 3.78:1 on
+                            the dark card and 2.52:1 on the white one, failing in both. This pair is
+                            7.11:1 and 7.81:1. */}
+                        <p className="text-neutral-400 dark:text-neutral-600 mb-8 max-w-2xl mx-auto">
                             For universities and bootcamps requiring bulk credit allocation and dedicated API throughput.
                         </p>
                         <Button
