@@ -202,11 +202,44 @@ export function AppSidebar(props: AppSidebarProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pathname])
 
+    // ── Most specific match wins ──
+    //
+    // Every nav path that the current URL is inside, longest first. A LEAF is active only if
+    // it is the longest of those; a PARENT stays prefix-matched, because its highlight means
+    // "you are somewhere in this group" rather than "you are here".
+    //
+    // The old rule prefix-matched everything, which lit up every ancestor at once. It shows
+    // worst where an "Overview" entry sits AS A SIBLING of the pages beneath it - the admin
+    // console does this three times:
+    //
+    //   Credits > [Overview /credits, Transactions /credits/transactions, ...]
+    //   Hiring  > [Overview /hiring,  Companies /hiring/companies, Verification /hiring/companies/verification]
+    //   Uni     > [Overview /uni,     ...]
+    //
+    // On /hiring/companies/verification that highlighted all THREE rows. Overview's path is a
+    // prefix of its own siblings', so under a prefix rule it can never be switched off.
+    const bestMatch = React.useMemo(() => {
+        const candidates: string[] = []
+        const walk = (items: AppSidebarNavItem[]) => {
+            for (const it of items) {
+                candidates.push(basePath(it.path))
+                if (it.children?.length) walk(it.children)
+            }
+        }
+        walk([...primary, ...secondary])
+        return candidates
+            .filter((c) => pathname === c || pathname.startsWith(`${c}/`))
+            .sort((a, b) => b.length - a.length)[0]
+    }, [pathname, primary, secondary])
+
     const isPathActive = React.useCallback((itemPath: string, hasChildren: boolean) => {
         const full = basePath(itemPath)
-        if (hasChildren) return pathname === full || pathname.startsWith(`${full}/`)
-        return pathname === full || pathname.startsWith(`${full}/`)
-    }, [pathname])
+        const within = pathname === full || pathname.startsWith(`${full}/`)
+        // A group header lights up for anything inside it.
+        if (hasChildren) return within
+        // A leaf lights up only when nothing more specific also matches.
+        return within && full === bestMatch
+    }, [pathname, bestMatch])
 
     // Auto-expand the active parent.
     React.useEffect(() => {

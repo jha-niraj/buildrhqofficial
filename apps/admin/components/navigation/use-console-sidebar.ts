@@ -17,6 +17,9 @@ import { useAIPanelStore } from "@/stores/ai-panel.store"
 export function useConsoleSidebar() {
     const router = useRouter()
     const openAI = useAIPanelStore((s) => s.open)
+    // Exposed so the footer button can show a pressed state. Selected separately rather than
+    // taking the whole store, or every sidebar re-renders on each keystroke in the panel.
+    const aiOpen = useAIPanelStore((s) => s.isOpen)
 
     const [notifs, setNotifs] = useState<AppSidebarNotification[]>([])
     const [unreadCount, setUnreadCount] = useState(0)
@@ -82,5 +85,6 @@ export function useConsoleSidebar() {
         handleMarkAllRead,
         handleSignOut,
         openAI,
+        aiOpen,
     }
 }

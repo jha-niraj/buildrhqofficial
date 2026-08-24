@@ -20,7 +20,7 @@ export function UniversitySidebar({
     const { isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen, adminRole } = useSidebar()
     const {
         notifs, unreadCount, notifsLoading, loadNotifications,
-        handleNotificationClick, handleMarkAllRead, handleSignOut, openAI,
+        handleNotificationClick, handleMarkAllRead, handleSignOut, openAI, aiOpen,
     } = useConsoleSidebar()
 
     return (
@@ -45,8 +45,8 @@ export function UniversitySidebar({
             onSignOut={handleSignOut}
             profileHref="/admins/profile"
             profileLinks={[]}
-            footerExtra={<AskAIFooter onOpen={openAI} />}
-            footerExtraCollapsed={<AskAIFooterCollapsed onOpen={openAI} />}
+            footerExtra={<AskAIFooter onOpen={openAI} isOpen={aiOpen} />}
+            footerExtraCollapsed={<AskAIFooterCollapsed onOpen={openAI} isOpen={aiOpen} />}
             notifications={{
                 items: notifs,
                 unreadCount,

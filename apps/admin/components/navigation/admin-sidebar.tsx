@@ -29,7 +29,7 @@ export function AdminSidebar({
     const nav = getNavigationForPermissions(permissions, adminRole)
     const {
         notifs, unreadCount, notifsLoading, loadNotifications,
-        handleNotificationClick, handleMarkAllRead, handleSignOut, openAI,
+        handleNotificationClick, handleMarkAllRead, handleSignOut, openAI, aiOpen,
     } = useConsoleSidebar()
 
     return (
@@ -55,8 +55,8 @@ export function AdminSidebar({
             onSignOut={handleSignOut}
             profileHref="/admins/profile"
             profileLinks={[{ label: "My Profile", href: "/admins/profile", icon: Settings }]}
-            footerExtra={<AskAIFooter onOpen={openAI} />}
-            footerExtraCollapsed={<AskAIFooterCollapsed onOpen={openAI} />}
+            footerExtra={<AskAIFooter onOpen={openAI} isOpen={aiOpen} />}
+            footerExtraCollapsed={<AskAIFooterCollapsed onOpen={openAI} isOpen={aiOpen} />}
             notifications={{
                 items: notifs,
                 unreadCount,
