@@ -34,7 +34,7 @@ export default function Loading() {
                 </div>
             </div>
 
-            <div className="flex min-h-[calc(100vh-4rem)]">
+            <div className="flex min-h-[calc(100dvh-4rem)]">
                 {/* Category rail - hidden below md, exactly as the real aside is. */}
                 <aside className="hidden w-64 flex-shrink-0 border-r border-neutral-200 bg-neutral-50/50 md:block lg:w-72 dark:border-neutral-800 dark:bg-neutral-900/50">
                     <div className="p-4">

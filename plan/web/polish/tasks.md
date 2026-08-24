@@ -49,6 +49,8 @@ is not started.
 | WEB-51 | Lazily mount every below-fold section | 7 | **deferred - see note** |
 | WEB-52 | `use client` audit | 7 | **done site-wide (2026-08-21)** |
 | WEB-53 | Final measured run against the budget | 7 | **partly done - Lighthouse needs a deploy** |
+| **Responsiveness** | | | |
+| WEB-60 | Full pass against `docs/responsiveness.md` | 10 | **done (2026-08-24)** |
 
 ---
 
@@ -805,3 +807,139 @@ regression on pages that shed nothing, and the price of the navigation in
 
 **Still open:** the mobile Lighthouse run on the deployed Worker - TBT < 200ms, LCP < 2.5s,
 CLS < 0.1. That is the remaining half of WEB-53 and it needs `pnpm release` first.
+
+---
+
+## Responsiveness
+
+### WEB-60 - Full pass against `docs/responsiveness.md`
+
+**Status:** Done (2026-08-24)
+**Serves:** DoD 10
+
+**Why.** `apps/admin` was just taken through the same doc end to end (ADM-23);
+`apps/web` has never been checked against it. Niraj asked for web first, then
+`apps/main`.
+
+**Scope, adapted from the doc for a marketing site rather than a bounded
+data app.** The doc was written against apps with a fixed-height shell,
+tables, ScrollAreas and live data - `apps/web` has almost none of that.
+Section by section:
+
+- **1 (height/scrolling bounds).** Not applicable in its bounded-shell form -
+  this site has no `--page-h`-style shell, every page flows naturally. The
+  one thing that DOES apply: any `h-screen`/`vh` on a full-height overlay
+  (the mobile nav Sheet) should be `dvh` for the same browser-chrome reason
+  as admin.
+- **2 (horizontal overflow, truncate/min-w-0).** Fully applicable - walk
+  every page at 360px.
+- **3 (tables/lists).** Only the two real `<table>`s (the compare page,
+  the privacy policy page) and the blog list/topic grids. No admin-style
+  data tables, tap-target/actions-column rules mostly N/A.
+- **4 (headers/toolbars).** Applies to the navbar (desktop row + mobile
+  accordion) and any button row (hero CTAs, pricing toggle + buttons).
+- **5 (stat cards).** Only if the site has a stat-tile pattern - check
+  before assuming N/A.
+- **6 (sheets/dialogs).** The mobile nav is the only Sheet in the app;
+  no Dialogs found in a first pass. Check the primitive-cap rule same as
+  admin.
+- **7 (loading states).** Mostly N/A - this is a server-rendered marketing
+  site with no bounded-page data fetching, except the blog list/topic pages
+  and the projects-section stat fetch on the landing page, which does have
+  a loading state worth checking.
+- **8 (charts).** N/A unless a chart is found.
+- **9 / 9b (locale, offline).** N/A - no calendar system, no offline route.
+- **10 (traps).** Fully applicable, re-run after every batch of edits.
+
+**Files.** All of `apps/web`, per the doc's own "scan by file count, not
+module name" warning - the navbar, footer and any shared component under
+`components/` affect every page and are easy to skip in a route-by-route
+walk.
+
+**Steps.** Enumerate every route (`/`, `/aboutus`, `/features`, `/pricing`,
+`/compare`, `/compare/[competitor]`, `/blogs`, `/blogs/[slug]`,
+`/blogs/topics/[topic]`, `/privacypolicy`, `/termsofservice`) plus the
+navbar/footer shared on all of them, walk the applicable sections above on
+each, fix at the widest scope (a shared primitive fix over a per-page one),
+typecheck once, report what was not fixed.
+
+**Edge cases.** Section 10's comment/string traps apply to every edit in
+this pass same as they did in admin.
+
+**Done when.** Every route above has been walked against the applicable
+sections at 360x640, findings fixed at their widest correct scope, and the
+"what was not fixed" list is empty or explicitly justified - same honest
+standard as ADM-23: this proves the markup is correct, not that it was
+touched on real hardware.
+
+**What was found and fixed.** `apps/web` turned out to be in noticeably
+better shape than `apps/admin` was before ADM-23 - it is a 74-file
+marketing site with no bounded shell, no data tables in the admin sense,
+and `page-hero.tsx` already carries a large amount of correct, explicitly
+reasoned responsiveness work from WEB-20/21/22/23. Three real defects
+found, all matching named patterns in the doc exactly:
+
+1. `components/landingpage/herosection.tsx` - the landing page's hero
+   section is `h-screen overflow-hidden`, a genuinely bounded/clipped
+   region (not just a `min-h` floor), with no scroll-linked animation
+   (`useScroll`/`scrollYProgress`) that would need `vh`'s stability. On
+   mobile this is exactly section 1's core failure: `100vh` is the
+   *larger* viewport value (chrome collapsed), so content was clipped
+   under the URL bar whenever it was showing - on the highest-traffic
+   page in the site. Fixed: `h-screen` -> `h-dvh`.
+2. `components/landingpage/homepagenavbar.tsx` - the mobile nav
+   `SheetContent` was also `h-screen` for the same reason; this one is a
+   full-height overlay takeover (matches the doc's own `side="bottom"`
+   full-screen exception in shape, just via a fixed height instead), so
+   the same fix applies. `h-screen` -> `h-dvh`.
+3. `components/homepage/newslettersubscription.tsx` - the footer
+   newsletter form is `<form className="flex gap-2 max-w-md">` holding an
+   `<Input className="flex-1">` beside a `<Button>`. This is the doc's
+   single most-repeated mistake verbatim: a flex ROW with a `flex-1` form
+   control and no `min-w-0`, so the input's intrinsic content width (not
+   the flex basis) sets a floor the row cannot shrink below. Fixed:
+   `flex-1` -> `min-w-0 flex-1`.
+
+**Confirmed already correct, not re-fixed:**
+- The compare page's comparison `<table>` and the privacy policy's data
+  `<table>` are both already wrapped in `overflow-x-auto` with a sensible
+  `min-w` on the wide one - the doc's own "known-acceptable" scroller
+  pattern, not a defect.
+- `dockerfile-panel.tsx`'s `min-w-max` content is already inside an
+  `orientation="both"` `ScrollArea`, exactly the `w-max`-needs-a-scroller
+  idiom the doc names.
+- No `Dialog` exists in this app; the app's one `Sheet` (mobile nav) passes
+  only `max-w-[500px]` with no `w-full` override, so the primitive's own
+  `w-3/4` mobile strip survives untouched - not the section 6 trap.
+- `projects-section.tsx`'s stat strip (`grid-cols-2 md:grid-cols-4`,
+  value+label stacked vertically) already has a real `loading` flag and a
+  shape-matching `Skeleton`, not a spinner - section 7 already satisfied
+  where it applies at all.
+- The desktop nav pill is `hidden ... lg:flex` and the "Get Started" button
+  is `hidden sm:block`; mobile shows only the logo, theme toggle and
+  hamburger, so there is no button-row overflow risk in the primary
+  navbar row itself.
+- No `truncate`, `line-clamp` (one legitimate use, in a `flex-col` card, no
+  `min-w-0` needed), `whitespace-nowrap`, or other `flex-1`-in-a-row
+  instances were found with a missing `min-w-0` beyond the one fixed
+  above - grepped for all of them across the app.
+
+**Sections ruled not applicable, per the scope note above, and why:**
+sections 1's bounded-shell sub-rules (StatStrip primitive, `--page-h`
+variable, relaxed-bound exception) - no shell exists to bound; 3's
+tap-target/actions-column/parity rules - no admin-style data table; 5 -
+no stat tile hides a label below `sm`, every one found stacks vertically
+with short content, matching the doc's own "3-up stat tile" known-good
+pattern; 8 - no chart in the app; 9/9b - no calendar system, no offline
+route.
+
+**Verified:** `cd apps/web && npx tsc --noEmit` clean; `grep -rn -e "—"
+-e "–"` clean across `app` and `components`; dev server restarted and
+all 9 representative routes (`/`, `/aboutus`, `/features`, `/pricing`,
+`/compare`, `/compare/leetcode`, `/blogs`, `/privacypolicy`,
+`/termsofservice`) returned 200 with no runtime errors in the server log.
+
+**Not verified this pass:** opening each fixed surface at 360x640 on real
+or emulated hardware - same honest limit as ADM-23, this was a
+markup-and-shape correctness pass against the doc's own rules, not a
+device test.

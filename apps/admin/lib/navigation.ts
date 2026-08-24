@@ -1,54 +1,38 @@
 import {
-    LayoutDashboard, Users, CreditCard, FolderKanban, Mic,
-    MessageCircle, Lightbulb, BarChart3, Settings,
-    Shield, FileText, type LucideIcon, Coins, Receipt, ArrowLeftRight,
-    UserCheck, Activity, Database, User,
-    Lock, Building2, GraduationCap, Briefcase, School
+    LayoutDashboard, Users, CreditCard, MessageCircle, BarChart3, Settings,
+    Shield, FileText, type LucideIcon, Coins, Receipt, UserCheck, Activity,
+    Lock, Building2, GraduationCap, Briefcase, School, Mail,
 } from "lucide-react"
+import { isSuperAdminRole } from "./role-labels"
 
 export interface NavigationItem {
     name: string
+    /** Always without a leading slash - `AppSidebar` adds one if missing. */
     path: string
     icon: LucideIcon
     children?: NavigationItem[]
     requiredPermission?: string
 }
 
-export interface PlatformNavigationItem {
-    name: string
-    path: string
-    children?: NavigationItem[]
-}
-
 export interface NavigationConfig {
-    global: NavigationItem[]
-    platforms: PlatformNavigationItem[]
+    primary: NavigationItem[]
     secondary: NavigationItem[]
 }
 
-// Admin navigation configuration
+/**
+ * The one nav config for the console. Every route below resolves under
+ * `app/(console)/` - see plan/admin/tasks.md ADM-3. A path here that does not
+ * correspond to a real page.tsx is a bug; there is no longer a second copy of
+ * this list anywhere else in the app.
+ */
 export const adminNavigation: NavigationConfig = {
-    global: [
-        {
-            name: "Dashboard",
-            path: "dashboard",
-            icon: LayoutDashboard,
-        },
+    primary: [
+        { name: "Dashboard", path: "dashboard", icon: LayoutDashboard },
         {
             name: "Users",
             path: "users",
             icon: Users,
             requiredPermission: "users",
-            children: [
-                { 
-                    name: "All Users", 
-                    path: "main/users", 
-                    icon: Users },
-                { 
-                    name: "Roles & Access", 
-                    path: "main/users/roles", 
-                    icon: Shield },
-            ]
         },
         {
             name: "Credits",
@@ -56,121 +40,44 @@ export const adminNavigation: NavigationConfig = {
             icon: CreditCard,
             requiredPermission: "credits",
             children: [
-                { 
-                    name: "Transactions", 
-                    path: "credits/transactions", 
-                    icon: Receipt },
-                { 
-                    name: "Requests", 
-                    path: "credits/requests", 
-                    icon: FileText },
-                { 
-                    name: "Transfers", 
-                    path: "credits/transfers", 
-                    icon: ArrowLeftRight },
-                { 
-                    name: "Payments", 
-                    path: "credits/payments", 
-                    icon: Coins },
-            ]
+                { name: "Overview", path: "credits", icon: CreditCard },
+                { name: "Transactions", path: "credits/transactions", icon: Receipt },
+                { name: "Requests", path: "credits/requests", icon: FileText },
+                { name: "Payments", path: "credits/payments", icon: Coins },
+            ],
         },
         {
             name: "Feedback",
             path: "feedback",
             icon: MessageCircle,
-            requiredPermission: "feedback"
+            requiredPermission: "feedback",
         },
         {
             name: "Analytics",
-            path: "main/analytics",
+            path: "analytics",
             icon: BarChart3,
             requiredPermission: "analytics",
         },
-    ],
-    platforms: [
         {
-            name: "Main Platform",
-            path: "main",
-            children: [
-                {
-                    name: "Projects",
-                    path: "main/projects",
-                    icon: FolderKanban,
-                    requiredPermission: "projects",
-                    children: [
-                        { 
-                            name: "All Projects", 
-                            path: "main/projects", 
-                            icon: FolderKanban },
-                        { 
-                            name: "Project Ideas", 
-                            path: "main/projects/ideas", 
-                            icon: Lightbulb },
-                    ]
-                },
-                {
-                    name: "Mock Interviews",
-                    path: "main/mocks",
-                    icon: Mic,
-                    requiredPermission: "mocks",
-                    children: [
-                        { 
-                            name: "Voice Mocks", 
-                            path: "main/mocks", 
-                            icon: Mic },
-                        { 
-                            name: "Sessions", 
-                            path: "main/mocks/sessions", 
-                            icon: Activity },
-                    ]
-                },
-
-            ]
-        },
-        {
-            name: "Hiring Platform",
+            name: "Hiring",
             path: "hiring",
-            children: [
-                {
-                    name: "Companies",
-                    path: "hiring/companies",
-                    icon: Building2,
-                    requiredPermission: "admin_management", // using generic permission for now
-                    children: [
-                        { name: "Verification", path: "hiring/companies/verification", icon: Shield },
-                        { name: "All Companies", path: "hiring/companies", icon: Building2 },
-                    ]
-                },
-                {
-                    name: "Jobs",
-                    path: "hiring/jobs",
-                    icon: Briefcase,
-                    requiredPermission: "admin_management",
-                }
-            ]
+            icon: Briefcase,
+            requiredPermission: "hiring",
+            // No `children` here (2026-08-24, ADM-21) - the Hiring sub-nav used
+            // to nest three more indented rows into this already-busy tree
+            // every time it opened, which is what read as "really bad" in
+            // Niraj's screenshot. Clicking this link now lands on `/hiring`
+            // and the WHOLE sidebar swaps to `hiringModuleNav` below (see
+            // components/navigation/hiring-sidebar.tsx), the same takeover
+            // apps/main does for `/jobs/*` via its own JobsSidebar.
         },
         {
-            name: "University Platform",
+            name: "University",
             path: "uni",
-            children: [
-                {
-                    name: "Universities",
-                    path: "uni/universities",
-                    icon: School, // Using School icon for universities
-                    requiredPermission: "admin_management",
-                    children: [
-                        { name: "Verification", path: "uni/universities/verification", icon: Shield },
-                        { name: "All Universities", path: "uni/universities", icon: School },
-                    ]
-                },
-                {
-                    name: "Students",
-                    path: "uni/students",
-                    icon: GraduationCap,
-                    requiredPermission: "users",
-                }
-            ]
-        }
+            icon: School,
+            requiredPermission: "university",
+            // Same as Hiring above - see uni-sidebar.tsx.
+        },
     ],
     secondary: [
         {
@@ -179,12 +86,15 @@ export const adminNavigation: NavigationConfig = {
             icon: Shield,
             requiredPermission: "admin_management",
             children: [
-                { name: "All Admins", path: "admins", icon: UserCheck },
+                { name: "Team", path: "admins", icon: UserCheck },
+                { name: "Invitations", path: "admins/invitations", icon: Mail },
                 { name: "Access Control", path: "admins/access", icon: Lock },
-                { name: "My Profile", path: "admins/profile", icon: User },
-                { name: "Invitations", path: "admins/invitations", icon: FileText },
                 { name: "Audit Logs", path: "admins/audit", icon: Activity },
-            ]
+                // "My Profile" removed from the tree (2026-08-24, approved by
+                // Niraj) - it duplicated the profile row the shared AppSidebar
+                // already puts at the bottom of every screen. The page itself
+                // (admins/profile) stays reachable from there.
+            ],
         },
         {
             name: "System",
@@ -193,126 +103,120 @@ export const adminNavigation: NavigationConfig = {
             requiredPermission: "system",
             children: [
                 { name: "Settings", path: "system/settings", icon: Settings },
-                { name: "Database", path: "system/database", icon: Database },
-            ]
+                // "Database" removed from the tree (2026-08-24, approved by
+                // Niraj). The page itself is untouched at system/database -
+                // only the nav entry is gone.
+            ],
         },
-    ]
+    ],
 }
 
-// Permission checking
+/**
+ * Sub-navigation for the Hiring and University module sidebars (ADM-21).
+ * Each is the FULL nav for that module - not a fragment merged into
+ * `adminNavigation` - because the module sidebar replaces the console
+ * sidebar entirely while the admin is inside it, the same takeover
+ * `apps/main`'s JobsSidebar does for `/jobs/*`.
+ */
+export const hiringModuleNav: NavigationItem[] = [
+    { name: "Overview", path: "hiring", icon: Briefcase },
+    { name: "Companies", path: "hiring/companies", icon: Building2 },
+    { name: "Verification", path: "hiring/companies/verification", icon: Shield },
+]
+
+export const universityModuleNav: NavigationItem[] = [
+    { name: "Overview", path: "uni", icon: School },
+    { name: "Universities", path: "uni/universities", icon: GraduationCap },
+    { name: "Verification", path: "uni/universities/verification", icon: Shield },
+]
+
+// ── Permissions ─────────────────────────────────────────────────────────────
+// Two-role model, decided 2026-08-24 (plan/admin/overview.md). SUPER_ADMIN
+// bypasses every check; a TEAM_MEMBER's access is exactly their per-module
+// grants below, one flat record - not nested by platform. A previous version
+// of this app exported an incompatible *nested* `AdminPermissions` from
+// types/admin.ts under the same name; that type no longer exists (ADM-7).
+
 export type AdminPermission =
     | "users"
     | "credits"
-    | "projects"
-    | "mocks"
-    | "assessments"
-    | "challenges"
-    | "communities"
     | "feedback"
     | "analytics"
+    | "hiring"
+    | "university"
     | "admin_management"
     | "system"
 
 export type PermissionLevel = "read" | "write" | "delete" | "full"
 
-export interface AdminPermissions {
-    [key: string]: PermissionLevel[]
+export type AdminPermissions = Partial<Record<AdminPermission, PermissionLevel[]>>
+
+const ALL_MODULES: AdminPermission[] = [
+    "users", "credits", "feedback", "analytics", "hiring", "university",
+    "admin_management", "system",
+]
+
+const SUPER_ADMIN_PERMISSIONS: AdminPermissions = Object.fromEntries(
+    ALL_MODULES.map((m) => [m, ["read", "write", "delete", "full"] as PermissionLevel[]]),
+)
+
+/** A SUPER_ADMIN's effective permissions are always the full set, regardless of
+ *  what (if anything) is stored in their `permissions` jsonb column. A team
+ *  member's effective permissions are exactly what was granted. */
+export function getEffectivePermissions(
+    adminRole: string,
+    permissions: AdminPermissions,
+): AdminPermissions {
+    if (isSuperAdminRole(adminRole)) return SUPER_ADMIN_PERMISSIONS
+    return permissions ?? {}
 }
 
-// Default permissions for each role
-export const defaultPermissionsByRole: Record<string, AdminPermissions> = {
-    SUPER_ADMIN: {
-        users: ["read", "write", "delete", "full"],
-        credits: ["read", "write", "delete", "full"],
-        projects: ["read", "write", "delete", "full"],
-        mocks: ["read", "write", "delete", "full"],
-        feedback: ["read", "write", "delete", "full"],
-        analytics: ["read", "write", "full"],
-        admin_management: ["read", "write", "delete", "full"],
-        system: ["read", "write", "full"],
-    },
-    CONTENT_ADMIN: {
-        users: ["read"],
-        credits: ["read"],
-        projects: ["read", "write", "delete"],
-        mocks: ["read", "write", "delete"],
-        assessments: ["read", "write", "delete"],
-        challenges: ["read", "write", "delete"],
-        communities: ["read"],
-        feedback: ["read", "write"],
-        analytics: ["read"],
-    },
-    FINANCE_ADMIN: {
-        users: ["read"],
-        credits: ["read", "write", "delete", "full"],
-        projects: ["read"],
-        mocks: ["read"],
-        assessments: ["read"],
-        challenges: ["read"],
-        communities: ["read"],
-        feedback: ["read"],
-        analytics: ["read", "write"],
-    },
-    COMMUNITY_ADMIN: {
-        users: ["read", "write"],
-        credits: ["read"],
-        projects: ["read"],
-        mocks: ["read"],
-        assessments: ["read"],
-        challenges: ["read"],
-        feedback: ["read", "write", "delete"],
-        analytics: ["read"],
-    },
-    MODULE_MANAGER: {
-        // Permissions set per invitation
-    },
-    VIEWER: {
-        users: ["read"],
-        credits: ["read"],
-        projects: ["read"],
-        mocks: ["read"],
-        assessments: ["read"],
-        challenges: ["read"],
-        communities: ["read"],
-        feedback: ["read"],
-        analytics: ["read"],
-    },
-}
-
-// Helper function to check if admin has permission
 export function hasPermission(
     permissions: AdminPermissions,
     module: AdminPermission,
-    level: PermissionLevel
+    level: PermissionLevel,
 ): boolean {
-    const modulePermissions = permissions[module]
-    if (!modulePermissions) return false
-    return modulePermissions.includes(level) || modulePermissions.includes("full")
+    const granted = permissions[module]
+    if (!granted) return false
+    return granted.includes(level) || granted.includes("full")
 }
 
-// Filter navigation based on permissions
-export function getNavigationForPermissions(permissions: AdminPermissions): NavigationConfig {
-    const filterItems = (items: NavigationItem[]): NavigationItem[] => {
-        return items.filter(item => {
-            if (!item.requiredPermission) return true
-            return hasPermission(permissions, item.requiredPermission as AdminPermission, "read")
-        }).map(item => ({
-            ...item,
-            children: item.children ? filterItems(item.children) : undefined
-        }))
-    }
+/** Server-action guard. Returns null when allowed, a standard denial when not -
+ *  mirrors the shape every action in this app already returns on failure. */
+export function requirePermission(
+    adminRole: string,
+    permissions: AdminPermissions,
+    module: AdminPermission,
+    level: PermissionLevel = "read",
+): { success: false; error: string } | null {
+    const effective = getEffectivePermissions(adminRole, permissions)
+    if (hasPermission(effective, module, level)) return null
+    return { success: false, error: `You do not have ${level} access to the ${module} module` }
+}
 
-    // For platforms, we need to filter the children of each platform
-    const filterPlatforms = (platforms: PlatformNavigationItem[]): PlatformNavigationItem[] => {
-        return platforms.map(platform => ({
-            ...platform,
-            children: platform.children ? filterItems(platform.children) : undefined
-        })).filter(platform => platform.children && platform.children.length > 0)
-    }
+/** Drop nav items (and their whole subtree) the admin cannot read. A parent
+ *  whose children all fail the check is dropped too, rather than left as a
+ *  clickable link to nothing. */
+export function getNavigationForPermissions(
+    permissions: AdminPermissions,
+    adminRole: string,
+): NavigationConfig {
+    const effective = getEffectivePermissions(adminRole, permissions)
+
+    const filterItems = (items: NavigationItem[]): NavigationItem[] =>
+        items
+            .filter((item) => {
+                if (!item.requiredPermission) return true
+                return hasPermission(effective, item.requiredPermission as AdminPermission, "read")
+            })
+            .map((item) => ({
+                ...item,
+                children: item.children ? filterItems(item.children) : undefined,
+            }))
+            .filter((item) => !item.children || item.children.length > 0)
 
     return {
-        global: filterItems(adminNavigation.global),
-        platforms: filterPlatforms(adminNavigation.platforms),
+        primary: filterItems(adminNavigation.primary),
         secondary: filterItems(adminNavigation.secondary),
     }
 }

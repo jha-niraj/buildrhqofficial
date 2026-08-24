@@ -507,7 +507,7 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
                 isPublic={goal.isPublic ?? false}
             />
 
-            <div className="flex-1 flex overflow-hidden h-screen">
+            <div className="flex-1 flex overflow-hidden h-dvh">
                 <div className="w-[350px] border-r border-neutral-200 dark:border-neutral-800 flex flex-col bg-neutral-50/80 dark:bg-neutral-950 h-full">
                     <div className="p-3 border-b border-neutral-200 dark:border-neutral-800">
                         <Button
@@ -634,7 +634,7 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
                         <PathfinderMockButton goalId={goal.id} goalTitle={goal.title} />
                     </div>
                 </div>
-                <ScrollArea className="flex-1 h-screen min-h-0">
+                <ScrollArea className="flex-1 h-dvh min-h-0">
                     {
                         selectedSubGoal ? (
                             <SubGoalContentTabs

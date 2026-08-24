@@ -149,7 +149,7 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
                     it here is what stops the fixed bottom bar covering the last row of every
                     page, and because the token is already 0 on desktop this one expression is
                     correct at every width. */}
-                <main className="m-3 flex h-[calc(100vh-1.5rem-var(--app-bottom-nav-h))] overflow-hidden lg:ml-0">
+                <main className="m-3 flex h-[calc(100dvh-1.5rem-var(--app-bottom-nav-h))] overflow-hidden lg:ml-0">
                     {/* Page surface */}
                     <div
                         data-app-page
@@ -199,7 +199,7 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
                         // [data-app-page] at it. Without that, the ~49 full-height
                         // pages under (main) would each overflow by exactly 24px and
                         // show a scrollbar over a strip of nothing.
-                        style={{ ["--page-h" as string]: "calc(100vh - 1.5rem - var(--app-bottom-nav-h))" }}
+                        style={{ ["--page-h" as string]: "calc(100dvh - 1.5rem - var(--app-bottom-nav-h))" }}
                     >
                         {/* ScrollArea, not native overflow. The native scrollbar is an
                             OS control: it paints outside the card's rounded corner on
@@ -333,7 +333,7 @@ const Layout = ({ children }: LayoutProps) => {
         return (
             // Outside the shell, so it does not inherit the height above - but the bottom
             // bar is fixed to the viewport and covers this too.
-            <div className="w-screen overflow-y-auto bg-neutral-950 h-[calc(100vh-var(--app-bottom-nav-h))]">
+            <div className="w-screen overflow-y-auto bg-neutral-950 h-[calc(100dvh-var(--app-bottom-nav-h))]">
                 {children}
             </div>
         );
@@ -346,7 +346,7 @@ const Layout = ({ children }: LayoutProps) => {
                 without a base the first paint is a white flash in dark mode.
                 The backdrop is what the three cards float on - it shows through
                 the gutter between them, not through the page itself. */}
-            <div className="relative flex h-screen w-full overflow-hidden bg-neutral-100 dark:bg-neutral-900">
+            <div className="relative flex h-dvh w-full overflow-hidden bg-neutral-100 dark:bg-neutral-900">
                 <AppBackdrop />
                 <MainContent>{children}</MainContent>
             </div>
@@ -358,7 +358,7 @@ const OfflineFallback = () => {
     const handleRefresh = () => window.location.reload();
 
     return (
-        <div className="h-screen flex items-center justify-center bg-background px-4 overflow-hidden">
+        <div className="h-dvh flex items-center justify-center bg-background px-4 overflow-hidden">
             <AnimatePresence>
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9, y: 100 }}

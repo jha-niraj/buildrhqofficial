@@ -2,16 +2,47 @@
 
 import { db, companies, companyMembers, memberInvitations, jobs, jobApplications } from "@repo/db"
 import { eq, count } from "drizzle-orm"
+import { logAdminAudit } from "@/lib/audit-log"
+import { checkModuleAccess } from "@/lib/module-access"
+import type { PermissionLevel } from "@/lib/navigation"
 
 // ============================================
 // HIRING PLATFORM ADMIN SERVER ACTIONS
 // ============================================
 
 /**
+ * Every function below used to call the shared `checkAdminAccess()` from
+ * `admin.action.ts`, which only asks "is this any active admin" - not "does
+ * this admin have `hiring` access at all, and does it cover the level this
+ * mutation needs." A TEAM_MEMBER with zero modules granted could call
+ * `verifyCompany` directly (server actions are reachable from the client
+ * bundle regardless of what the UI shows) and it would succeed. See
+ * plan/admin/tasks.md, "Found and fixed during ADM-1."
+ */
+function checkHiringAccess(requiredLevel: PermissionLevel) {
+    return checkModuleAccess("hiring", requiredLevel)
+}
+
+/**
  * Get hiring platform dashboard stats
  */
-export async function getHiringDashboardStats() {
+export async function getHiringDashboardStats(): Promise<{
+    success: true
+    data: {
+        totalCompanies: number
+        verifiedCompanies: number
+        pendingVerifications: number
+        rejectedVerifications: number
+        totalMembers: number
+        totalJobs: number
+        activeJobs: number
+        totalApplications: number
+        pendingInvitations: number
+    }
+} | { success: false; error: string }> {
     try {
+        const accessCheck = await checkHiringAccess("read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
         const [
             totalCompaniesResult,
             verifiedCompaniesResult,
@@ -68,6 +99,8 @@ export async function getHiringDashboardStats() {
  */
 export async function getCompanies(page = 1, limit = 20, status?: string) {
     try {
+        const accessCheck = await checkHiringAccess("read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
         const offset = (page - 1) * limit
 
         const whereClause = status && status !== "all"
@@ -109,6 +142,8 @@ export async function getCompanies(page = 1, limit = 20, status?: string) {
  */
 export async function getPendingCompanyVerifications() {
     try {
+        const accessCheck = await checkHiringAccess("read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
         const pendingCompanies = await db.query.companies.findMany({
             where: eq(companies.verificationStatus, "PENDING"),
             orderBy: (t, { asc }) => [asc(t.createdAt)],
@@ -129,6 +164,8 @@ export async function getPendingCompanyVerifications() {
  */
 export async function verifyCompany(companyId: string, adminUserId: string) {
     try {
+        const accessCheck = await checkHiringAccess("write")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
         const [company] = await db.update(companies)
             .set({
                 verificationStatus: "VERIFIED",
@@ -137,6 +174,18 @@ export async function verifyCompany(companyId: string, adminUserId: string) {
             })
             .where(eq(companies.id, companyId))
             .returning()
+
+        const adminAccessId = accessCheck.adminAccess.id
+        if (company) {
+            await logAdminAudit({
+                adminId: adminAccessId,
+                action: "UPDATE",
+                module: "hiring",
+                resourceType: "Company",
+                resourceId: companyId,
+                description: `Verified company: ${company.name}`,
+            })
+        }
 
         return { success: true, data: company }
     } catch (error) {
@@ -148,8 +197,15 @@ export async function verifyCompany(companyId: string, adminUserId: string) {
 /**
  * Reject a company verification
  */
-export async function rejectCompanyVerification(companyId: string, adminUserId: string) {
+// `reason` has no column to land in - the `company` table has no rejection-reason
+// field, unlike `university` (see rejectUniversityVerification). Recorded in the
+// audit log instead, which needs no schema change and is the only place it was
+// going before this fix: the reject dialog collected a reason and this function
+// silently discarded it, called with only (companyId, adminUserId).
+export async function rejectCompanyVerification(companyId: string, adminUserId: string, reason?: string) {
     try {
+        const accessCheck = await checkHiringAccess("write")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
         const [company] = await db.update(companies)
             .set({
                 verificationStatus: "REJECTED",
@@ -158,6 +214,19 @@ export async function rejectCompanyVerification(companyId: string, adminUserId: 
             .where(eq(companies.id, companyId))
             .returning()
 
+        const adminAccessId = accessCheck.adminAccess.id
+        if (company) {
+            await logAdminAudit({
+                adminId: adminAccessId,
+                action: "UPDATE",
+                module: "hiring",
+                resourceType: "Company",
+                resourceId: companyId,
+                description: `Rejected company: ${company.name}${reason ? ` - ${reason}` : ""}`,
+                metadata: reason ? { reason } : undefined,
+            })
+        }
+
         return { success: true, data: company }
     } catch (error) {
         console.error("Error rejecting company:", error)
@@ -165,201 +234,12 @@ export async function rejectCompanyVerification(companyId: string, adminUserId: 
     }
 }
 
-/**
- * Get company details by ID
- */
-export async function getCompanyById(companyId: string) {
-    try {
-        const company = await db.query.companies.findFirst({
-            where: eq(companies.id, companyId),
-            with: {
-                members: true,
-            }
-        })
-
-        if (!company) {
-            return { success: false, error: "Company not found" }
-        }
-
-        return { success: true, data: company }
-    } catch (error) {
-        console.error("Error fetching company:", error)
-        return { success: false, error: "Failed to fetch company" }
-    }
-}
-
-/**
- * Get company members
- */
-export async function getCompanyMembers(companyId: string) {
-    try {
-        const members = await db.query.companyMembers.findMany({
-            where: eq(companyMembers.companyId, companyId),
-            orderBy: (t, { desc }) => [desc(t.createdAt)]
-        })
-
-        return { success: true, data: members }
-    } catch (error) {
-        console.error("Error fetching company members:", error)
-        return { success: false, error: "Failed to fetch company members" }
-    }
-}
-
-/**
- * Get all jobs with pagination
- */
-export async function getJobs(page = 1, limit = 20, status?: string) {
-    try {
-        const offset = (page - 1) * limit
-
-        const whereClause = status && status !== "all"
-            ? eq(jobs.status, status as "ACTIVE" | "CLOSED" | "DRAFT" | "PAUSED" | "FILLED")
-            : undefined
-
-        const [jobList, jobTotalResult] = await Promise.all([
-            db.query.jobs.findMany({
-                where: whereClause,
-                offset,
-                limit,
-                orderBy: (t, { desc }) => [desc(t.createdAt)],
-                with: {
-                    company: {
-                        columns: { id: true, name: true, logoUrl: true }
-                    },
-                    applications: true,
-                }
-            }),
-            db.select({ total: count() }).from(jobs).where(whereClause)
-        ])
-        const total = jobTotalResult[0]?.total ?? 0
-
-        return {
-            success: true,
-            data: jobList,
-            pagination: {
-                page,
-                limit,
-                total,
-                totalPages: Math.ceil(total / limit),
-            },
-        }
-    } catch (error) {
-        console.error("Error fetching jobs:", error)
-        return { success: false, error: "Failed to fetch jobs" }
-    }
-}
-
-/**
- * Get job applications with pagination
- */
-export async function getJobApplications(page = 1, limit = 20) {
-    try {
-        const offset = (page - 1) * limit
-
-        const [applications, appTotalResult] = await Promise.all([
-            db.query.jobApplications.findMany({
-                offset,
-                limit,
-                orderBy: (t, { desc }) => [desc(t.appliedAt)],
-                with: {
-                    job: {
-                        columns: { id: true, title: true },
-                        with: {
-                            company: { columns: { id: true, name: true } }
-                        }
-                    }
-                }
-            }),
-            db.select({ total: count() }).from(jobApplications)
-        ])
-        const total = appTotalResult[0]?.total ?? 0
-
-        return {
-            success: true,
-            data: applications,
-            pagination: {
-                page,
-                limit,
-                total,
-                totalPages: Math.ceil(total / limit),
-            },
-        }
-    } catch (error) {
-        console.error("Error fetching job applications:", error)
-        return { success: false, error: "Failed to fetch job applications" }
-    }
-}
-
-/**
- * Get member invitations
- */
-export async function getMemberInvitations(status?: string) {
-    try {
-        const whereClause = status && status !== "all"
-            ? eq(memberInvitations.status, status as "PENDING" | "ACCEPTED" | "REVOKED" | "EXPIRED")
-            : undefined
-
-        const invitations = await db.query.memberInvitations.findMany({
-            where: whereClause,
-            orderBy: (t, { desc }) => [desc(t.createdAt)],
-            with: {
-                company: {
-                    columns: { id: true, name: true }
-                }
-            }
-        })
-
-        return { success: true, data: invitations }
-    } catch (error) {
-        console.error("Error fetching invitations:", error)
-        return { success: false, error: "Failed to fetch invitations" }
-    }
-}
-
-/**
- * Get recent activity for hiring platform
- */
-export async function getHiringRecentActivity(limit = 10) {
-    try {
-        const [recentCompanies, recentJobs, recentApplications] = await Promise.all([
-            db.query.companies.findMany({
-                limit,
-                orderBy: (t, { desc }) => [desc(t.createdAt)],
-                columns: { id: true, name: true, verificationStatus: true, createdAt: true }
-            }),
-            db.query.jobs.findMany({
-                limit,
-                orderBy: (t, { desc }) => [desc(t.createdAt)],
-                columns: { id: true, title: true, status: true, createdAt: true },
-                with: {
-                    company: { columns: { name: true } }
-                }
-            }),
-            db.query.jobApplications.findMany({
-                limit,
-                orderBy: (t, { desc }) => [desc(t.appliedAt)],
-                columns: { id: true, status: true, appliedAt: true },
-                with: {
-                    job: {
-                        columns: { title: true },
-                        with: {
-                            company: { columns: { name: true } }
-                        }
-                    }
-                }
-            }),
-        ])
-
-        return {
-            success: true,
-            data: {
-                recentCompanies,
-                recentJobs,
-                recentApplications,
-            },
-        }
-    } catch (error) {
-        console.error("Error fetching recent activity:", error)
-        return { success: false, error: "Failed to fetch recent activity" }
-    }
-}
+// getCompanyById, getCompanyMembers, getJobs, getJobApplications,
+// getMemberInvitations and getHiringRecentActivity removed (2026-08-24,
+// approved by Niraj): each backed a Jobs/Members/Applications/Invitations/
+// Analytics page that was never built, and the hiring overview page
+// (app/(console)/hiring/_components/hiring-overview-client.tsx) had its
+// dead links to those routes removed in the same pass. `getHiringDashboardStats`
+// above still counts members/jobs/applications/invitations for the overview's
+// stat tiles, so the `companyMembers`, `jobs`, `jobApplications` and
+// `memberInvitations` imports stay.

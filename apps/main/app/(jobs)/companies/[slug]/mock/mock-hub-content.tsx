@@ -260,9 +260,14 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
             </div>
 
             {/* Main Content - Sidebar + Content */}
-            <div className="flex-1 flex max-w-7xl mx-auto w-full">
+            {/* w-80 beside flex-1 with no breakpoint left 40px for the main column
+                on a 360px phone - the job-role list is now full-width above the
+                mocks below `lg` instead of squeezed beside them. The fixed width
+                stays `lg:`-scoped for the same reason. See
+                docs/responsiveness.md section 3. */}
+            <div className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full">
                 {/* Sidebar - Job Roles */}
-                <div className="w-80 border-r border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+                <div className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
                     <div className="p-4 border-b border-neutral-200 dark:border-neutral-800">
                         <h2 className="font-semibold text-neutral-900 dark:text-white flex items-center gap-2">
                             <Briefcase className="w-4 h-4" />
@@ -272,7 +277,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                             Select a role to practice mock interviews
                         </p>
                     </div>
-                    <ScrollArea className="h-[calc(100vh-320px)]">
+                    <ScrollArea className="max-h-80 lg:h-[calc(100dvh-320px)] lg:max-h-none">
                         <div className="p-2 space-y-1">
                             {
                                 mockHub.jobs.map((job) => {

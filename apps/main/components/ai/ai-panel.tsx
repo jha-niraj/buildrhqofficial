@@ -474,8 +474,15 @@ export function AIPanel() {
 				onNew={newSession}
 			/>
 
-			{/* Conversation */}
-			<ScrollArea ref={scrollRef} className="min-h-0 flex-1">
+			{/* Conversation. `reflow` pins this to vertical-only - the AI rail is
+				docked on every page in the app, so a stray wide descendant in any
+				one message (a long unwrapped code line, a wide table) would
+				otherwise widen this whole scroller and clip the rail's own
+				border/rounding rather than scrolling. Code blocks already carry
+				their own horizontal scroller in markdown-renderer.tsx, so nothing
+				here legitimately needs to grow sideways. See
+				docs/responsiveness.md section 2. */}
+			<ScrollArea ref={scrollRef} className="min-h-0 min-w-0 flex-1" reflow>
 				<div className={cn(
 					"space-y-5 px-4 py-5",
 					// A maximized panel is far wider than a comfortable reading

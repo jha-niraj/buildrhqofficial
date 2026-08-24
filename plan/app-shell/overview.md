@@ -29,6 +29,14 @@ already painted one.
    (the practice editors, the interview runner) are outside the card by design
    and keep their own background - listed explicitly, not discovered.
 
+6. **The shell and the pages inside it are correct against
+   `docs/responsiveness.md`.** No page moves sideways at 360px, every sheet
+   leaves a mobile strip, the shell's own height bound tracks the visible
+   viewport on mobile browsers (not the larger chrome-collapsed one), and no
+   button row or truncated label silently overflows its container. Scoped
+   and recorded per-finding in SHL-6, following the same pass already run
+   against `apps/admin` and `apps/web`.
+
 ## Decisions
 
 ### The card stays opaque; the backdrop frames it

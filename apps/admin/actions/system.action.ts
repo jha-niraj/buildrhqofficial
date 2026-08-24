@@ -1,40 +1,17 @@
 "use server"
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { db, adminAccess, adminAuditLogs, adminSystemSettings, adminNotifications, users, feedbacks, mockInterviewVoice, creditTransactions } from "@repo/db"
 import { eq, and, count, sql } from "drizzle-orm"
-import { getSession } from "@repo/auth"
-import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
-import { hasPermission, type AdminPermissions, type AdminPermission, type PermissionLevel } from "@/lib/navigation"
+import type { AdminResponse } from "@/types/admin"
+import { logAdminAudit } from "@/lib/audit-log"
+import { checkModuleAccess as checkAdminAccess, requireAnyActiveAdmin } from "@/lib/module-access"
 
-interface Response<T = unknown> {
-    success: boolean
-    data?: T
-    error?: string
-}
-
-// Helper to check admin access
-async function checkAdminAccess(requiredModule: AdminPermission, requiredLevel: PermissionLevel) {
-    const session = await getSession(headers())
-    if (!session?.user?.id) {
-        return { authorized: false, error: "Not authenticated" }
-    }
-
-    const adminRecord = await db.query.adminAccess.findFirst({
-        where: eq(adminAccess.userId, session.user.id),
-        with: { user: true }
-    })
-
-    if (!adminRecord || !hasPermission(adminRecord.permissions as AdminPermissions, requiredModule, requiredLevel)) {
-        return { authorized: false, error: "Not authorized" }
-    }
-
-    return { authorized: true, adminAccess: adminRecord }
-}
+type SystemSettingRow = typeof adminSystemSettings.$inferSelect
+type NotificationRow = typeof adminNotifications.$inferSelect
 
 // Get all system settings
-export async function getSystemSettings(): Promise<Response> {
+export async function getSystemSettings(): Promise<AdminResponse<SystemSettingRow[]>> {
     try {
         const check = await checkAdminAccess("system", "read")
         if (!check.authorized) {
@@ -53,7 +30,7 @@ export async function getSystemSettings(): Promise<Response> {
 }
 
 // Get system setting by key
-export async function getSystemSetting(key: string): Promise<Response> {
+export async function getSystemSetting(key: string): Promise<AdminResponse<SystemSettingRow>> {
     try {
         const check = await checkAdminAccess("system", "read")
         if (!check.authorized) {
@@ -77,9 +54,9 @@ export async function getSystemSetting(key: string): Promise<Response> {
 
 // Update system setting
 export async function updateSystemSetting(key: string, data: {
-    value: any
+    value: unknown
     description?: string
-}): Promise<Response> {
+}): Promise<AdminResponse<SystemSettingRow>> {
     try {
         const check = await checkAdminAccess("system", "write")
         if (!check.authorized) {
@@ -105,7 +82,9 @@ export async function updateSystemSetting(key: string, data: {
             setting = inserted
         }
 
-        await db.insert(adminAuditLogs).values({
+        if (!setting) return { success: false, error: "Failed to save system setting" }
+
+        await logAdminAudit({
             adminId: check.adminAccess!.id,
             action: "UPDATE",
             module: "system",
@@ -124,7 +103,17 @@ export async function updateSystemSetting(key: string, data: {
 }
 
 // Get database stats
-export async function getDatabaseStats(): Promise<Response> {
+export async function getDatabaseStats(): Promise<AdminResponse<{
+    users: number
+    projects: number
+    communities: number
+    mockInterviews: number
+    feedback: number
+    creditTransactions: number
+    assessmentQuestions: number
+    forgeTracks: number
+    crucibleEvents: number
+}>> {
     try {
         const check = await checkAdminAccess("system", "read")
         if (!check.authorized) {
@@ -168,7 +157,12 @@ export async function getDatabaseStats(): Promise<Response> {
 }
 
 // Get system health
-export async function getSystemHealth(): Promise<Response> {
+export async function getSystemHealth(): Promise<AdminResponse<{
+    databaseStatus: "healthy" | "unhealthy"
+    recentErrors: number
+    recentActivitiesLast24h: number
+    timestamp: Date
+}>> {
     try {
         const check = await checkAdminAccess("system", "read")
         if (!check.authorized) {
@@ -200,18 +194,12 @@ export async function getSystemHealth(): Promise<Response> {
         }
     } catch (error) {
         console.error("Get system health error:", error)
-        return {
-            success: false,
-            data: {
-                databaseStatus: "unhealthy",
-                error: "Failed to check system health"
-            }
-        }
+        return { success: false, error: "Failed to check system health" }
     }
 }
 
 // Clear cache
-export async function clearCache(cacheKeys?: string[]): Promise<Response> {
+export async function clearCache(cacheKeys?: string[]): Promise<AdminResponse<{ cleared: string[] }>> {
     try {
         const check = await checkAdminAccess("system", "write")
         if (!check.authorized) {
@@ -222,17 +210,17 @@ export async function clearCache(cacheKeys?: string[]): Promise<Response> {
         if (cacheKeys && cacheKeys.length > 0) {
             cacheKeys.forEach(key => revalidatePath(key))
         } else {
-            // Clear all common paths
+            // Clear all common paths - /projects and /communities removed
+            // (2026-08-24): neither route has existed in this app since the
+            // dead project.action.ts/mock.action.ts deletion (ADM-5).
             revalidatePath("/")
             revalidatePath("/dashboard")
             revalidatePath("/users")
-            revalidatePath("/projects")
-            revalidatePath("/communities")
             revalidatePath("/feedback")
             revalidatePath("/analytics")
         }
 
-        await db.insert(adminAuditLogs).values({
+        await logAdminAudit({
             adminId: check.adminAccess!.id,
             action: "UPDATE",
             module: "system",
@@ -253,9 +241,12 @@ export async function getAdminNotifications(params?: {
     page?: number
     limit?: number
     unreadOnly?: boolean
-}): Promise<Response> {
+}): Promise<AdminResponse<{
+    notifications: NotificationRow[]
+    pagination: { total: number; page: number; limit: number; totalPages: number }
+}>> {
     try {
-        const check = await checkAdminAccess("system", "read")
+        const check = await requireAnyActiveAdmin()
         if (!check.authorized) {
             return { success: false, error: check.error }
         }
@@ -264,7 +255,7 @@ export async function getAdminNotifications(params?: {
         const limit = params?.limit || 20
         const offset = (page - 1) * limit
 
-        const whereConditions = [eq(adminNotifications.adminId, check.adminAccess!.id)]
+        const whereConditions = [eq(adminNotifications.adminId, check.adminAccess.id)]
 
         if (params?.unreadOnly) {
             whereConditions.push(eq(adminNotifications.isRead, false))
@@ -302,16 +293,18 @@ export async function getAdminNotifications(params?: {
 }
 
 // Mark notification as read
-export async function markNotificationAsRead(id: string): Promise<Response> {
+export async function markNotificationAsRead(id: string): Promise<AdminResponse<null>> {
     try {
-        const check = await checkAdminAccess("system", "write")
+        const check = await requireAnyActiveAdmin()
         if (!check.authorized) {
             return { success: false, error: check.error }
         }
 
+        // Scoped to the caller's own notification - `id` alone would let any
+        // admin mark (or probe the existence of) another admin's notification.
         await db.update(adminNotifications)
-            .set({ isRead: true })
-            .where(eq(adminNotifications.id, id))
+            .set({ isRead: true, readAt: new Date() })
+            .where(and(eq(adminNotifications.id, id), eq(adminNotifications.adminId, check.adminAccess.id)))
 
         return { success: true, data: null }
     } catch (error) {
@@ -321,9 +314,9 @@ export async function markNotificationAsRead(id: string): Promise<Response> {
 }
 
 // Mark all notifications as read
-export async function markAllNotificationsAsRead(): Promise<Response> {
+export async function markAllNotificationsAsRead(): Promise<AdminResponse<null>> {
     try {
-        const check = await checkAdminAccess("system", "write")
+        const check = await requireAnyActiveAdmin()
         if (!check.authorized) {
             return { success: false, error: check.error }
         }

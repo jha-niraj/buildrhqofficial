@@ -1,5 +1,7 @@
 "use client"
 
+import { Logo } from "../logo"
+
 // ShipItHQ full-page loader - the logo mark, then the "ShipItHQ" wordmark underneath
 // with a slow sweep travelling across it. Ink/neutral base with the brand orange as the
 // sweep highlight; light + dark aware.
@@ -17,8 +19,6 @@ export type ShipItHQLoaderProps = {
     fullScreen?: boolean
     /** Optional caption under the wordmark, e.g. "Preparing your workspace". */
     label?: string
-    /** Path to the logo mark. Defaults to the shared public asset every app ships. */
-    logoSrc?: string
     className?: string
 }
 
@@ -58,7 +58,6 @@ const STYLES = `
     width: 64px;
     height: 64px;
     border-radius: 18px;
-    object-fit: cover;
     box-shadow: 0 8px 28px -8px rgba(0,0,0,0.22);
     animation: bhq-logo-in 2.4s cubic-bezier(.5,0,.2,1) infinite;
 }
@@ -113,7 +112,6 @@ const STYLES = `
 export function ShipItHQLoader({
     fullScreen = true,
     label,
-    logoSrc = "/logo.svg",
     className = "",
 }: ShipItHQLoaderProps) {
     const outer: React.CSSProperties = fullScreen
@@ -135,9 +133,19 @@ export function ShipItHQLoader({
         >
             <div className="bhq-logo-wrap">
                 <span className="bhq-glow" aria-hidden />
-                {/* Plain <img>, not next/image: a fixed-size decorative mark in a
-                    package that must not depend on Next. */}
-                <img src={logoSrc} alt="" aria-hidden className="bhq-logo" />
+                {/* Inline SVG, not an <img src="/logo.svg">: the mark relies on
+                    `currentColor` to adapt to light/dark, which never resolves
+                    through an <img> - the browser has no text-colour context for
+                    an externally-loaded image, so it silently renders black in
+                    both themes. Same bug, same fix as apps/admin's sign-in
+                    screen. `Logo` lives in this same package, so this still adds
+                    no dependency on Next. */}
+                <span
+                    aria-hidden
+                    className="bhq-logo flex items-center justify-center bg-neutral-900 dark:bg-white"
+                >
+                    <Logo className="h-[38px] w-[38px] text-white dark:text-neutral-900" />
+                </span>
             </div>
             <div className="bhq-word" style={{ marginTop: "1.15rem" }}>ShipItHQ</div>
             <div className="bhq-track">

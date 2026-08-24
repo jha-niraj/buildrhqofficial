@@ -579,7 +579,7 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
             </div>
 
             <Sheet open={onboardingOpen!} onOpenChange={setOnboardingOpen}>
-                <SheetContent side="bottom" className="h-[80vh] rounded-t-3xl">
+                <SheetContent side="bottom" className="h-[80dvh] rounded-t-3xl">
                     <div className="max-w-2xl mx-auto py-6">
                         <SheetHeader className="text-center mb-6">
                             <div className="flex items-center justify-center gap-3 mb-2">
@@ -603,7 +603,7 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
                             </div>
                             <Progress value={progress} className="h-2" />
                         </div>
-                        <div className="bg-neutral-50 dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6 mb-6 overflow-y-auto max-h-[calc(85vh-280px)]">
+                        <div className="bg-neutral-50 dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6 mb-6 overflow-y-auto max-h-[calc(85dvh-280px)]">
                             {
                                 currentStep === 1 && (
                                     <WelcomeStep onNext={handleNext} isLoading={isLoading} />

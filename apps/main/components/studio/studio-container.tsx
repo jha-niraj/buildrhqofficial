@@ -66,7 +66,7 @@ export function StudioContainer({
 	};
 
 	return (
-		<div className="flex flex-col h-screen bg-gradient-to-b from-neutral-50 to-white dark:from-neutral-950 dark:to-neutral-900">
+		<div className="flex flex-col h-dvh bg-gradient-to-b from-neutral-50 to-white dark:from-neutral-950 dark:to-neutral-900">
 			{/* Header */}
 			<div className="flex-shrink-0 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
 				<div className="max-w-4xl mx-auto px-6 py-4">

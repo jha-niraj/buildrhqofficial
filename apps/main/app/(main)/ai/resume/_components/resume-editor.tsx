@@ -100,7 +100,7 @@ function ExperienceSection({ items, onChange }: { items: ResumeExperienceEntry[]
                         <Input className="h-8 text-sm" placeholder="Job Title" value={e.role} onChange={ev => update(e.id, { role: ev.target.value })} />
                         <Input className="h-8 text-sm" type="date" value={e.startDate?.split('T')[0] ?? ''} onChange={ev => update(e.id, { startDate: ev.target.value })} />
                         <div className="flex items-center gap-2">
-                            {!e.current && <Input className="h-8 text-sm flex-1" type="date" value={e.endDate?.split('T')[0] ?? ''} onChange={ev => update(e.id, { endDate: ev.target.value })} />}
+                            {!e.current && <Input className="h-8 min-w-0 flex-1 text-sm" type="date" value={e.endDate?.split('T')[0] ?? ''} onChange={ev => update(e.id, { endDate: ev.target.value })} />}
                             <label className="flex items-center gap-1.5 text-xs text-neutral-600 cursor-pointer flex-shrink-0">
                                 <input type="checkbox" checked={e.current} onChange={ev => update(e.id, { current: ev.target.checked, endDate: ev.target.checked ? undefined : e.endDate })} />
                                 Current
@@ -198,7 +198,7 @@ function SkillsSection({ items, onChange }: { items: ResumeSkillGroup[]; onChang
             {items.map((g, i) => (
                 <div key={i} className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4 space-y-2">
                     <div className="flex items-center gap-2">
-                        <Input className="h-7 text-xs flex-1" placeholder="Category (e.g. Languages, Frameworks)" value={g.category} onChange={e => update(i, { category: e.target.value })} />
+                        <Input className="h-7 min-w-0 flex-1 text-xs" placeholder="Category (e.g. Languages, Frameworks)" value={g.category} onChange={e => update(i, { category: e.target.value })} />
                         <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-neutral-400 hover:text-red-500" onClick={() => remove(i)}><Trash2 className="w-3 h-3" /></Button>
                     </div>
                     <Input
@@ -533,7 +533,7 @@ export function ResumeEditor({ draft, content: initialContent, templates }: Prop
     const platformTemplates = templates.filter(t => t.isPlatform)
 
     return (
-        <div className="flex flex-col h-screen">
+        <div className="flex flex-col h-dvh">
             {/* ── Top bar ── */}
             <div className="flex items-center gap-3 px-4 h-12 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 flex-shrink-0">
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0" asChild><Link href='/ai/resume'>

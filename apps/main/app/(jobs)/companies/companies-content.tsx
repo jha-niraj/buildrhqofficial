@@ -294,8 +294,13 @@ export function CompaniesContent({
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0">
+                                            {/* min-w-0 on the outer wrapper bounds ITS width, but this row is a
+                                                nested flex context one level deeper - the h3 is a flex item of
+                                                THIS row (alongside the verified badge), so it needs its own
+                                                min-w-0 or the ancestor's does nothing. Same for the headquarters
+                                                row below. See docs/responsiveness.md section 2. */}
                                             <div className="flex items-center gap-2">
-                                                <h3 className="font-semibold text-neutral-900 dark:text-white truncate group-hover:text-neutral-800 dark:group-hover:text-neutral-100 transition-colors">
+                                                <h3 className="min-w-0 flex-1 truncate font-semibold text-neutral-900 dark:text-white group-hover:text-neutral-800 dark:group-hover:text-neutral-100 transition-colors">
                                                     {company.name}
                                                 </h3>
                                                 {company.verificationStatus === "VERIFIED" && (
@@ -310,9 +315,9 @@ export function CompaniesContent({
 
                                     <div className="flex items-center gap-4 mt-4 text-sm text-neutral-500 dark:text-neutral-400">
                                         {company.headquarters && (
-                                            <div className="flex items-center gap-1">
-                                                <MapPin className="w-4 h-4" />
-                                                <span className="truncate">{company.headquarters}</span>
+                                            <div className="flex min-w-0 items-center gap-1">
+                                                <MapPin className="w-4 h-4 shrink-0" />
+                                                <span className="min-w-0 truncate">{company.headquarters}</span>
                                             </div>
                                         )}
                                         <div className="flex items-center gap-1">
@@ -395,7 +400,7 @@ export function CompaniesContent({
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center gap-2">
-                                                    <h3 className="font-semibold text-neutral-900 dark:text-white truncate group-hover:text-neutral-800 dark:group-hover:text-neutral-100 transition-colors">
+                                                    <h3 className="min-w-0 flex-1 truncate font-semibold text-neutral-900 dark:text-white group-hover:text-neutral-800 dark:group-hover:text-neutral-100 transition-colors">
                                                         {company.name}
                                                     </h3>
                                                     {company.verificationStatus === "VERIFIED" && (
@@ -416,9 +421,9 @@ export function CompaniesContent({
 
                                         <div className="flex items-center gap-4 mt-4 text-sm text-neutral-500 dark:text-neutral-400">
                                             {company.headquarters && (
-                                                <div className="flex items-center gap-1">
-                                                    <MapPin className="w-4 h-4" />
-                                                    <span className="truncate">{company.headquarters}</span>
+                                                <div className="flex min-w-0 items-center gap-1">
+                                                    <MapPin className="w-4 h-4 shrink-0" />
+                                                    <span className="min-w-0 truncate">{company.headquarters}</span>
                                                 </div>
                                             )}
                                             <div className="flex items-center gap-1">

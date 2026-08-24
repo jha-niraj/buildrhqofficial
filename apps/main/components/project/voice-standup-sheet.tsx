@@ -233,7 +233,7 @@ PREVIOUS STANDUP (${previousStandup.date}):
 
     return (
         <Sheet open={isOpen} onOpenChange={handleClose}>
-            <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl">
+            <SheetContent side="bottom" className="h-[85dvh] rounded-t-3xl">
                 <SheetHeader className="mb-6">
                     <div className="flex items-center gap-2">
                         <div className={cn(

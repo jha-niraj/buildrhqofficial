@@ -547,7 +547,10 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                                         )
                                                     }
 
-                                                    <div className="flex items-center gap-3">
+                                                    {/* Up to 3 full-text buttons here (~420-460px) with no wrap
+                                                        overflowed a 328px phone card. See
+                                                        docs/responsiveness.md section 4. */}
+                                                    <div className="flex flex-wrap items-center gap-3">
                                                         {/* Interview Journey button for shortlisted/interviewing statuses */}
                                                         {
                                                             ["SHORTLISTED", "ASSIGNMENT_SENT", "ASSIGNMENT_SUBMITTED", "INTERVIEW_SCHEDULED", "INTERVIEWED", "OFFER_EXTENDED", "HIRED"].includes(application.status) && (
@@ -711,7 +714,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                 }
             </AnimatePresence>
             <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                <DialogContent className="max-w-2xl max-h-[80dvh] overflow-y-auto">
                     {
                         selectedApplication && (
                             <>

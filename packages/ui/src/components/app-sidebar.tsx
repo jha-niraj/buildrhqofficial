@@ -15,7 +15,7 @@ import { usePathname, useRouter } from "next/navigation"
 import {
     LogOut, PanelLeftClose, PanelLeftOpen, ChevronDown, Bell, X, CheckCheck,
     Inbox, Menu, AlertCircle, Info, CheckCircle2, AlertTriangle, XCircle,
-    ListFilter, ArrowDownUp, Check,
+    ListFilter, ArrowDownUp, Check, ArrowLeft,
 } from "lucide-react"
 import { cn } from "../lib/utils"
 import {
@@ -80,6 +80,16 @@ export interface AppSidebarProps {
     primary: AppSidebarNavItem[]
     secondary?: AppSidebarNavItem[]
     secondaryLabel?: string
+
+    /**
+     * A module-sidebar takeover (ADM-21 in shipithq's admin app; apps/main's
+     * `(jobs)` route does the same thing with its own JobsSidebar). When set,
+     * a distinct "back" row renders between the brand header and the search
+     * bar - a bordered block with an arrow, not just another `primary` item,
+     * so it reads as an exit from the current section rather than a fourth
+     * nav destination.
+     */
+    backLink?: { label: string; href: string }
 
     isCollapsed: boolean
     setIsCollapsed: (v: boolean) => void
@@ -165,7 +175,7 @@ function timeAgo(d: Date | string): string {
 
 export function AppSidebar(props: AppSidebarProps) {
     const {
-        brand, primary, secondary = [], secondaryLabel = "Management",
+        brand, primary, secondary = [], secondaryLabel = "Management", backLink,
         isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen, bottomNav,
         user, isPending, onSignOut, profileHref = "/profile", profileLinks = [],
         notifications, footerExtra, footerExtraCollapsed,
@@ -394,6 +404,29 @@ export function AppSidebar(props: AppSidebarProps) {
                 </button>
             </div>
 
+            {/* Back link - a module-sidebar takeover, not a nav destination.
+                Its own bordered block rather than a `primary` item so it
+                reads as an exit, matching apps/main's JobsSidebar. */}
+            {backLink && (
+                <div className={cn("shrink-0 border-b border-neutral-200 dark:border-neutral-800", collapsed ? "flex justify-center px-2 py-2.5" : "px-3 py-2.5")}>
+                    {collapsed ? (
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Link href={normalize(backLink.href)} className="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600 transition-colors hover:bg-neutral-200 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800">
+                                    <ArrowLeft className="h-4 w-4" />
+                                </Link>
+                            </TooltipTrigger>
+                            <TooltipContent side="right" className="bg-neutral-900 dark:bg-white text-white dark:text-black border-neutral-800">{backLink.label}</TooltipContent>
+                        </Tooltip>
+                    ) : (
+                        <Link href={normalize(backLink.href)} className="flex items-center gap-2 rounded-lg bg-neutral-100 px-3 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-200 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800">
+                            <ArrowLeft className="h-4 w-4" />
+                            <span>{backLink.label}</span>
+                        </Link>
+                    )}
+                </div>
+            )}
+
             {/* Search → command palette */}
             <div className={cn("shrink-0 border-b border-neutral-200 dark:border-neutral-800", collapsed ? "flex justify-center px-2 py-2.5" : "px-3 py-2.5")}>
                 <SidebarSearchButton collapsed={collapsed} onClick={() => setCmdOpen(true)} />
@@ -483,7 +516,9 @@ export function AppSidebar(props: AppSidebarProps) {
                                 <TooltipContent side="right" className="bg-neutral-900 dark:bg-white text-white dark:text-black border-neutral-800">Sign out</TooltipContent>
                             </Tooltip>
                         </div>
-                    ) : (
+                    ) : profileLinks.length > 1 ? (
+                        // Multiple destinations - a popover disambiguates. See the
+                        // single/zero-link branch below for why one or none does not.
                         <Popover open={profileMenuOpen} onOpenChange={setProfileMenuOpen}>
                             <div className="flex items-center gap-1 px-3 py-2">
                                 <PopoverTrigger asChild>
@@ -503,20 +538,39 @@ export function AppSidebar(props: AppSidebarProps) {
                                     <TooltipContent side="top" className="bg-neutral-900 dark:bg-white text-white dark:text-black border-neutral-800">Sign out</TooltipContent>
                                 </Tooltip>
                             </div>
-                            {profileLinks.length > 0 && (
-                                <PopoverContent side="top" align="start" className="w-52 p-1.5 rounded-xl border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-lg">
-                                    {profileLinks.map((l) => l.href ? (
-                                        <Link key={l.label} href={l.href} onClick={() => setProfileMenuOpen(false)} className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
-                                            {l.icon && <l.icon className="h-4 w-4" />}<span>{l.label}</span>
-                                        </Link>
-                                    ) : (
-                                        <button key={l.label} type="button" onClick={() => { l.onClick?.(); setProfileMenuOpen(false) }} className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
-                                            {l.icon && <l.icon className="h-4 w-4" />}<span>{l.label}</span>
-                                        </button>
-                                    ))}
-                                </PopoverContent>
-                            )}
+                            <PopoverContent side="top" align="start" className="w-52 p-1.5 rounded-xl border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-lg">
+                                {profileLinks.map((l) => l.href ? (
+                                    <Link key={l.label} href={l.href} onClick={() => setProfileMenuOpen(false)} className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+                                        {l.icon && <l.icon className="h-4 w-4" />}<span>{l.label}</span>
+                                    </Link>
+                                ) : (
+                                    <button key={l.label} type="button" onClick={() => { l.onClick?.(); setProfileMenuOpen(false) }} className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+                                        {l.icon && <l.icon className="h-4 w-4" />}<span>{l.label}</span>
+                                    </button>
+                                ))}
+                            </PopoverContent>
                         </Popover>
+                    ) : (
+                        // Zero or one profile link: a popover whose only job is "go to
+                        // profile" is a click that does nothing extra - it just delays the
+                        // navigation the row already implies. Go there directly, same as the
+                        // collapsed rail does above. Zero links (hiring/uni pass none today)
+                        // falls back to `profileHref` so the row is never a dead click.
+                        <div className="flex items-center gap-1 px-3 py-2">
+                            <Link href={profileLinks[0]?.href ?? profileHref} className="flex flex-1 items-center gap-3 rounded-lg p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors min-w-0">
+                                <Avatar user={user} />
+                                <div className="flex-1 text-left min-w-0">
+                                    <p className="text-sm font-bold truncate text-foreground dark:text-white">{user.name || "User"}</p>
+                                    {user.role && <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate font-mono capitalize">{user.role}</p>}
+                                </div>
+                            </Link>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <button type="button" onClick={onSignOut} aria-label="Sign out" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/20 dark:hover:text-red-400 transition-colors cursor-pointer"><LogOut className="h-4 w-4" /></button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="bg-neutral-900 dark:bg-white text-white dark:text-black border-neutral-800">Sign out</TooltipContent>
+                            </Tooltip>
+                        </div>
                     )
                 ) : (
                     <div className="px-3 py-2">

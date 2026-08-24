@@ -68,7 +68,10 @@ export function ModuleContent({
 
     return (
         <div className="p-6 lg:p-8 space-y-6 w-full mx-auto">
-            <div className="flex items-center justify-between">
+            {/* The left breadcrumb+title block and the right add-button+filter-pills
+                cluster (~320px alone) had no responsive stacking and exceeded a
+                328px phone. See docs/responsiveness.md section 4. */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <div className="flex items-center gap-2 text-xs text-neutral-400 mb-1">
                         <Link href="/practice" className="hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">

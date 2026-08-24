@@ -3,7 +3,7 @@ import { Shimmer, ShimmerStyles } from "@repo/ui/components/skeleton-kit";
 
 export default function Loading() {
     return (
-        <div className="flex h-screen w-full flex-col overflow-hidden bg-background">
+        <div className="flex h-dvh w-full flex-col overflow-hidden bg-background">
             <ShimmerStyles />
             <div className="flex shrink-0 items-center gap-4 border-b border-border px-6 py-4">
                 <Shimmer className="h-9 w-9 rounded-xl" />

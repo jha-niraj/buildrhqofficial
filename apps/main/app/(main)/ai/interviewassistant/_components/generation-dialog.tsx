@@ -103,7 +103,7 @@ export function GenerationDialog({ open, onClose, onConfirm, userCredits }: Gene
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-0 shadow-2xl">
+            <DialogContent className="max-w-4xl max-h-[90dvh] overflow-y-auto bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-0 shadow-2xl">
                 <DialogHeader className="pb-6">
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-gradient-to-br from-neutral-900 to-neutral-800 rounded-2xl shadow-lg">

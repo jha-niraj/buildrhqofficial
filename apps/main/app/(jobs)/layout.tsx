@@ -24,14 +24,20 @@ const JobsContent = ({ children }: { children: React.ReactNode }) => {
     return (
         <>
             <JobsSidebar />
-            <div className="flex flex-col flex-1 h-screen overflow-hidden bg-neutral-100 dark:bg-black transition-colors duration-300">
+            <div className="flex flex-col flex-1 h-dvh overflow-hidden bg-neutral-100 dark:bg-black transition-colors duration-300">
                 <main className={cn(
                     "h-full relative transition-all duration-300 ease-in-out",
                     "ml-0",
                     isCollapsed ? "lg:ml-[70px]" : "lg:ml-[240px]"
                 )}>
                     <div className="h-full w-full bg-white dark:bg-neutral-950 lg:rounded-l-3xl lg:border-l border-neutral-200 dark:border-neutral-800 shadow-xl relative">
-                        <ScrollArea className="h-full w-full">
+                        {/* `reflow` pins this to vertical-only, same as the (main) shell's
+                            ScrollArea - without it Radix's shrink-to-fit content box sizes
+                            to a wide descendant (a table, a chart) and the page silently
+                            scrolls sideways under this card's rounded corner instead of the
+                            descendant scrolling on its own. See docs/responsiveness.md
+                            section 2. */}
+                        <ScrollArea className="h-full min-w-0 w-full" reflow>
                             {children}
                         </ScrollArea>
                     </div>
@@ -52,7 +58,7 @@ const JobsLayout = ({ children }: LayoutProps) => {
 
     return (
         <SidebarProvider>
-            <div className="flex h-screen bg-neutral-100 dark:bg-black overflow-hidden">
+            <div className="flex h-dvh bg-neutral-100 dark:bg-black overflow-hidden">
                 <JobsContent>{children}</JobsContent>
             </div>
         </SidebarProvider>
@@ -63,7 +69,7 @@ const OfflineFallback = () => {
     const handleRefresh = () => window.location.reload()
 
     return (
-        <div className="h-screen flex items-center justify-center bg-background px-4 overflow-hidden">
+        <div className="h-dvh flex items-center justify-center bg-background px-4 overflow-hidden">
             <AnimatePresence>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

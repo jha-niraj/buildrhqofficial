@@ -98,7 +98,7 @@ export default function KanbanBoard({ columns: incoming, onTaskClick, onMoveTask
                                     </Badge>
                                 </div>
                             </div>
-                            <div className="space-y-4 max-h-[calc(100vh-350px)] overflow-y-auto md:max-h-none md:overflow-y-visible">
+                            <div className="space-y-4 max-h-[calc(100dvh-350px)] overflow-y-auto md:max-h-none md:overflow-y-visible">
                                 {
                                     column.tasks.map((task) => (
                                         <Card

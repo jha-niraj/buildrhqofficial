@@ -133,7 +133,12 @@ export function AddProblemSheet({ module, onProblemAdded }: AddProblemSheetProps
                     Add Problem
                 </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[500px] sm:max-w-[500px] overflow-y-auto">
+            {/* w-[500px] was unprefixed - unconditional, wider than the viewport below
+                640px, so the sheet ran off the left edge of a phone screen with no way
+                to reach the clipped half. Dropping it leaves the Sheet primitive's own
+                responsive `w-3/4` mobile width in place, capped at 500px from `sm` up.
+                See docs/responsiveness.md section 6. */}
+            <SheetContent side="right" className="sm:max-w-[500px] overflow-y-auto">
                 <SheetHeader className="pb-4">
                     <SheetTitle className="text-base">Add Custom Problem</SheetTitle>
                 </SheetHeader>

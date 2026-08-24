@@ -53,6 +53,14 @@ A reader must be able to check it by loading a page or grepping the repo.
 9. **The plan files match the code.** When a task is marked done in `tasks.md`,
    the thing it describes is in the repo.
 
+10. **The site is correct against `docs/responsiveness.md` at every viewport it
+    applies to.** No page moves sideways at 360px, every sheet/dialog leaves a
+    mobile strip, every truncated label is actually clipped rather than
+    overflowing its row, and no button row silently ships off-screen content.
+    This is a marketing site, not a bounded data app, so the doc's sections on
+    table pagination, chart theming, stat-strip primitives and locale mostly do
+    not apply here - what does apply is scoped and recorded in WEB-60.
+
 ## Out of scope
 
 Deliberately excluded, so scope creep has to argue with this document:

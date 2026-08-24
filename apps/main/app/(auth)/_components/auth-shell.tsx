@@ -48,7 +48,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
     const { variant, headline, sub, quote } = copyForPath(pathname)
 
     return (
-        <div className="relative flex h-screen w-full justify-center overflow-hidden bg-neutral-100 dark:bg-neutral-900 xl:p-6">
+        <div className="relative flex h-dvh w-full justify-center overflow-hidden bg-neutral-100 dark:bg-neutral-900 xl:p-6">
             <AuthBackdropSurround />
 
             {/* `relative` so the card stacks above the backdrop. The shadow is

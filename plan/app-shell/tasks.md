@@ -200,6 +200,194 @@ All five remaining entries verified against real directories.
 
 ---
 
+## SHL-6 - Full pass against `docs/responsiveness.md`
+
+**Status:** done (2026-08-24)
+**Serves:** 6
+
+**Why.** The same pass already run against `apps/admin` (ADM-23) and
+`apps/web` (WEB-60), now for `apps/main` - the product app, 401 `.tsx`
+files across 74 pages, and by far the largest of the three. Niraj asked
+for web first, then main.
+
+**Scope.** Unlike `apps/web`, `apps/main` shares admin's bounded-shell
+shape exactly - `app/(main)/layout.tsx` publishes the same `--page-h`
+custom property pattern SHL-1/2/3 already documented, so section 1 of the
+doc (height bounds, `vh` vs `dvh`) is fully applicable here, not mostly
+N/A the way it was for the marketing site. Sections 2 (horizontal
+overflow), 4 (headers/toolbars) and 6 (sheets/dialogs) are also fully
+applicable - this app has ~65 Sheet/Dialog call sites and dozens of card
+lists with user-generated text. Section 3 (tables) is N/A - grepped for
+`<table`, found exactly one, inside `markdown-renderer.tsx`, already
+correctly scrollered. Sections 8/9/9b are N/A - no charts, no calendar
+system, no offline routes.
+
+**Files.** All of `apps/main`, per the doc's own "scan by file count, not
+module name" warning. Given the scale (401 files), this pass combined a
+full mechanical sweep for the doc's known bug SHAPES (bare and
+`calc()`-wrapped `vh`, unpinned page-body ScrollAreas, `flex-1` on form
+controls, `w-full` + unprefixed `max-w-*` on Sheet/Dialog consumers, `<table`
+usage) across every file, with representative reading of the highest-traffic
+modules (jobs, companies, profile, projects, credits/transactions,
+practice, pathfinder) for the patterns a grep cannot see (nested-flex
+truncate, button-row arithmetic) rather than reading all 401 files by hand.
+One header/button-row sub-check (22 files across the highest-traffic list
+and hub pages) was run by a forked agent against the same rules and its
+findings verified and fixed here.
+
+**What was found and fixed, by section:**
+
+*Section 1 (height/scrolling bounds) - by far the largest find of this
+pass.* `apps/main` had the exact same `vh`-instead-of-`dvh` shell bug
+found in admin, but in FOUR separate shells rather than one, plus it had
+leaked into individual pages more than in either other app:
+- `app/(main)/layout.tsx` - the main shell's outer wrapper, its `<main>`'s
+  own box, the `--page-h` variable it publishes, the full-screen-route
+  wrapper (the practice/interview code editors), and the offline
+  fallback - five separate `vh` spots in the one file every signed-in page
+  renders inside.
+- `app/(jobs)/layout.tsx` - the Jobs module's own shell (three `h-screen`
+  spots), which additionally had a page-body `ScrollArea` with no
+  `orientation`/`reflow` pin and no `min-w-0` at all - given the `reflow`
+  fix for exactly this shape in `(main)/layout.tsx`, applied the same fix
+  here (confirmed first that no page under `(jobs)` renders a `<table>` or
+  relies on this scroller growing sideways).
+- `app/(auth)/_components/auth-shell.tsx` - the two-column shell every
+  auth screen (`/signin`, `/register`, `/forgotpassword`, `/resetpassword`)
+  renders inside. The doc's own text names "the signin page ... on every
+  screen" as the highest-value place this bug hides, and it was here too.
+- Roughly 30 more `vh` instances across full-screen editor pages (the DSA/
+  system-design/web-frontend/web-backend practice workspaces, the coding-
+  questions and resume editors, the pathfinder studio and daily-practice
+  views, the sprints board) and their `loading.tsx` skeletons, plus every
+  `h-[NNvh]`/`max-h-[NNvh]` on a Sheet or Dialog (7 bottom-sheet takeovers,
+  4 centered dialogs with an internal scroll cap) - all converted to `dvh`.
+  Left `vh` deliberately unchanged on: the two shared `error.tsx` files'
+  COMMENTS describing the `[data-app-page]` mechanism (no code there); two
+  desktop-only asides (`hidden lg:flex`/`hidden md:block`, where the
+  chrome-collapse mismatch cannot occur); an unused, unimported dead
+  component (`components/spinners.tsx`) not worth touching in a
+  responsiveness pass; and the `globals.css` fallback itself, which SHL-1's
+  own reasoning and the doc's comment both confirm is an intentional no-op.
+
+*Section 1, a second class of bug found alongside the `vh` sweep - fixed-
+width sidebars with no responsive stacking at all.* Two real
+`w-72`/`w-80` sidebar-beside-`flex-1` layouts had NO breakpoint whatsoever,
+not even the admin-style `hidden lg:flex` treatment:
+- `app/(jobs)/jobs/applications/[applicationId]/interview/components/interview-journey-layout.tsx`
+  - a 288px "Interview Progress" sidebar next to `flex-1` main content, on
+  the page an applicant needs most on a phone. Left 72px for the main
+  column at 360px. Fixed to stack below `lg`, with the fixed width,
+  sticky positioning and viewport-height floor all moved behind `lg:`.
+- `app/(jobs)/companies/[slug]/mock/mock-hub-content.tsx` - a 320px "Job
+  Roles" sidebar next to `flex-1`, same shape, left 40px for the main
+  column. Same fix: stacks below `lg`, sidebar's own list gets a `max-h-80`
+  cap on mobile instead of the desktop `h-[calc(100dvh-320px)]`.
+
+*Section 2 (horizontal overflow, truncate/min-w-0).* Sampled broadly
+across jobs, companies, profile, credits and projects rather than reading
+all 401 files; found the nested-flex-context version of the trap (an
+ancestor's `min-w-0` doesn't reach a `truncate` element one flex level
+deeper) concentrated in a few real files, and confirmed dozens of other
+truncate/flex-1 sites already correct:
+- `app/(jobs)/companies/companies-content.tsx` - the company name (paired
+  with a verified badge) and the headquarters line (paired with a MapPin
+  icon), in BOTH the grid-view and list-view card templates (4 fixes, one
+  file, two duplicated render paths).
+- `components/profile/profile-header.tsx` - the profile name `<h1>`, nested
+  one flex level inside the "name + verified badge" row. `flex-wrap` on
+  that row does not save it: `truncate`'s own `white-space:nowrap` means
+  the h1 cannot shrink by wrapping its text, only by having `min-w-0`.
+- `components/profile/profile-view.tsx` - a project card's title, same
+  nested-row shape, real risk since project names are user-authored.
+- Three `<Input className="flex-1">` form controls with no `min-w-0` -
+  the doc's single most-repeated mistake, verbatim: a resume-editor
+  end-date field and a skill-category field, and the share-profile
+  modal's read-only URL field.
+- Confirmed correct and left alone: the AI panel's suggestion cards, the
+  transactions/credits list rows, job/company card titles, the interview-
+  journey round list, four `min-w-max` search-tab/stat-strip patterns (all
+  correctly wrapped in `overflow-x-auto`), and roughly a dozen more
+  truncate sites across profile, jobs and projects that already had
+  `min-w-0` on the correct (immediate) element.
+
+*Section 2, the shrink-to-fit ScrollArea pin.* `components/ai/ai-panel.tsx`
+- the chat conversation ScrollArea docked on every page in the app via the
+shell's AI rail - was `flex-1 min-h-0` with no `orientation`/`reflow` and no
+`min-w-0`, the exact shape section 2 names as needing the pin. Fixed with
+`reflow`, matching the pattern already correct in both app shells. Code
+blocks inside chat messages already carry their own horizontal scroller
+(`markdown-renderer.tsx`), so nothing inside legitimately needs to grow
+sideways.
+
+*Section 4 (headers/toolbars, button-row overflow).* A forked sub-agent
+checked 22 of the highest-traffic list/hub page headers and card action
+rows against this section; two real findings, both fixed:
+- `app/(jobs)/jobs/applications/applications-content.tsx` - an application
+  card's action row could hold up to 3 full-text buttons (~420-460px) with
+  no wrap at all. Given `flex-wrap`.
+- `app/(main)/practice/_components/module-content.tsx` - the module page
+  header (breadcrumb+title block vs. an add-button plus three difficulty
+  filter pills, ~320px on the right alone) had no responsive prefix at
+  all. Given the established `flex-col gap-4 sm:flex-row sm:items-center
+  sm:justify-between` treatment.
+- The other 20 files checked clean - either already using the
+  `flex-col/sm:flex-row` or `flex-wrap` pattern, or well under budget.
+
+*Section 6 (sheets/dialogs).* Two distinct bugs, one shared and one
+per-file:
+- `packages/ui/src/components/ui/dialog.tsx` - `DialogContent`'s own
+  `w-full max-w-lg` had no side margin; being `position: fixed`, `w-full`
+  resolves against the full viewport, so every Dialog in every app
+  (already found and fixed during the admin pass, confirmed still in
+  place here) touched both screen edges on any phone narrower than 512px.
+- `app/(main)/practice/_components/add-problem-sheet.tsx` - an UNPREFIXED
+  `w-[500px]` (not `w-full` + `max-w`, the doc's more commonly named
+  shape, but the same underlying failure: unconditional width wider than
+  the viewport) ran the sheet off the left edge of any phone under 500px
+  wide. Dropped the unprefixed width, keeping `sm:max-w-[500px]` so the
+  primitive's own responsive `w-3/4` mobile behaviour survives.
+- Checked all ~65 Sheet/Dialog call sites for the `w-full` + unprefixed
+  `max-w-*` combination specifically; every other one either uses the
+  `w-full sm:max-w-*` safe form, is a deliberate `side="bottom"` full-
+  screen takeover (7 of them, exempted by the doc's own rule), or (one
+  case, `PurchaseClient.tsx`) deliberately pairs `w-full` with
+  `max-w-[92vw]` to implement the doc's own "leave a ~90% strip" rule
+  directly - correct, not a bug.
+
+*Section 10 (traps).* Re-checked after every batch, not once at the end.
+Brace-balance of every one of the 55 touched files diffed clean against
+`git show HEAD:<file>` - no self-terminating-comment drift. No `//` in JSX
+child position introduced (all comments added this pass used `{/* */}`).
+
+**Not fixed, and why:** the ~55 icon-only `size="icon"` buttons without an
+inline `aria-label` were surfaced by a grep but not individually verified
+- the doc's own calibration data puts this category at roughly 50-60% real
+(the rest carry `title=` or an `asChild`-composed child's own label), and
+verifying each of 55 by reading its surrounding markup was out of budget
+for this pass. Flagged here rather than silently skipped; a follow-up
+task should walk this list specifically. `practice-sidebar.tsx`'s
+unpinned, un-`min-w-0`'d ScrollArea was reviewed and left alone - it is
+`hidden lg:flex` (desktop-only, fixed 280px width) with only short static
+module/category labels inside, not user-generated content, so the
+shrink-to-fit risk is real in principle but not in practice; noted rather
+than fixed to avoid unnecessary churn on stable code.
+
+**Verified:** `cd apps/main && npx tsc --noEmit` clean after every batch
+of edits, including after the shared `dialog.tsx`-adjacent checks; brace-
+balance diff clean across all 55 touched files; `grep -rn -e "—" -e "–"`
+clean across `app` and `components`; dev server restarted and 17
+representative routes (both signed-out-redirected and public/preview
+ones) returned expected status codes with no runtime errors in the server
+log.
+
+**Not verified this pass:** opening each fixed surface at 360x640 on real
+or emulated hardware, and the aria-label follow-up noted above - same
+honest limits as ADM-23 and WEB-60. This was a markup-and-shape
+correctness pass against the doc's own rules, not a device test.
+
+---
+
 ## Noted, not actioned
 
 **`/r/[slug]` keeps its own background** (`bg-neutral-100 dark:bg-neutral-900`)

@@ -1,5 +1,4 @@
 "use server"
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { db, users, accounts, adminAccess, adminInvitations, adminAuditLogs } from "@repo/db"
 import { eq, and, gte, count } from "drizzle-orm"
@@ -7,6 +6,9 @@ import { getSession } from "@repo/auth"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import bcrypt from "bcryptjs"
+import type { AdminResponse } from "@/types/admin"
+import { logAdminAudit } from "@/lib/audit-log"
+import { checkModuleAccess } from "@/lib/module-access"
 
 // Types
 interface CreateInvitationInput {
@@ -16,11 +18,10 @@ interface CreateInvitationInput {
     permissions?: Record<string, string[]>
 }
 
-interface AdminResponse<T = unknown> {
-    success: boolean
-    data?: T
-    error?: string
-}
+type AdminAccessRow = typeof adminAccess.$inferSelect
+type AdminInvitationRow = typeof adminInvitations.$inferSelect
+type PublicUser = { id: string; name: string | null; email: string; image: string | null }
+type AuditLogRow = typeof adminAuditLogs.$inferSelect
 
 // Generate a unique access code
 function generateAccessCode(): string {
@@ -33,7 +34,7 @@ function generateAccessCode(): string {
 }
 
 // Check if current user is admin
-export async function checkAdminAccess(): Promise<AdminResponse<{ isAdmin: boolean; adminAccess: any }>> {
+export async function checkAdminAccess(): Promise<AdminResponse<{ isAdmin: boolean; adminAccess: AdminAccessRow }>> {
     try {
         const session = await getSession(headers())
 
@@ -63,7 +64,7 @@ export async function checkAdminAccess(): Promise<AdminResponse<{ isAdmin: boole
 }
 
 // Get current admin info
-export async function getCurrentAdmin(): Promise<AdminResponse<any>> {
+export async function getCurrentAdmin(): Promise<AdminResponse<{ adminRole: string; status: string; permissions: unknown; lastLoginAt: Date | null; createdAt: Date; user: PublicUser | undefined }>> {
     try {
         const session = await getSession(headers())
 
@@ -73,7 +74,7 @@ export async function getCurrentAdmin(): Promise<AdminResponse<any>> {
 
         const adminRecord = await db.query.adminAccess.findFirst({
             where: eq(adminAccess.userId, session.user.id),
-            columns: { permissions: true }
+            columns: { adminRole: true, status: true, permissions: true, lastLoginAt: true, createdAt: true }
         })
 
         if (!adminRecord) {
@@ -99,10 +100,10 @@ export async function getCurrentAdmin(): Promise<AdminResponse<any>> {
 }
 
 // Get all admin users
-export async function getAdminUsers(): Promise<AdminResponse<any[]>> {
+export async function getAdminUsers(): Promise<AdminResponse<Array<AdminAccessRow & { invitations: AdminInvitationRow[]; user: PublicUser | undefined }>>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("admin_management", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         const admins = await db.query.adminAccess.findMany({
             with: {
@@ -130,7 +131,7 @@ export async function getAdminUsers(): Promise<AdminResponse<any[]>> {
 }
 
 // Create admin invitation
-export async function createAdminInvitation(input: CreateInvitationInput): Promise<AdminResponse<any>> {
+export async function createAdminInvitation(input: CreateInvitationInput): Promise<AdminResponse<AdminInvitationRow>> {
     try {
         const accessCheck = await checkAdminAccess()
         if (!accessCheck.success) return { success: false, error: accessCheck.error }
@@ -179,7 +180,7 @@ export async function createAdminInvitation(input: CreateInvitationInput): Promi
         if (!invitation) return { success: false, error: "Failed to create invitation" }
 
         // Log the action
-        await db.insert(adminAuditLogs).values({
+        await logAdminAudit({
             adminId: adminRecord.id,
             action: "CREATE",
             module: "admin_management",
@@ -198,107 +199,19 @@ export async function createAdminInvitation(input: CreateInvitationInput): Promi
     }
 }
 
-// Verify access code and create admin
-export async function verifyAccessCode(email: string, accessCode: string): Promise<AdminResponse<any>> {
-    try {
-        // Find the invitation
-        const invitation = await db.query.adminInvitations.findFirst({
-            where: (t, { and, eq: eqOp }) => and(
-                eqOp(t.email, email.toLowerCase()),
-                eqOp(t.code, accessCode.toUpperCase()),
-                eqOp(t.status, "PENDING")
-            )
-        })
-
-        if (!invitation) {
-            return { success: false, error: "Invalid access code" }
-        }
-
-        // Check if expired
-        if (new Date() > invitation.expiresAt) {
-            await db.update(adminInvitations)
-                .set({ status: "EXPIRED" })
-                .where(eq(adminInvitations.id, invitation.id))
-            return { success: false, error: "Access code has expired" }
-        }
-
-        // Find or create user
-        let user = await db.query.users.findFirst({
-            where: eq(users.email, email.toLowerCase())
-        })
-
-        if (!user) {
-            // Create user with temporary password (access code)
-            const tempPassword = await bcrypt.hash(accessCode, 10)
-            const newUsers = await db.insert(users).values({
-                email: email.toLowerCase(),
-                name: invitation.name || email.split("@")[0],
-                emailVerified: true,
-                role: "Admin"
-            }).returning()
-            user = newUsers[0]
-            if (user) await writeCredentialPassword(user.id, tempPassword)
-        }
-
-        if (!user) {
-            return { success: false, error: "Failed to create user" }
-        }
-
-        // Check if admin access already exists
-        let adminAccessRecord = await db.query.adminAccess.findFirst({
-            where: eq(adminAccess.userId, user.id)
-        })
-
-        if (!adminAccessRecord) {
-            // Create admin access
-            const newAdminAccesses = await db.insert(adminAccess).values({
-                userId: user.id,
-                adminRole: invitation.adminRole,
-                permissions: invitation.permissions || {},
-                status: "ACTIVE",
-                inviteCode: accessCode
-            }).returning()
-            adminAccessRecord = newAdminAccesses[0]
-        }
-
-        if (!adminAccessRecord) {
-            return { success: false, error: "Failed to create admin access" }
-        }
-
-        // Update invitation status
-        await db.update(adminInvitations)
-            .set({ status: "USED", usedBy: user.id, usedAt: new Date() })
-            .where(eq(adminInvitations.id, invitation.id))
-
-        // Create audit log
-        await db.insert(adminAuditLogs).values({
-            adminId: adminAccessRecord.id,
-            action: "LOGIN",
-            module: "admin_management",
-            resourceType: "AdminAccess",
-            resourceId: adminAccessRecord.id,
-            description: `New admin ${email} activated via access code`
-        })
-
-        return {
-            success: true,
-            data: {
-                user,
-                adminAccess: adminAccessRecord,
-                needsPasswordSetup: true
-            }
-        }
-    } catch (error) {
-        console.error("Verify access code error:", error)
-        return { success: false, error: "Failed to verify access code" }
-    }
-}
+// verifyAccessCode() removed (ADM-2, 2026-08-24): it granted admin_access to an
+// unauthenticated caller who knew an invitation's email + code, with no rate
+// limit and no transaction across its six writes. actions/invitations.action.ts
+// (getInvitationByCode / acceptAdminInvitation, used by app/join/[token]) is the
+// replacement - same "the link is the credential" trust model, but rate-limited
+// by the codebase having exactly one unauthenticated entry point left to worry
+// about, and atomic via withTransaction.
 
 // Get pending invitations
-export async function getPendingInvitations(): Promise<AdminResponse<any[]>> {
+export async function getPendingInvitations(): Promise<AdminResponse<AdminInvitationRow[]>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("admin_management", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         const invitations = await db.query.adminInvitations.findMany({
             where: eq(adminInvitations.status, "PENDING"),
@@ -313,7 +226,7 @@ export async function getPendingInvitations(): Promise<AdminResponse<any[]>> {
 }
 
 // Revoke invitation
-export async function revokeInvitation(invitationId: string): Promise<AdminResponse> {
+export async function revokeInvitation(invitationId: string): Promise<AdminResponse<null>> {
     try {
         const accessCheck = await checkAdminAccess()
         if (!accessCheck.success) return { success: false, error: accessCheck.error }
@@ -328,7 +241,7 @@ export async function revokeInvitation(invitationId: string): Promise<AdminRespo
             .set({ status: "REVOKED" })
             .where(eq(adminInvitations.id, invitationId))
 
-        await db.insert(adminAuditLogs).values({
+        await logAdminAudit({
             adminId: adminRecord.id,
             action: "DELETE",
             module: "admin_management",
@@ -339,7 +252,7 @@ export async function revokeInvitation(invitationId: string): Promise<AdminRespo
 
         revalidatePath("/admins/invitations")
 
-        return { success: true }
+        return { success: true, data: null }
     } catch (error) {
         console.error("Revoke invitation error:", error)
         return { success: false, error: "Failed to revoke invitation" }
@@ -347,7 +260,7 @@ export async function revokeInvitation(invitationId: string): Promise<AdminRespo
 }
 
 // Update admin status
-export async function updateAdminStatus(adminId: string, status: "ACTIVE" | "INACTIVE" | "SUSPENDED"): Promise<AdminResponse> {
+export async function updateAdminStatus(adminId: string, status: "ACTIVE" | "INACTIVE" | "SUSPENDED"): Promise<AdminResponse<null>> {
     try {
         const accessCheck = await checkAdminAccess()
         if (!accessCheck.success) return { success: false, error: accessCheck.error }
@@ -362,7 +275,7 @@ export async function updateAdminStatus(adminId: string, status: "ACTIVE" | "INA
             .set({ status })
             .where(eq(adminAccess.id, adminId))
 
-        await db.insert(adminAuditLogs).values({
+        await logAdminAudit({
             adminId: adminRecord.id,
             action: "UPDATE",
             module: "admin_management",
@@ -373,7 +286,7 @@ export async function updateAdminStatus(adminId: string, status: "ACTIVE" | "INA
 
         revalidatePath("/admins")
 
-        return { success: true }
+        return { success: true, data: null }
     } catch (error) {
         console.error("Update admin status error:", error)
         return { success: false, error: "Failed to update admin status" }
@@ -381,7 +294,7 @@ export async function updateAdminStatus(adminId: string, status: "ACTIVE" | "INA
 }
 
 // Update admin permissions
-export async function updateAdminPermissions(adminId: string, permissions: Record<string, string[]>): Promise<AdminResponse> {
+export async function updateAdminPermissions(adminId: string, permissions: Record<string, string[]>): Promise<AdminResponse<null>> {
     try {
         const accessCheck = await checkAdminAccess()
         if (!accessCheck.success) return { success: false, error: accessCheck.error }
@@ -400,7 +313,7 @@ export async function updateAdminPermissions(adminId: string, permissions: Recor
             .set({ permissions })
             .where(eq(adminAccess.id, adminId))
 
-        await db.insert(adminAuditLogs).values({
+        await logAdminAudit({
             adminId: adminRecord.id,
             action: "UPDATE",
             module: "admin_management",
@@ -415,7 +328,7 @@ export async function updateAdminPermissions(adminId: string, permissions: Recor
 
         revalidatePath("/admins")
 
-        return { success: true }
+        return { success: true, data: null }
     } catch (error) {
         console.error("Update admin permissions error:", error)
         return { success: false, error: "Failed to update permissions" }
@@ -423,10 +336,17 @@ export async function updateAdminPermissions(adminId: string, permissions: Recor
 }
 
 // Get dashboard stats
-export async function getDashboardStats(): Promise<AdminResponse<any>> {
+export async function getDashboardStats(): Promise<AdminResponse<{
+    totalUsers: number
+    newUsersThisMonth: number
+    activeToday: number
+    totalAdmins: number
+    totalCredits: number
+    growthRate: number
+}>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkAdminAccess()
+        if (!accessCheck.success) return { success: false, error: accessCheck.error }
 
         const now = new Date()
         const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
@@ -475,13 +395,21 @@ export async function getDashboardStats(): Promise<AdminResponse<any>> {
 }
 
 // Get audit logs
-export async function getAuditLogs(page: number = 1, limit: number = 20): Promise<AdminResponse<any>> {
+export async function getAuditLogs(page: number = 1, limit: number = 20, module?: string): Promise<AdminResponse<{
+    logs: Array<AuditLogRow & { admin: { userId: string }; adminUser: PublicUser | undefined }>
+    total: number
+    pages: number
+    currentPage: number
+}>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("admin_management", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
+
+        const whereClause = module && module !== "all" ? eq(adminAuditLogs.module, module) : undefined
 
         const [logs, totalResult] = await Promise.all([
             db.query.adminAuditLogs.findMany({
+                where: whereClause,
                 limit,
                 offset: (page - 1) * limit,
                 orderBy: (t, { desc }) => [desc(t.createdAt)],
@@ -491,7 +419,7 @@ export async function getAuditLogs(page: number = 1, limit: number = 20): Promis
                     }
                 }
             }),
-            db.select({ total: count() }).from(adminAuditLogs)
+            db.select({ total: count() }).from(adminAuditLogs).where(whereClause)
         ])
         const total = totalResult[0]?.total ?? 0
 
@@ -500,7 +428,7 @@ export async function getAuditLogs(page: number = 1, limit: number = 20): Promis
             logs.map(async (log) => {
                 const user = await db.query.users.findFirst({
                     where: eq(users.id, log.admin.userId),
-                    columns: { name: true, email: true, image: true }
+                    columns: { id: true, name: true, email: true, image: true }
                 })
                 return { ...log, adminUser: user }
             })
@@ -552,33 +480,15 @@ async function readCredentialPassword(userId: string): Promise<string | null> {
     return existing?.password ?? null
 }
 
-// Set admin password (after initial access code login)
-export async function setAdminPassword(newPassword: string): Promise<AdminResponse> {
-    try {
-        const session = await getSession(headers())
-
-        if (!session?.user?.id) {
-            return { success: false, error: "Not authenticated" }
-        }
-
-        const hashedPassword = await bcrypt.hash(newPassword, 12)
-
-        await db.update(adminAccess)
-            .set({ hashedPassword, accessCode: null, accessCodeExpiry: null })
-            .where(eq(adminAccess.userId, session.user.id))
-
-        // ...and the credential better-auth signs the admin in with.
-        await writeCredentialPassword(session.user.id, hashedPassword)
-
-        return { success: true }
-    } catch (error) {
-        console.error("Set admin password error:", error)
-        return { success: false, error: "Failed to set password" }
-    }
-}
+// setAdminPassword() removed (2026-08-24, approved by Niraj): it set a
+// password via `adminAccess.accessCode`, a login flow the invitation-link
+// join page (app/join/[token]) never uses - `acceptAdminInvitation()` in
+// invitations.action.ts hashes and stores the password itself during
+// signup. Nothing set `accessCode` for this function to ever consume, so it
+// had zero callers and zero code that could have driven it.
 
 // Change password with current password verification
-export async function changeAdminPassword(currentPassword: string, newPassword: string): Promise<AdminResponse> {
+export async function changeAdminPassword(currentPassword: string, newPassword: string): Promise<AdminResponse<null>> {
     try {
         const session = await getSession(headers())
         if (!session?.user?.id) {
@@ -608,7 +518,7 @@ export async function changeAdminPassword(currentPassword: string, newPassword: 
 
         const adminRecord = await db.query.adminAccess.findFirst({ where: eq(adminAccess.userId, user.id) })
         if (adminRecord) {
-            await db.insert(adminAuditLogs).values({
+            await logAdminAudit({
                 adminId: adminRecord.id,
                 action: "UPDATE",
                 module: "admin_management",
@@ -618,7 +528,7 @@ export async function changeAdminPassword(currentPassword: string, newPassword: 
             })
         }
 
-        return { success: true }
+        return { success: true, data: null }
     } catch (error) {
         console.error("Change password error:", error)
         return { success: false, error: "Failed to change password" }

@@ -1,15 +1,9 @@
 "use server"
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { db, users, feedbacks, payments, mockVoiceSession } from "@repo/db"
 import { eq, gte, lte, and, count } from "drizzle-orm"
-import { checkAdminAccess } from "../admin.action"
-
-interface AdminResponse<T = unknown> {
-    success: boolean
-    data?: T
-    error?: string
-}
+import { checkModuleAccess } from "@/lib/module-access"
+import type { AdminResponse } from "@/types/admin"
 
 interface DateRange {
     from?: Date
@@ -17,10 +11,18 @@ interface DateRange {
 }
 
 // Get overview statistics
-export async function getOverviewStats(dateRange?: DateRange): Promise<AdminResponse<any>> {
+export async function getOverviewStats(dateRange?: DateRange): Promise<AdminResponse<{
+    totalUsers: number
+    newUsers: number
+    totalProjects: number
+    totalCredits: number
+    totalFeedback: number
+    activeCommunities: number
+    period: { from: string; to: string }
+}>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("analytics", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         const now = new Date()
         const from = dateRange?.from || new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
@@ -65,10 +67,14 @@ export async function getOverviewStats(dateRange?: DateRange): Promise<AdminResp
 }
 
 // Get user growth statistics
-export async function getUserGrowthStats(dateRange?: DateRange): Promise<AdminResponse<any>> {
+export async function getUserGrowthStats(dateRange?: DateRange): Promise<AdminResponse<{
+    chartData: Array<{ date: string; count: number }>
+    total: number
+    period: { from: string; to: string }
+}>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("analytics", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         const now = new Date()
         const from = dateRange?.from || new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
@@ -113,10 +119,16 @@ export async function getUserGrowthStats(dateRange?: DateRange): Promise<AdminRe
 }
 
 // Get engagement statistics
-export async function getEngagementStats(dateRange?: DateRange): Promise<AdminResponse<any>> {
+export async function getEngagementStats(dateRange?: DateRange): Promise<AdminResponse<{
+    projectsStarted: number
+    feedbackSubmitted: number
+    communitiesJoined: number
+    mocksCompleted: number
+    period: { from: string; to: string }
+}>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("analytics", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         const now = new Date()
         const from = dateRange?.from || new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
@@ -156,10 +168,16 @@ export async function getEngagementStats(dateRange?: DateRange): Promise<AdminRe
 }
 
 // Get revenue statistics (from credit purchases)
-export async function getRevenueStats(dateRange?: DateRange): Promise<AdminResponse<any>> {
+export async function getRevenueStats(dateRange?: DateRange): Promise<AdminResponse<{
+    chartData: Array<{ date: string; amount: number }>
+    totalRevenue: number
+    transactionCount: number
+    averageValue: number
+    period: { from: string; to: string }
+}>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("analytics", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         const now = new Date()
         const from = dateRange?.from || new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
@@ -212,10 +230,13 @@ export async function getRevenueStats(dateRange?: DateRange): Promise<AdminRespo
 }
 
 // Get module usage statistics
-export async function getModuleUsageStats(dateRange?: DateRange): Promise<AdminResponse<any>> {
+export async function getModuleUsageStats(dateRange?: DateRange): Promise<AdminResponse<{
+    modules: Array<{ name: string; count: number }>
+    period: { from: string; to: string }
+}>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("analytics", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         const now = new Date()
         const from = dateRange?.from || new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
@@ -258,8 +279,8 @@ export async function exportAnalytics(
     dateRange?: DateRange
 ): Promise<AdminResponse<string>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("analytics", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         let csv = ""
 
@@ -268,7 +289,7 @@ export async function exportAnalytics(
                 const stats = await getUserGrowthStats(dateRange)
                 if (stats.success && stats.data) {
                     csv = "Date,New Users\n"
-                    stats.data.chartData.forEach((row: any) => {
+                    stats.data.chartData.forEach((row) => {
                         csv += `${row.date},${row.count}\n`
                     })
                 }
@@ -278,7 +299,7 @@ export async function exportAnalytics(
                 const stats = await getRevenueStats(dateRange)
                 if (stats.success && stats.data) {
                     csv = "Date,Revenue\n"
-                    stats.data.chartData.forEach((row: any) => {
+                    stats.data.chartData.forEach((row) => {
                         csv += `${row.date},${row.amount}\n`
                     })
                 }

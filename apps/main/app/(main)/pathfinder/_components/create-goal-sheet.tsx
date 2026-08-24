@@ -265,7 +265,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
             onOpenChange(isOpen)
             if (!isOpen) resetForm()
         }}>
-            <SheetContent side="bottom" className="h-[80vh] overflow-y-auto">
+            <SheetContent side="bottom" className="h-[80dvh] overflow-y-auto">
                 <div className="max-w-lg mx-auto">
                     <SheetHeader className="mb-6">
                         <SheetTitle className="text-xl flex items-center gap-2">

@@ -68,7 +68,7 @@ export function PageOverviewCard({ page, difficultyColors }: PageOverviewCardPro
                 </CardContent>
             </Card>
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                <SheetContent side="bottom" className="h-[90vh] w-full overflow-y-auto">
+                <SheetContent side="bottom" className="h-[90dvh] w-full overflow-y-auto">
                     <SheetHeader className="max-w-7xl mx-auto text-left pb-6 border-b border-neutral-200 dark:border-neutral-800">
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-neutral-900 to-neutral-800 flex items-center justify-center text-white text-lg font-bold">

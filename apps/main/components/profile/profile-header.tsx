@@ -131,8 +131,13 @@ export function ProfileHeader({
 					</motion.div>
 					<div className="flex-1 min-w-0 pt-0 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
 						<div className="flex-1 min-w-0">
+							{/* flex-wrap lets the badge drop to its own line, but the h1 is
+								still a flex item of THIS row with no min-width of its own -
+								truncate's white-space:nowrap means it cannot shrink via
+								wrapping either, so a long display name overflowed the header
+								with no min-w-0 here. See docs/responsiveness.md section 2. */}
 							<div className="flex items-center gap-2 flex-wrap">
-								<h1 className="text-2xl md:text-3xl font-bold text-foreground truncate">
+								<h1 className="min-w-0 max-w-full truncate text-2xl font-bold text-foreground md:text-3xl">
 									{user.name || "Anonymous User"}
 								</h1>
 								{

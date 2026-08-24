@@ -1,283 +1,251 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { signIn, useSession } from "@repo/auth/client"
+import { signIn, signOut, useSession } from "@repo/auth/client"
 import { toast } from "@repo/ui/components/ui/sonner"
-import {
-    Shield, Loader2, Mail, Lock, KeyRound, Eye, EyeOff
-} from "lucide-react"
-import { motion } from "framer-motion"
-import { 
-    Tabs, TabsList, TabsTrigger, TabsContent 
-} from "@repo/ui/components/ui/tabs"
-import { Label } from "@repo/ui/components/ui/label"
-import { Input } from "@repo/ui/components/ui/input"
+import { ShipItHQLoader } from "@repo/ui/components/ui/shipithq-loader"
+import { ShaderHeroBg, SHADER_PALETTES } from "@repo/ui/components/hero-shader-bg"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { Logo } from "@repo/ui/components/logo"
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Info, Shield, ShieldAlert } from "lucide-react"
+import { checkAdminAccess } from "@/actions/admin.action"
 
-export default function AdminSignInPage() {
-    const router = useRouter()
+/**
+ * Console sign-in - matched to gurukul admin's landing screen (a full-bleed
+ * background behind a glass card), rebuilt on ShipItHQ's own components
+ * rather than a second copy of gurukul's: `ShaderHeroBg` (self-hosted WebGL,
+ * no loading flash, already the brand's shader background elsewhere) instead
+ * of gurukul's hosted video, and `ShipItHQLoader` instead of `GurukulLoader`.
+ * See plan/admin/tasks.md ADM-20.
+ *
+ * One tab, not two: the old "Access Code" tab posted to an unauthenticated
+ * route that granted admin access with no rate limit (ADM-2). First-time
+ * access is an invitation link (ADM-13), not a code typed in here.
+ */
+export default function AdminLandingPage() {
     const { data: session, isPending } = useSession()
-    const [isLoading, setIsLoading] = useState(false)
-    const [authMode, setAuthMode] = useState<"credentials" | "accessCode">("credentials")
-    const [showPassword, setShowPassword] = useState(false)
 
-    // Form state
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-    const [accessCode, setAccessCode] = useState("")
+    const [showPassword, setShowPassword] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [redirecting, setRedirecting] = useState(false)
+    const [accessDenied, setAccessDenied] = useState(false)
 
-    // Redirect if already authenticated
     useEffect(() => {
-        if (session && !isPending) {
-            router.push("/dashboard")
-        }
-    }, [session, isPending, router])
+        if (isPending || !session) return
 
-    const handleCredentialsSignIn = async (e: React.FormEvent) => {
+        // A session cookie alone isn't proof of admin access - `@repo/auth`
+        // shares one cookie prefix across every ShipItHQ app, so any signed-in
+        // student holds one here too. Redirecting straight to /dashboard on
+        // session presence alone was an infinite loop for a non-admin: the
+        // console layout would bounce them back to "/", this effect would see
+        // their (still valid) session and send them to /dashboard again. Ask
+        // the same admin_access question the console layout asks, before
+        // deciding where to send them.
+        let cancelled = false
+        checkAdminAccess().then((result) => {
+            if (cancelled) return
+            if (result.success) {
+                setRedirecting(true)
+                window.location.href = "/dashboard"
+            } else {
+                setAccessDenied(true)
+            }
+        })
+        return () => { cancelled = true }
+    }, [isPending, session])
+
+    const handleSignOut = async () => {
+        await signOut()
+        window.location.href = "/"
+    }
+
+    const handleSignIn = async (e: React.FormEvent) => {
         e.preventDefault()
-
         if (!email || !password) {
-            toast.error("Missing credentials", {
-                description: "Please enter your email and password"
-            })
+            toast.error("Missing credentials", { description: "Please enter your email and password" })
             return
         }
-
         setIsLoading(true)
-
         try {
-            // better-auth's `signIn` is an object of methods, not a callable.
-            // This was `(signIn as any)("credentials", ...)` -- the NextAuth
-            // signature, cast through `any` so the compiler could not object --
-            // which threw "signIn is not a function" at runtime, making the admin
-            // login unusable on both tabs.
-            const result = await signIn.email({ email, password })
-
-            if (result?.error) {
-                toast.error("Sign in failed", {
-                    description: "Invalid email or password"
-                })
-            } else {
-                toast.success("Welcome back!", {
-                    description: "Redirecting to dashboard..."
-                })
-                router.push("/dashboard")
+            const { error } = await signIn.email({ email, password, fetchOptions: { throw: false } })
+            if (error) {
+                toast.error("Sign in failed", { description: "Invalid email or password" })
+                setIsLoading(false)
+                return
             }
-        } catch (error) {
-            console.log("Error occurred while signing; " + error);
-            toast.error("Sign in failed", {
-                description: "An unexpected error occurred"
-            })
-        } finally {
+            toast.success("Welcome back!", { description: "Redirecting to the console..." })
+            setRedirecting(true)
+            window.location.href = "/dashboard"
+        } catch {
+            toast.error("Sign in failed", { description: "An unexpected error occurred" })
             setIsLoading(false)
         }
     }
 
-    const handleAccessCodeSignIn = async (e: React.FormEvent) => {
-        e.preventDefault()
-
-        if (!email || !accessCode) {
-            toast.error("Missing information", {
-                description: "Please enter your email and access code"
-            })
-            return
-        }
-
-        setIsLoading(true)
-
-        try {
-            // Call API to verify access code
-            const response = await fetch("/api/auth/verify-access-code", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, accessCode })
-            })
-
-            const data = await response.json()
-
-            if (!response.ok) {
-                throw new Error(data.message || "Invalid access code")
-            }
-
-            // If valid, sign in with the access code as the password. The route
-            // above stores it as this account's credential, so better-auth can
-            // verify it here.
-            const result = await signIn.email({ email, password: accessCode })
-
-            if (result?.error) {
-                toast.error("Sign in failed", {
-                    description: "Invalid access code"
-                })
-            } else {
-                toast.success("Welcome!", {
-                    description: "Please set up your password on the next screen"
-                })
-                router.push("/dashboard")
-            }
-        } catch (error) {
-            console.log("Error occurred while verification: " + error);
-            toast.error("Verification failed", {
-                description: "Invalid or expired access code"
-            })
-        } finally {
-            setIsLoading(false)
-        }
+    if (isPending || redirecting || (session && !accessDenied)) {
+        return <ShipItHQLoader label="Loading" />
     }
 
-    if (isPending) {
+    if (accessDenied) {
         return (
-            <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+            <div className="relative flex h-screen flex-col overflow-hidden bg-neutral-950">
+                <ShaderHeroBg
+                    colors={SHADER_PALETTES.graphite}
+                    className="absolute inset-0 h-full w-full"
+                />
+                <div aria-hidden className="absolute inset-0 bg-black/55" />
+                <main className="relative z-10 flex flex-1 items-center justify-center px-4">
+                    <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.05] p-8 text-center backdrop-blur-[12px]">
+                        <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.06]">
+                            <ShieldAlert className="h-5 w-5 text-white/70" />
+                        </div>
+                        <h1 className="mb-1.5 text-xl font-semibold tracking-tight text-white">No console access</h1>
+                        <p className="mb-6 text-[14px] text-white/50">
+                            This account does not have access to the ShipItHQ admin console. If you were expecting
+                            access, ask a Super Admin to send you an invitation.
+                        </p>
+                        <button
+                            type="button"
+                            onClick={handleSignOut}
+                            className="flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-neutral-600 to-neutral-300 text-sm font-semibold text-neutral-950 transition-all hover:brightness-110"
+                        >
+                            Sign out
+                        </button>
+                    </div>
+                </main>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center p-4">
-            <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:14px_24px]" />
-                <div className="absolute top-1/4 -left-1/4 w-96 h-96 bg-red-500/10 rounded-full blur-3xl" />
-                <div className="absolute bottom-1/4 -right-1/4 w-96 h-96 bg-neutral-900/10 rounded-full blur-3xl" />
-            </div>
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="relative z-10 w-full max-w-2xl"
-            >
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-neutral-900 mb-4 shadow-lg">
-                        <Shield className="w-8 h-8 text-white" />
+        <div className="relative flex h-screen flex-col overflow-hidden bg-neutral-950">
+            <ShaderHeroBg
+                colors={SHADER_PALETTES.graphite}
+                className="absolute inset-0 h-full w-full"
+            />
+            <div aria-hidden className="absolute inset-0 bg-black/55" />
+
+            <header className="relative z-10 flex flex-shrink-0 items-center justify-between px-6 pt-6 lg:px-8">
+                <div className="flex items-center gap-2.5">
+                    <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-md bg-white/10">
+                        <Logo className="h-[18px] w-[18px] text-white" />
+                    </span>
+                    <div className="leading-none">
+                        <div className="text-[15px] font-semibold tracking-tight text-white">ShipItHQ</div>
+                        <div className="mt-0.5 font-mono text-[12px] uppercase tracking-[0.12em] text-white/70">
+                            Admin Portal
+                        </div>
                     </div>
-                    <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Admin Panel</h1>
-                    <p className="text-neutral-500 dark:text-neutral-400 mt-1 text-sm">Sign in to access the control center</p>
                 </div>
-                <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-xl overflow-hidden">
-                    <Tabs value={authMode} onValueChange={v => setAuthMode(v as "credentials" | "accessCode")} className="w-full">
-                        <TabsList className="w-full grid grid-cols-2">
-                            <TabsTrigger value="credentials">Password</TabsTrigger>
-                            <TabsTrigger value="accessCode">Access Code</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="credentials">
-                            <form onSubmit={handleCredentialsSignIn} className="p-8 space-y-6 w-full max-w-lg mx-auto">
-                                <div>
-                                    <Label htmlFor="email" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                                        Email Address
-                                    </Label>
-                                    <div className="relative">
-                                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
-                                        <Input
-                                            id="email"
-                                            type="email"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            placeholder="admin@example.com"
-                                            className="w-full pl-11 pr-4 py-3 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <Label htmlFor="password" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                                        Password
-                                    </Label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
-                                        <Input
-                                            id="password"
-                                            type={showPassword ? "text" : "password"}
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            placeholder="Enter your password"
-                                            className="w-full pl-11 pr-12 py-3 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
-                                        >
-                                            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                                        </button>
-                                    </div>
-                                </div>
+                <span className="hidden items-center gap-1.5 font-mono text-[12px] uppercase tracking-[0.12em] text-white/70 sm:flex">
+                    <span className="h-1.5 w-1.5 rounded-full bg-neutral-400" />
+                    System Operational
+                </span>
+            </header>
+
+            <main className="relative z-10 flex flex-1 items-center justify-center px-4">
+                <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.05] p-8 backdrop-blur-[12px]">
+                    <div className="mb-8 flex items-center gap-3">
+                        <span className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-lg bg-white/10">
+                            <Logo className="h-[23px] w-[23px] text-white" />
+                        </span>
+                        <div className="leading-none">
+                            <div className="text-[15px] font-semibold tracking-tight text-white">ShipItHQ Admin</div>
+                            <div className="mt-0.5 font-mono text-[12px] uppercase tracking-[0.18em] text-neutral-400">
+                                Administration
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mb-6">
+                        <h1 className="mb-1.5 text-2xl font-semibold tracking-tight text-white">Sign in to admin</h1>
+                        <p className="text-[14px] text-white/50">
+                            Internal platform for the ShipItHQ team. Authorized personnel only.
+                        </p>
+                    </div>
+
+                    <form onSubmit={handleSignIn} className="space-y-5">
+                        <div className="space-y-1.5">
+                            <label htmlFor="email" className="text-xs font-medium uppercase tracking-[0.1em] text-white/40">
+                                Email address
+                            </label>
+                            <div className="relative">
+                                <Mail size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+                                <input
+                                    id="email"
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="admin@shipithq.com"
+                                    autoFocus
+                                    required
+                                    className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.06] pl-10 pr-4 text-sm text-white outline-none transition-all placeholder:text-white/30 focus:border-neutral-400 focus:ring-2 focus:ring-white/10"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label htmlFor="password" className="text-xs font-medium uppercase tracking-[0.1em] text-white/40">
+                                Password
+                            </label>
+                            <div className="relative">
+                                <Lock size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+                                <input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Enter your password"
+                                    required
+                                    className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.06] pl-10 pr-10 text-sm text-white outline-none transition-all placeholder:text-white/30 focus:border-neutral-400 focus:ring-2 focus:ring-white/10"
+                                />
                                 <button
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="cursor-pointer w-full py-3 px-4 bg-gradient-to-r from-red-500 to-neutral-900 hover:from-red-600 hover:to-neutral-800 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-red-500/20"
+                                    type="button"
+                                    onClick={() => setShowPassword((s) => !s)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-white/30 transition-colors hover:text-white/60"
                                 >
-                                    {
-                                        isLoading ? (
-                                            <>
-                                                <Loader2 className="w-5 h-5 animate-spin" />
-                                                <span>Signing in...</span>
-                                            </>
-                                        ) : (
-                                            <span>Sign In</span>
-                                        )
-                                    }
+                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                 </button>
-                            </form>
-                        </TabsContent>
-                        <TabsContent value="accessCode">
-                            <form onSubmit={handleAccessCodeSignIn} className="p-8 space-y-6 w-full max-w-lg mx-auto">
-                                <div>
-                                    <Label htmlFor="email" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                                        Email Address
-                                    </Label>
-                                    <div className="relative">
-                                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
-                                        <Input
-                                            id="email"
-                                            type="email"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            placeholder="admin@example.com"
-                                            className="w-full pl-11 pr-4 py-3 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <Label htmlFor="accessCode" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                                        Access Code
-                                    </Label>
-                                    <div className="relative">
-                                        <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
-                                        <Input
-                                            id="accessCode"
-                                            type="text"
-                                            value={accessCode}
-                                            onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
-                                            placeholder="Enter access code (e.g., ADMIN-X7K2M9)"
-                                            className="w-full pl-11 pr-4 py-3 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all font-mono tracking-wider"
-                                        />
-                                    </div>
-                                    <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
-                                        Enter the access code sent to your email by the administrator
-                                    </p>
-                                </div>
-                                <button
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="w-full py-3 px-4 bg-gradient-to-r from-red-500 to-neutral-900 hover:from-red-600 hover:to-neutral-800 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-red-500/20"
-                                >
-                                    {
-                                        isLoading ? (
-                                            <>
-                                                <Loader2 className="w-5 h-5 animate-spin" />
-                                                <span>Signing in...</span>
-                                            </>
-                                        ) : (
-                                            <span>Sign In</span>
-                                        )
-                                    }
-                                </button>
-                            </form>
-                        </TabsContent>
-                    </Tabs>
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-neutral-600 to-neutral-300 text-sm font-semibold text-neutral-950 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            {isLoading ? (
+                                <>
+                                    <InlineLoader size="sm" label="Signing in" /> Signing in...
+                                </>
+                            ) : (
+                                <>
+                                    Sign In <ArrowRight size={15} />
+                                </>
+                            )}
+                        </button>
+
+                        <div className="flex items-start gap-2 pt-1 text-[12px] text-white/40">
+                            <Info size={13} className="mt-0.5 shrink-0" />
+                            <span>First-time access? Use the invitation link sent to your email.</span>
+                        </div>
+                    </form>
+
+                    <div className="mt-6 flex items-center justify-between font-mono text-[12px] uppercase tracking-[0.12em] text-white/20">
+                        <span className="flex items-center gap-1.5">
+                            <Shield size={12} /> Encrypted session
+                        </span>
+                        <span className="tracking-normal normal-case">ShipItHQ</span>
+                    </div>
                 </div>
-                <p className="text-center text-xs text-neutral-500 dark:text-neutral-400 mt-6">
-                    Protected area. Unauthorized access is prohibited.
-                </p>
-            </motion.div>
+            </main>
+
+            <div className="relative z-10 flex flex-shrink-0 items-center justify-between px-6 py-5 font-mono text-[12px] uppercase tracking-[0.12em] text-white/50 lg:px-8">
+                <span>ShipItHQ Admin</span>
+                <span className="hidden md:inline">Protected area. Unauthorized access is prohibited.</span>
+            </div>
         </div>
     )
 }

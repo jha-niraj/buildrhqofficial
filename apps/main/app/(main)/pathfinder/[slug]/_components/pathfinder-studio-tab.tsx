@@ -97,7 +97,7 @@ export function PathfinderStudioTab({
   }
 
   return (
-    <div className="h-[calc(100vh-200px)]">
+    <div className="h-[calc(100dvh-200px)]">
       <StudioContainer
         studio={studio}
         backUrl={`/pathfinder/${goalId}`}

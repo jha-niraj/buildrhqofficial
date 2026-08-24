@@ -516,7 +516,7 @@ export function PathfinderDashboard({ initialGoals, initialGroups }: PathfinderD
     )
 
     return (
-        <div className="h-screen flex flex-col">
+        <div className="h-dvh flex flex-col">
             {/* Header */}
             <div className="shrink-0 px-4 py-3 border-b border-neutral-200/60 dark:border-neutral-800/60 bg-white dark:bg-neutral-900/80 backdrop-blur-sm">
                 <div className="w-full mx-auto flex items-center justify-between">

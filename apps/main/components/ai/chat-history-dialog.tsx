@@ -88,7 +88,7 @@ export function ChatHistoryDialog({
                     </div>
                 </div>
 
-                <ScrollArea className="max-h-[52vh]">
+                <ScrollArea className="max-h-[52dvh]">
                     <div className="p-2">
                         {filtered.length === 0 ? (
                             <p className="px-3 py-8 text-center text-sm text-neutral-400">

@@ -476,7 +476,7 @@ export function ProfileView({
                                         className="rounded-xl border border-neutral-100 p-4 transition-colors hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-600"
                                     >
                                         <div className="mb-1.5 flex items-start justify-between gap-2">
-                                            <h3 className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
+                                            <h3 className="min-w-0 flex-1 truncate text-sm font-semibold text-neutral-900 dark:text-white">
                                                 {p.projectName}
                                             </h3>
                                             {p.status && (

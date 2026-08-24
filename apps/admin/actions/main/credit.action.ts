@@ -1,30 +1,59 @@
 "use server"
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { db, users, creditTransactions, creditRequests, creditTransfers, payments, adminAuditLogs } from "@repo/db"
-import { eq, and, count, sql } from "drizzle-orm"
+import { db, users, creditTransactions, creditRequests, payments, creditRequestStatusEnum, creditTypeEnum, paymentStatusEnum } from "@repo/db"
+import { eq, and, or, ilike, inArray, count, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
-import { checkAdminAccess } from "../admin.action"
+import { checkModuleAccess } from "@/lib/module-access"
+import type { AdminResponse } from "@/types/admin"
+import { logAdminAudit } from "@/lib/audit-log"
 
-interface AdminResponse<T = unknown> {
-    success: boolean
-    data?: T
-    error?: string
+interface PaginationParams {
+    page?: number
+    limit?: number
 }
 
+interface TransactionFilters {
+    type?: string
+    search?: string
+}
+
+interface PaymentFilters {
+    status?: string
+    search?: string
+}
+
+type PublicUser = { id: string; name: string | null; email: string; image: string | null }
+type PublicUserBasic = { id: string; name: string | null; email: string }
+
 // Get all credit transactions
-export async function getAllTransactions(filters?: any, pagination?: any): Promise<AdminResponse<any>> {
+export async function getAllTransactions(filters?: TransactionFilters, pagination?: PaginationParams): Promise<AdminResponse<{
+    transactions: Array<typeof creditTransactions.$inferSelect & { user: PublicUser | undefined }>
+    total: number
+    pages: number
+}>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("credits", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         const page = pagination?.page || 1
         const limit = pagination?.limit || 20
         const offset = (page - 1) * limit
 
         const whereConditions = []
-        if (filters?.type && filters.type !== "all") {
-            whereConditions.push(eq(creditTransactions.type, filters.type))
+        if (filters?.type && filters.type !== "all" && (creditTypeEnum.enumValues as readonly string[]).includes(filters.type)) {
+            whereConditions.push(eq(creditTransactions.type, filters.type as (typeof creditTypeEnum.enumValues)[number]))
+        }
+        if (filters?.search) {
+            const matchingUsers = await db.query.users.findMany({
+                where: or(ilike(users.name, `%${filters.search}%`), ilike(users.email, `%${filters.search}%`)),
+                columns: { id: true },
+            })
+            const userIds = matchingUsers.map((u) => u.id)
+            whereConditions.push(
+                userIds.length > 0
+                    ? or(ilike(creditTransactions.id, `%${filters.search}%`), inArray(creditTransactions.userId, userIds))
+                    : ilike(creditTransactions.id, `%${filters.search}%`)
+            )
         }
 
         const [transactions, totalResult] = await Promise.all([
@@ -60,10 +89,14 @@ export async function getAllTransactions(filters?: any, pagination?: any): Promi
 }
 
 // Get credit requests
-export async function getCreditRequests(status?: string, pagination?: any): Promise<AdminResponse<any>> {
+export async function getCreditRequests(status?: string, pagination?: PaginationParams, search?: string): Promise<AdminResponse<{
+    requests: Array<typeof creditRequests.$inferSelect & { user: PublicUser | undefined }>
+    total: number
+    pages: number
+}>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("credits", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         const page = pagination?.page || 1
         const limit = pagination?.limit || 20
@@ -71,7 +104,19 @@ export async function getCreditRequests(status?: string, pagination?: any): Prom
 
         const whereConditions = []
         if (status && status !== "all") {
-            whereConditions.push(eq(creditRequests.status, status as any))
+            whereConditions.push(eq(creditRequests.status, status as (typeof creditRequestStatusEnum.enumValues)[number]))
+        }
+        if (search) {
+            const matchingUsers = await db.query.users.findMany({
+                where: or(ilike(users.name, `%${search}%`), ilike(users.email, `%${search}%`)),
+                columns: { id: true },
+            })
+            const userIds = matchingUsers.map((u) => u.id)
+            whereConditions.push(
+                userIds.length > 0
+                    ? or(ilike(creditRequests.id, `%${search}%`), inArray(creditRequests.userId, userIds))
+                    : ilike(creditRequests.id, `%${search}%`)
+            )
         }
 
         const [requests, totalResult] = await Promise.all([
@@ -107,13 +152,12 @@ export async function getCreditRequests(status?: string, pagination?: any): Prom
 }
 
 // Approve credit request
-export async function approveCreditRequest(requestId: string, amount: number): Promise<AdminResponse> {
+export async function approveCreditRequest(requestId: string, amount: number): Promise<AdminResponse<null>> {
     try {
-        const accessCheck = await checkAdminAccess()
-        if (!accessCheck.success) return { success: false, error: accessCheck.error }
+        const accessCheck = await checkModuleAccess("credits", "write")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
-        const adminRecord = accessCheck.data?.adminAccess
-        if (!adminRecord) return { success: false, error: "Admin record not found" }
+        const adminRecord = accessCheck.adminAccess
 
         const request = await db.query.creditRequests.findFirst({
             where: eq(creditRequests.id, requestId),
@@ -143,7 +187,7 @@ export async function approveCreditRequest(requestId: string, amount: number): P
             description: "Admin approved credit request",
         })
 
-        await db.insert(adminAuditLogs).values({
+        await logAdminAudit({
             adminId: adminRecord.id,
             action: "UPDATE",
             module: "credits",
@@ -154,7 +198,7 @@ export async function approveCreditRequest(requestId: string, amount: number): P
 
         revalidatePath("/credits/requests")
 
-        return { success: true }
+        return { success: true, data: null }
     } catch (error) {
         console.error("Approve credit request error:", error)
         return { success: false, error: "Failed to approve request" }
@@ -162,19 +206,18 @@ export async function approveCreditRequest(requestId: string, amount: number): P
 }
 
 // Reject credit request
-export async function rejectCreditRequest(requestId: string, reason: string): Promise<AdminResponse> {
+export async function rejectCreditRequest(requestId: string, reason: string): Promise<AdminResponse<null>> {
     try {
-        const accessCheck = await checkAdminAccess()
-        if (!accessCheck.success) return { success: false, error: accessCheck.error }
+        const accessCheck = await checkModuleAccess("credits", "write")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
-        const adminRecord = accessCheck.data?.adminAccess
-        if (!adminRecord) return { success: false, error: "Admin record not found" }
+        const adminRecord = accessCheck.adminAccess
 
         await db.update(creditRequests)
             .set({ status: "REJECTED" })
             .where(eq(creditRequests.id, requestId))
 
-        await db.insert(adminAuditLogs).values({
+        await logAdminAudit({
             adminId: adminRecord.id,
             action: "UPDATE",
             module: "credits",
@@ -185,111 +228,46 @@ export async function rejectCreditRequest(requestId: string, reason: string): Pr
 
         revalidatePath("/credits/requests")
 
-        return { success: true }
+        return { success: true, data: null }
     } catch (error) {
         console.error("Reject credit request error:", error)
         return { success: false, error: "Failed to reject request" }
     }
 }
 
-// Get credit transfers
-export async function getCreditTransfers(filters?: any, pagination?: any): Promise<AdminResponse<any>> {
-    try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
-
-        const page = pagination?.page || 1
-        const limit = pagination?.limit || 20
-        const offset = (page - 1) * limit
-
-        const [transfers, totalResult] = await Promise.all([
-            db.query.creditTransfers.findMany({
-                with: {
-                    sender: { columns: { id: true, name: true, email: true } },
-                    receiver: { columns: { id: true, name: true, email: true } },
-                },
-                orderBy: (t, { desc }) => [desc(t.createdAt)],
-                limit,
-                offset
-            }),
-            db.select({ total: count() }).from(creditTransfers)
-        ])
-        const total = totalResult[0]?.total ?? 0
-
-        return {
-            success: true,
-            data: { transfers, total, pages: Math.ceil(total / limit) },
-        }
-    } catch (error) {
-        console.error("Get transfers error:", error)
-        return { success: false, error: "Failed to fetch transfers" }
-    }
-}
-
-// Transfer credits between users (admin-initiated)
-export async function transferCredits(fromUserId: string, toUserId: string, amount: number, description?: string): Promise<AdminResponse> {
-    try {
-        const accessCheck = await checkAdminAccess()
-        if (!accessCheck.success) return { success: false, error: accessCheck.error }
-
-        if (amount <= 0) return { success: false, error: "Amount must be positive" }
-        if (fromUserId === toUserId) return { success: false, error: "Cannot transfer to the same user" }
-
-        const [fromUser, toUser] = await Promise.all([
-            db.query.users.findFirst({ where: eq(users.id, fromUserId) }),
-            db.query.users.findFirst({ where: eq(users.id, toUserId) })
-        ])
-        if (!fromUser || !toUser) return { success: false, error: "Invalid users" }
-
-        if (typeof fromUser.credits === "number" && fromUser.credits < amount) {
-            return { success: false, error: "Insufficient balance" }
-        }
-
-        // Execute in sequence (no native transaction needed since each is atomic)
-        await db.update(users).set({ credits: sql`${users.credits} - ${amount}` }).where(eq(users.id, fromUserId))
-        await db.update(users).set({ credits: sql`${users.credits} + ${amount}` }).where(eq(users.id, toUserId))
-
-        await db.insert(creditTransfers).values({
-            senderId: fromUserId,
-            receiverId: toUserId,
-            amount
-        })
-
-        await db.insert(creditTransactions).values({
-            userId: fromUserId,
-            amount: -amount,
-            type: "REWARD",
-            description: description || `Transfer to ${toUser.email}`,
-            currency: "INR",
-        })
-        await db.insert(creditTransactions).values({
-            userId: toUserId,
-            amount,
-            type: "REWARD",
-            description: description || `Transfer from ${fromUser.email}`,
-            currency: "INR",
-        })
-
-        return { success: true }
-    } catch (error) {
-        console.error("Transfer credits error:", error)
-        return { success: false, error: "Failed to transfer credits" }
-    }
-}
+// getCreditTransfers() and transferCredits() removed (2026-08-24, approved by
+// Niraj): zero callers anywhere in the app, matching the already-dead
+// /credits/transfers nav entry. Flagged during ADM-6, deleted here.
 
 // Get payments
-export async function getPayments(filters?: any, pagination?: any): Promise<AdminResponse<any>> {
+export async function getPayments(filters?: PaymentFilters, pagination?: PaginationParams): Promise<AdminResponse<{
+    payments: Array<typeof payments.$inferSelect & { user: PublicUserBasic | undefined }>
+    total: number
+    pages: number
+}>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("credits", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         const page = pagination?.page || 1
         const limit = pagination?.limit || 20
         const offset = (page - 1) * limit
 
         const whereConditions = []
-        if (filters?.status && filters.status !== "all") {
-            whereConditions.push(eq(payments.status, filters.status))
+        if (filters?.status && filters.status !== "all" && (paymentStatusEnum.enumValues as readonly string[]).includes(filters.status)) {
+            whereConditions.push(eq(payments.status, filters.status as (typeof paymentStatusEnum.enumValues)[number]))
+        }
+        if (filters?.search) {
+            const matchingUsers = await db.query.users.findMany({
+                where: or(ilike(users.name, `%${filters.search}%`), ilike(users.email, `%${filters.search}%`)),
+                columns: { id: true },
+            })
+            const userIds = matchingUsers.map((u) => u.id)
+            whereConditions.push(
+                userIds.length > 0
+                    ? or(ilike(payments.orderId, `%${filters.search}%`), inArray(payments.userId, userIds))
+                    : ilike(payments.orderId, `%${filters.search}%`)
+            )
         }
 
         const [paymentList, totalResult] = await Promise.all([
@@ -323,10 +301,15 @@ export async function getPayments(filters?: any, pagination?: any): Promise<Admi
 }
 
 // Get credit stats
-export async function getCreditStats(): Promise<AdminResponse<any>> {
+export async function getCreditStats(): Promise<AdminResponse<{
+    totalCredits: number
+    pendingRequests: number
+    totalTransactions: number
+    totalPayments: number
+}>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("credits", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         const [
             allUsers,

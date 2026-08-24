@@ -303,7 +303,7 @@ export default function Navbar() {
                 Hover is meaningless on touch, so the panels become accordions. The Sheet
                 itself handles outside-click and Escape. */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-                <SheetContent className="h-screen max-w-[500px] border-l-0 bg-white p-0 dark:bg-neutral-950">
+                <SheetContent className="h-dvh max-w-[500px] border-l-0 bg-white p-0 dark:bg-neutral-950">
                     <SheetTitle className="sr-only">Navigation menu</SheetTitle>
                     <div className="flex h-full flex-col">
                         <div className="flex-1 overflow-auto px-4 py-6">

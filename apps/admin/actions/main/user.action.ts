@@ -1,11 +1,12 @@
 "use server"
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { db, users, creditTransactions, adminAuditLogs } from "@repo/db"
+import { db, users, creditTransactions } from "@repo/db"
 import { eq, and, gte, lte, ilike, or, count, inArray, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
-import { checkAdminAccess } from "../admin.action"
+import { checkModuleAccess } from "@/lib/module-access"
 import { adminSendEmail as sendAdminEmail } from "@/lib/emails/adminemail"
+import type { AdminResponse } from "@/types/admin"
+import { logAdminAudit } from "@/lib/audit-log"
 
 // Types
 interface UserFilters {
@@ -21,20 +22,32 @@ interface PaginationParams {
     limit?: number
 }
 
-interface AdminResponse<T = unknown> {
-    success: boolean
-    data?: T
-    error?: string
-}
-
 // Get all users with filters and pagination
 export async function getAllUsers(
     filters?: UserFilters,
     pagination?: PaginationParams
-): Promise<AdminResponse<{ users: any[]; total: number; pages: number }>> {
+): Promise<AdminResponse<{
+    users: Array<{
+        id: string
+        name: string | null
+        email: string
+        username: string | null
+        image: string | null
+        role: "Student" | "Admin" | "HR" | "UNI"
+        credits: number
+        currentXp: number
+        currentLevel: number
+        emailVerified: boolean
+        createdAt: Date
+        onboardingCompleted: boolean
+        status: "active" | "inactive"
+    }>
+    total: number
+    pages: number
+}>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("users", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         const page = pagination?.page || 1
         const limit = pagination?.limit || 10
@@ -54,6 +67,10 @@ export async function getAllUsers(
 
         if (filters?.role && filters.role !== "all") {
             whereConditions.push(eq(users.role, filters.role))
+        }
+
+        if (filters?.status && filters.status !== "all") {
+            whereConditions.push(eq(users.emailVerified, filters.status === "active"))
         }
 
         if (filters?.dateFrom) {
@@ -93,7 +110,7 @@ export async function getAllUsers(
         // Map to include status
         const usersWithStatus = userList.map(user => ({
             ...user,
-            status: user.emailVerified ? "active" : "inactive",
+            status: (user.emailVerified ? "active" : "inactive") as "active" | "inactive",
         }))
 
         return {
@@ -111,10 +128,12 @@ export async function getAllUsers(
 }
 
 // Get user by ID with full details
-export async function getUserById(userId: string): Promise<AdminResponse<any>> {
+export async function getUserById(userId: string): Promise<AdminResponse<typeof users.$inferSelect & {
+    userSkills: Array<{ id: string; name: string; level: string; category: string }>
+}>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("users", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         const user = await db.query.users.findFirst({
             where: eq(users.id, userId),
@@ -138,15 +157,15 @@ export async function getUserById(userId: string): Promise<AdminResponse<any>> {
 export async function updateUserRole(
     userId: string,
     role: "Student" | "Admin"
-): Promise<AdminResponse> {
+) {
     try {
-        const accessCheck = await checkAdminAccess()
-        if (!accessCheck.success) return { success: false, error: accessCheck.error }
+        const accessCheck = await checkModuleAccess("users", "write")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
-        const adminRecord = accessCheck.data?.adminAccess
+        const adminRecord = accessCheck.adminAccess
 
         // Only SUPER_ADMIN can change roles
-        if (!adminRecord || adminRecord.adminRole !== "SUPER_ADMIN") {
+        if (adminRecord.adminRole !== "SUPER_ADMIN") {
             return { success: false, error: "Only super admins can change user roles" }
         }
 
@@ -156,7 +175,7 @@ export async function updateUserRole(
             .returning()
 
         // Create audit log
-        await db.insert(adminAuditLogs).values({
+        await logAdminAudit({
             adminId: adminRecord.id,
             action: "UPDATE",
             module: "users",
@@ -181,13 +200,12 @@ export async function updateUserCredits(
     userId: string,
     amount: number,
     reason: string
-): Promise<AdminResponse> {
+) {
     try {
-        const accessCheck = await checkAdminAccess()
-        if (!accessCheck.success) return { success: false, error: accessCheck.error }
+        const accessCheck = await checkModuleAccess("users", "write")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
-        const adminRecord = accessCheck.data?.adminAccess
-        if (!adminRecord) return { success: false, error: "Admin record not found" }
+        const adminRecord = accessCheck.adminAccess
 
         const user = await db.query.users.findFirst({
             where: eq(users.id, userId),
@@ -220,7 +238,7 @@ export async function updateUserCredits(
         })
 
         // Create audit log
-        await db.insert(adminAuditLogs).values({
+        await logAdminAudit({
             adminId: adminRecord.id,
             action: "UPDATE",
             module: "users",
@@ -248,13 +266,12 @@ export async function updateUserCredits(
 export async function suspendUser(
     userId: string,
     reason: string
-): Promise<AdminResponse> {
+) {
     try {
-        const accessCheck = await checkAdminAccess()
-        if (!accessCheck.success) return { success: false, error: accessCheck.error }
+        const accessCheck = await checkModuleAccess("users", "write")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
-        const adminRecord = accessCheck.data?.adminAccess
-        if (!adminRecord) return { success: false, error: "Admin record not found" }
+        const adminRecord = accessCheck.adminAccess
 
         const [user] = await db.update(users)
             .set({ emailVerified: false })
@@ -262,7 +279,7 @@ export async function suspendUser(
             .returning()
 
         // Create audit log
-        await db.insert(adminAuditLogs).values({
+        await logAdminAudit({
             adminId: adminRecord.id,
             action: "UPDATE",
             module: "users",
@@ -282,13 +299,12 @@ export async function suspendUser(
 }
 
 // Activate user
-export async function activateUser(userId: string): Promise<AdminResponse> {
+export async function activateUser(userId: string) {
     try {
-        const accessCheck = await checkAdminAccess()
-        if (!accessCheck.success) return { success: false, error: accessCheck.error }
+        const accessCheck = await checkModuleAccess("users", "write")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
-        const adminRecord = accessCheck.data?.adminAccess
-        if (!adminRecord) return { success: false, error: "Admin record not found" }
+        const adminRecord = accessCheck.adminAccess
 
         const [user] = await db.update(users)
             .set({ emailVerified: true })
@@ -296,7 +312,7 @@ export async function activateUser(userId: string): Promise<AdminResponse> {
             .returning()
 
         // Create audit log
-        await db.insert(adminAuditLogs).values({
+        await logAdminAudit({
             adminId: adminRecord.id,
             action: "UPDATE",
             module: "users",
@@ -316,15 +332,15 @@ export async function activateUser(userId: string): Promise<AdminResponse> {
 }
 
 // Delete user
-export async function deleteUser(userId: string): Promise<AdminResponse> {
+export async function deleteUser(userId: string): Promise<AdminResponse<null>> {
     try {
-        const accessCheck = await checkAdminAccess()
-        if (!accessCheck.success) return { success: false, error: accessCheck.error }
+        const accessCheck = await checkModuleAccess("users", "delete")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
-        const adminRecord = accessCheck.data?.adminAccess
+        const adminRecord = accessCheck.adminAccess
 
         // Only SUPER_ADMIN can delete users
-        if (!adminRecord || adminRecord.adminRole !== "SUPER_ADMIN") {
+        if (adminRecord.adminRole !== "SUPER_ADMIN") {
             return { success: false, error: "Only super admins can delete users" }
         }
 
@@ -336,7 +352,7 @@ export async function deleteUser(userId: string): Promise<AdminResponse> {
         await db.delete(users).where(eq(users.id, userId))
 
         // Create audit log
-        await db.insert(adminAuditLogs).values({
+        await logAdminAudit({
             adminId: adminRecord.id,
             action: "DELETE",
             module: "users",
@@ -347,7 +363,7 @@ export async function deleteUser(userId: string): Promise<AdminResponse> {
 
         revalidatePath("/users")
 
-        return { success: true }
+        return { success: true, data: null }
     } catch (error) {
         console.error("Delete user error:", error)
         return { success: false, error: "Failed to delete user" }
@@ -362,13 +378,12 @@ export async function bulkUpdateUsers(
         addCredits?: number
         emailVerified?: boolean
     }
-): Promise<AdminResponse> {
+): Promise<AdminResponse<null>> {
     try {
-        const accessCheck = await checkAdminAccess()
-        if (!accessCheck.success) return { success: false, error: accessCheck.error }
+        const accessCheck = await checkModuleAccess("users", "write")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
-        const adminRecord = accessCheck.data?.adminAccess
-        if (!adminRecord) return { success: false, error: "Admin record not found" }
+        const adminRecord = accessCheck.adminAccess
 
         if (updates.addCredits !== undefined) {
             // Increment credits for each user individually
@@ -380,7 +395,7 @@ export async function bulkUpdateUsers(
                 )
             )
         } else {
-            const updateData: any = {}
+            const updateData: { emailVerified?: boolean; credits?: number } = {}
             if (updates.emailVerified !== undefined) {
                 updateData.emailVerified = updates.emailVerified
             }
@@ -395,7 +410,7 @@ export async function bulkUpdateUsers(
         }
 
         // Create audit log
-        await db.insert(adminAuditLogs).values({
+        await logAdminAudit({
             adminId: adminRecord.id,
             action: "UPDATE",
             module: "users",
@@ -407,7 +422,7 @@ export async function bulkUpdateUsers(
 
         revalidatePath("/users")
 
-        return { success: true }
+        return { success: true, data: null }
     } catch (error) {
         console.error("Bulk update users error:", error)
         return { success: false, error: "Failed to bulk update users" }
@@ -417,8 +432,8 @@ export async function bulkUpdateUsers(
 // Export users to CSV
 export async function exportUsers(filters?: UserFilters): Promise<AdminResponse<string>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("users", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         const whereConditions = []
 
@@ -493,10 +508,19 @@ export async function exportUsers(filters?: UserFilters): Promise<AdminResponse<
 }
 
 // Get user statistics
-export async function getUserStats(): Promise<AdminResponse<any>> {
+export async function getUserStats(): Promise<AdminResponse<{
+    totalUsers: number
+    verifiedUsers: number
+    adminUsers: number
+    newUsersThisMonth: number
+    activeToday: number
+    totalCredits: number
+    totalXP: number
+    growthRate: number
+}>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("users", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         const now = new Date()
         const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
@@ -548,9 +572,11 @@ export async function getUserStats(): Promise<AdminResponse<any>> {
     }
 }
 
-export async function adminSendEmail({ to, subject, text }: { to: string; subject: string; text: string }): Promise<AdminResponse> {
-    const { success, error } = await checkAdminAccess()
-    if (!success) return { success: false, error }
+export async function adminSendEmail({ to, subject, text }: { to: string; subject: string; text: string }): Promise<AdminResponse<null>> {
+    const accessCheck = await checkModuleAccess("users", "write")
+    if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
-    return sendAdminEmail({ to, subject, text })
+    const result = await sendAdminEmail({ to, subject, text })
+    if (!result.success) return { success: false, error: result.error ?? "Failed to send email" }
+    return { success: true, data: null }
 }

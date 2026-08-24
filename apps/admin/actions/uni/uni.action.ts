@@ -1,19 +1,48 @@
 "use server"
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { db, universities, universityMembers, studentUniversityLinks, departments, universityClasses } from "@repo/db"
-import { eq, and, count, sql } from "drizzle-orm"
+import { eq, count } from "drizzle-orm"
+import { logAdminAudit } from "@/lib/audit-log"
+import { checkModuleAccess } from "@/lib/module-access"
+import type { PermissionLevel } from "@/lib/navigation"
 
 // ============================================
 // UNIVERSITY PLATFORM ADMIN SERVER ACTIONS
 // ============================================
 
 /**
+ * Every function below used to call the shared `checkAdminAccess()` from
+ * `admin.action.ts`, which only asks "is this any active admin" - not "does
+ * this admin have `university` access at all, and does it cover the level
+ * this mutation needs." See plan/admin/tasks.md, "Found and fixed during
+ * ADM-1."
+ */
+function checkUniversityAccess(requiredLevel: PermissionLevel) {
+    return checkModuleAccess("university", requiredLevel)
+}
+
+/**
  * Get university platform dashboard stats
  * Note: StudentUniversityLink is the model that represents students linked to universities
  */
-export async function getUniversityDashboardStats() {
+export async function getUniversityDashboardStats(): Promise<{
+    success: true
+    data: {
+        totalUniversities: number
+        verifiedUniversities: number
+        pendingVerifications: number
+        rejectedVerifications: number
+        totalDepartments: number
+        totalFaculty: number
+        totalStudents: number
+        verifiedStudents: number
+        totalClasses: number
+        totalCreditsAllocated: number
+    }
+} | { success: false; error: string }> {
     try {
+        const accessCheck = await checkUniversityAccess("read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
         const [
             totalUniversitiesResult,
             verifiedUniversitiesResult,
@@ -77,6 +106,8 @@ export async function getUniversityDashboardStats() {
  */
 export async function getUniversities(page = 1, limit = 20, status?: string) {
     try {
+        const accessCheck = await checkUniversityAccess("read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
         const offset = (page - 1) * limit
 
         const whereClause = status && status !== "all"
@@ -121,6 +152,8 @@ export async function getUniversities(page = 1, limit = 20, status?: string) {
  */
 export async function getPendingUniversityVerifications() {
     try {
+        const accessCheck = await checkUniversityAccess("read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
         const pendingUniversities = await db.query.universities.findMany({
             where: eq(universities.verificationStatus, "PENDING"),
             orderBy: (t, { asc }) => [asc(t.createdAt)],
@@ -143,6 +176,8 @@ export async function getPendingUniversityVerifications() {
  */
 export async function verifyUniversity(universityId: string, adminUserId: string) {
     try {
+        const accessCheck = await checkUniversityAccess("write")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
         const [university] = await db.update(universities)
             .set({
                 verificationStatus: "VERIFIED",
@@ -151,6 +186,18 @@ export async function verifyUniversity(universityId: string, adminUserId: string
             })
             .where(eq(universities.id, universityId))
             .returning()
+
+        const adminAccessId = accessCheck.adminAccess.id
+        if (university) {
+            await logAdminAudit({
+                adminId: adminAccessId,
+                action: "UPDATE",
+                module: "university",
+                resourceType: "University",
+                resourceId: universityId,
+                description: `Verified university: ${university.name}`,
+            })
+        }
 
         return { success: true, data: university }
     } catch (error) {
@@ -164,6 +211,8 @@ export async function verifyUniversity(universityId: string, adminUserId: string
  */
 export async function rejectUniversityVerification(universityId: string, adminUserId: string, reason?: string) {
     try {
+        const accessCheck = await checkUniversityAccess("write")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
         const [university] = await db.update(universities)
             .set({
                 verificationStatus: "REJECTED",
@@ -173,6 +222,19 @@ export async function rejectUniversityVerification(universityId: string, adminUs
             .where(eq(universities.id, universityId))
             .returning()
 
+        const adminAccessId = accessCheck.adminAccess.id
+        if (university) {
+            await logAdminAudit({
+                adminId: adminAccessId,
+                action: "UPDATE",
+                module: "university",
+                resourceType: "University",
+                resourceId: universityId,
+                description: `Rejected university: ${university.name}${reason ? ` - ${reason}` : ""}`,
+                metadata: reason ? { reason } : undefined,
+            })
+        }
+
         return { success: true, data: university }
     } catch (error) {
         console.error("Error rejecting university:", error)
@@ -180,334 +242,13 @@ export async function rejectUniversityVerification(universityId: string, adminUs
     }
 }
 
-/**
- * Get university details by ID
- */
-export async function getUniversityById(universityId: string) {
-    try {
-        const university = await db.query.universities.findFirst({
-            where: eq(universities.id, universityId),
-            with: {
-                members: true,
-                departments: true,
-                classes: true,
-                studentLinks: true,
-            }
-        })
-
-        if (!university) {
-            return { success: false, error: "University not found" }
-        }
-
-        return { success: true, data: university }
-    } catch (error) {
-        console.error("Error fetching university:", error)
-        return { success: false, error: "Failed to fetch university" }
-    }
-}
-
-/**
- * Get university faculty members
- */
-export async function getUniversityFaculty(universityId?: string) {
-    try {
-        const whereClause = universityId
-            ? eq(universityMembers.universityId, universityId)
-            : undefined
-
-        const faculty = await db.query.universityMembers.findMany({
-            where: whereClause,
-            orderBy: (t, { desc }) => [desc(t.createdAt)],
-            with: {
-                department: {
-                    columns: { id: true, name: true, code: true }
-                },
-                university: {
-                    columns: { id: true, name: true }
-                }
-            }
-        })
-
-        return { success: true, data: faculty }
-    } catch (error) {
-        console.error("Error fetching faculty:", error)
-        return { success: false, error: "Failed to fetch faculty" }
-    }
-}
-
-/**
- * Get university students (StudentUniversityLink) with pagination
- */
-export async function getUniversityStudents(page = 1, limit = 20, universityId?: string, status?: string) {
-    try {
-        const offset = (page - 1) * limit
-
-        const whereConditions = []
-        if (universityId) whereConditions.push(eq(studentUniversityLinks.universityId, universityId))
-        if (status && status !== "all") {
-            whereConditions.push(eq(studentUniversityLinks.verificationStatus, status as any))
-        }
-
-        const whereClause = whereConditions.length > 0 ? and(...whereConditions) : undefined
-
-        const [students, studentTotalResult] = await Promise.all([
-            db.query.studentUniversityLinks.findMany({
-                where: whereClause,
-                offset,
-                limit,
-                orderBy: (t, { desc }) => [desc(t.createdAt)],
-                with: {
-                    university: { columns: { id: true, name: true } },
-                    department: { columns: { id: true, name: true, code: true } }
-                }
-            }),
-            db.select({ total: count() }).from(studentUniversityLinks).where(whereClause)
-        ])
-        const total = studentTotalResult[0]?.total ?? 0
-
-        return {
-            success: true,
-            data: students,
-            pagination: {
-                page,
-                limit,
-                total,
-                totalPages: Math.ceil(total / limit),
-            },
-        }
-    } catch (error) {
-        console.error("Error fetching students:", error)
-        return { success: false, error: "Failed to fetch students" }
-    }
-}
-
-/**
- * Get departments with pagination
- */
-export async function getDepartments(page = 1, limit = 20, universityId?: string) {
-    try {
-        const offset = (page - 1) * limit
-
-        const whereClause = universityId
-            ? eq(departments.universityId, universityId)
-            : undefined
-
-        const [departmentList, deptTotalResult] = await Promise.all([
-            db.query.departments.findMany({
-                where: whereClause,
-                offset,
-                limit,
-                orderBy: (t, { desc }) => [desc(t.createdAt)],
-                with: {
-                    university: { columns: { id: true, name: true } },
-                    members: true,
-                    studentLinks: true,
-                    classes: true,
-                }
-            }),
-            db.select({ total: count() }).from(departments).where(whereClause)
-        ])
-        const total = deptTotalResult[0]?.total ?? 0
-
-        return {
-            success: true,
-            data: departmentList,
-            pagination: {
-                page,
-                limit,
-                total,
-                totalPages: Math.ceil(total / limit),
-            },
-        }
-    } catch (error) {
-        console.error("Error fetching departments:", error)
-        return { success: false, error: "Failed to fetch departments" }
-    }
-}
-
-/**
- * Get university classes with pagination
- */
-export async function getUniversityClasses(page = 1, limit = 20, universityId?: string) {
-    try {
-        const offset = (page - 1) * limit
-
-        const whereClause = universityId
-            ? eq(universityClasses.universityId, universityId)
-            : undefined
-
-        const [classList, classTotalResult] = await Promise.all([
-            db.query.universityClasses.findMany({
-                where: whereClause,
-                offset,
-                limit,
-                orderBy: (t, { desc }) => [desc(t.createdAt)],
-                with: {
-                    university: { columns: { id: true, name: true } },
-                    department: { columns: { id: true, name: true, code: true } },
-                    enrollments: true,
-                    assignments: true,
-                }
-            }),
-            db.select({ total: count() }).from(universityClasses).where(whereClause)
-        ])
-        const total = classTotalResult[0]?.total ?? 0
-
-        return {
-            success: true,
-            data: classList,
-            pagination: {
-                page,
-                limit,
-                total,
-                totalPages: Math.ceil(total / limit),
-            },
-        }
-    } catch (error) {
-        console.error("Error fetching classes:", error)
-        return { success: false, error: "Failed to fetch classes" }
-    }
-}
-
-/**
- * Get recent activity for university platform
- */
-export async function getUniversityRecentActivity(limit = 10) {
-    try {
-        const [recentUniversities, recentStudents, recentClasses] = await Promise.all([
-            db.query.universities.findMany({
-                limit,
-                orderBy: (t, { desc }) => [desc(t.createdAt)],
-                columns: { id: true, name: true, verificationStatus: true, createdAt: true }
-            }),
-            db.query.studentUniversityLinks.findMany({
-                limit,
-                orderBy: (t, { desc }) => [desc(t.createdAt)],
-                columns: { id: true, verificationStatus: true, createdAt: true },
-                with: {
-                    university: { columns: { name: true } }
-                }
-            }),
-            db.query.universityClasses.findMany({
-                limit,
-                orderBy: (t, { desc }) => [desc(t.createdAt)],
-                columns: { id: true, name: true, createdAt: true },
-                with: {
-                    university: { columns: { name: true } }
-                }
-            }),
-        ])
-
-        return {
-            success: true,
-            data: {
-                recentUniversities,
-                recentStudents,
-                recentClasses,
-            },
-        }
-    } catch (error) {
-        console.error("Error fetching recent activity:", error)
-        return { success: false, error: "Failed to fetch recent activity" }
-    }
-}
-
-/**
- * Update university credits
- */
-export async function updateUniversityCredits(universityId: string, credits: number, operation: "add" | "set") {
-    try {
-        const [university] = await db.update(universities)
-            .set({
-                totalCreditsAllocated: operation === "add"
-                    ? sql`${universities.totalCreditsAllocated} + ${credits}`
-                    : credits,
-            })
-            .where(eq(universities.id, universityId))
-            .returning()
-
-        return { success: true, data: university }
-    } catch (error) {
-        console.error("Error updating university credits:", error)
-        return { success: false, error: "Failed to update university credits" }
-    }
-}
-
-/**
- * Verify a student (update StudentUniversityLink verification status)
- */
-export async function verifyStudent(studentLinkId: string) {
-    try {
-        const [studentLink] = await db.update(studentUniversityLinks)
-            .set({
-                verificationStatus: "VERIFIED",
-                verifiedAt: new Date(),
-            })
-            .where(eq(studentUniversityLinks.id, studentLinkId))
-            .returning()
-
-        return { success: true, data: studentLink }
-    } catch (error) {
-        console.error("Error verifying student:", error)
-        return { success: false, error: "Failed to verify student" }
-    }
-}
-
-/**
- * Reject a student verification
- */
-export async function rejectStudentVerification(studentLinkId: string, reason?: string) {
-    try {
-        const [studentLink] = await db.update(studentUniversityLinks)
-            .set({
-                verificationStatus: "REJECTED",
-                rejectionReason: reason,
-            })
-            .where(eq(studentUniversityLinks.id, studentLinkId))
-            .returning()
-
-        return { success: true, data: studentLink }
-    } catch (error) {
-        console.error("Error rejecting student:", error)
-        return { success: false, error: "Failed to reject student" }
-    }
-}
-
-/**
- * Bulk import students for a university
- * Creates StudentUniversityLink records with PENDING verification status
- */
-export async function bulkImportStudents(
-    universityId: string,
-    students: Array<{
-        userId: string
-        universityEmail: string
-        departmentId?: string
-        rollNumber?: string
-        semester?: string
-        batchYear?: string
-    }>
-) {
-    try {
-        const inserted = await db.insert(studentUniversityLinks)
-            .values(
-                students.map(student => ({
-                    userId: student.userId,
-                    universityId,
-                    universityEmail: student.universityEmail,
-                    departmentId: student.departmentId,
-                    rollNumber: student.rollNumber,
-                    semester: student.semester as any,
-                    batchYear: student.batchYear,
-                    verificationStatus: "PENDING" as const,
-                }))
-            )
-            .onConflictDoNothing()
-            .returning()
-
-        return { success: true, data: { count: inserted.length } }
-    } catch (error) {
-        console.error("Error bulk importing students:", error)
-        return { success: false, error: "Failed to bulk import students" }
-    }
-}
+// getUniversityById, getUniversityFaculty, getUniversityStudents,
+// getDepartments, getUniversityClasses, getUniversityRecentActivity,
+// updateUniversityCredits, verifyStudent, rejectStudentVerification and
+// bulkImportStudents removed (2026-08-24, approved by Niraj): each backed a
+// Departments/Faculty/Students/Classes/Placements/Credits/Analytics page that
+// was never built, and the university overview page
+// (app/(console)/uni/_components/uni-overview-client.tsx) had its dead links
+// to those routes removed in the same pass. `getUniversityDashboardStats`
+// above still counts departments/faculty/students/classes for the overview's
+// stat tiles, so the `departments` and `universityClasses` imports stay.

@@ -231,7 +231,7 @@ export default function ProjectIdeasPage() {
                         exit={{ opacity: 0 }}
                         className="w-full"
                     >
-                        <div className="flex min-h-[calc(100vh-4rem)]">
+                        <div className="flex min-h-[calc(100dvh-4rem)]">
                             {/* LEFT SIDEBAR - Categories */}
                             <aside className="w-64 lg:w-72 border-r border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 flex-shrink-0 hidden md:block overflow-y-auto sticky top-16 h-[calc(100vh-4rem)]">
                                 <div className="p-4">
@@ -593,7 +593,7 @@ export default function ProjectIdeasPage() {
 
             {/* Problem Detail Sheet */}
             <Sheet open={problemDetailOpen} onOpenChange={setProblemDetailOpen}>
-                <SheetContent side="bottom" className="h-[80vh] w-full overflow-y-auto">
+                <SheetContent side="bottom" className="h-[80dvh] w-full overflow-y-auto">
                     {selectedProblem && (
                         <section className="w-full max-w-5xl mx-auto">
                             <SheetHeader className="mb-6">

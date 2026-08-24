@@ -103,7 +103,7 @@ export function ShareProfileModal({
 						<div className="space-y-2">
 							<Label>Profile URL</Label>
 							<div className="flex gap-2">
-								<Input value={profileUrl} readOnly className="flex-1" />
+								<Input value={profileUrl} readOnly className="min-w-0 flex-1" />
 								<Button
 									variant="outline"
 									size="icon"

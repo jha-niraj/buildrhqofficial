@@ -1,17 +1,31 @@
 "use client"
 
 import React, { createContext, useContext, useState, useEffect } from "react"
+import type { AdminPermissions } from "@/lib/navigation"
 
 interface SidebarContextType {
     isCollapsed: boolean
     setIsCollapsed: (collapsed: boolean) => void
     isMobileOpen: boolean
     setIsMobileOpen: (open: boolean) => void
+    /** Set once, server-side, by app/(console)/layout.tsx - never fetched
+     *  client-side, so the nav a team member sees can never race ahead of the
+     *  permission check that already ran on the server. */
+    adminRole: string
+    permissions: AdminPermissions
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined)
 
-export function SidebarProvider({ children }: { children: React.ReactNode }) {
+export function SidebarProvider({
+    children,
+    adminRole,
+    permissions,
+}: {
+    children: React.ReactNode
+    adminRole: string
+    permissions: AdminPermissions
+}) {
     const [isCollapsed, setIsCollapsed] = useState(false)
     const [isMobileOpen, setIsMobileOpen] = useState(false)
 
@@ -29,12 +43,14 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     }, [isCollapsed])
 
     return (
-        <SidebarContext.Provider 
-            value={{ 
-                isCollapsed, 
-                setIsCollapsed, 
-                isMobileOpen, 
-                setIsMobileOpen 
+        <SidebarContext.Provider
+            value={{
+                isCollapsed,
+                setIsCollapsed,
+                isMobileOpen,
+                setIsMobileOpen,
+                adminRole,
+                permissions,
             }}
         >
             {children}

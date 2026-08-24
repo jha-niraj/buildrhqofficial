@@ -320,7 +320,7 @@ export default function CodingQuestionsPage({ params }: { params: Promise<{ slug
 
 	if (loading) {
 		return (
-			<div className="flex items-center justify-center min-h-screen">
+			<div className="flex items-center justify-center min-h-dvh">
 				<div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
 			</div>
 		)
@@ -342,7 +342,7 @@ export default function CodingQuestionsPage({ params }: { params: Promise<{ slug
 	const currentProblem = generation.generatedContent.codingQuestions[selectedProblem];
 
 	return (
-		<div className="h-screen bg-gray-50 dark:bg-gray-900 flex">
+		<div className="h-dvh bg-gray-50 dark:bg-gray-900 flex">
 			<div className="flex-1 flex min-h-0">
 				<div className="w-2/5 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
 					<div className="w-full border-b border-gray-200 dark:border-gray-700 p-4">

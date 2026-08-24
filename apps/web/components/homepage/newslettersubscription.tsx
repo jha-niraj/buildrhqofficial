@@ -45,7 +45,7 @@ export function NewsletterSubscription() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="flex-1"
+                className="min-w-0 flex-1"
             />
             <Button type="submit" disabled={loading} className="gap-2">
                 <Mail className="w-4 h-4" />

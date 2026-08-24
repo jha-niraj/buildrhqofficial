@@ -69,7 +69,7 @@ export function SkillGapModal({ job, open, onClose }: SkillGapModalProps) {
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-2xl max-h-[90dvh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="text-xl flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center overflow-hidden relative">

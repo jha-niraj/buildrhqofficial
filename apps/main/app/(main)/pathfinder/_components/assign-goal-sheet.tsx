@@ -83,7 +83,7 @@ export function AssignGoalSheet({ open, onOpenChange, goalId, groups, onAssign }
             onOpenChange(isOpen)
             if (!isOpen) setSelectedGroupId(null)
         }}>
-            <SheetContent side="bottom" className="h-auto max-h-[60vh]">
+            <SheetContent side="bottom" className="h-auto max-h-[60dvh]">
                 <div className="max-w-md mx-auto">
                     <SheetHeader className="text-center mb-6">
                         <div className="w-11 h-11 mx-auto rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-3">

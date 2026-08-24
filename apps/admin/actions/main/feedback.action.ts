@@ -1,10 +1,11 @@
 "use server"
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { db, users, feedbacks, rewards, adminAuditLogs } from "@repo/db"
+import { db, users, feedbacks, rewards } from "@repo/db"
 import { eq, and, ilike, or, count, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
-import { checkAdminAccess } from "../admin.action"
+import { checkModuleAccess } from "@/lib/module-access"
+import type { AdminResponse } from "@/types/admin"
+import { logAdminAudit } from "@/lib/audit-log"
 
 interface FeedbackFilters {
     search?: string
@@ -17,20 +18,21 @@ interface PaginationParams {
     limit?: number
 }
 
-interface AdminResponse<T = unknown> {
-    success: boolean
-    data?: T
-    error?: string
-}
-
 // Get all feedback with filters and pagination
 export async function getAllFeedback(
     filters?: FeedbackFilters,
     pagination?: PaginationParams
-): Promise<AdminResponse<{ feedback: any[]; total: number; pages: number }>> {
+): Promise<AdminResponse<{
+    feedback: Array<typeof feedbacks.$inferSelect & {
+        user: { id: string; name: string | null; email: string; image: string | null } | undefined
+        rewards: Array<{ credits: number; xp: number | null }>
+    }>
+    total: number
+    pages: number
+}>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("feedback", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         const page = pagination?.page || 1
         const limit = pagination?.limit || 20
@@ -101,20 +103,19 @@ export async function getAllFeedback(
 export async function updateFeedbackStatus(
     feedbackId: string,
     status: "UNDER_REVIEW" | "PLANNED" | "COMPLETED"
-): Promise<AdminResponse> {
+): Promise<AdminResponse<typeof feedbacks.$inferSelect | undefined>> {
     try {
-        const accessCheck = await checkAdminAccess()
-        if (!accessCheck.success) return { success: false, error: accessCheck.error }
+        const accessCheck = await checkModuleAccess("feedback", "write")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
-        const adminRecord = accessCheck.data?.adminAccess
-        if (!adminRecord) return { success: false, error: "Admin record not found" }
+        const adminRecord = accessCheck.adminAccess
 
         const [feedback] = await db.update(feedbacks)
             .set({ status })
             .where(eq(feedbacks.id, feedbackId))
             .returning()
 
-        await db.insert(adminAuditLogs).values({
+        await logAdminAudit({
             adminId: adminRecord.id,
             action: "UPDATE",
             module: "feedback",
@@ -138,13 +139,12 @@ export async function assignReward(
     credits: number,
     xp?: number,
     description?: string
-): Promise<AdminResponse> {
+): Promise<AdminResponse<typeof rewards.$inferSelect>> {
     try {
-        const accessCheck = await checkAdminAccess()
-        if (!accessCheck.success) return { success: false, error: accessCheck.error }
+        const accessCheck = await checkModuleAccess("feedback", "write")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
-        const adminRecord = accessCheck.data?.adminAccess
-        if (!adminRecord) return { success: false, error: "Admin record not found" }
+        const adminRecord = accessCheck.adminAccess
 
         const feedback = await db.query.feedbacks.findFirst({
             where: eq(feedbacks.id, feedbackId),
@@ -183,12 +183,7 @@ export async function assignReward(
             })
             .where(eq(users.id, feedback.userId))
 
-        // Mark feedback as verified
-        await db.update(feedbacks)
-            .set({ isAnonymous: false }) // using isAnonymous as a proxy; original used isVerified
-            .where(eq(feedbacks.id, feedbackId))
-
-        await db.insert(adminAuditLogs).values({
+        await logAdminAudit({
             adminId: adminRecord.id,
             action: "CREATE",
             module: "feedback",
@@ -207,13 +202,12 @@ export async function assignReward(
 }
 
 // Delete feedback
-export async function deleteFeedback(feedbackId: string): Promise<AdminResponse> {
+export async function deleteFeedback(feedbackId: string): Promise<AdminResponse<null>> {
     try {
-        const accessCheck = await checkAdminAccess()
-        if (!accessCheck.success) return { success: false, error: accessCheck.error }
+        const accessCheck = await checkModuleAccess("feedback", "delete")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
-        const adminRecord = accessCheck.data?.adminAccess
-        if (!adminRecord) return { success: false, error: "Admin record not found" }
+        const adminRecord = accessCheck.adminAccess
 
         const feedback = await db.query.feedbacks.findFirst({
             where: eq(feedbacks.id, feedbackId),
@@ -222,7 +216,7 @@ export async function deleteFeedback(feedbackId: string): Promise<AdminResponse>
 
         await db.delete(feedbacks).where(eq(feedbacks.id, feedbackId))
 
-        await db.insert(adminAuditLogs).values({
+        await logAdminAudit({
             adminId: adminRecord.id,
             action: "DELETE",
             module: "feedback",
@@ -233,7 +227,7 @@ export async function deleteFeedback(feedbackId: string): Promise<AdminResponse>
 
         revalidatePath("/feedback")
 
-        return { success: true }
+        return { success: true, data: null }
     } catch (error) {
         console.error("Delete feedback error:", error)
         return { success: false, error: "Failed to delete feedback" }
@@ -241,10 +235,18 @@ export async function deleteFeedback(feedbackId: string): Promise<AdminResponse>
 }
 
 // Get feedback statistics
-export async function getFeedbackStats(): Promise<AdminResponse<any>> {
+export async function getFeedbackStats(): Promise<AdminResponse<{
+    total: number
+    underReview: number
+    planned: number
+    completed: number
+    bugs: number
+    features: number
+    verified: number
+}>> {
     try {
-        const { success, error } = await checkAdminAccess()
-        if (!success) return { success: false, error }
+        const accessCheck = await checkModuleAccess("feedback", "read")
+        if (!accessCheck.authorized) return { success: false, error: accessCheck.error }
 
         const [
             totalResult,

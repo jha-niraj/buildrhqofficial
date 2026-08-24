@@ -205,8 +205,16 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                     </div>
                 </div>
             </div>
-            <div className="flex max-w-7xl mx-auto">
-                <aside className="w-72 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 min-h-[calc(100vh-73px)] sticky top-[73px] overflow-y-auto">
+            {/* w-72 beside a flex-1 main with no breakpoint left 72px for the main
+                column on a 360px phone - the interview journey (assignment status,
+                round-by-round progress) was effectively unreachable there. Below
+                `lg` the aside now flows full-width above the main content instead
+                of beside it; the fixed width, sticky positioning and viewport-height
+                floor are all `lg:`-scoped since they only make sense once there is
+                room for a real two-column layout. See docs/responsiveness.md
+                section 3. */}
+            <div className="flex flex-col lg:flex-row max-w-7xl mx-auto">
+                <aside className="w-full bg-white dark:bg-neutral-900 border-b lg:border-b-0 lg:border-r border-neutral-200 dark:border-neutral-800 lg:w-72 lg:min-h-[calc(100dvh-73px)] lg:sticky lg:top-[73px] lg:overflow-y-auto">
                     <div className="p-4">
                         <div className="mb-6 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800">
                             <div className="flex items-center justify-between mb-2">

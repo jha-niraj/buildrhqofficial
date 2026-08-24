@@ -145,7 +145,7 @@ export function PracticeWorkspace({ problem, session, mode }: PracticeWorkspaceP
 
     if (!session) {
         return (
-            <div className="h-screen flex items-center justify-center bg-neutral-950 text-white">
+            <div className="h-dvh flex items-center justify-center bg-neutral-950 text-white">
                 <div className="text-center">
                     <AlertCircle className="h-8 w-8 text-red-400 mx-auto mb-3" />
                     <p className="text-sm">Please sign in to start practicing.</p>
@@ -161,7 +161,7 @@ export function PracticeWorkspace({ problem, session, mode }: PracticeWorkspaceP
     const isSystemDesign = problem.module === "SYSTEM_DESIGN";
 
     return (
-        <div className="h-screen flex flex-col bg-neutral-950 text-white">
+        <div className="h-dvh flex flex-col bg-neutral-950 text-white">
             <header className="h-12 border-b border-neutral-800 flex items-center justify-between px-4 flex-shrink-0 bg-neutral-950/90 backdrop-blur-sm">
                 <div className="flex items-center gap-3">
                     <button onClick={handleBack} className="cursor-pointer text-neutral-400 hover:text-white transition-colors">
@@ -240,7 +240,7 @@ export function PracticeWorkspace({ problem, session, mode }: PracticeWorkspaceP
                     <SubmitButton problem={problem} session={session} store={store} mode={mode} />
                 </div>
             </header>
-            <PanelGroup orientation="horizontal" className="h-[calc(100vh-48px)]">
+            <PanelGroup orientation="horizontal" className="h-[calc(100dvh-48px)]">
                 <Panel defaultSize="25%" minSize="15%" maxSize="40%">
                     <div className="h-full overflow-hidden relative" ref={problemPanelRef}>
                         <ProblemPanel problem={problem} requirementsMet={store.requirementsMet} />
