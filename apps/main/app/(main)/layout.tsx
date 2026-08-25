@@ -303,7 +303,9 @@ const Layout = ({ children }: LayoutProps) => {
     // here used to point at routes that do not exist:
     //   - '/ai/jobinterviewassistant/...' - the real route has no "job" prefix,
     //     so the coding-questions editor was silently rendering inside the card
-    //     with the sidebar beside it
+    //     with the sidebar beside it. (Written out here deliberately: this is the
+    //     WRONG path, kept as the example. A sweep that rewrites the string
+    //     everywhere will corrupt this comment into nonsense - it did once.)
     //   - '/learn/[subcategorySlug]/[learnSlug]' - there is no learn module in
     //     this app at all
     // A stale path here fails silently, so it is worth checking against the

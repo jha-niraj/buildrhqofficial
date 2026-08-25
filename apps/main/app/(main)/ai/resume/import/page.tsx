@@ -2,6 +2,7 @@ import { getSession } from "@repo/auth"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { ImportClient } from "./_components/import-client"
+import { getMyProfileLinks } from "@/actions/(main)/user/profile-links.action"
 
 export const metadata = {
     title: "AI Profile Import | Resume Builder",
@@ -12,9 +13,12 @@ export default async function ImportPage() {
     const session = await getSession(headers())
     if (!session?.user?.id) redirect("/signin")
 
+    // Read on the server so the fields are filled on first paint.
+    const links = await getMyProfileLinks()
+
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <ImportClient />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <ImportClient links={links} />
         </div>
     )
 }

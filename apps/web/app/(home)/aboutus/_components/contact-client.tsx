@@ -5,6 +5,9 @@ import { Button } from '@repo/ui/components/ui/button'
 import { Input } from '@repo/ui/components/ui/input'
 import { Textarea } from '@repo/ui/components/ui/textarea'
 import toast from '@repo/ui/components/ui/sonner'
+import {
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from '@repo/ui/components/ui/select'
 import { Send } from 'lucide-react'
 import { submitContactMessage } from '@/actions/contact.action'
 
@@ -97,18 +100,22 @@ export default function ContactClient() {
                 <label htmlFor="contact-subject" className="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Subject
                 </label>
-                <select
-                    id="contact-subject"
-                    name="subject"
-                    required
+                {/* Radix Select is not a form control, so the value is carried by a hidden
+                    input for the native submit this form still relies on. */}
+                <Select
                     value={form.subject}
-                    onChange={update('subject')}
-                    className="flex h-9 w-full rounded-md border border-neutral-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-950 dark:border-neutral-800 dark:focus-visible:ring-neutral-300"
+                    onValueChange={(v) => setForm((f) => ({ ...f, subject: v }))}
                 >
-                    {SUBJECTS.map((s) => (
-                        <option key={s} value={s}>{s}</option>
-                    ))}
-                </select>
+                    <SelectTrigger id="contact-subject" className="h-9 w-full text-sm">
+                        <SelectValue placeholder="Choose a subject" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {SUBJECTS.map((s) => (
+                            <SelectItem key={s} value={s}>{s}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <input type="hidden" name="subject" value={form.subject} required />
             </div>
 
             <div>

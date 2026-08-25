@@ -113,7 +113,7 @@ export default function MyPlansPage() {
                 <div className="mb-8 lg:mb-12">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                         <div>
-                            <Link href="/ai/jobinterviewassistant" className="flex items-center border w-fit p-2 rounded-lg mb-2 border-neutral-200 hover:border-neutral-300 text-neutral-700 dark:text-neutral-100 shadow-md hover:shadow-lg transition-all">
+                            <Link href="/ai/interviewassistant" className="flex items-center border w-fit p-2 rounded-lg mb-2 border-neutral-200 hover:border-neutral-300 text-neutral-700 dark:text-neutral-100 shadow-md hover:shadow-lg transition-all">
                                 <ArrowLeft className="h-4 w-4" />
                                 Back
                             </Link>
@@ -128,7 +128,7 @@ export default function MyPlansPage() {
                             asChild
                             className="bg-gradient-to-r from-neutral-800 to-neutral-800 hover:from-neutral-700 hover:to-neutral-700 shadow-lg"
                         >
-                            <Link href="/ai/jobinterviewassistant" className="flex items-center gap-2">
+                            <Link href="/ai/interviewassistant" className="flex items-center gap-2">
                                 <Plus className="h-4 w-4" />
                                 Generate New
                             </Link>
@@ -168,7 +168,7 @@ export default function MyPlansPage() {
                         </Select>
                         <div className="flex justify-end items-center">
                             <Link
-                                href="/ai/jobinterviewassistant/publicgenerations"
+                                href="/ai/interviewassistant/publicgenerations"
                                 className="text-neutral-800 dark:text-neutral-100 hover:text-neutral-700 dark:hover:text-neutral-100 text-sm font-medium transition-colors"
                             >
                                 Browse Public Plans →
@@ -207,7 +207,7 @@ export default function MyPlansPage() {
                                 className="bg-gradient-to-r from-neutral-800 to-neutral-800 hover:from-neutral-700 hover:to-neutral-700 shadow-lg"
                                 asChild
                             >
-                                <Link href="/ai/jobinterviewassistant" className="flex items-center gap-2">
+                                <Link href="/ai/interviewassistant" className="flex items-center gap-2">
                                     <Plus className="h-4 w-4" />
                                     {search || visibility !== "all" ? "Create New Plan" : "Generate First Plan"}
                                 </Link>

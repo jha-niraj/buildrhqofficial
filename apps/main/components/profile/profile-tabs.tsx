@@ -4,6 +4,9 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@repo/ui/lib/utils";
 import {
+	Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from '@repo/ui/components/ui/select'
+import {
 	LayoutGrid, FolderKanban, Code2, Briefcase, GraduationCap
 } from "lucide-react";
 
@@ -145,19 +148,23 @@ export function ProfileTabsDropdown({
 
 	return (
 		<div className="sm:hidden">
-			<select
-				value={activeTab}
-				onChange={(e) => onTabChange(e.target.value as ProfileTab)}
-				className="w-full p-3 bg-background border rounded-lg text-sm font-medium focus:ring-2 focus:ring-primary"
-			>
-				{
-					tabs.map((tab) => (
-						<option key={tab.id} value={tab.id}>
-							{tab.label}
-						</option>
-					))
-				}
-			</select>
+			{/* A native <select> renders the OS dropdown - its own font, its own
+			    highlight colour, unstyleable from the page. Same defect as the native
+			    checkbox and date picker this sweep replaced. */}
+			<Select value={activeTab} onValueChange={(v) => onTabChange(v as ProfileTab)}>
+				<SelectTrigger className="w-full p-3 text-sm font-medium">
+					<SelectValue placeholder="Select a tab" />
+				</SelectTrigger>
+				<SelectContent>
+					{
+						tabs.map((tab) => (
+							<SelectItem key={tab.id} value={tab.id}>
+								{tab.label}
+							</SelectItem>
+						))
+					}
+				</SelectContent>
+			</Select>
 		</div>
 	);
 }

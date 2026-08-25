@@ -1,226 +1,414 @@
 "use client"
 
+import Link from "next/link"
 import { motion } from "framer-motion"
 import {
-    ArrowRight, Sparkles, Users, Zap, Trophy, Briefcase,
-    LayoutTemplate, ChevronRight, CheckCircle2, FileText
+    ArrowRight, Sparkles, Zap, Briefcase, ChevronRight,
+    FileText, FileSignature, Wand2, Target, Download
 } from "lucide-react"
 import { Badge } from "@repo/ui/components/ui/badge"
 import { Button } from "@repo/ui/components/ui/button"
-import { useRouter } from "next/navigation"
+import { TemplatePreview, type TemplateShape } from "@/components/resume/template-preview"
+import { priceLabel, type PricedOperation } from "@/lib/credits/pricing"
+import type { AiHubStats } from "@/actions/(main)/ai/hub-stats.action"
 
-// Active tools - Job Interview Assistant & Resume Creator only
+/**
+ * The entry page for every AI module.
+ *
+ * ── What this page is for ──
+ *
+ * Somebody lands here to decide which of three tools to open, and to find out what it will
+ * cost them before they spend anything. So everything on it is either a real number about
+ * this user, a real price out of the pricing table, or a link to a route that exists.
+ *
+ * ── What was removed, and why ──
+ *
+ * The page it replaced was a marketing landing page that had been dropped inside the
+ * signed-in shell, and it made four claims the product could not back:
+ *
+ *   "850+ Interviews Aced" / "2.1K Systems Designed" / "10K+ Active Developers" / "99.9%
+ *      Uptime"  - four numbers typed into a const, none of them measured anywhere.
+ *   "One subscription. Infinite possibilities."  - ShipItHQ sells credits. There is no
+ *      subscription, so this described a product that does not exist.
+ *   "Get Started Free" / "View Pricing"  - buttons with no handler and no href, on a page
+ *      only reachable by someone who has already signed up.
+ *   Cover Letter -> /ai/resume/cover-letter  - not a route. It fell through to
+ *      /ai/resume/[username] and rendered a stranger's profile lookup.
+ *
+ * Prices come from `CREDIT_PRICES`, so this page cannot drift from what the charge sites
+ * actually deduct. The interview assistant is the one tool with no fixed price - it bills
+ * per question - so it says that instead of inventing a number.
+ */
+
 const tools = [
     {
-        id: "jobinterviewassistant",
-        icon: Briefcase,
-        name: "Job Interview Assistant",
-        description: "Context-aware simulation that ingests your specific resume and the target job description to generate high-probability technical questions.",
-        features: ["Resume Parsing", "Role-Specific Scenarios", "STAR Method Feedback"],
-        status: "Live",
-        credits: 25,
-        href: "/ai/jobinterviewassistant"
-    },
-    {
-        id: "resumecreator",
+        id: "resume",
         icon: FileText,
-        name: "Resume Creator",
-        description: "Build ATS-friendly resumes with AI. Sync work experience, education, skills & projects to your profile.",
-        features: ["Profile Sync", "Live Preview", "ATS Optimization"],
-        status: "Live",
-        credits: 0,
-        href: "/ai/resume"
+        name: "Resume Builder",
+        description:
+            "Import from LinkedIn and GitHub, pick a template, and tailor the result to a specific posting. Everything syncs back to your profile.",
+        price: `Free to build, ${priceLabel("resume_tailor_jd")} to tailor`,
+        href: "/ai/resume",
     },
     {
         id: "coverletter",
-        icon: FileText,
+        icon: FileSignature,
         name: "Cover Letter",
-        description: "Build ATS-friendly resumes with AI. Sync work experience, education, skills & projects to your profile.",
-        features: ["Profile Sync", "Live Preview", "ATS Optimization"],
-        status: "Live",
-        credits: 0,
-        href: "/ai/resume/cover-letter"
+        description:
+            "Paste a job posting and get a letter written from your own experience, not a template with your name dropped into it.",
+        price: `${priceLabel("cover_letter_generate")} per letter`,
+        href: "/ai/coverletter",
     },
+    {
+        id: "interviewassistant",
+        icon: Briefcase,
+        name: "Interview Assistant",
+        description:
+            "Reads the posting and your resume, then builds the question set you are actually likely to be asked, with model answers and a practice mode.",
+        price: "1 credit per 2 questions",
+        href: "/ai/interviewassistant",
+    },
+] as const
+
+/** Four real counts for the signed-in user, each linked to the thing it counts. */
+function statCards(stats: AiHubStats) {
+    return [
+        { label: "Resumes", value: stats.resumes, icon: FileText, href: "/ai/resume" },
+        { label: "Cover letters", value: stats.coverLetters, icon: FileSignature, href: "/ai/coverletter" },
+        { label: "Interview plans", value: stats.interviewPlans, icon: Briefcase, href: "/ai/interviewassistant" },
+        { label: "Credits left", value: stats.credits, icon: Zap, href: "/purchase" },
+    ]
+}
+
+/** The three steps, in the order somebody actually does them. */
+const steps = [
+    {
+        icon: Download,
+        title: "Bring your history in once",
+        body: "Import a LinkedIn profile and a GitHub account, or upload a resume you already have. Parsing an upload is free.",
+        href: "/ai/resume/import",
+        cta: "Start an import",
+    },
+    {
+        icon: Wand2,
+        title: "Point it at a posting",
+        body: "Paste the job description. The resume gets tailored to it and the cover letter is written from the same source, so the two agree with each other.",
+        href: "/ai/resume",
+        cta: "Open the builder",
+    },
+    {
+        icon: Target,
+        title: "Prepare for the room",
+        body: "Generate the question set for that specific role, with answers to study and a practice mode to run them cold.",
+        href: "/ai/interviewassistant",
+        cta: "Build a question set",
+    },
+] as const
+
+/** Every priced AI operation, straight out of the pricing table. */
+const priced: Array<{ op: PricedOperation; label: string }> = [
+    { op: "resume_parse_upload", label: "Parse an uploaded resume" },
+    { op: "resume_import", label: "Import from LinkedIn or GitHub" },
+    { op: "resume_tailor_jd", label: "Tailor a resume to a posting" },
+    { op: "resume_ats_score", label: "Score a resume against ATS" },
+    { op: "cover_letter_generate", label: "Generate a cover letter" },
+    { op: "cover_letter_questions", label: "Answer application questions" },
 ]
 
-const stats = [
-    { label: "Interviews Aced", value: "850", icon: Trophy, suffix: "+" },
-    { label: "Systems Designed", value: "2.1K", icon: LayoutTemplate, suffix: "" },
-    { label: "Active Developers", value: "10K", icon: Users, suffix: "+" },
-    { label: "Uptime", value: "99.9", icon: Zap, suffix: "%" },
+/** The three template previews fanned behind the hero copy. Decorative only. */
+const HERO_CARDS: Array<{ shape: TemplateShape; x: number; y: number; r: number; o: number; d: number }> = [
+    { shape: "executive-classic", x: -46, y: 18, r: -9, o: 0.35, d: 0 },
+    { shape: "developer-pro", x: 0, y: 0, r: 0, o: 1, d: 0.12 },
+    { shape: "modern-creative", x: 46, y: 18, r: 9, o: 0.35, d: 0.24 },
 ]
 
-export default function AiToolsPage() {
-    const router = useRouter();
+export default function AiToolsPage({ stats }: { stats: AiHubStats }) {
+    const cards = statCards(stats)
 
     return (
         <div className="font-sans selection:bg-neutral-100 dark:selection:bg-neutral-800">
+            <section className="relative overflow-hidden border-b border-neutral-100 pt-12 pb-16 lg:pt-20 lg:pb-24 dark:border-neutral-800">
+                <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px] dark:bg-neutral-950" />
+                <div className="absolute -top-24 left-1/2 -z-10 h-[320px] w-[320px] -translate-x-1/2 rounded-full bg-neutral-900/10 opacity-50 blur-[100px] dark:bg-neutral-200/20" />
 
-                <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden border-b border-neutral-100 dark:border-neutral-800">
-                    <div className="absolute inset-0 -z-10 h-full w-full bg-white dark:bg-neutral-950 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
-                    <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-neutral-900/10 opacity-50 blur-[100px] dark:bg-neutral-200/20"></div>
-
-                    <div className="max-w-7xl mx-auto px-6 relative z-10">
+                <div className="relative z-10 mx-auto max-w-7xl px-6">
+                    <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_22rem]">
                         <motion.div
-                            className="flex flex-col items-center text-center space-y-8"
-                            initial={{ opacity: 0, y: 20 }}
+                            className="space-y-7"
+                            initial={{ opacity: 0, y: 16 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6 }}
+                            transition={{ duration: 0.5 }}
                         >
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.2 }}
+                            <Badge
+                                variant="outline"
+                                className="rounded-full border-neutral-200 bg-neutral-50 px-4 py-1.5 text-sm font-medium text-neutral-600 backdrop-blur-sm dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400"
                             >
-                                <Badge variant="outline" className="px-4 py-1.5 rounded-full border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 font-medium text-sm backdrop-blur-sm">
-                                    <Sparkles className="w-3.5 h-3.5 mr-2 text-neutral-900 dark:text-neutral-100" />
-                                    The Coder&apos;z Intelligence Engine
-                                </Badge>
-                            </motion.div>
-                            <motion.h1
-                                className="text-5xl md:text-7xl font-bold tracking-tight text-neutral-950 dark:text-white max-w-4xl"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 }}
-                            >
-                                Tools specifically engineered <br className="hidden md:block" />
-                                <span className="text-neutral-400 dark:text-neutral-400">for the modern developer.</span>
-                            </motion.h1>
-                            <motion.p
-                                className="text-xl text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto leading-relaxed font-light"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.4 }}
-                            >
-                                We don&apos;t build generic wrappers. We build specialized agents that help you architect systems, contribute to open source, and land high-impact roles.
-                            </motion.p>
-                            <motion.div
-                                className="flex flex-wrap items-center justify-center gap-4 pt-4"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5 }}
-                            >
-                                <Button size="lg" className="h-12 px-8 text-base bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:hover:bg-neutral-200 dark:text-neutral-900 shadow-xl shadow-neutral-500/10 rounded-full transition-all duration-300">
-                                    Explore Studio
-                                    <ArrowRight className="ml-2 w-4 h-4" />
-                                </Button>
-                            </motion.div>
-                        </motion.div>
-                    </div>
-                </section>
-                <section className="py-12 border-b border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-950">
-                    <div className="max-w-7xl mx-auto px-6">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-                            {
-                                stats.map((stat, index) => (
-                                    <motion.div
-                                        key={index}
-                                        initial={{ opacity: 0, y: 10 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ delay: index * 0.1 }}
-                                        className="flex flex-col items-center text-center group"
-                                    >
-                                        <div className="mb-3 text-neutral-400 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
-                                            <stat.icon className="w-6 h-6" />
-                                        </div>
-                                        <div className="text-3xl font-bold text-neutral-900 dark:text-white tracking-tight">
-                                            {stat.value}<span className="text-neutral-400 dark:text-neutral-400 ml-0.5 text-2xl">{stat.suffix}</span>
-                                        </div>
-                                        <div className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mt-1">
-                                            {stat.label}
-                                        </div>
-                                    </motion.div>
-                                ))
-                            }
-                        </div>
-                    </div>
-                </section>
-                <section id="studio" className="py-24 bg-neutral-50/50 dark:bg-neutral-950">
-                    <div className="max-w-7xl mx-auto px-6">
-                        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-                            <div className="max-w-2xl">
-                                <h2 className="text-3xl font-bold text-neutral-900 dark:text-white mb-4">
-                                    Developer Studio
-                                </h2>
-                                <p className="text-lg text-neutral-500 dark:text-neutral-400 font-light leading-relaxed">
-                                    Specialized agents designed to handle the complexities of software engineering.
-                                </p>
-                            </div>
-                        </div>
-                        <div className="mt-8 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {tools.map((tool, index) => (
-                                <motion.div
-                                    key={tool.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.3, delay: index * 0.1 }}
-                                    onClick={() => router.push(tool.href)}
-                                    className="cursor-pointer"
+                                <Sparkles className="mr-2 h-3.5 w-3.5 text-neutral-900 dark:text-neutral-100" />
+                                Three tools, one source of truth
+                            </Badge>
+
+                            <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-neutral-950 md:text-6xl dark:text-white">
+                                Your resume, your letter, and your interview{" "}
+                                <span className="text-neutral-400 dark:text-neutral-400">
+                                    built from the same history.
+                                </span>
+                            </h1>
+
+                            <p className="max-w-2xl text-lg leading-relaxed font-light text-neutral-600 md:text-xl dark:text-neutral-400">
+                                Import your experience once. Every tool here reads that one profile, so the
+                                resume you send, the letter attached to it and the questions you practise are
+                                describing the same person.
+                            </p>
+
+                            <div className="flex flex-wrap items-center gap-4 pt-1">
+                                <Button
+                                    asChild
+                                    size="lg"
+                                    className="h-12 cursor-pointer rounded-full bg-neutral-900 px-8 text-base text-white shadow-xl shadow-neutral-500/10 transition-all duration-300 hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
                                 >
-                                    <div className="group relative h-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-neutral-900/5 dark:hover:shadow-black/50 transition-all duration-500">
-                                        <div className="p-8">
-                                            <div className="flex items-start justify-between mb-6">
-                                                <div className="w-14 h-14 rounded-xl bg-neutral-50 dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700 flex items-center justify-center text-neutral-900 dark:text-white">
-                                                    <tool.icon className="w-7 h-7" />
-                                                </div>
-                                                <Badge className="bg-neutral-50 text-neutral-700 dark:bg-neutral-800/20 dark:text-neutral-100">
-                                                    {tool.status}
-                                                </Badge>
-                                            </div>
-                                            <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-3">{tool.name}</h3>
-                                            <p className="text-neutral-500 dark:text-neutral-400 leading-relaxed text-base mb-6">
-                                                {tool.description}
-                                            </p>
-                                            <div className="flex items-center justify-end text-sm font-bold text-neutral-900 dark:text-white group-hover:translate-x-1 transition-transform">
-                                                Launch <ChevronRight className="ml-1 w-4 h-4" />
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <Link href="/ai/resume">
+                                        Open Resume Builder
+                                        <ArrowRight className="ml-2 h-4 w-4" />
+                                    </Link>
+                                </Button>
+                                <Button
+                                    asChild
+                                    size="lg"
+                                    variant="outline"
+                                    className="h-12 cursor-pointer rounded-full border-neutral-200 bg-transparent px-8 text-base text-neutral-900 hover:bg-neutral-50 dark:border-neutral-800 dark:text-white dark:hover:bg-neutral-900"
+                                >
+                                    <Link href="/ai/resume/import">Import from LinkedIn</Link>
+                                </Button>
+                            </div>
+                        </motion.div>
+
+                        {/* A fanned stack of the real template previews - the same component the
+                            template picker draws, so the hero cannot show a layout that is not on
+                            offer. Decorative, so it is hidden from assistive tech and dropped
+                            entirely on small screens rather than squashed. */}
+                        <div aria-hidden className="relative hidden h-[22rem] lg:block">
+                            {HERO_CARDS.map((c) => (
+                                <motion.div
+                                    key={c.shape}
+                                    className="absolute top-1/2 left-1/2 w-44 rounded-xl border border-neutral-200 bg-white p-2 text-neutral-900 shadow-xl shadow-neutral-900/5 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:shadow-black/40"
+                                    initial={{ x: "-50%", y: "-50%", rotate: c.r, scale: 0.94, opacity: 0 }}
+                                    animate={{
+                                        x: `calc(-50% + ${c.x}%)`,
+                                        y: [`calc(-50% + ${c.y}px)`, `calc(-50% + ${c.y - 8}px)`, `calc(-50% + ${c.y}px)`],
+                                        rotate: c.r,
+                                        scale: 1,
+                                        opacity: c.o,
+                                    }}
+                                    transition={{
+                                        opacity: { duration: 0.5, delay: c.d },
+                                        scale: { duration: 0.5, delay: c.d },
+                                        y: { duration: 6, delay: c.d, repeat: Infinity, ease: "easeInOut" },
+                                    }}
+                                >
+                                    <TemplatePreview shape={c.shape} className="w-full" />
                                 </motion.div>
                             ))}
                         </div>
                     </div>
-                </section>
-                <section className="py-24 relative overflow-hidden bg-white dark:bg-neutral-950 border-t border-neutral-100 dark:border-neutral-800">
-                    <div className="absolute inset-0 bg-neutral-50 dark:bg-neutral-900/20"></div>
-                    <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-neutral-200/50 dark:bg-neutral-800/30 rounded-full blur-[100px] pointer-events-none" />
+                </div>
+            </section>
 
-                    <div className="max-w-4xl mx-auto px-6 relative z-10 text-center">
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            className="space-y-8"
-                        >
-                            <h2 className="text-4xl md:text-5xl font-bold text-neutral-900 dark:text-white tracking-tight">
-                                One subscription. <br /> Infinite possibilities.
-                            </h2>
-                            <p className="text-xl text-neutral-500 dark:text-neutral-400 max-w-2xl mx-auto font-light">
-                                Access the entire suite of engineering intelligence tools with a single plan. No hidden fees.
-                            </p>
-                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                                <Button
-                                    size="lg"
-                                    className="h-14 px-8 bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 font-semibold text-lg rounded-full"
-                                >
-                                    Get Started Free
-                                </Button>
-                                <Button
-                                    size="lg"
-                                    variant="outline"
-                                    className="h-14 px-8 bg-transparent text-neutral-900 dark:text-neutral-900 border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 dark:bg-white font-semibold text-lg rounded-full"
-                                >
-                                    View Pricing
-                                </Button>
-                            </div>
-                            <div className="pt-6 flex items-center justify-center gap-6 text-sm text-neutral-400 font-medium">
-                                <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100" /> Cancel anytime</span>
-                                <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100" /> Secure payment</span>
-                            </div>
-                        </motion.div>
+            <section className="border-b border-neutral-100 bg-white py-12 dark:border-neutral-800 dark:bg-neutral-950">
+                <div className="mx-auto max-w-7xl px-6">
+                    <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-12">
+                        {cards.map((stat, index) => (
+                            <motion.div
+                                key={stat.label}
+                                initial={{ opacity: 0, y: 10 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: index * 0.1 }}
+                            >
+                                {/* Linked to the page it counts. A number the reader can go and
+                                    check is a different kind of claim from one they cannot. */}
+                                <Link href={stat.href} className="group flex flex-col items-center text-center">
+                                    <div className="mb-3 text-neutral-400 transition-colors group-hover:text-neutral-900 dark:text-neutral-400 dark:group-hover:text-white">
+                                        <stat.icon className="h-6 w-6" />
+                                    </div>
+                                    <div className="text-3xl font-bold tracking-tight tabular-nums text-neutral-900 dark:text-white">
+                                        {stat.value}
+                                    </div>
+                                    <div className="mt-1 text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                                        {stat.label}
+                                    </div>
+                                </Link>
+                            </motion.div>
+                        ))}
                     </div>
-                </section>
-            </div>
+                </div>
+            </section>
+
+            <section id="studio" className="bg-neutral-50/50 py-20 dark:bg-neutral-950">
+                <div className="mx-auto max-w-7xl px-6">
+                    <div className="max-w-2xl">
+                        <h2 className="mb-4 text-3xl font-bold text-neutral-900 dark:text-white">The tools</h2>
+                        <p className="text-lg leading-relaxed font-light text-neutral-500 dark:text-neutral-400">
+                            Three of them. Each one reads the profile the others write to.
+                        </p>
+                    </div>
+
+                    <div className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                        {tools.map((tool, index) => (
+                            <motion.div
+                                key={tool.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.3, delay: index * 0.1 }}
+                            >
+                                {/* A real link, not an onClick on a div: it opens in a new tab on
+                                    middle-click, it can be copied, and it is reachable by keyboard. */}
+                                <Link
+                                    href={tool.href}
+                                    className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white transition-all duration-500 hover:shadow-2xl hover:shadow-neutral-900/5 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:shadow-black/50"
+                                >
+                                    <div className="flex flex-1 flex-col p-8">
+                                        <div className="mb-6 flex items-start justify-between gap-3">
+                                            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-neutral-100 bg-neutral-50 text-neutral-900 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white">
+                                                <tool.icon className="h-7 w-7" />
+                                            </div>
+                                            <Badge className="bg-neutral-50 text-right text-neutral-700 dark:bg-neutral-800 dark:text-neutral-100">
+                                                {tool.price}
+                                            </Badge>
+                                        </div>
+                                        <h3 className="mb-3 text-2xl font-bold text-neutral-900 dark:text-white">
+                                            {tool.name}
+                                        </h3>
+                                        <p className="mb-6 text-base leading-relaxed text-neutral-500 dark:text-neutral-400">
+                                            {tool.description}
+                                        </p>
+                                        <div className="mt-auto flex items-center justify-end text-sm font-bold text-neutral-900 transition-transform group-hover:translate-x-1 dark:text-white">
+                                            Open <ChevronRight className="ml-1 h-4 w-4" />
+                                        </div>
+                                    </div>
+                                </Link>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <section className="border-t border-neutral-100 bg-white py-20 dark:border-neutral-800 dark:bg-neutral-950">
+                <div className="mx-auto max-w-7xl px-6">
+                    <div className="max-w-2xl">
+                        <h2 className="mb-4 text-3xl font-bold text-neutral-900 dark:text-white">
+                            How a run through it goes
+                        </h2>
+                        <p className="text-lg leading-relaxed font-light text-neutral-500 dark:text-neutral-400">
+                            Import once, then point the tools at whatever you are applying for.
+                        </p>
+                    </div>
+
+                    <ol className="mt-10 grid gap-8 md:grid-cols-3">
+                        {steps.map((step, i) => (
+                            <motion.li
+                                key={step.title}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.3, delay: i * 0.1 }}
+                                className="flex flex-col rounded-2xl border border-neutral-200 bg-neutral-50/50 p-8 dark:border-neutral-800 dark:bg-neutral-900/40"
+                            >
+                                <div className="mb-5 flex items-center gap-3">
+                                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-white dark:bg-white dark:text-neutral-900">
+                                        {i + 1}
+                                    </span>
+                                    <step.icon className="h-5 w-5 text-neutral-400 dark:text-neutral-400" />
+                                </div>
+                                <h3 className="mb-2 text-lg font-bold text-neutral-900 dark:text-white">
+                                    {step.title}
+                                </h3>
+                                <p className="mb-6 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+                                    {step.body}
+                                </p>
+                                <Link
+                                    href={step.href}
+                                    className="mt-auto inline-flex items-center text-sm font-semibold text-neutral-900 hover:underline dark:text-white"
+                                >
+                                    {step.cta}
+                                    <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                                </Link>
+                            </motion.li>
+                        ))}
+                    </ol>
+                </div>
+            </section>
+
+            <section className="border-t border-neutral-100 bg-neutral-50/50 py-20 dark:border-neutral-800 dark:bg-neutral-950">
+                <div className="mx-auto max-w-7xl px-6">
+                    <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+                        <div>
+                            <h2 className="mb-4 text-3xl font-bold text-neutral-900 dark:text-white">
+                                What each thing costs
+                            </h2>
+                            <p className="mb-8 max-w-2xl text-lg leading-relaxed font-light text-neutral-500 dark:text-neutral-400">
+                                Credits are held when an operation starts and refunded if it fails. This table
+                                is generated from the same prices the charge sites read, so it cannot say one
+                                thing while you are billed another.
+                            </p>
+
+                            <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
+                                <table className="w-full text-left text-sm">
+                                    <thead className="border-b border-neutral-200 text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
+                                        <tr>
+                                            <th scope="col" className="px-6 py-3 font-medium">Operation</th>
+                                            <th scope="col" className="px-6 py-3 text-right font-medium">Cost</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
+                                        {priced.map((row) => (
+                                            <tr key={row.op}>
+                                                <td className="px-6 py-3 text-neutral-700 dark:text-neutral-300">
+                                                    {row.label}
+                                                </td>
+                                                <td className="px-6 py-3 text-right font-semibold tabular-nums text-neutral-900 dark:text-white">
+                                                    {priceLabel(row.op) ?? "Free"}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        <tr>
+                                            <td className="px-6 py-3 text-neutral-700 dark:text-neutral-300">
+                                                Build an interview question set
+                                            </td>
+                                            <td className="px-6 py-3 text-right font-semibold text-neutral-900 dark:text-white">
+                                                1 credit / 2 questions
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div className="rounded-2xl border border-neutral-200 bg-white p-8 dark:border-neutral-800 dark:bg-neutral-900">
+                            <div className="flex items-center gap-2 text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                                <Zap className="h-4 w-4" />
+                                Your balance
+                            </div>
+                            <div className="mt-2 text-4xl font-bold tabular-nums text-neutral-900 dark:text-white">
+                                {stats.credits}
+                            </div>
+                            <p className="mt-3 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+                                Credits do not expire and there is no subscription. You buy a pack and spend it
+                                when you choose to.
+                            </p>
+                            <Button
+                                asChild
+                                className="mt-6 w-full cursor-pointer rounded-full bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                            >
+                                <Link href="/purchase">
+                                    Top up credits
+                                    <ArrowRight className="ml-1.5 h-4 w-4" />
+                                </Link>
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
     )
 }

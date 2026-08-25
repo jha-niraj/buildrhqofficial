@@ -127,7 +127,7 @@ export default function PublicGenerationsPage() {
 
                 // Redirect to the purchased plan
                 setTimeout(() => {
-                    router.push(`/ai/jobinterviewassistant/${response.data.slug}`)
+                    router.push(`/ai/interviewassistant/${response.data.slug}`)
                 }, 1500)
             } else {
                 throw new Error(response.error || "Purchase failed")
@@ -147,7 +147,7 @@ export default function PublicGenerationsPage() {
             <section className="border-b border-border/50">
                 <div className="mx-auto max-w-7xl px-4 py-10">
                     <div className="mb-6">
-                        <Link href="/ai/jobinterviewassistant" className="flex items-center border w-fit p-2 rounded-lg mb-4 border-neutral-200 hover:border-neutral-300 text-neutral-700 dark:text-neutral-100 shadow-md hover:shadow-lg transition-all">
+                        <Link href="/ai/interviewassistant" className="flex items-center border w-fit p-2 rounded-lg mb-4 border-neutral-200 hover:border-neutral-300 text-neutral-700 dark:text-neutral-100 shadow-md hover:shadow-lg transition-all">
                             <ArrowLeft className="h-4 w-4" />
                             Back
                         </Link>
@@ -215,7 +215,7 @@ export default function PublicGenerationsPage() {
                                 {plans.length === 0 ? "Be the first to share your interview plan with the community!" : "Try adjusting your search criteria to find more plans."}
                             </p>
                             <Button asChild>
-                                <Link href="/ai/jobinterviewassistant">
+                                <Link href="/ai/interviewassistant">
                                     Create Interview Plan
                                 </Link>
                             </Button>

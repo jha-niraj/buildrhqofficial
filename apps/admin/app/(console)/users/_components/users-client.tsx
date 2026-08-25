@@ -20,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@repo/ui/components/ui/checkbox"
 import { Button } from "@repo/ui/components/ui/button"
 import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { Textarea } from '@repo/ui/components/ui/textarea'
 import Image from "next/image"
 
 export interface User {
@@ -534,8 +535,8 @@ export function UsersClient({
                                                                         {
                                                                             showEmailBox ? (
                                                                                 <div className="flex flex-col gap-2 w-full">
-                                                                                    <textarea
-                                                                                        className="w-full min-h-[80px] rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white p-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-400"
+                                                                                    <Textarea
+                                                                                        className="w-full min-h-[80px] max-h-56 rounded-lg p-2 text-sm"
                                                                                         placeholder="Write your message to the user..."
                                                                                         value={emailContent}
                                                                                         onChange={e => setEmailContent(e.target.value)}

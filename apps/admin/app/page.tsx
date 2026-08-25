@@ -7,6 +7,7 @@ import { ShipItHQLoader } from "@repo/ui/components/ui/shipithq-loader"
 import { ShaderHeroBg, SHADER_PALETTES } from "@repo/ui/components/hero-shader-bg"
 import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 import { Logo } from "@repo/ui/components/logo"
+import { Input } from '@repo/ui/components/ui/input'
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Info, Shield, ShieldAlert } from "lucide-react"
 import { checkAdminAccess } from "@/actions/admin.action"
 
@@ -173,7 +174,7 @@ export default function AdminLandingPage() {
                             </label>
                             <div className="relative">
                                 <Mail size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
-                                <input
+                                <Input
                                     id="email"
                                     type="email"
                                     value={email}
@@ -192,7 +193,7 @@ export default function AdminLandingPage() {
                             </label>
                             <div className="relative">
                                 <Lock size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
-                                <input
+                                <Input
                                     id="password"
                                     type={showPassword ? "text" : "password"}
                                     value={password}

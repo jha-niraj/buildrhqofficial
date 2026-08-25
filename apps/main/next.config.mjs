@@ -33,10 +33,22 @@ const nextConfig = {
         const marketingPaths = [
             "/aboutus", "/blogs", "/privacypolicy", "/termsofservice", "/pricing",
         ];
-        return marketingPaths.flatMap((p) => ([
-            { source: p, destination: `${WEB_URL}${p}`, permanent: false },
-            { source: `${p}/:path*`, destination: `${WEB_URL}${p}/:path*`, permanent: false },
-        ]));
+        return [
+            ...marketingPaths.flatMap((p) => ([
+                { source: p, destination: `${WEB_URL}${p}`, permanent: false },
+                { source: `${p}/:path*`, destination: `${WEB_URL}${p}/:path*`, permanent: false },
+            ])),
+
+            // The interview assistant lives at /ai/interviewassistant. For a long time the
+            // whole module linked to itself as /ai/jobinterviewassistant - 20 links across 9
+            // files - so that URL is in browser histories, bookmarks and anything already
+            // shared. The links are canonical now; this catches what is already out there.
+            //
+            // Not permanent: a 308 is cached by the browser forever, and this is a mistake
+            // being cleaned up rather than a deliberate, settled move.
+            { source: "/ai/jobinterviewassistant", destination: "/ai/interviewassistant", permanent: false },
+            { source: "/ai/jobinterviewassistant/:path*", destination: "/ai/interviewassistant/:path*", permanent: false },
+        ];
     },
 
     // These packages must NOT be bundled into the Cloudflare Worker bundle.

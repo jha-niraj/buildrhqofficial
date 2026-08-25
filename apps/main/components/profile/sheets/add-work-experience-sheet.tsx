@@ -9,6 +9,8 @@ import { Input } from '@repo/ui/components/ui/input'
 import { Label } from '@repo/ui/components/ui/label'
 import { Textarea } from '@repo/ui/components/ui/textarea'
 import { Separator } from '@repo/ui/components/ui/separator'
+import { Checkbox } from '@repo/ui/components/ui/checkbox'
+import { MonthPicker } from '@repo/ui/components/ui/month-picker'
 import { Plus, Trash2, Briefcase } from 'lucide-react'
 import toast from '@repo/ui/components/ui/sonner'
 import {
@@ -167,20 +169,32 @@ export function AddWorkExperienceSheet({ open, onOpenChange, onSuccess, editExpe
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                             <Label className="text-xs font-medium">Start Date <span className="text-red-500">*</span></Label>
-                            <Input type="date" className="h-9" {...field('startDate')} />
+                            <MonthPicker
+                                className="h-9"
+                                aria-label="Start month"
+                                placeholder="Start month"
+                                value={form.startDate}
+                                onChange={v => setForm(f => ({ ...f, startDate: v ?? '' }))}
+                            />
                         </div>
                         <div className="space-y-1.5">
                             <Label className="text-xs font-medium">End Date</Label>
-                            <Input type="date" className="h-9" disabled={form.isCurrentlyWorking} {...field('endDate')} />
+                            <MonthPicker
+                                className="h-9"
+                                aria-label="End month"
+                                placeholder="End month"
+                                disabled={form.isCurrentlyWorking}
+                                value={form.endDate}
+                                onChange={v => setForm(f => ({ ...f, endDate: v ?? '' }))}
+                            />
                         </div>
                     </div>
 
                     <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                            type="checkbox"
+                        <Checkbox
+                            className="cursor-pointer"
                             checked={form.isCurrentlyWorking}
-                            onChange={e => setForm(f => ({ ...f, isCurrentlyWorking: e.target.checked, endDate: '' }))}
-                            className="rounded"
+                            onCheckedChange={c => setForm(f => ({ ...f, isCurrentlyWorking: c === true, endDate: '' }))}
                         />
                         <span className="text-sm text-neutral-700 dark:text-neutral-300">I currently work here</span>
                     </label>

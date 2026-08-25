@@ -155,7 +155,7 @@ export default function JobInterviewAssistant() {
             const response = await purchaseInterviewPlan(plan.id)
             if (response.success && response.data) {
                 toast.success(`Successfully purchased ${plan.position}!`)
-                router.push(`/ai/jobinterviewassistant/${response.data.slug}`)
+                router.push(`/ai/interviewassistant/${response.data.slug}`)
             } else {
                 toast.error(response.error || 'Failed to purchase plan')
             }
@@ -198,7 +198,7 @@ export default function JobInterviewAssistant() {
 
             if (data.data?.slug) {
                 toast.success('Interview questions generated successfully!')
-                window.location.href = `/ai/jobinterviewassistant/${data.data.slug}`
+                window.location.href = `/ai/interviewassistant/${data.data.slug}`
             } else {
                 toast.error('Generation completed but redirect failed - check console for details');
             }
@@ -440,7 +440,7 @@ export default function JobInterviewAssistant() {
                                         <Clock className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                         Recent Sessions
                                     </h3>
-                                    <Link href="/ai/jobinterviewassistant/generations" className="text-xs font-medium text-neutral-800 dark:text-neutral-100 hover:underline">
+                                    <Link href="/ai/interviewassistant/generations" className="text-xs font-medium text-neutral-800 dark:text-neutral-100 hover:underline">
                                         View All
                                     </Link>
                                 </div>
@@ -448,7 +448,7 @@ export default function JobInterviewAssistant() {
                                 <div className="space-y-3 flex-1">
                                     {recentGenerations.length > 0 ? (
                                         recentGenerations.slice(0, 4).map((gen) => (
-                                            <Link href={`/ai/jobinterviewassistant/${gen.slug}`} key={gen.id}>
+                                            <Link href={`/ai/interviewassistant/${gen.slug}`} key={gen.id}>
                                                 <div className="group p-3 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800/50 border border-transparent hover:border-neutral-200 dark:hover:border-neutral-700 transition-all cursor-pointer">
                                                     <div className="flex justify-between items-start">
                                                         <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-200 line-clamp-1 group-hover:text-neutral-800 dark:group-hover:text-neutral-100 transition-colors">
@@ -517,7 +517,7 @@ export default function JobInterviewAssistant() {
                                 High-quality interview roadmaps created by the community.
                             </p>
                         </div>
-                        <Link href="/ai/jobinterviewassistant/publicgenerations">
+                        <Link href="/ai/interviewassistant/publicgenerations">
                             <Button variant="outline" className="gap-2 border-neutral-200 dark:border-neutral-700">
                                 <Users className="w-4 h-4" />
                                 Browse All Plans

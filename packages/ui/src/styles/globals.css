@@ -794,6 +794,21 @@ h1, h2, h3, h4, h5, h6,
     min-height: var(--page-h, 100vh);
 }
 
+/* `h-dvh` and `min-h-dvh` too.
+   These escaped the rule above, and the resume editor uses `h-dvh` on its root: inside the
+   page card that is TALLER than the container, so the editor's own top bar was pushed out of
+   view and clipped. Anything measuring the viewport directly has the same problem here - the
+   page card is not the viewport, it is the viewport minus the shell's gutters and the mobile
+   bottom bar. */
+[data-app-page] [class~="h-dvh"],
+[data-app-page] [class*=":h-dvh"] {
+    height: var(--page-h, 100dvh);
+}
+[data-app-page] [class~="min-h-dvh"],
+[data-app-page] [class*=":min-h-dvh"] {
+    min-height: var(--page-h, 100dvh);
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
    Auth panel artwork.
 

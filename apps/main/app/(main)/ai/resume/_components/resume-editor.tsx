@@ -1,7 +1,7 @@
 'use client'
 import Link from "next/link";
 
-import { useState, useCallback, useTransition } from 'react'
+import { useState, useCallback, useTransition, useEffect, useLayoutEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/components/ui/button'
 import { Input } from '@repo/ui/components/ui/input'
@@ -12,13 +12,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/components/ui
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@repo/ui/components/ui/select'
-import {
-    Sheet, SheetContent, SheetHeader, SheetTitle
-} from '@repo/ui/components/ui/sheet'
+import { ScrollArea } from '@repo/ui/components/ui/scroll-area'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
     ArrowLeft, Download, Eye, Lock, Wand2,
-    Plus, Trash2, Save, ExternalLink, BarChart3, RefreshCw
+    Plus, Trash2, Save, ExternalLink, BarChart3, RefreshCw,
+    Mail, Phone, MapPin, Github, Linkedin, Globe, Link2, GripVertical, X
 } from 'lucide-react'
+import { Checkbox } from '@repo/ui/components/ui/checkbox'
+import { MonthPicker } from '@repo/ui/components/ui/month-picker'
+import { saveMyProfileLinks } from '@/actions/(main)/user/profile-links.action'
+import { syncResumeDraftToProfile } from '@/actions/(main)/ai/resume-to-profile.action'
 import { DotmSquare11 } from '@repo/ui/components/ui/dotm-square-11'
 import toast from '@repo/ui/components/ui/sonner'
 import { updateResumeDraft, scoreResumeAgainstJD } from '@/actions/(main)/ai/resume-draft.action'
@@ -40,6 +44,201 @@ interface Props {
     draft: { id: string; name: string; templateSlug: string; isPublic: boolean; shareSlug: string; atsScore: number | null }
     content: ResumeDraftContent
     templates: Array<{ slug: string; name: string; isPlatform: boolean; config: unknown }>
+}
+
+/** "2 roles, 1 project" - only the parts that actually got written. */
+function summarise(w: { experience: number; projects: number; education: number; skills: number }): string {
+    const parts = [
+        w.experience && `${w.experience} role${w.experience === 1 ? '' : 's'}`,
+        w.projects && `${w.projects} project${w.projects === 1 ? '' : 's'}`,
+        w.education && `${w.education} education entr${w.education === 1 ? 'y' : 'ies'}`,
+        w.skills && `${w.skills} skill${w.skills === 1 ? '' : 's'}`,
+    ].filter(Boolean) as string[]
+    if (parts.length === 1) return parts[0] as string
+    return `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`
+}
+
+// ─── Links: what to SHOW for a URL ───────────────────────────────────────────
+/**
+ * A resume shows a handle, not a URL.
+ *
+ * The header was printing `https://github.com/jha-niraj` and
+ * `https://linkedin.com/in/nirajjha31` as plain grey text. Two full URLs wrapped onto a
+ * second line, took more room than the name, and could not be clicked - so they were long,
+ * ugly AND useless. What a reader wants is the icon and `jha-niraj`.
+ *
+ * Deliberately not `new URL()`: people type `github.com/x`, `@x` and bare handles, and a
+ * constructor that throws on all three would take the preview down with it.
+ */
+function handleFor(url: string | undefined | null, kind: 'github' | 'linkedin' | 'site'): string {
+    const raw = (url ?? '').trim()
+    if (!raw) return ''
+    const bare = raw.replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/+$/, '')
+    if (kind === 'github') return bare.replace(/^github\.com\//i, '').replace(/^@/, '').split('/')[0] || bare
+    if (kind === 'linkedin') return bare.replace(/^([a-z]+\.)?linkedin\.com\/(in|company)\//i, '').split('/')[0] || bare
+    // A site shows its host: "nirajjha.vercel.com", not the whole path.
+    return bare.split('/')[0] || bare
+}
+
+/** Anything the user typed becomes something an anchor can actually navigate to. */
+function hrefFor(url: string | undefined | null): string {
+    const raw = (url ?? '').trim()
+    if (!raw) return ''
+    return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`
+}
+
+// ─── A comma-separated list, typed as text ───────────────────────────────────
+/**
+ * An `<Input>` for a `string[]` that you can actually type a comma into.
+ *
+ * ── The bug this exists to fix ──
+ *
+ * Both list fields were written the obvious way: show `items.join(', ')`, and on every
+ * keystroke re-parse the whole field with `.split(',').map(trim).filter(Boolean)`. That
+ * round trip is lossy, and it eats exactly the characters you need to add a second entry:
+ *
+ *     type "ReactJS,"  ->  split gives ["ReactJS", ""]
+ *                      ->  filter(Boolean) drops the empty tail  ->  ["ReactJS"]
+ *                      ->  re-render shows "ReactJS"
+ *
+ * The comma is deleted between the keypress and the paint, so it never appears. Same for
+ * the space after it, which `trim()` removes. The field was not "hard to add skills to" -
+ * a second skill could not be entered at all, by any sequence of keystrokes.
+ *
+ * ── The fix ──
+ *
+ * The field owns the TEXT and the array is derived from it, rather than the other way
+ * round. A half-typed "ReactJS, " is a perfectly good intermediate state; it just happens
+ * to parse to the same list as "ReactJS", which is why the re-sync below compares parsed
+ * forms. Blur normalises the spacing, so nobody is left looking at "React,,  Node".
+ */
+const parseList = (text: string) => text.split(',').map(s => s.trim()).filter(Boolean)
+const sameList = (a: string[], b: string[]) => a.length === b.length && a.every((x, i) => x === b[i])
+
+function CommaListInput({ value, onChange, placeholder, className }: {
+    value: string[]
+    onChange: (v: string[]) => void
+    placeholder: string
+    className?: string
+}) {
+    const [text, setText] = useState(() => value.join(', '))
+
+    // Re-sync only when the prop describes a list this field did not just type - a profile
+    // sync landing, an AI rewrite, a draft loading. Comparing PARSED forms is what keeps a
+    // trailing comma alive: "ReactJS, " and ["ReactJS"] agree, so the text is left alone.
+    useEffect(() => {
+        setText(t => (sameList(parseList(t), value) ? t : value.join(', ')))
+    }, [value])
+
+    return (
+        <Input
+            className={className}
+            placeholder={placeholder}
+            value={text}
+            onChange={e => { setText(e.target.value); onChange(parseList(e.target.value)) }}
+            onBlur={() => setText(parseList(text).join(', '))}
+        />
+    )
+}
+
+// ─── Bullets, entered as bullets ─────────────────────────────────────────────
+/**
+ * One row per bullet.
+ *
+ * ── What this replaces ──
+ *
+ * A single `<Textarea>` labelled "Bullet points (one per line)", with the array joined on
+ * `\n` and split back on every keystroke. Two things went wrong with that, both visible in
+ * the screenshots:
+ *
+ *   1. Nothing enforces the "one per line" the label asks for. Paste a paragraph and you get
+ *      ONE bullet 400 characters long, which the preview then renders as a single six-line
+ *      `•` - the one shape a resume must never have.
+ *   2. There is no affordance. The user cannot see where a bullet begins or ends, cannot
+ *      reorder, and cannot delete one without selecting exactly the right run of text.
+ *
+ * A list of inputs makes the data structure visible. You can see you have four bullets
+ * because there are four rows.
+ *
+ * ── Empty rows ──
+ *
+ * The row is kept in state while it is empty, so the field does not vanish under the cursor
+ * the moment it is cleared - that is the same mistake the comma bug made. Empties are
+ * stripped on the way OUT (`onCommit`), not on the way in.
+ */
+function BulletsEditor({ value, onChange, placeholder }: {
+    value: string[]
+    onChange: (v: string[]) => void
+    placeholder?: string
+}) {
+    // Always render at least one row, so an entry with no bullets still offers somewhere
+    // to type rather than just an "Add" button.
+    const rows = value.length ? value : ['']
+
+    const setRow = (i: number, text: string) => onChange(rows.map((r, idx) => (idx === i ? text : r)))
+    const addRow = () => onChange([...rows, ''])
+    const removeRow = (i: number) => {
+        const next = rows.filter((_, idx) => idx !== i)
+        onChange(next.length ? next : [''])
+    }
+    const move = (i: number, by: number) => {
+        const j = i + by
+        if (j < 0 || j >= rows.length) return
+        const next = [...rows]
+        const [moved] = next.splice(i, 1)
+        next.splice(j, 0, moved as string)
+        onChange(next)
+    }
+
+    return (
+        <div className="space-y-1.5">
+            {rows.map((b, i) => (
+                <div key={i} className="group flex items-start gap-1.5">
+                    <span className="mt-2 shrink-0 text-neutral-400 dark:text-neutral-500" aria-hidden>&bull;</span>
+                    <Textarea
+                        // Auto-grows, so a long bullet is fully visible instead of being a
+                        // one-line box you scroll inside.
+                        className="min-h-[2.25rem] flex-1 px-2 py-1.5 text-xs"
+                        value={b}
+                        rows={1}
+                        onChange={e => setRow(i, e.target.value)}
+                        onKeyDown={e => {
+                            // Enter makes the NEXT bullet. That is what the old textarea's
+                            // "one per line" was trying to say, made real.
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault()
+                                addRow()
+                            }
+                        }}
+                        placeholder={placeholder}
+                    />
+                    <div className="flex shrink-0 flex-col opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+                        <Button
+                            variant="ghost" size="sm" type="button"
+                            className="h-4 w-6 cursor-pointer p-0 text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                            aria-label="Move bullet up" disabled={i === 0} onClick={() => move(i, -1)}
+                        >
+                            <GripVertical className="h-3 w-3 rotate-90" />
+                        </Button>
+                        <Button
+                            variant="ghost" size="sm" type="button"
+                            className="h-4 w-6 cursor-pointer p-0 text-neutral-400 hover:text-red-500"
+                            aria-label="Remove bullet" onClick={() => removeRow(i)}
+                        >
+                            <Trash2 className="h-3 w-3" />
+                        </Button>
+                    </div>
+                </div>
+            ))}
+            <Button
+                variant="ghost" size="sm" type="button"
+                className="h-6 cursor-pointer px-2 text-xs text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
+                onClick={addRow}
+            >
+                <Plus className="mr-1 h-3 w-3" />Add bullet
+            </Button>
+        </div>
+    )
 }
 
 // ─── Section: Header ──────────────────────────────────────────────────────────
@@ -73,7 +272,10 @@ function HeaderSection({ header, onChange }: { header: ResumeHeader; onChange: (
                     value={header.summary ?? ''}
                     onChange={e => onChange({ ...header, summary: e.target.value })}
                     placeholder="A brief summary of your background and goals…"
-                    className="h-20 text-sm resize-none"
+                    // A floor, not a cage: the field grows with the text and the wrapper's
+                    // ScrollArea takes over past `max-h`. 5rem showed three lines of a
+                    // summary that is routinely six.
+                    className="min-h-[9rem] max-h-72 text-sm"
                 />
             </div>
         </div>
@@ -98,22 +300,42 @@ function ExperienceSection({ items, onChange }: { items: ResumeExperienceEntry[]
                     <div className="grid grid-cols-2 gap-2">
                         <Input className="h-8 text-sm" placeholder="Company" value={e.company} onChange={ev => update(e.id, { company: ev.target.value })} />
                         <Input className="h-8 text-sm" placeholder="Job Title" value={e.role} onChange={ev => update(e.id, { role: ev.target.value })} />
-                        <Input className="h-8 text-sm" type="date" value={e.startDate?.split('T')[0] ?? ''} onChange={ev => update(e.id, { startDate: ev.target.value })} />
+                        {/* The company's own site. It renders as a link on the company name
+                            in the preview, so a reader can check who this employer is. */}
+                        <Input className="h-8 col-span-2 text-sm" placeholder="Company website (optional)" value={e.companyUrl ?? ''} onChange={ev => update(e.id, { companyUrl: ev.target.value })} />
+                        <MonthPicker
+                            className="h-8 text-sm"
+                            aria-label="Start month"
+                            placeholder="Start month"
+                            value={e.startDate}
+                            onChange={v => update(e.id, { startDate: v ?? '' })}
+                        />
                         <div className="flex items-center gap-2">
-                            {!e.current && <Input className="h-8 min-w-0 flex-1 text-sm" type="date" value={e.endDate?.split('T')[0] ?? ''} onChange={ev => update(e.id, { endDate: ev.target.value })} />}
-                            <label className="flex items-center gap-1.5 text-xs text-neutral-600 cursor-pointer flex-shrink-0">
-                                <input type="checkbox" checked={e.current} onChange={ev => update(e.id, { current: ev.target.checked, endDate: ev.target.checked ? undefined : e.endDate })} />
+                            {!e.current && (
+                                <MonthPicker
+                                    className="h-8 min-w-0 flex-1 text-sm"
+                                    aria-label="End month"
+                                    placeholder="End month"
+                                    value={e.endDate}
+                                    onChange={v => update(e.id, { endDate: v })}
+                                />
+                            )}
+                            <label className="flex shrink-0 cursor-pointer items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+                                <Checkbox
+                                    className="cursor-pointer"
+                                    checked={e.current}
+                                    onCheckedChange={c => update(e.id, { current: c === true, endDate: c === true ? undefined : e.endDate })}
+                                />
                                 Current
                             </label>
                         </div>
                     </div>
                     <div className="space-y-1.5">
-                        <Label className="text-xs text-neutral-500 dark:text-neutral-400">Bullet points (one per line)</Label>
-                        <Textarea
-                            className="text-xs h-24 resize-none"
-                            value={e.bullets.join('\n')}
-                            onChange={ev => update(e.id, { bullets: ev.target.value.split('\n') })}
-                            placeholder="• Led migration of legacy API to GraphQL, reducing payload size by 60%"
+                        <Label className="text-xs text-neutral-500 dark:text-neutral-400">Bullet points</Label>
+                        <BulletsEditor
+                            value={e.bullets}
+                            onChange={bullets => update(e.id, { bullets })}
+                            placeholder="Led migration of legacy API to GraphQL, reducing payload size by 60%"
                         />
                     </div>
                 </div>
@@ -143,13 +365,23 @@ function ProjectsSection({ items, onChange }: { items: ResumeProjectEntry[]; onC
                         <Input className="h-8 text-sm" placeholder="GitHub URL" value={p.github ?? ''} onChange={e => update(p.id, { github: e.target.value })} />
                         <Input className="h-8 text-sm col-span-2" placeholder="Live URL" value={p.liveUrl ?? ''} onChange={e => update(p.id, { liveUrl: e.target.value })} />
                     </div>
-                    <Input className="h-8 text-sm" placeholder="Technologies (comma-separated)" value={p.technologies.join(', ')} onChange={e => update(p.id, { technologies: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })} />
-                    <Textarea
-                        className="text-xs h-20 resize-none"
-                        value={p.bullets.join('\n')}
-                        onChange={e => update(p.id, { bullets: e.target.value.split('\n') })}
-                        placeholder="• Built with React, Node.js - 500+ daily active users"
-                    />
+                    <div className="space-y-1.5">
+                        <Label className="text-xs text-neutral-500 dark:text-neutral-400">Technologies</Label>
+                        <CommaListInput
+                            className="h-8 text-sm"
+                            placeholder="Technologies (comma-separated)"
+                            value={p.technologies}
+                            onChange={technologies => update(p.id, { technologies })}
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <Label className="text-xs text-neutral-500 dark:text-neutral-400">Bullet points</Label>
+                        <BulletsEditor
+                            value={p.bullets}
+                            onChange={bullets => update(p.id, { bullets })}
+                            placeholder="Built with React and Node.js, 500+ daily active users"
+                        />
+                    </div>
                 </div>
             ))}
             <Button variant="outline" size="sm" className="w-full" onClick={add}><Plus className="w-3.5 h-3.5 mr-1.5" />Add Project</Button>
@@ -176,8 +408,20 @@ function EducationSection({ items, onChange }: { items: ResumeEducationEntry[]; 
                         <Input className="h-8 text-sm col-span-2" placeholder="Institution" value={e.institution} onChange={ev => update(e.id, { institution: ev.target.value })} />
                         <Input className="h-8 text-sm" placeholder="Degree" value={e.degree ?? ''} onChange={ev => update(e.id, { degree: ev.target.value })} />
                         <Input className="h-8 text-sm" placeholder="Field of Study" value={e.field ?? ''} onChange={ev => update(e.id, { field: ev.target.value })} />
-                        <Input className="h-8 text-sm" type="date" value={e.startDate?.split('T')[0] ?? ''} onChange={ev => update(e.id, { startDate: ev.target.value })} />
-                        <Input className="h-8 text-sm" type="date" value={e.endDate?.split('T')[0] ?? ''} onChange={ev => update(e.id, { endDate: ev.target.value })} />
+                        <MonthPicker
+                            className="h-8 text-sm"
+                            aria-label="Start month"
+                            placeholder="Start month"
+                            value={e.startDate}
+                            onChange={v => update(e.id, { startDate: v ?? '' })}
+                        />
+                        <MonthPicker
+                            className="h-8 text-sm"
+                            aria-label="End month"
+                            placeholder="End month"
+                            value={e.endDate}
+                            onChange={v => update(e.id, { endDate: v })}
+                        />
                     </div>
                 </div>
             ))}
@@ -201,11 +445,11 @@ function SkillsSection({ items, onChange }: { items: ResumeSkillGroup[]; onChang
                         <Input className="h-7 min-w-0 flex-1 text-xs" placeholder="Category (e.g. Languages, Frameworks)" value={g.category} onChange={e => update(i, { category: e.target.value })} />
                         <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-neutral-400 hover:text-red-500" onClick={() => remove(i)}><Trash2 className="w-3 h-3" /></Button>
                     </div>
-                    <Input
+                    <CommaListInput
                         className="h-7 text-xs"
                         placeholder="Skills (comma-separated)"
-                        value={g.items.join(', ')}
-                        onChange={e => update(i, { items: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+                        value={g.items}
+                        onChange={items => update(i, { items })}
                     />
                 </div>
             ))}
@@ -214,8 +458,26 @@ function SkillsSection({ items, onChange }: { items: ResumeSkillGroup[]; onChang
     )
 }
 
-// ─── AI Tools Sheet ───────────────────────────────────────────────────────────
-function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
+// ─── AI Tools panel ───────────────────────────────────────────────────────────
+/**
+ * A docked column, not a Sheet.
+ *
+ * ── Why it moved ──
+ *
+ * As a Sheet it was an OVERLAY: it darkened the editor and covered the resume, so the one
+ * thing you need while tailoring - seeing what the resume currently says - was hidden
+ * behind the panel doing the tailoring. It also capped at `sm:max-w-md`, which is why the
+ * "Tailor This Resume (20 credits)" button was clipped at its own edge.
+ *
+ * The AI rail in `app/(main)/layout.tsx` already established the pattern and the reasoning:
+ * "a real column, not an overlay. The page narrows to make room for it, so nothing the user
+ * was reading gets covered." This is the same thing one level down - it narrows the editor
+ * row instead of the page.
+ *
+ * The preview handles the narrowing on its own: `PreviewPane` measures its width with a
+ * ResizeObserver and rescales, so the page stays whole as this slides in.
+ */
+function AIToolsPanel({ draftId, open, onClose, onContentUpdated }: {
     draftId: string; open: boolean; onClose: () => void
     onContentUpdated: (content: ResumeDraftContent) => void
 }) {
@@ -247,9 +509,10 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
             return
         }
         setJd(res.description)
-        // Only fill the title if the user has not typed one; the page title is a
-        // guess ("Careers | Acme") often enough that it must not overwrite them.
+        // Only fill these if the user has not typed them; a page title is a guess
+        // ("Careers | Acme") often enough that it must not overwrite them.
         if (res.title && !jobTitle.trim()) setJobTitle(res.title)
+        if (res.company && !company.trim()) setCompany(res.company)
         toast.success('Job description pulled in - check it before tailoring')
     }
 
@@ -306,12 +569,100 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
     }
 
     return (
-        <Sheet open={open} onOpenChange={onClose}>
-            <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
-                <SheetHeader className="mb-4">
-                    <SheetTitle className="flex items-center gap-2"><Wand2 className="w-4 h-4" /> AI Tools</SheetTitle>
-                </SheetHeader>
-                <div className="space-y-5">
+        <AnimatePresence initial={false}>
+            {open && (
+                <motion.aside
+                    key="ai-tools"
+                    // The width animates from 0, the same as the app shell's rail, so the
+                    // preview beside it reflows continuously instead of jumping.
+                    initial={{ width: 0, opacity: 0 }}
+                    animate={{ width: 380, opacity: 1 }}
+                    exit={{ width: 0, opacity: 0 }}
+                    transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                    className="relative shrink-0 overflow-hidden border-l border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900"
+                    aria-label="AI tools"
+                >
+                    {/* Pinned to the full width so the content does not reflow through every
+                        intermediate width while the panel animates shut. */}
+                    <div className="flex h-full w-[380px] flex-col">
+                        <div className="flex h-12 shrink-0 items-center justify-between border-b border-neutral-200 px-4 dark:border-neutral-800">
+                            <span className="flex items-center gap-2 text-sm font-semibold text-neutral-900 dark:text-white">
+                                <Wand2 className="h-4 w-4" /> AI Tools
+                            </span>
+                            <Button
+                                variant="ghost" size="sm"
+                                className="h-7 w-7 cursor-pointer p-0 text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
+                                onClick={onClose} aria-label="Close AI tools"
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                        <ScrollArea className="min-h-0 flex-1" reflow>
+                            <div className="space-y-5 p-4">
+                                {/* Results FIRST.
+                                    These sat at the bottom, under the job title, the company,
+                                    the URL row and a 28rem job-description box - so the ATS
+                                    score the user had just spent 5 credits on was off-screen
+                                    the moment it arrived, and nothing on screen changed to say
+                                    it had. The thing you paid for is the thing to show. */}
+                                {/* Tailor result */}
+                                {tailorResult && (
+                                    <div className="space-y-3 border-b border-neutral-200 dark:border-neutral-800 pb-4">
+                                        {tailorResult.summary && (
+                                            <p className="text-xs text-neutral-600 dark:text-neutral-400 bg-neutral-50 dark:bg-neutral-800/20 rounded-lg p-3 border border-neutral-200 dark:border-neutral-800/40">
+                                                ✓ {tailorResult.summary}
+                                            </p>
+                                        )}
+                                        {tailorResult.keywordsAdded.length > 0 && (
+                                            <div>
+                                                <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200 mb-1.5">Keywords added/emphasised</p>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {tailorResult.keywordsAdded.map(k => <Badge key={k} className="text-[10px] bg-neutral-50 text-neutral-700 dark:bg-neutral-800/20 dark:text-neutral-100">{k}</Badge>)}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {tailorResult.suggestions.length > 0 && (
+                                            <div>
+                                                <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200 mb-1.5">What you should add to this resume</p>
+                                                <ul className="space-y-1">
+                                                    {tailorResult.suggestions.map((s, i) => (
+                                                        <li key={i} className="text-xs text-neutral-600 dark:text-neutral-400 flex gap-1.5">
+                                                            <span className="text-neutral-900 dark:text-neutral-100 flex-shrink-0">→</span>{s}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                        <p className="text-[10px] text-neutral-400">Changes are saved to this resume. Press Save in the editor to persist.</p>
+                                    </div>
+                                )}
+
+                                {scoreResult && (
+                                    <div className="space-y-3 border-b border-neutral-200 dark:border-neutral-800 pb-4">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm font-semibold">ATS Score</span>
+                                            <span className={cn('text-2xl font-black', scoreResult.score >= 80 ? 'text-neutral-800 dark:text-neutral-200' : scoreResult.score >= 60 ? 'text-neutral-800 dark:text-neutral-200' : 'text-red-600')}>
+                                                {scoreResult.score}/100
+                                            </span>
+                                        </div>
+                                        {scoreResult.missing_keywords.length > 0 && (
+                                            <div>
+                                                <p className="text-xs font-medium text-red-600 mb-1.5">Missing keywords</p>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {scoreResult.missing_keywords.map(k => <Badge key={k} className="text-[10px] bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400">{k}</Badge>)}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {scoreResult.suggestions.length > 0 && (
+                                            <div>
+                                                <p className="text-xs font-medium text-neutral-600 mb-1.5">Suggestions</p>
+                                                <ul className="space-y-1">
+                                                    {scoreResult.suggestions.map((s, i) => <li key={i} className="text-xs text-neutral-600 dark:text-neutral-400">• {s}</li>)}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                     <div className="space-y-1.5">
                         <Label className="text-sm font-medium">Job Title</Label>
                         <Input placeholder="e.g. Senior Frontend Engineer" value={jobTitle} onChange={e => setJobTitle(e.target.value)} />
@@ -340,7 +691,7 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
                     </div>
                     <div className="space-y-1.5">
                         <Label className="text-sm font-medium">Job Description</Label>
-                        <Textarea className="h-36 text-xs" placeholder="Paste the full job description here…" value={jd} onChange={e => setJd(e.target.value)} />
+                        <Textarea className="min-h-40 max-h-72 text-xs" placeholder="Paste the full job description here…" value={jd} onChange={e => setJd(e.target.value)} />
                     </div>
 
                     {loading ? (
@@ -349,117 +700,201 @@ function AIToolsSheet({ draftId, open, onClose, onContentUpdated }: {
                             <p className="text-xs text-neutral-500 dark:text-neutral-400">{loading === 'score' ? 'Scoring your resume…' : (phase || 'Creating your tailored copy…')}</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 gap-2">
-                            <Button variant="outline" className="w-full" onClick={handleScore}>
-                                <BarChart3 className="w-4 h-4 mr-2" /> ATS Score{priceSuffix('resume_ats_score')}
+                        // Stacked, not a 2-col grid: "Tailor This Resume (20 credits)" does
+                        // not fit half a 380px column, and in the grid it was clipped at the
+                        // panel edge with the price cut off - the one thing on the button the
+                        // user most needs to read before pressing it.
+                        <div className="flex flex-col gap-2">
+                            <Button className="w-full cursor-pointer bg-neutral-900 text-white hover:opacity-90 dark:bg-white dark:text-black" onClick={handleTailor}>
+                                <Wand2 className="mr-2 h-4 w-4 shrink-0" /> Tailor This Resume{priceSuffix('resume_tailor_jd')}
                             </Button>
-                            <Button className="w-full bg-neutral-900 text-white dark:bg-white dark:text-black hover:opacity-90" onClick={handleTailor}>
-                                <Wand2 className="w-4 h-4 mr-2" /> Tailor This Resume{priceSuffix('resume_tailor_jd')}
+                            <Button variant="outline" className="w-full cursor-pointer" onClick={handleScore}>
+                                <BarChart3 className="mr-2 h-4 w-4 shrink-0" /> ATS Score{priceSuffix('resume_ats_score')}
                             </Button>
                         </div>
                     )}
 
-                    {/* Tailor result */}
-                    {tailorResult && (
-                        <div className="space-y-3 border-t border-neutral-200 dark:border-neutral-800 pt-4">
-                            {tailorResult.summary && (
-                                <p className="text-xs text-neutral-600 dark:text-neutral-400 bg-neutral-50 dark:bg-neutral-800/20 rounded-lg p-3 border border-neutral-200 dark:border-neutral-800/40">
-                                    ✓ {tailorResult.summary}
-                                </p>
-                            )}
-                            {tailorResult.keywordsAdded.length > 0 && (
-                                <div>
-                                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200 mb-1.5">Keywords added/emphasised</p>
-                                    <div className="flex flex-wrap gap-1">
-                                        {tailorResult.keywordsAdded.map(k => <Badge key={k} className="text-[10px] bg-neutral-50 text-neutral-700 dark:bg-neutral-800/20 dark:text-neutral-100">{k}</Badge>)}
-                                    </div>
-                                </div>
-                            )}
-                            {tailorResult.suggestions.length > 0 && (
-                                <div>
-                                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200 mb-1.5">What you should add to this resume</p>
-                                    <ul className="space-y-1">
-                                        {tailorResult.suggestions.map((s, i) => (
-                                            <li key={i} className="text-xs text-neutral-600 dark:text-neutral-400 flex gap-1.5">
-                                                <span className="text-neutral-900 dark:text-neutral-100 flex-shrink-0">→</span>{s}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-                            <p className="text-[10px] text-neutral-400">Changes are saved to this resume. Press Save in the editor to persist.</p>
-                        </div>
-                    )}
-
-                    {scoreResult && (
-                        <div className="space-y-3 border-t border-neutral-200 dark:border-neutral-800 pt-4">
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm font-semibold">ATS Score</span>
-                                <span className={cn('text-2xl font-black', scoreResult.score >= 80 ? 'text-neutral-800 dark:text-neutral-200' : scoreResult.score >= 60 ? 'text-neutral-800 dark:text-neutral-200' : 'text-red-600')}>
-                                    {scoreResult.score}/100
-                                </span>
                             </div>
-                            {scoreResult.missing_keywords.length > 0 && (
-                                <div>
-                                    <p className="text-xs font-medium text-red-600 mb-1.5">Missing keywords</p>
-                                    <div className="flex flex-wrap gap-1">
-                                        {scoreResult.missing_keywords.map(k => <Badge key={k} className="text-[10px] bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400">{k}</Badge>)}
-                                    </div>
-                                </div>
-                            )}
-                            {scoreResult.suggestions.length > 0 && (
-                                <div>
-                                    <p className="text-xs font-medium text-neutral-600 mb-1.5">Suggestions</p>
-                                    <ul className="space-y-1">
-                                        {scoreResult.suggestions.map((s, i) => <li key={i} className="text-xs text-neutral-600 dark:text-neutral-400">• {s}</li>)}
-                                    </ul>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </SheetContent>
-        </Sheet>
+                        </ScrollArea>
+                    </div>
+                </motion.aside>
+            )}
+        </AnimatePresence>
     )
 }
 
+/** The preview page's width in CSS pixels. Both the page itself and the pane that scales it
+ *  are sized from this, so they cannot disagree about how wide a page is. */
+const PAGE_W = 595
+
 // ─── Live Preview (HTML) ──────────────────────────────────────────────────────
+/**
+ * ── Why the type here is sized for a screen, not for A4 ──
+ *
+ * This is not the PDF. `/api/resume/pdf/[draftId]` calls `generateResumePDF`, which renders
+ * through `@react-pdf/renderer` from its own StyleSheet in `lib/resume-pdf/` - Helvetica,
+ * body 9pt, name 22pt, 40/36pt page padding. This component is Inter with its own sizes and
+ * its own padding, and there are five template slugs mapped onto two PDF templates. The two
+ * renderers were never the same document, so nothing about matching A4 was ever being
+ * preserved here.
+ *
+ * Which is what made the old sizes indefensible: body 10px, contact 9px, section headings
+ * 9px, on a 595px page. At the width the pane actually gets this rendered contact details at
+ * about 9.4px, and it was unreadable - the complaint that started this. Sizing it up costs no
+ * fidelity because there was none to lose, and the preview's job is to let you check that the
+ * right things are on the page in the right order.
+ *
+ * The one thing it must NOT do is claim to be page-accurate. It doesn't: the PDF button is
+ * what produces the document that gets sent.
+ */
 function LivePreview({ content, templateSlug }: { content: ResumeDraftContent; templateSlug: string }) {
     const { header, experience, projects, education, skills } = content
     const platDef = PLATFORM_TEMPLATES.find(p => p.slug === templateSlug)
     const accent = platDef?.config.primaryColor ?? '#1a1a1a'
 
+    /**
+     * A section heading.
+     *
+     * Every heading, every entry title and every meta line used to be some variation of
+     * "bold, dark, roughly this size", so EXPERIENCE, SKILLS, PROJECTS and the job titles
+     * inside them all read at ONE level. A resume is skimmed, and skimming is entirely a
+     * function of that contrast - if nothing is subordinate to anything, the reader has to
+     * actually read it.
+     *
+     * Four levels now, and they differ on more than one axis each:
+     *   section   small, uppercase, letterspaced, accent-coloured, ruled underneath
+     *   title     largest body weight, near-black
+     *   meta      same size as body, light grey, right-aligned
+     *   body      neutral grey
+     */
+    const Section = ({ children }: { children: React.ReactNode }) => (
+        <p style={{
+            fontSize: 10, fontWeight: 700, color: accent, textTransform: 'uppercase',
+            letterSpacing: 1.6, borderBottomWidth: 1, borderBottomColor: accent,
+            paddingBottom: 3, marginBottom: 8, marginTop: 18,
+        }}>{children}</p>
+    )
+    const Title = ({ children }: { children: React.ReactNode }) => (
+        <span style={{ fontSize: 14, fontWeight: 700, color: '#0a0a0a' }}>{children}</span>
+    )
+    const Meta = ({ children }: { children: React.ReactNode }) => (
+        <span style={{ fontSize: 12, color: '#8a8a8a', whiteSpace: 'nowrap' }}>{children}</span>
+    )
+    /** A bullet renders as a hanging indent, so a wrapped line does not sit under the dot. */
+    const Bullet = ({ children }: { children: React.ReactNode }) => (
+        <li style={{ color: '#404040', marginTop: 3, lineHeight: 1.5 }}>{children}</li>
+    )
+    const bulletList = (items: string[]) => {
+        const real = items.filter(b => b.trim().length)
+        if (!real.length) return null
+        return (
+            <ul style={{ listStyleType: 'disc', paddingLeft: 18, marginTop: 2 }}>
+                {real.map((b, i) => <Bullet key={i}>{b}</Bullet>)}
+            </ul>
+        )
+    }
+
+    /** An icon plus a handle, linked. This is what the contact row is made of. */
+    const Contact = ({ icon: Icon, text, href }: { icon: typeof Mail; text: string; href?: string }) => {
+        const body = (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
+                <Icon size={11} strokeWidth={2} style={{ flexShrink: 0, opacity: 0.75 }} />
+                {text}
+            </span>
+        )
+        if (!href) return body
+        return (
+            // `noopener` alongside `noreferrer`: a new tab gets `window.opener` otherwise.
+            <a href={href} target="_blank" rel="noreferrer noopener" style={{ color: 'inherit', textDecoration: 'none' }}>
+                {body}
+            </a>
+        )
+    }
+
+    /** Blank-line-separated blocks. A single newline inside one stays a soft wrap. */
+    const summaryParagraphs = (header.summary ?? '')
+        .split(/\n\s*\n/)
+        .map(t => t.replace(/\s*\n\s*/g, ' ').trim())
+        .filter(Boolean)
+
+    const monthYear = (iso?: string) => {
+        if (!iso) return ''
+        const m = /^(\d{4})-(\d{2})/.exec(iso)
+        if (!m) return iso.split('T')[0] ?? ''
+        const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        return `${MONTHS[Number(m[2]) - 1]} ${m[1]}`
+    }
+    const range = (start?: string, end?: string, current?: boolean) => {
+        const a = monthYear(start)
+        const b = current ? 'Present' : monthYear(end)
+        return a && b ? `${a} - ${b}` : a || b
+    }
+
     return (
-        <div className="bg-white text-[10px] leading-relaxed p-8 min-h-full" style={{ fontFamily: 'Inter, sans-serif', color: '#0a0a0a' }}>
+        // `minHeight` is A4's 1:1.414 against PAGE_W, so a resume with only a name in it
+        // still reads as a sheet of paper instead of a white strip floating in grey.
+        <div
+            className="bg-white text-[13px] leading-relaxed p-9"
+            style={{ fontFamily: 'Inter, sans-serif', color: '#0a0a0a', minHeight: Math.round(PAGE_W * 1.414) }}
+        >
             <div style={{ borderBottomWidth: 2, borderBottomColor: accent, paddingBottom: 8, marginBottom: 12 }}>
-                <p style={{ fontSize: 20, fontWeight: 700, color: '#0a0a0a' }}>{header.name || 'Your Name'}</p>
-                {header.title && <p style={{ fontSize: 11, color: '#737373', marginTop: 2 }}>{header.title}</p>}
-                <div style={{ display: 'flex', gap: 12, marginTop: 4, color: '#737373', fontSize: 9 }}>
-                    {[header.email, header.phone, header.location, header.github, header.linkedin].filter(Boolean).map((v, i) => <span key={i}>{v}</span>)}
+                <p style={{ fontSize: 26, fontWeight: 700, color: '#0a0a0a', lineHeight: 1.15 }}>{header.name || 'Your Name'}</p>
+                {header.title && <p style={{ fontSize: 14, color: '#737373', marginTop: 2 }}>{header.title}</p>}
+                {/* Icons and handles, not URLs. `rowGap` because this wraps on a narrow page
+                    and two rows of contact details must not touch. */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', columnGap: 14, rowGap: 4, marginTop: 6, color: '#737373', fontSize: 12 }}>
+                    {header.email && <Contact icon={Mail} text={header.email} href={`mailto:${header.email}`} />}
+                    {header.phone && <Contact icon={Phone} text={header.phone} href={`tel:${header.phone.replace(/[^+\d]/g, '')}`} />}
+                    {header.location && <Contact icon={MapPin} text={header.location} />}
+                    {header.github && <Contact icon={Github} text={handleFor(header.github, 'github')} href={hrefFor(header.github)} />}
+                    {header.linkedin && <Contact icon={Linkedin} text={handleFor(header.linkedin, 'linkedin')} href={hrefFor(header.linkedin)} />}
+                    {header.website && <Contact icon={Globe} text={handleFor(header.website, 'site')} href={hrefFor(header.website)} />}
+                    {header.portfolio && <Contact icon={Link2} text={handleFor(header.portfolio, 'site')} href={hrefFor(header.portfolio)} />}
                 </div>
             </div>
-            {header.summary && <p style={{ color: '#525252', marginBottom: 10, lineHeight: 1.5 }}>{header.summary}</p>}
+
+            {/* Paragraphs, not `white-space: pre-line`.
+                `pre-line` renders every newline literally, so the blank line between two
+                paragraphs became a FULL EMPTY LINE - roughly 20px of nothing between each
+                one, which is why the summary took three times the height of the same text
+                in the form beside it. Splitting on blank runs and spacing with a margin puts
+                the gap under this component's control instead of the user's Enter key. */}
+            {summaryParagraphs.length > 0 && (
+                <div style={{ marginBottom: 2 }}>
+                    {summaryParagraphs.map((para, i) => (
+                        <p key={i} style={{ color: '#525252', lineHeight: 1.55, marginTop: i === 0 ? 0 : 6 }}>{para}</p>
+                    ))}
+                </div>
+            )}
 
             {experience.length > 0 && (
-                <div style={{ marginBottom: 10 }}>
-                    <p style={{ fontSize: 9, fontWeight: 700, color: '#171717', textTransform: 'uppercase', letterSpacing: 1, borderBottomWidth: 0.5, borderBottomColor: '#e5e5e5', paddingBottom: 2, marginBottom: 6 }}>Experience</p>
+                <div>
+                    <Section>Experience</Section>
                     {experience.map(e => (
-                        <div key={e.id} style={{ marginBottom: 8 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ fontWeight: 600, color: '#171717' }}>{e.role} - {e.company}</span>
-                                <span style={{ color: '#a3a3a3' }}>{e.startDate?.split('T')[0]} - {e.current ? 'Present' : e.endDate?.split('T')[0]}</span>
+                        <div key={e.id} style={{ marginBottom: 10 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
+                                <Title>
+                                    {e.role}
+                                    {e.company && <span style={{ fontWeight: 500, color: '#525252' }}>{' at '}
+                                        {e.companyUrl
+                                            ? <a href={hrefFor(e.companyUrl)} target="_blank" rel="noreferrer noopener" style={{ color: '#525252', textDecoration: 'underline', textUnderlineOffset: 2 }}>{e.company}</a>
+                                            : e.company}
+                                    </span>}
+                                </Title>
+                                <Meta>{range(e.startDate, e.endDate, e.current)}</Meta>
                             </div>
-                            {e.bullets.filter(Boolean).map((b, i) => <p key={i} style={{ paddingLeft: 12, color: '#404040', marginTop: 1 }}>• {b}</p>)}
+                            {e.location && <p style={{ fontSize: 12, color: '#8a8a8a' }}>{e.location}</p>}
+                            {bulletList(e.bullets)}
                         </div>
                     ))}
                 </div>
             )}
 
             {skills.length > 0 && (
-                <div style={{ marginBottom: 10 }}>
-                    <p style={{ fontSize: 9, fontWeight: 700, color: '#171717', textTransform: 'uppercase', letterSpacing: 1, borderBottomWidth: 0.5, borderBottomColor: '#e5e5e5', paddingBottom: 2, marginBottom: 6 }}>Skills</p>
-                    {skills.map(g => (
-                        <div key={g.category} style={{ marginBottom: 3 }}>
+                <div>
+                    <Section>Skills</Section>
+                    {skills.map((g, gi) => (
+                        <div key={gi} style={{ marginBottom: 4 }}>
                             <span style={{ fontWeight: 600, color: '#171717' }}>{g.category}: </span>
                             <span style={{ color: '#525252' }}>{g.items.join(' · ')}</span>
                         </div>
@@ -468,13 +903,21 @@ function LivePreview({ content, templateSlug }: { content: ResumeDraftContent; t
             )}
 
             {projects.length > 0 && (
-                <div style={{ marginBottom: 10 }}>
-                    <p style={{ fontSize: 9, fontWeight: 700, color: '#171717', textTransform: 'uppercase', letterSpacing: 1, borderBottomWidth: 0.5, borderBottomColor: '#e5e5e5', paddingBottom: 2, marginBottom: 6 }}>Projects</p>
+                <div>
+                    <Section>Projects</Section>
                     {projects.map(p => (
-                        <div key={p.id} style={{ marginBottom: 6 }}>
-                            <span style={{ fontWeight: 600, color: '#171717' }}>{p.name}</span>
-                            {p.technologies.length > 0 && <span style={{ color: '#a3a3a3', marginLeft: 6 }}>{p.technologies.join(', ')}</span>}
-                            {p.bullets.filter(Boolean).map((b, i) => <p key={i} style={{ paddingLeft: 12, color: '#404040', marginTop: 1 }}>• {b}</p>)}
+                        <div key={p.id} style={{ marginBottom: 10 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
+                                <Title>{p.name}</Title>
+                                <span style={{ display: 'inline-flex', gap: 10, color: '#8a8a8a', fontSize: 12 }}>
+                                    {p.github && <Contact icon={Github} text={handleFor(p.github, 'github')} href={hrefFor(p.github)} />}
+                                    {p.liveUrl && <Contact icon={Globe} text={handleFor(p.liveUrl, 'site')} href={hrefFor(p.liveUrl)} />}
+                                </span>
+                            </div>
+                            {p.technologies.length > 0 && (
+                                <p style={{ fontSize: 12, color: '#8a8a8a', marginTop: 1 }}>{p.technologies.join(' · ')}</p>
+                            )}
+                            {bulletList(p.bullets)}
                         </div>
                     ))}
                 </div>
@@ -482,15 +925,97 @@ function LivePreview({ content, templateSlug }: { content: ResumeDraftContent; t
 
             {education.length > 0 && (
                 <div>
-                    <p style={{ fontSize: 9, fontWeight: 700, color: '#171717', textTransform: 'uppercase', letterSpacing: 1, borderBottomWidth: 0.5, borderBottomColor: '#e5e5e5', paddingBottom: 2, marginBottom: 6 }}>Education</p>
+                    <Section>Education</Section>
                     {education.map(e => (
-                        <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                            <span style={{ fontWeight: 600, color: '#171717' }}>{e.degree ? `${e.degree}, ${e.institution}` : e.institution}</span>
-                            <span style={{ color: '#a3a3a3' }}>{e.startDate?.split('T')[0]} - {e.endDate?.split('T')[0]}</span>
+                        <div key={e.id} style={{ marginBottom: 6 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
+                                <Title>{e.degree ? `${e.degree}${e.field ? `, ${e.field}` : ''}` : e.institution}</Title>
+                                <Meta>{range(e.startDate, e.endDate)}</Meta>
+                            </div>
+                            {e.degree && <p style={{ fontSize: 12, color: '#525252' }}>{e.institution}</p>}
+                            {bulletList(e.bullets)}
                         </div>
                     ))}
                 </div>
             )}
+        </div>
+    )
+}
+
+// ─── Preview pane ────────────────────────────────────────────────────────────
+/** `useLayoutEffect` warns when it runs during SSR, where it does nothing. Measuring before
+ *  paint still matters on the client, so take it there and fall back to `useEffect` on the
+ *  server, which is the standard shape for this. */
+const useMeasureEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
+
+
+/**
+ * The live preview, scaled to fit the space the form leaves it.
+ *
+ * ── Why this is measured and not a fixed width ──
+ *
+ * The page used to be pinned at `w-[595px]` inside a `flex-1` pane, which is only correct
+ * when the pane happens to be at least 643px wide (595 plus the 24px padding either side).
+ * Working the geometry out for the real shell - viewport, minus a 272px sidebar, minus the
+ * 12px gutter, minus the form pane and its border:
+ *
+ *     viewport   card   form   preview   needs 643
+ *     1024        740    440       299   cropped by 344px
+ *     1280        996    440       555   cropped by  88px
+ *     1440       1156    440       715   fits
+ *
+ * So it was already cutting the right-hand edge off the page at 1280 and below, before
+ * anyone widened anything. And the AI rail is 460px by default and can be dragged to 900,
+ * which subtracts from the same row - no fixed number survives a column the user resizes.
+ *
+ * Measuring means the form pane can take the extra width it needs without the preview
+ * losing its right margin, and the whole page stays visible while the rail slides in and
+ * out. `scale` is clamped at 1 so a wide screen shows it at true size rather than blown up.
+ *
+ * The transform needs a wrapper of the SCALED size: `transform` paints smaller but leaves
+ * the layout box at full height, so without this the pane would scroll through hundreds of
+ * pixels of empty grey below a shrunken page.
+ */
+function PreviewPane({ content, templateSlug }: { content: ResumeDraftContent; templateSlug: string }) {
+    const paneRef = useRef<HTMLDivElement>(null)
+    const pageRef = useRef<HTMLDivElement>(null)
+    const [scale, setScale] = useState(1)
+    const [pageH, setPageH] = useState(0)
+
+    useMeasureEffect(() => {
+        const pane = paneRef.current
+        const page = pageRef.current
+        if (!pane || !page) return
+
+        const measure = () => {
+            const avail = pane.clientWidth - 48 // p-6, both sides
+            const next = Math.min(1, Math.max(0.4, avail / PAGE_W))
+            // Guarded: the wrapper height depends on the scale, and the height decides
+            // whether this pane gets a scrollbar, which changes clientWidth. Without a
+            // threshold that round trip can oscillate by a fraction of a pixel forever.
+            setScale(s => (Math.abs(s - next) > 0.002 ? next : s))
+            setPageH(h => (Math.abs(h - page.offsetHeight) > 0.5 ? page.offsetHeight : h))
+        }
+
+        measure()
+        const ro = new ResizeObserver(measure)
+        ro.observe(pane)
+        ro.observe(page)
+        return () => ro.disconnect()
+    }, [])
+
+    return (
+        <div
+            ref={paneRef}
+            className="hidden xl:flex flex-1 min-w-0 overflow-y-auto overflow-x-hidden bg-neutral-200 dark:bg-neutral-800 p-6 items-start justify-center"
+        >
+            {/* Outer box carries the scaled dimensions, so the shadow traces the page edge
+                and the pane scrolls exactly as far as there is page to see. */}
+            <div className="shadow-2xl" style={{ width: PAGE_W * scale, height: pageH ? pageH * scale : undefined }}>
+                <div ref={pageRef} style={{ width: PAGE_W, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+                    <LivePreview content={content} templateSlug={templateSlug} />
+                </div>
+            </div>
         </div>
     )
 }
@@ -501,7 +1026,7 @@ export function ResumeEditor({ draft, content: initialContent, templates }: Prop
     const [name, setName] = useState(draft.name)
     const [templateSlug, setTemplateSlug] = useState(draft.templateSlug)
     const [isPublic, setIsPublic] = useState(draft.isPublic)
-    const [aiSheetOpen, setAiSheetOpen] = useState(false)
+    const [aiToolsOpen, setAiToolsOpen] = useState(false)
     const [saving, setSaving] = useState(false)
     const [syncing, setSyncing] = useState(false)
     const [, startTransition] = useTransition()
@@ -512,7 +1037,7 @@ export function ResumeEditor({ draft, content: initialContent, templates }: Prop
             const result = await syncProfileToResumeDraft(draft.id)
             if (result.success) {
                 setContent(result.content)
-                toast.success('Profile synced! Review and edit as needed.')
+                toast.success('Profile synced. Anything you had already filled in was kept.')
             } else {
                 toast.error(result.error ?? 'Sync failed')
             }
@@ -526,8 +1051,34 @@ export function ResumeEditor({ draft, content: initialContent, templates }: Prop
     const save = useCallback(async (silent = false) => {
         setSaving(true)
         const res = await updateResumeDraft(draft.id, { name, templateSlug, content, isPublic })
+
+        // The same four links the import page already writes back to `users`. The header
+        // form was collecting them and throwing them away, so the profile stayed empty and
+        // the next Sync Profile had nothing to give - which is exactly why syncing was a
+        // no-op on a real account.
+        //
+        // Deliberately NOT awaited into the result: both of these swallow their own errors,
+        // and the draft is what the user asked to persist. A profile write must never be
+        // able to fail a save.
+        void saveMyProfileLinks({
+            githubUrl: content.header.github,
+            linkedinUrl: content.header.linkedin,
+            websiteUrl: content.header.website ?? content.header.portfolio,
+        })
+
+        // Experience, projects, education and skills go back to the profile too. Without
+        // this the editor was write-only: you could type a whole career into a resume and
+        // your profile stayed empty, which is what made Sync Profile a no-op on a real
+        // account. It upserts and never deletes - see the action's notes.
+        const back = await syncResumeDraftToProfile(draft.id, content)
+
         setSaving(false)
-        if (!silent) { if (res.success) toast.success('Saved!'); else toast.error('Save failed') }
+        if (!silent) {
+            if (!res.success) { toast.error('Save failed'); return }
+            const w = back.written
+            const total = w ? w.experience + w.projects + w.education + w.skills : 0
+            toast.success('Saved!', total > 0 ? { description: `${summarise(w!)} also updated on your profile.` } : undefined)
+        }
     }, [draft.id, name, templateSlug, content, isPublic])
 
     const platformTemplates = templates.filter(t => t.isPlatform)
@@ -563,12 +1114,21 @@ export function ResumeEditor({ draft, content: initialContent, templates }: Prop
                         className="h-7 text-xs"
                         disabled={syncing}
                         onClick={handleSyncProfile}
-                        title="Auto-fill from your ShipItHQ profile"
+                        title="Fill blank fields from your ShipItHQ profile. Your own edits are kept."
                     >
                         <RefreshCw className={cn("w-3 h-3 mr-1", syncing && "animate-spin")} />
                         {syncing ? 'Syncing…' : 'Sync Profile'}
                     </Button>
-                    <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => setAiSheetOpen(true)}>
+                    {/* A toggle now, not a one-way open. The panel is a docked column, so
+                        the button that opened it is the obvious thing to press to close it -
+                        the same way the AI rail's trigger behaves. */}
+                    <Button
+                        variant={aiToolsOpen ? 'default' : 'outline'}
+                        size="sm"
+                        className="h-7 cursor-pointer text-xs"
+                        aria-pressed={aiToolsOpen}
+                        onClick={() => setAiToolsOpen(o => !o)}
+                    >
                         <Wand2 className="w-3 h-3 mr-1" /> AI Tools
                     </Button>
                     <Button
@@ -601,8 +1161,22 @@ export function ResumeEditor({ draft, content: initialContent, templates }: Prop
 
             {/* ── Two-pane editor ── */}
             <div className="flex flex-1 overflow-hidden">
-                {/* Left: Form */}
-                <div className="w-full lg:w-[440px] lg:flex-shrink-0 border-r border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 overflow-y-auto">
+                {/* Left: Form.
+                    Wider than it was (440px), and the breakpoint moved from lg to xl. Below
+                    1280 the preview pane could not fit a 595px page at all - it showed a
+                    strip of one - so the form takes the whole width there instead, which is
+                    the pane that is actually being used at that size. */}
+                <div className={cn(
+                    "w-full border-r border-neutral-200 bg-white transition-[width] duration-300 xl:flex-shrink-0 dark:border-neutral-800 dark:bg-neutral-900 overflow-y-auto",
+                    // Narrows when the AI tools column opens, for the reason
+                    // `app/(main)/layout.tsx` gives for collapsing the sidebar when the AI
+                    // rail opens: "three full-width columns do not fit". Measured on a
+                    // 1512px screen (page card 1228): at the full 560px the preview is left
+                    // with 287px and scales to 0.40, which is a thumbnail. At 400px it gets
+                    // 447px and scales to 0.67, which is still a readable page - and the
+                    // form is not the pane being used while the tools panel is open.
+                    aiToolsOpen ? "xl:w-[400px] 2xl:w-[460px]" : "xl:w-[560px] 2xl:w-[620px]",
+                )}>
                     <Tabs defaultValue="header" className="h-full">
                         <TabsList className="sticky top-0 z-10 w-full rounded-none border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 justify-start px-4 gap-1 h-9">
                             {['header', 'experience', 'projects', 'education', 'skills'].map(t => (
@@ -619,20 +1193,20 @@ export function ResumeEditor({ draft, content: initialContent, templates }: Prop
                     </Tabs>
                 </div>
 
-                {/* Right: Live preview */}
-                <div className="hidden lg:flex flex-1 overflow-auto bg-neutral-200 dark:bg-neutral-800 p-6 items-start justify-center">
-                    <div className="w-[595px] shadow-2xl">
-                        <LivePreview content={content} templateSlug={templateSlug} />
-                    </div>
-                </div>
+                {/* Middle: Live preview, scaled to whatever width the panes leave it. */}
+                <PreviewPane content={content} templateSlug={templateSlug} />
+
+                {/* Right: AI tools, a real column. It narrows the preview rather than
+                    covering it, and PreviewPane rescales to match. */}
+                <AIToolsPanel
+                    draftId={draft.id}
+                    open={aiToolsOpen}
+                    onClose={() => setAiToolsOpen(false)}
+                    onContentUpdated={(updatedContent) => setContent(updatedContent)}
+                />
             </div>
 
-            <AIToolsSheet
-                draftId={draft.id}
-                open={aiSheetOpen}
-                onClose={() => setAiSheetOpen(false)}
-                onContentUpdated={(updatedContent) => setContent(updatedContent)}
-            />
+
         </div>
     )
 }

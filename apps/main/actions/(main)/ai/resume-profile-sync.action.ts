@@ -52,6 +52,51 @@ function buildSkillGroups(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Helper: merge profile data into an existing draft without destroying edits
+//
+// Header fields are per-resume: somebody tailors a job title or rewrites a
+// summary for one application, and a sync must not undo that. So anything
+// already filled in wins, and the profile only supplies what is blank.
+//
+// The list sections are the user's history, so a non-empty profile list does
+// replace the draft's - that IS what syncing a new job into a resume means.
+// But an EMPTY profile list never replaces anything: a user with no work
+// experience recorded on their profile must not lose the roles they typed
+// straight into the resume.
+// ─────────────────────────────────────────────────────────────────────────────
+function mergeProfileInto(prev: ResumeDraftContent, next: ResumeDraftContent): ResumeDraftContent {
+    /** What the user typed wins; the profile fills the blank. Whitespace is blank. */
+    const keep = (mine: string | null | undefined, fromProfile: string | null | undefined) => {
+        const typed = (mine ?? '').trim()
+        return typed.length ? (mine as string) : (fromProfile ?? undefined)
+    }
+    /** A list from the profile replaces one in the draft only if it has something in it. */
+    const preferFull = <T,>(fromProfile: T[] | undefined, mine: T[] | undefined): T[] =>
+        fromProfile && fromProfile.length ? fromProfile : (mine ?? [])
+
+    const mine = prev.header ?? ({} as ResumeDraftContent['header'])
+    return {
+        header: {
+            name: keep(mine.name, next.header.name) ?? '',
+            email: keep(mine.email, next.header.email) ?? '',
+            title: keep(mine.title, next.header.title) ?? '',
+            summary: keep(mine.summary, next.header.summary) ?? '',
+            phone: keep(mine.phone, next.header.phone),
+            location: keep(mine.location, next.header.location),
+            website: keep(mine.website, next.header.website),
+            github: keep(mine.github, next.header.github),
+            linkedin: keep(mine.linkedin, next.header.linkedin),
+            portfolio: keep(mine.portfolio, next.header.portfolio),
+        },
+        experience: preferFull(next.experience, prev.experience),
+        projects: preferFull(next.projects, prev.projects),
+        education: preferFull(next.education, prev.education),
+        skills: preferFull(next.skills, prev.skills),
+        certifications: preferFull(next.certifications, prev.certifications),
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // syncProfileToResumeDraft
 //
 // Reads the user's ShipItHQ profile data and maps it into ResumeDraftContent.
@@ -153,8 +198,12 @@ export async function syncProfileToResumeDraft(draftId?: string): Promise<
             github: toOptionalString(github),
             website: toOptionalString(website),
             portfolio: toOptionalString(portfolio),
-            phone: undefined,
-            location: undefined,
+            // `users.phone` and `users.location` are real columns and always have been.
+            // These two were hard-coded to `undefined`, which meant a sync could never
+            // fill them in - and because the result replaced the draft wholesale, every
+            // sync also DELETED whatever the user had typed into them by hand.
+            phone: toOptionalString(user.phone),
+            location: toOptionalString(user.location),
         }
 
         // ── 5. Map experience ─────────────────────────────────────────────────
@@ -262,17 +311,38 @@ export async function syncProfileToResumeDraft(draftId?: string): Promise<
             certifications: certs,
         }
 
-        // ── 12. Optionally persist to an existing draft ───────────────────────
+        // ── 12. Merge into the existing draft, and persist ────────────────────
+        //
+        // This used to assign `mappedContent` straight over the draft's content. The
+        // button says "Auto-fill from your ShipItHQ profile", but what it did was
+        // discard the resume and rebuild it from the profile - so a phone number, a
+        // tailored job title, a hand-written summary or a bullet the user had edited
+        // were all gone, with no warning and no undo. If the profile had no work
+        // experience, three hand-typed roles were replaced with `[]`.
+        //
+        // `mergeProfileInto` fills the gaps and leaves everything else alone. The one
+        // rule it enforces is that a sync must never turn something into nothing.
+        let finalContent = mappedContent
+
         if (draftId) {
             // Scoped to the caller. `draftId` arrives from the client, so without
             // the userId predicate this action would overwrite ANY user's resume
             // with the caller's profile data.
+            const existing = await db.query.resumeDraft.findFirst({
+                where: and(eq(resumeDraft.id, draftId), eq(resumeDraft.userId, userId)),
+                columns: { content: true },
+            })
+            if (!existing) return { success: false, error: 'Draft not found.' }
+
+            const previous = existing.content as unknown as ResumeDraftContent | null
+            finalContent = previous ? mergeProfileInto(previous, mappedContent) : mappedContent
+
             await db.update(resumeDraft)
-                .set({ content: JSON.parse(JSON.stringify(mappedContent)) })
+                .set({ content: JSON.parse(JSON.stringify(finalContent)) })
                 .where(and(eq(resumeDraft.id, draftId), eq(resumeDraft.userId, userId)))
         }
 
-        return { success: true, content: mappedContent }
+        return { success: true, content: finalContent }
     } catch (err: unknown) {
         console.error('[syncProfileToResumeDraft] error:', err)
         return {

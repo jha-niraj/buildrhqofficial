@@ -21,6 +21,9 @@ import {
     createProjectAssignment, finalizeProjectAssignment, getProjectAssignmentJobStatus, getTeacherClasses,
 } from '@/actions/assignments/project-assignments.action'
 import { cn } from '@repo/ui/lib/utils'
+import {
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from '@repo/ui/components/ui/select'
 
 interface ClassOption {
     id: string
@@ -588,72 +591,72 @@ export default function TeacherProjectGenerateSheet({
                                                                 <div className="grid grid-cols-2 gap-4">
                                                                     <div className="space-y-2">
                                                                         <Label>App Framework</Label>
-                                                                        <select
-                                                                            value={formData.stacks.frontend}
-                                                                            onChange={(e) => updateStacks('frontend', e.target.value)}
-                                                                            className="w-full h-10 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3"
-                                                                        >
-                                                                            <option value="">Select framework</option>
-                                                                            {APP_FRAMEWORKS.map(f => <option key={f} value={f}>{f}</option>)}
-                                                                        </select>
+                                                                        <Select value={formData.stacks.frontend} onValueChange={(__v) => updateStacks('frontend', __v)}>
+                                                                            <SelectTrigger className="w-full h-10 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3">
+                                                                                <SelectValue placeholder="Select framework" />
+                                                                            </SelectTrigger>
+                                                                            <SelectContent>
+                                                                                {APP_FRAMEWORKS.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                                                                            </SelectContent>
+                                                                        </Select>
                                                                     </div>
                                                                     <div className="space-y-2">
                                                                         <Label>Backend</Label>
-                                                                        <select
-                                                                            value={formData.stacks.backend}
-                                                                            onChange={(e) => updateStacks('backend', e.target.value)}
-                                                                            className="w-full h-10 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3"
-                                                                        >
-                                                                            <option value="">Select backend</option>
-                                                                            {APP_BACKENDS.map(b => <option key={b} value={b}>{b}</option>)}
-                                                                        </select>
+                                                                        <Select value={formData.stacks.backend} onValueChange={(__v) => updateStacks('backend', __v)}>
+                                                                            <SelectTrigger className="w-full h-10 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3">
+                                                                                <SelectValue placeholder="Select backend" />
+                                                                            </SelectTrigger>
+                                                                            <SelectContent>
+                                                                                {APP_BACKENDS.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                                                                            </SelectContent>
+                                                                        </Select>
                                                                     </div>
                                                                 </div>
                                                             ) : (
                                                                 <div className="grid grid-cols-2 gap-4">
                                                                     <div className="space-y-2">
                                                                         <Label>Frontend</Label>
-                                                                        <select
-                                                                            value={formData.stacks.frontend}
-                                                                            onChange={(e) => updateStacks('frontend', e.target.value)}
-                                                                            className="w-full h-10 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3"
-                                                                        >
-                                                                            <option value="">Select frontend</option>
-                                                                            {FRONTEND_STACKS.map(f => <option key={f} value={f}>{f}</option>)}
-                                                                        </select>
+                                                                        <Select value={formData.stacks.frontend} onValueChange={(__v) => updateStacks('frontend', __v)}>
+                                                                            <SelectTrigger className="w-full h-10 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3">
+                                                                                <SelectValue placeholder="Select frontend" />
+                                                                            </SelectTrigger>
+                                                                            <SelectContent>
+                                                                                {FRONTEND_STACKS.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                                                                            </SelectContent>
+                                                                        </Select>
                                                                     </div>
                                                                     <div className="space-y-2">
                                                                         <Label>Backend</Label>
-                                                                        <select
-                                                                            value={formData.stacks.backend}
-                                                                            onChange={(e) => updateStacks('backend', e.target.value)}
-                                                                            className="w-full h-10 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3"
-                                                                        >
-                                                                            <option value="">Select backend</option>
-                                                                            {BACKEND_STACKS.map(b => <option key={b} value={b}>{b}</option>)}
-                                                                        </select>
+                                                                        <Select value={formData.stacks.backend} onValueChange={(__v) => updateStacks('backend', __v)}>
+                                                                            <SelectTrigger className="w-full h-10 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3">
+                                                                                <SelectValue placeholder="Select backend" />
+                                                                            </SelectTrigger>
+                                                                            <SelectContent>
+                                                                                {BACKEND_STACKS.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                                                                            </SelectContent>
+                                                                        </Select>
                                                                     </div>
                                                                     <div className="space-y-2">
                                                                         <Label>Database</Label>
-                                                                        <select
-                                                                            value={formData.stacks.database}
-                                                                            onChange={(e) => updateStacks('database', e.target.value)}
-                                                                            className="w-full h-10 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3"
-                                                                        >
-                                                                            <option value="">Select database</option>
-                                                                            {DATABASES.map(d => <option key={d} value={d}>{d}</option>)}
-                                                                        </select>
+                                                                        <Select value={formData.stacks.database} onValueChange={(__v) => updateStacks('database', __v)}>
+                                                                            <SelectTrigger className="w-full h-10 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3">
+                                                                                <SelectValue placeholder="Select database" />
+                                                                            </SelectTrigger>
+                                                                            <SelectContent>
+                                                                                {DATABASES.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                                                                            </SelectContent>
+                                                                        </Select>
                                                                     </div>
                                                                     <div className="space-y-2">
                                                                         <Label>AI Provider</Label>
-                                                                        <select
-                                                                            value={formData.stacks.aiProvider}
-                                                                            onChange={(e) => updateStacks('aiProvider', e.target.value)}
-                                                                            className="w-full h-10 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3"
-                                                                        >
-                                                                            <option value="">Select AI (optional)</option>
-                                                                            {AI_PROVIDERS.map(a => <option key={a} value={a}>{a}</option>)}
-                                                                        </select>
+                                                                        <Select value={formData.stacks.aiProvider} onValueChange={(__v) => updateStacks('aiProvider', __v)}>
+                                                                            <SelectTrigger className="w-full h-10 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3">
+                                                                                <SelectValue placeholder="Select AI (optional)" />
+                                                                            </SelectTrigger>
+                                                                            <SelectContent>
+                                                                                {AI_PROVIDERS.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}
+                                                                            </SelectContent>
+                                                                        </Select>
                                                                     </div>
                                                                 </div>
                                                             )

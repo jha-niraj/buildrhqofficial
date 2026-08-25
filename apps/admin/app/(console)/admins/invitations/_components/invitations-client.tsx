@@ -8,6 +8,7 @@ import { toast } from "@repo/ui/components/ui/sonner"
 import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 import { Label } from "@repo/ui/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/ui/select"
+import { Input } from '@repo/ui/components/ui/input'
 import {
     getPendingInvitations, createAdminInvitation, revokeInvitation,
 } from "@/actions/admin.action"
@@ -136,25 +137,25 @@ export function InvitationsClient({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <Label htmlFor="invite-email" className="mb-1.5 block">Email address</Label>
-                            <input
+                            <Input
                                 id="invite-email"
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="teammate@shipithq.com"
                                 required
-                                className="w-full px-4 py-2 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-neutral-400"
+                                className="w-full px-4 py-2 rounded-lg"
                             />
                         </div>
                         <div>
                             <Label htmlFor="invite-name" className="mb-1.5 block">Name (optional)</Label>
-                            <input
+                            <Input
                                 id="invite-name"
                                 type="text"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="Jane Doe"
-                                className="w-full px-4 py-2 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-neutral-400"
+                                className="w-full px-4 py-2 rounded-lg"
                             />
                         </div>
                     </div>

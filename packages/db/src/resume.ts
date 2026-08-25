@@ -27,6 +27,9 @@ export interface ResumeHeader {
 export interface ResumeExperienceEntry {
     id: string;
     company: string;
+    /** The company's official site. OPTIONAL: every draft written before this
+     *  field existed lacks it, and apps/worker reads the same jsonb column. */
+    companyUrl?: string;
     role: string;
     location?: string;
     /** ISO date string. */

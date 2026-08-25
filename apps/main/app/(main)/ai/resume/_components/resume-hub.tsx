@@ -15,7 +15,7 @@ import { Textarea } from '@repo/ui/components/ui/textarea'
 import {
     Plus, FileText, Upload, Globe, Github, Linkedin,
     Download, Copy, Trash2, Eye, ExternalLink, Sparkles,
-    LayoutTemplate, Clock, Lock, CheckCircle2, Settings, Star, FileUp
+    LayoutTemplate, Clock, Lock, CheckCircle2, Settings, Star, FileUp, ArrowRight,
 } from 'lucide-react'
 import { DotmSquare11 } from '@repo/ui/components/ui/dotm-square-11'
 import toast from '@repo/ui/components/ui/sonner'
@@ -27,8 +27,8 @@ import { importAndCreateDraft } from '@/actions/(main)/ai/resume-import.action'
 import { uploadResume } from '@/actions/(main)/user/resume.action'
 import { validateResumeFile } from '@/lib/resume-extractor.client'
 import { emptyResumeDraftContent } from '@/types/resume-draft'
-import { PLATFORM_TEMPLATES } from '@/types/resume-draft'
 import { cn } from '@repo/ui/lib/utils'
+import { TemplatePreview, shapeForSlug } from '@/components/resume/template-preview'
 import { resumeShareUrl } from "@/lib/urls"
 import { creditErrorMessage, priceSuffix } from '@/lib/credits/notify'
 
@@ -149,17 +149,26 @@ function NewResumeSheet({ templates, open, onClose }: {
             }
             if (!result.success) return toast.error(creditErrorMessage(result, 'Failed to create resume'))
 
-            // Show toasts for missing profile data
-            if (result.missingFields?.length) {
-                result.missingFields.forEach(field => {
-                    toast.warning(`${field} not found on your profile - fill it in the editor`)
-                })
-            }
-
+            // ONE toast, not one per field.
+            //
+            // This was `missingFields.forEach(toast.warning)`, and `missingFields` is six
+            // checks - work experience, projects, skills, education, name, job title. An
+            // empty profile therefore fired five warning toasts and then a success toast on
+            // top of them, which is how a routine "your profile is empty" turned into a
+            // stack of red that reads as five separate failures. Nothing had failed: the
+            // resume was created every time.
             toast.success(
                 source === 'import' ? 'Resume created from your imported data!'
                     : source === 'blank' ? 'Blank resume created!'
                     : 'Resume created from your profile!',
+                result.missingFields?.length
+                    ? {
+                        description:
+                            `Nothing on your profile for ${listOf(result.missingFields)}, so ` +
+                            `${result.missingFields.length === 1 ? 'that section is' : 'those sections are'} empty. ` +
+                            `Fill them in here or on your profile.`,
+                    }
+                    : undefined,
             )
             onClose()
             router.push(`/ai/resume/draft/${result.draft?.id}`)
@@ -272,29 +281,27 @@ function NewResumeSheet({ templates, open, onClose }: {
                             )}
 
                             {/* Import sources */}
+                            {/* Sends the user to the real import page instead of repeating its
+                                form. There were two copies of "paste LinkedIn + GitHub": this
+                                one, and /ai/resume/import - and only that one prefills from the
+                                profile, normalises the handles, saves the links back and explains
+                                what gets extracted. A second, worse copy of a form is a second
+                                thing to keep in step, and it was already out of step. */}
                             {source === 'import' && (
-                                <div className="space-y-3">
-                                    <div className="space-y-1.5">
-                                        <Label className="text-xs font-medium flex items-center gap-1.5">
-                                            <Linkedin className="w-3.5 h-3.5 text-neutral-800 dark:text-neutral-200" /> LinkedIn URL
-                                        </Label>
-                                        <Input placeholder="https://linkedin.com/in/username" value={linkedinUrl} onChange={e => setLinkedinUrl(e.target.value)} />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-xs font-medium flex items-center gap-1.5">
-                                            <Github className="w-3.5 h-3.5" /> GitHub URL
-                                        </Label>
-                                        <Input placeholder="https://github.com/username" value={githubUrl} onChange={e => setGithubUrl(e.target.value)} />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-xs font-medium">Paste Resume Text</Label>
-                                        <Textarea
-                                            placeholder="Paste your existing resume text here…"
-                                            className="h-28 text-xs"
-                                            value={pastedText}
-                                            onChange={e => setPastedText(e.target.value)}
-                                        />
-                                    </div>
+                                <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-800/50">
+                                    <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                        Import from LinkedIn and GitHub
+                                    </p>
+                                    <p className="mt-1 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+                                        The importer prefills anything already on your profile and shows exactly
+                                        what it extracts before it spends credits.
+                                    </p>
+                                    <Button asChild size="sm" className="mt-3 w-full cursor-pointer">
+                                        <Link href="/ai/resume/import">
+                                            Go to AI Import
+                                            <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                                        </Link>
+                                    </Button>
                                 </div>
                             )}
 
@@ -305,7 +312,6 @@ function NewResumeSheet({ templates, open, onClose }: {
                                 <Label className="text-sm font-medium">Choose Template</Label>
                                 <div className="grid grid-cols-1 gap-2">
                                     {platformTemplates.map(t => {
-                                        const platDef = PLATFORM_TEMPLATES.find(p => p.slug === t.slug)
                                         return (
                                             <button
                                                 key={t.slug}
@@ -317,10 +323,12 @@ function NewResumeSheet({ templates, open, onClose }: {
                                                         : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-400'
                                                 )}
                                             >
-                                                <div
-                                                    className="w-8 h-8 rounded-lg flex-shrink-0"
-                                                    style={{ backgroundColor: platDef?.previewColor ?? '#525252', opacity: 0.8 }}
-                                                />
+                                                {/* The same drawn preview as the grid, small. A flat
+                                                    coloured square told the user nothing about the
+                                                    template it stood for. */}
+                                                <div className="flex h-11 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-md border border-neutral-200 bg-neutral-50 text-neutral-900 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100">
+                                                    <TemplatePreview shape={shapeForSlug(t.slug)} className="h-10 w-auto" />
+                                                </div>
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-xs font-semibold truncate">{t.name}</p>
                                                     <p className="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">{t.description}</p>
@@ -496,6 +504,13 @@ function ResumeCard({ draft, onDelete, onTogglePublic, onDuplicate, onSetDefault
 }
 
 // ─── Main Hub ────────────────────────────────────────────────────────────────
+/** "a, b and c" - so the toast reads as a sentence rather than a dumped array. */
+function listOf(items: string[]): string {
+    const lower = items.map(f => f.toLowerCase())
+    if (lower.length === 1) return lower[0] as string
+    return `${lower.slice(0, -1).join(', ')} and ${lower[lower.length - 1]}`
+}
+
 export function ResumeHub({ drafts: initialDrafts, templates }: Props) {
     const [drafts, setDrafts] = useState<Draft[]>(initialDrafts)
     const [sheetOpen, setSheetOpen] = useState(false)
@@ -663,11 +678,13 @@ export function ResumeHub({ drafts: initialDrafts, templates }: Props) {
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {platformTemplates.map(t => {
-                                        const platDef = PLATFORM_TEMPLATES.find(p => p.slug === t.slug)
                                         return (
                                             <div key={t.slug} className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 flex flex-col gap-3">
-                                                <div className="h-24 rounded-xl flex items-center justify-center text-white text-sm font-semibold" style={{ background: `linear-gradient(135deg, ${platDef?.previewColor ?? '#525252'}20, ${platDef?.previewColor ?? '#525252'}40)`, border: `1px solid ${platDef?.previewColor ?? '#525252'}30` }}>
-                                                    <span style={{ color: platDef?.previewColor ?? '#525252' }}>{t.name}</span>
+                                                {/* A drawn preview of the layout, not a tinted box with the
+                                                    name ghosted in it. Layout is the only thing distinguishing
+                                                    these five, and the old panel showed none of it. */}
+                                                <div className="flex h-28 items-center justify-center rounded-xl border border-neutral-200 bg-neutral-50 text-neutral-900 dark:border-neutral-800 dark:bg-neutral-800/50 dark:text-neutral-100">
+                                                    <TemplatePreview shape={shapeForSlug(t.slug)} className="h-24 w-auto" />
                                                 </div>
                                                 <div>
                                                     <p className="font-semibold text-sm">{t.name}</p>

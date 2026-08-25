@@ -15,6 +15,8 @@ import toast from "@repo/ui/components/ui/sonner"
 import { importProfileAndCreateDraft } from "@/actions/(main)/ai/resume-import.action"
 import { useResumeHubStore } from "@/app/store/resumeHubStore"
 import { creditErrorMessage, priceSuffix } from "@/lib/credits/notify"
+import { saveMyProfileLinks } from "@/actions/(main)/user/profile-links.action"
+import { githubUsernameFrom, twitterHandleFrom, type ProfileLinks } from "@/lib/profile-links"
 
 const STAGES = [
     "Scraping LinkedIn profile…",
@@ -24,14 +26,46 @@ const STAGES = [
     "Finalising and saving draft…",
 ]
 
-export function ImportClient() {
+/**
+ * `links` is what the user already has on their profile. The page is a server component, so
+ * these arrive as the INITIAL state rather than being fetched here - which is what makes the
+ * fields render already filled instead of blank-then-populated a moment later.
+ */
+
+/**
+ * "Filled in from your profile."
+ *
+ * A field that arrives already populated, with nothing saying why, reads as the form having
+ * invented a value - so people delete it and retype the same thing. One line removes that.
+ */
+function FromProfile() {
+    return (
+        <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+            Filled in from your profile - edit it here and we will remember the change.
+        </p>
+    )
+}
+
+export function ImportClient({ links }: { links: ProfileLinks }) {
     const router = useRouter()
     const { setImportProgress } = useResumeHubStore()
 
-    const [linkedinUrl, setLinkedinUrl] = useState("")
-    const [githubUsername, setGithubUsername] = useState("")
-    const [twitterHandle, setTwitterHandle] = useState("")
-    const [portfolioUrl, setPortfolioUrl] = useState("")
+    // Seeded from the profile. Someone who filled these in once should not be asked again -
+    // and what they type here is saved back, so the next visit is prefilled too.
+    const [linkedinUrl, setLinkedinUrl] = useState(links.linkedinUrl ?? "")
+    const [githubUsername, setGithubUsername] = useState(githubUsernameFrom(links.githubUrl))
+    const [twitterHandle, setTwitterHandle] = useState(twitterHandleFrom(links.twitterUrl))
+    const [portfolioUrl, setPortfolioUrl] = useState(links.websiteUrl ?? "")
+
+    // Which fields arrived from the profile rather than being typed. Used only to tell the
+    // user where the value came from - a prefilled field with no explanation reads as the
+    // form having invented something.
+    const prefilled = {
+        linkedin: Boolean(links.linkedinUrl),
+        github: Boolean(links.githubUrl),
+        twitter: Boolean(links.twitterUrl),
+        portfolio: Boolean(links.websiteUrl),
+    }
     const [loading, setLoading] = useState(false)
     const [stageIdx, setStageIdx] = useState(0)
 
@@ -56,6 +90,16 @@ export function ImportClient() {
         }, 4000)
 
         try {
+            // Save the links back BEFORE the import, not after: the import is the slow part
+            // and the one that can fail, and there is no reason for a failed extraction to
+            // also lose the four URLs the user just typed.
+            void saveMyProfileLinks({
+                linkedinUrl: linkedinUrl.trim() || null,
+                githubUrl: githubUsername.trim() || null,
+                twitterUrl: twitterHandle.trim() || null,
+                websiteUrl: portfolioUrl.trim() || null,
+            })
+
             const res = await importProfileAndCreateDraft({
                 linkedinUrl: linkedinUrl.trim(),
                 githubUsername: githubUsername.replace(/^@/, "").trim(),
@@ -82,15 +126,19 @@ export function ImportClient() {
         }
     }
 
+    // 3xl and a two-column field grid, not 2xl stacked. Four inputs, an "extracts" panel, a
+    // disclaimer and a submit button in one narrow column ran off the bottom of every laptop -
+    // the button that finishes the task was the one thing you had to scroll to find. Paired
+    // side by side, the same content is one screen at 900px tall.
     return (
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-3xl mx-auto">
             {/* Back */}
             <Link href="/ai/resume" className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 mb-6 transition-colors">
                 <ArrowLeft className="w-4 h-4" /> Back to Resume Builder
             </Link>
 
             {/* Hero */}
-            <div className="mb-8">
+            <div className="mb-5">
                 <div className="flex items-center gap-3 mb-2">
                     <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-neutral-900 to-neutral-800 flex items-center justify-center">
                         <Sparkles className="w-5 h-5 text-white" />
@@ -150,9 +198,9 @@ export function ImportClient() {
                 </div>
             ) : (
                 /* ── Form ── */
-                <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 space-y-6">
+                <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 space-y-5">
                     {/* Required */}
-                    <div className="space-y-4">
+                    <div className="grid gap-4 sm:grid-cols-2">
                         <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Required</p>
 
                         <div className="space-y-1.5">
@@ -167,7 +215,9 @@ export function ImportClient() {
                                 onChange={(e) => setLinkedinUrl(e.target.value)}
                                 className="font-mono text-sm"
                             />
-                            <p className="text-[11px] text-neutral-400">Make sure your LinkedIn profile is set to public.</p>
+                            {prefilled.linkedin
+                                ? <FromProfile />
+                                : <p className="text-[11px] text-neutral-500 dark:text-neutral-400">Make sure your LinkedIn profile is set to public.</p>}
                         </div>
 
                         <div className="space-y-1.5">
@@ -187,13 +237,14 @@ export function ImportClient() {
                                     className="rounded-l-none font-mono text-sm"
                                 />
                             </div>
+                            {prefilled.github && <FromProfile />}
                         </div>
                     </div>
 
                     <div className="border-t border-dashed border-neutral-200 dark:border-neutral-700" />
 
                     {/* Optional */}
-                    <div className="space-y-4">
+                    <div className="grid gap-4 sm:grid-cols-2">
                         <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Optional (improves accuracy)</p>
 
                         <div className="space-y-1.5">
@@ -212,6 +263,7 @@ export function ImportClient() {
                                     className="rounded-l-none font-mono text-sm"
                                 />
                             </div>
+                            {prefilled.twitter && <FromProfile />}
                         </div>
 
                         <div className="space-y-1.5">
@@ -226,10 +278,11 @@ export function ImportClient() {
                                 className="font-mono text-sm"
                             />
                         </div>
+                            {prefilled.portfolio && <FromProfile />}
                     </div>
 
                     {/* What we import */}
-                    <div className="rounded-xl bg-neutral-50 dark:bg-neutral-800/50 p-4 space-y-2">
+                    <div className="rounded-xl bg-neutral-50 dark:bg-neutral-800/50 p-3.5 space-y-2">
                         <p className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">What AI extracts:</p>
                         <div className="grid grid-cols-2 gap-1.5">
                             {[

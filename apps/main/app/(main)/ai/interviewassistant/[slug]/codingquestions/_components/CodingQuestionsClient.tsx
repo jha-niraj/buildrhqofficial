@@ -348,7 +348,7 @@ export default function CodingQuestionsPage({ params }: { params: Promise<{ slug
 					<div className="w-full border-b border-gray-200 dark:border-gray-700 p-4">
 						<div className="w-full flex items-center mb-4 gap-4">
 							<div className="shrink-0">
-								<Link href={`/ai/jobinterviewassistant/${slug}`}>
+								<Link href={`/ai/interviewassistant/${slug}`}>
 									<Button variant="ghost" size="sm">
 										<ArrowLeft className="h-4 w-4 mr-2" />
 										Back

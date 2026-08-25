@@ -818,7 +818,7 @@ export default function InterviewAssistantDetails({ slug }: { slug: string }) {
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-neutral-50/30 to-neutral-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 flex items-center justify-center">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Generation not found</h1>
-                    <Link href="/ai/jobinterviewassistant">
+                    <Link href="/ai/interviewassistant">
                         <Button>Go back</Button>
                     </Link>
                 </div>
@@ -863,7 +863,7 @@ export default function InterviewAssistantDetails({ slug }: { slug: string }) {
                         className="mb-8"
                     >
                         <div className="flex items-center gap-4 mb-6">
-                            <Link href="/ai/jobinterviewassistant">
+                            <Link href="/ai/interviewassistant">
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -995,7 +995,7 @@ export default function InterviewAssistantDetails({ slug }: { slug: string }) {
                                                         </div>
                                                     </div>
                                                     <Button asChild className="bg-gradient-to-r from-neutral-900 to-pink-500 hover:from-neutral-800 hover:to-pink-600 text-white shadow-lg">
-                                                        <Link href={`/ai/jobinterviewassistant/${slug}/codingquestions`}>
+                                                        <Link href={`/ai/interviewassistant/${slug}/codingquestions`}>
                                                             <Code className="h-4 w-4 mr-2" />
                                                             Start Coding Challenge
                                                             <ArrowRight className="h-4 w-4 ml-2" />

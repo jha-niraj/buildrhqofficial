@@ -94,8 +94,8 @@ export default async function PublicResumePage({ params }: { params: Promise<{ s
                 {skills.length > 0 && (
                     <div style={{ marginBottom: 14 }}>
                         <SectionHeader title="Skills" color={accent} />
-                        {skills.map(g => (
-                            <div key={g.category} style={{ marginBottom: 4 }}>
+                        {skills.map((g, gi) => (
+                            <div key={gi} style={{ marginBottom: 4 }}>
                                 <span style={{ fontWeight: 700 }}>{g.category}: </span>
                                 <span style={{ color: '#525252' }}>{g.items.join(' · ')}</span>
                             </div>

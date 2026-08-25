@@ -191,7 +191,7 @@ export function InterviewPlanCard({
                     </Dialog>
                 ) : plan.slug ? (
                     <Button asChild className="w-full">
-                        <Link href={`/ai/jobinterviewassistant/${plan.slug}`}>Open</Link>
+                        <Link href={`/ai/interviewassistant/${plan.slug}`}>Open</Link>
                     </Button>
                 ) : (
                     <Button className="w-full" disabled>

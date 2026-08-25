@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { signIn } from "@repo/auth/client"
 import { toast } from "@repo/ui/components/ui/sonner"
 import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { Input } from '@repo/ui/components/ui/input'
 import { User, Lock, Eye, EyeOff, ArrowRight } from "lucide-react"
 import { acceptAdminInvitation, type InvitationPreview } from "@/actions/invitations.action"
 import { formatAdminRole } from "@/lib/role-labels"
@@ -71,7 +72,7 @@ export function JoinClient({ token, invitation }: { token: string; invitation: I
                     </label>
                     <div className="relative">
                         <User size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
-                        <input
+                        <Input
                             id="name"
                             type="text"
                             value={name}
@@ -89,7 +90,7 @@ export function JoinClient({ token, invitation }: { token: string; invitation: I
                     </label>
                     <div className="relative">
                         <Lock size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
-                        <input
+                        <Input
                             id="password"
                             type={showPassword ? "text" : "password"}
                             value={password}
@@ -115,7 +116,7 @@ export function JoinClient({ token, invitation }: { token: string; invitation: I
                     </label>
                     <div className="relative">
                         <Lock size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
-                        <input
+                        <Input
                             id="confirm"
                             type={showPassword ? "text" : "password"}
                             value={confirm}

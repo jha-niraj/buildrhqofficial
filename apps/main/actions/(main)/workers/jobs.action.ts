@@ -147,16 +147,30 @@ export async function startBackgroundJob(
         } catch (error: unknown) {
             // Never dispatched, so nothing will ever finish this job - fail it
             // here and give the credits straight back.
-            if (options.cost) await releaseCredits(holdIdFor(jobId), toErrorMessage(error, "dispatch failed"))
+            const detail = toErrorMessage(error, "dispatch failed")
+
+            // A connection failure in development almost always means `apps/worker` is not
+            // running, and the raw message ("fetch failed", ECONNREFUSED) says nothing about
+            // that. Worth naming: every job type is dispatched through here, so one
+            // unreachable worker looks like four unrelated broken features.
+            const unreachable = /fetch failed|ECONNREFUSED|ENOTFOUND|network|socket/i.test(detail)
+            const hint =
+                unreachable && process.env.NODE_ENV !== "production"
+                    ? " The job worker is not reachable - start apps/worker (`pnpm dev`) or set WORKER_URL."
+                    : ""
+
+            if (options.cost) await releaseCredits(holdIdFor(jobId), detail)
             await db
                 .update(backgroundJobs)
-                .set({ status: "failed", error: toErrorMessage(error, "Could not start the job") })
+                .set({ status: "failed", error: detail })
                 .where(eq(backgroundJobs.jobId, jobId))
+            console.error(`[jobs] dispatch of ${type} failed:`, detail)
             return {
                 success: false,
-                error: options.cost
-                    ? "Could not start the job. Your credits were not charged."
-                    : "Could not start the job. Please try again.",
+                error:
+                    (options.cost
+                        ? "Could not start the job. Your credits were not charged."
+                        : "Could not start the job. Please try again.") + hint,
             }
         }
 

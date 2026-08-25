@@ -24,6 +24,9 @@ import {
     getTeacherClasses 
 } from '@/actions/assignments/project-assignments.action'
 import { cn } from '@repo/ui/lib/utils'
+import {
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from '@repo/ui/components/ui/select'
 
 interface ClassOption {
     id: string
@@ -419,17 +422,16 @@ export default function TeacherAssessmentCreateSheet({
 
                                 <div>
                                     <Label htmlFor="language">Topic / Language *</Label>
-                                    <select
-                                        id="language"
-                                        value={formData.language}
-                                        onChange={(e) => updateFormData('language', e.target.value)}
-                                        className="mt-1.5 w-full p-2 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900"
-                                    >
-                                        <option value="">Select a topic...</option>
-                                        {LANGUAGES.map((lang) => (
-                                            <option key={lang} value={lang}>{lang}</option>
-                                        ))}
-                                    </select>
+                                    <Select value={formData.language} onValueChange={(__v) => updateFormData('language', __v)}>
+                                        <SelectTrigger id="language" className="mt-1.5 w-full p-2 rounded-xl">
+                                            <SelectValue placeholder="Select a topic..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {LANGUAGES.map((lang) => (
+                                                <SelectItem key={lang} value={lang}>{lang}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
                         )}
@@ -601,15 +603,16 @@ export default function TeacherAssessmentCreateSheet({
                                                             onChange={(e) => updateQuestion(idx, 'question', e.target.value)}
                                                             className="mb-2"
                                                         />
-                                                        <select
-                                                            value={q.type}
-                                                            onChange={(e) => updateQuestion(idx, 'type', e.target.value)}
-                                                            className="w-full p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 mb-2"
-                                                        >
-                                                            <option value="MCQ">Multiple Choice</option>
-                                                            <option value="TRUE_FALSE">True/False</option>
-                                                            <option value="MULTI_SELECT">Multi-Select</option>
-                                                        </select>
+                                                        <Select value={q.type} onValueChange={(__v) => updateQuestion(idx, 'type', __v)}>
+                                                            <SelectTrigger className="w-full p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 mb-2">
+                                                                <SelectValue placeholder="Select" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="MCQ">Multiple Choice</SelectItem>
+                                                                <SelectItem value="TRUE_FALSE">True/False</SelectItem>
+                                                                <SelectItem value="MULTI_SELECT">Multi-Select</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
                                                         {q.type !== 'TRUE_FALSE' && (
                                                             <div className="space-y-2">
                                                                 {q.options.map((opt, optIdx) => (

@@ -13,6 +13,7 @@ import {
     checkStandupConfig, createStandupConfig, getUpcomingStandups, submitStandup
 } from '@/actions/(main)/projects/standup.action'
 import { cn } from '@repo/ui/lib/utils'
+import { Slider } from '@repo/ui/components/ui/slider'
 import { Voice, VoiceConfig } from '@/components/main/voice'
 
 interface DailyStandupTabProps {
@@ -546,13 +547,12 @@ Keep responses brief and natural.`,
                 <Label className="block font-semibold text-neutral-900 dark:text-white mb-3">
                     Duration: {durationMinutes} minutes
                 </Label>
-                <input
-                    type="range"
-                    min="5"
-                    max="10"
-                    step="1"
-                    value={durationMinutes}
-                    onChange={(e) => setDurationMinutes(parseInt(e.target.value))}
+                <Slider
+                    min={5}
+                    max={10}
+                    step={1}
+                    value={[durationMinutes]}
+                    onValueChange={([v]) => setDurationMinutes(v ?? 5)}
                     className="w-full"
                 />
                 <div className="flex justify-between text-xs text-neutral-500 dark:text-neutral-400 mt-1">

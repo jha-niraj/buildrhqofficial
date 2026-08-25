@@ -273,6 +273,10 @@ export async function createDraftFromProfile(name: string, templateSlug = 'clean
             email: user.email ?? '',
             title: user.occupation ?? '',
             location: user.location ?? '',
+            // `users.phone` is a real column. It was the one header field this mapper
+            // never read, so a draft created from a profile started with an empty phone
+            // number however complete the profile was.
+            phone: user.phone ?? '',
             summary: user.bio ?? '',
             github: userSocialLinks.find((s) => s.platform === 'GITHUB')?.url,
             linkedin: userSocialLinks.find((s) => s.platform === 'LINKEDIN')?.url,
