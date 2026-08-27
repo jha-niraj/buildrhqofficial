@@ -67,6 +67,27 @@
 		}
 	],
 
+	// ── Vectorize: the KnowMe embedding store ─────────────────────────────────
+	// ONE-TIME SETUP before the first deploy. Dimensions must be 1024 to match
+	// EMBEDDING_CONFIG in utils/knowme/embeddings.ts (text-embedding-3-small,
+	// asked for 1024 explicitly), and a mismatch is rejected at upsert time:
+	//
+	//   npx wrangler vectorize create shipithq-knowme --dimensions=1024 --metric=cosine
+	//
+	// The metadata indexes are NOT optional. Vectorize allows only 1,000
+	// namespaces per index, so one-namespace-per-user would have capped KnowMe at
+	// 1,000 profiles; isolation is a profileId metadata filter instead, and an
+	// unindexed field matches nothing rather than erroring:
+	//
+	//   npx wrangler vectorize create-metadata-index shipithq-knowme --property-name=profileId --type=string
+	//   npx wrangler vectorize create-metadata-index shipithq-knowme --property-name=sourceType --type=string
+	"vectorize": [
+		{
+			"binding": "VECTORIZE",
+			"index_name": "shipithq-knowme"
+		}
+	],
+
 	"vars": {
 		// Namespaces this app's cache entries inside the shared bucket so apps/web and
 		// apps/main never collide in the keyspace.

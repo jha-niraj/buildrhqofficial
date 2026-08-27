@@ -98,7 +98,7 @@ export function ProjectAssistantButtons({
                 </Button>
             </div>
             <Sheet open={resourcesOpen} onOpenChange={setResourcesOpen}>
-                <SheetContent side="bottom" className="h-[90dvh] w-full p-0">
+                <SheetContent side="right" className="w-full p-0 sm:max-w-3xl">
                     <div className="h-full flex flex-col">
                         <SheetHeader className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-800">
                             <SheetTitle className="flex items-center gap-2">
@@ -119,7 +119,7 @@ export function ProjectAssistantButtons({
                 </SheetContent>
             </Sheet>
             <Sheet open={errorsOpen} onOpenChange={setErrorsOpen}>
-                <SheetContent side="bottom" className="h-[90dvh] w-full p-0">
+                <SheetContent side="right" className="w-full p-0 sm:max-w-3xl">
                     <div className="h-full flex flex-col">
                         <SheetHeader className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-800">
                             <SheetTitle className="flex items-center gap-2">

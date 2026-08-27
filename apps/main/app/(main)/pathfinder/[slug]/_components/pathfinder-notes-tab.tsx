@@ -56,6 +56,7 @@ export function PathfinderNotesTab({
                 isLoggedIn={true}
                 width="100%"
                 hideClose
+                hideHeader
                 initialStudioId={studioId ?? undefined}
                 createStudioAction={createStudioAction}
             />

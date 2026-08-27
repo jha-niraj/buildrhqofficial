@@ -38,6 +38,19 @@ interface StudioPanelProps {
     className?: string;
     /** Hide the close button */
     hideClose?: boolean;
+    /**
+     * Hide the "Studio" title bar.
+     *
+     * Its two controls are the close button and a link to the full Studio. When
+     * this panel is embedded in a page that already offers both - the pathfinder
+     * goal page has "Open Full Notes" in its own header - the bar is a strip of
+     * chrome that only repeats what is above it, directly above the content it
+     * is stealing height from.
+     *
+     * A prop rather than a deletion: a future caller that mounts this panel as a
+     * real dismissable rail still needs the close button.
+     */
+    hideHeader?: boolean;
     /** Pre-existing studio ID - when provided, fetch and initialize instead of showing create */
     initialStudioId?: string;
     /** Custom create action - when provided, use instead of default createStudio (e.g. for pathfinder sub-goals) */
@@ -79,6 +92,7 @@ export function StudioPanel({
     width = 420,
     className,
     hideClose = false,
+    hideHeader = false,
     initialStudioId,
     createStudioAction,
 }: StudioPanelProps) {
@@ -184,6 +198,7 @@ export function StudioPanel({
                         transition={{ duration: 0.3 }}
                         className={`hidden lg:flex flex-col flex-shrink-0 border-l border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 overflow-hidden h-full min-h-0 ${className || ""}`}
                     >
+                        {!hideHeader && (
                         <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 shrink-0">
                             <div className="flex items-center gap-2">
                                 <PenLine className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
@@ -208,6 +223,7 @@ export function StudioPanel({
                                 }
                             </div>
                         </div>
+                        )}
 
                         {
                             !studioId ? (

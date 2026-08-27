@@ -264,7 +264,21 @@ export function generateVectorId(
 	sourceId: string,
 	chunkIndex: number
 ): string {
-	return `${profileId}_${sourceType}_${sourceId}_${chunkIndex}`;
+	// Cloudflare Vectorize caps a vector ID at 64 BYTES. The readable form this
+	// used to return - `${profileId}_${sourceType}_${sourceId}_${chunkIndex}` -
+	// is ~66+ bytes once profileId and sourceId are both cuids and sourceType is
+	// something like GITHUB_REPO, so it was over the limit for essentially every
+	// real row while looking perfectly reasonable.
+	//
+	// Hashing keeps the two properties that actually matter: it is deterministic
+	// (the same chunk always lands on the same ID, so re-running the embedding
+	// job updates rather than duplicates) and it is fixed-width. `km_` + 32 hex
+	// characters is 35 bytes, well inside the cap.
+	//
+	// Nothing is lost by making the ID opaque: `know_me_embedding` already
+	// stores profileId, sourceType, sourceId and chunkIndex as real columns, so
+	// that is where you look a vector up from, not by reading its ID.
+	return `km_${createContentHash(`${profileId}_${sourceType}_${sourceId}_${chunkIndex}`)}`;
 }
 
 /**

@@ -302,7 +302,7 @@ function SubmitErrorSheet({
                     Share Error
                 </Button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="h-[75dvh] w-full overflow-y-auto">
+            <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-2xl">
                 <section className="w-full max-w-5xl mx-auto">
                     <SheetHeader>
                         <SheetTitle className="flex items-center gap-2">

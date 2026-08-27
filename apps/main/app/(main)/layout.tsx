@@ -276,8 +276,8 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
             {/* Below lg, the same panel in a Sheet. */}
             <Sheet open={aiOpen && isMobile} onOpenChange={(v) => { if (!v) closeAI() }}>
                 <SheetContent
-                    side="bottom"
-                    className="h-[100dvh] w-full max-w-full rounded-t-2xl border-0 p-0 [&>button]:hidden"
+                    side="right"
+                    className="w-full max-w-full border-0 p-0 [&>button]:hidden"
                 >
                     <SheetTitle className="sr-only">ShipItHQ AI</SheetTitle>
                     <AIPanel />

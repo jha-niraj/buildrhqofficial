@@ -118,7 +118,7 @@ export default function ActivityDaySheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent side="bottom" className="h-[70dvh] rounded-t-2xl max-h-[70dvh]">
+            <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-lg">
                 <SheetHeader>
                     <SheetTitle className="flex items-center gap-2">
                         <Activity className="h-5 w-5" />

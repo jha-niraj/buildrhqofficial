@@ -170,7 +170,7 @@ export function SprintGenerationSheet({
 
     return (
         <Sheet open={isOpen} onOpenChange={handleClose}>
-            <SheetContent side="bottom" className="h-[85dvh] w-full overflow-y-auto">
+            <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-2xl">
                 <SheetHeader className="text-left pb-6 max-w-5xl mx-auto space-y-6">
                     <SheetTitle className="flex items-center gap-2 text-xl">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neutral-900 to-neutral-800 flex items-center justify-center">

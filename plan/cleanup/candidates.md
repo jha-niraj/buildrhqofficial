@@ -495,3 +495,8 @@ and delete `pathfinder-notes-tab`, but do not leave both.
 This is the fourth name-collision trap in this repo (after `generateAIStudyPlan`,
 `generateSubGoalResources` and `buildRequest`): the name reads alive, the file is
 not.
+
+**DONE 2026-08-27.** Deleted on Niraj's instruction, together with the
+`@upstash/vector` dependency in `apps/main/package.json`, which the Vectorize
+migration left with no importers. Both are recoverable from git history; the
+dependency needs a `pnpm install` to drop out of the lockfile.

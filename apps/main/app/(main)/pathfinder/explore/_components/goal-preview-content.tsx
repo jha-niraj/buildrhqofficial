@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ScrollArea } from '@repo/ui/components/ui/scroll-area'
 import { Button } from '@repo/ui/components/ui/button'
@@ -8,10 +8,11 @@ import { Badge } from '@repo/ui/components/ui/badge'
 import { Progress } from '@repo/ui/components/ui/progress'
 import {
     Copy, Loader2, Code2, Brain, CheckCircle2, User, BookOpen,
-    ChevronDown, Sparkles
+    ChevronRight, Sparkles, X, FileQuestion
 } from 'lucide-react'
 import { copyPathfinderGoal } from '@/actions/(main)/pathfinder'
 import { useUserStore } from '@/app/store/useUserStore'
+import { useSidebar } from '@/components/common/sidebarprovider'
 import { PATHFINDER_CATEGORIES } from '@/types/pathfinder'
 import { cn } from '@repo/ui/lib/utils'
 import toast from '@repo/ui/components/ui/sonner'
@@ -54,18 +55,42 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
     const router = useRouter()
     const { credits } = useUserStore()
     const [copying, setCopying] = useState(false)
-    // Which topics are expanded. The card used to render an ArrowRight and no
-    // handler at all - it looked like a link and did nothing when clicked. There
-    // is nowhere to navigate to either: this is a PREVIEW of someone else's goal,
-    // and its sub-goals are not yours until you copy it. So the affordance now
-    // does the one honest thing available - reveals the full description, which
-    // was otherwise clamped to two lines with no way to read the rest.
-    const [expanded, setExpanded] = useState<Set<string>>(new Set())
-    const toggle = (id: string) => setExpanded((prev) => {
-        const next = new Set(prev)
-        if (next.has(id)) next.delete(id); else next.add(id)
-        return next
-    })
+    // The selected topic opens a DETAIL PANEL on the right rather than expanding
+    // in place. In-place expansion was the previous attempt and it read as broken
+    // for a simple reason: `description` is null or a single line on most topics,
+    // so clicking produced no visible change at all. A panel always responds -
+    // when there is nothing to show it says so, which is information rather than
+    // silence.
+    const [selectedId, setSelectedId] = useState<string | null>(null)
+    const selected = goal.subGoals?.find((sg) => sg.id === selectedId) ?? null
+
+    // The panel needs width, and on this page the app sidebar is the cheapest
+    // place to find it. `sidebarWasCollapsed` remembers what the user had BEFORE
+    // the panel took over, so closing restores their setting instead of forcing
+    // the sidebar open on someone who keeps it collapsed.
+    const { isCollapsed, setIsCollapsed } = useSidebar()
+    const sidebarWasCollapsed = useRef<boolean | null>(null)
+
+    const openTopic = useCallback((id: string) => {
+        if (sidebarWasCollapsed.current === null) sidebarWasCollapsed.current = isCollapsed
+        setSelectedId(id)
+        setIsCollapsed(true)
+    }, [isCollapsed, setIsCollapsed])
+
+    const closeTopic = useCallback(() => {
+        setSelectedId(null)
+        if (sidebarWasCollapsed.current !== null) {
+            setIsCollapsed(sidebarWasCollapsed.current)
+            sidebarWasCollapsed.current = null
+        }
+    }, [setIsCollapsed])
+
+    // Leaving the page with the panel open must not stick the sidebar collapsed
+    // on every other page. The ref is read at cleanup rather than captured in the
+    // dependency array so this runs exactly once, on unmount.
+    useEffect(() => () => {
+        if (sidebarWasCollapsed.current !== null) setIsCollapsed(sidebarWasCollapsed.current)
+    }, [setIsCollapsed])
     const category = PATHFINDER_CATEGORIES[goal.category as keyof typeof PATHFINDER_CATEGORIES]
     const price = goal.creditPrice ?? 0
     const canAfford = (credits ?? 0) >= price
@@ -95,7 +120,8 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
     }
 
     return (
-        <ScrollArea className="h-full">
+        <div className="flex h-full min-h-0 w-full overflow-hidden">
+        <ScrollArea reflow className="h-full min-w-0 flex-1">
             {/* Full width. This was `max-w-3xl mx-auto`, which centred a 768px column
                 inside a pane that is already the narrower half of a two-pane
                 layout - so the study plan sat in a thin ribbon with dead space on
@@ -204,9 +230,14 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                                 <button
                                     key={sg.id}
                                     type="button"
-                                    onClick={() => toggle(sg.id)}
-                                    aria-expanded={expanded.has(sg.id)}
-                                    className="group w-full cursor-pointer p-4 text-left rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/50 hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-sm transition-all"
+                                    onClick={() => openTopic(sg.id)}
+                                    aria-pressed={selectedId === sg.id}
+                                    className={cn(
+                                        "group w-full cursor-pointer p-4 text-left rounded-xl border bg-white dark:bg-neutral-900/50 hover:shadow-sm transition-all",
+                                        selectedId === sg.id
+                                            ? "border-neutral-900 dark:border-neutral-100"
+                                            : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700"
+                                    )}
                                 >
                                     <div className="flex items-start gap-3">
                                         <div className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 shrink-0">
@@ -217,10 +248,7 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                                                 {sg.title}
                                             </p>
                                             {sg.description && (
-                                                <p className={cn(
-                                                    "text-xs text-neutral-500 dark:text-neutral-400 mt-1 leading-relaxed",
-                                                    !expanded.has(sg.id) && "line-clamp-2",
-                                                )}>
+                                                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 leading-relaxed line-clamp-2">
                                                     {sg.description}
                                                 </p>
                                             )}
@@ -249,9 +277,14 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                                                 )}
                                             </div>
                                         </div>
-                                        <ChevronDown className={cn(
-                                            "w-4 h-4 shrink-0 mt-1 text-neutral-400 transition-transform group-hover:text-neutral-600 dark:text-neutral-500 dark:group-hover:text-neutral-300",
-                                            expanded.has(sg.id) && "rotate-180",
+                                        {/* Right, not down: it opens a panel beside the
+                                            list, and a chevron that points down promises
+                                            an accordion. */}
+                                        <ChevronRight className={cn(
+                                            "w-4 h-4 shrink-0 mt-1 transition-colors",
+                                            selectedId === sg.id
+                                                ? "text-neutral-900 dark:text-neutral-100"
+                                                : "text-neutral-400 group-hover:text-neutral-600 dark:text-neutral-500 dark:group-hover:text-neutral-300"
                                         )} />
                                     </div>
                                 </button>
@@ -268,5 +301,90 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                 )}
             </div>
         </ScrollArea>
+
+        {selected && (
+            <aside className="flex w-full max-w-[360px] shrink-0 flex-col border-l border-neutral-200 bg-neutral-50/60 dark:border-neutral-800 dark:bg-neutral-950">
+                <div className="flex shrink-0 items-start justify-between gap-3 border-b border-neutral-200 p-4 dark:border-neutral-800">
+                    <div className="min-w-0">
+                        <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                            Topic {(goal.subGoals?.findIndex((sg) => sg.id === selected.id) ?? 0) + 1} of {goal.subGoals?.length ?? 0}
+                        </p>
+                        <h3 className="mt-1 text-sm font-semibold leading-snug text-neutral-900 dark:text-neutral-100">
+                            {selected.title}
+                        </h3>
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={closeTopic}
+                        aria-label="Close topic details"
+                        className="h-7 w-7 shrink-0 cursor-pointer"
+                    >
+                        <X className="h-4 w-4" />
+                    </Button>
+                </div>
+
+                <ScrollArea reflow className="min-h-0 min-w-0 flex-1">
+                    <div className="space-y-5 p-4">
+                        <div>
+                            <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                                Description
+                            </p>
+                            {selected.description ? (
+                                <p className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+                                    {selected.description}
+                                </p>
+                            ) : (
+                                <p className="text-sm italic text-neutral-500 dark:text-neutral-400">
+                                    The author did not write a description for this topic.
+                                </p>
+                            )}
+                        </div>
+
+                        <div>
+                            <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                                What is included
+                            </p>
+                            <ul className="space-y-1.5">
+                                <li className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+                                    <Brain className="h-3.5 w-3.5 shrink-0" /> Quiz
+                                </li>
+                                {selected.hasCoding && (
+                                    <li className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+                                        <Code2 className="h-3.5 w-3.5 shrink-0" /> Coding challenge
+                                    </li>
+                                )}
+                                {selected.isAIGenerated && (
+                                    <li className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+                                        <Sparkles className="h-3.5 w-3.5 shrink-0" /> AI generated
+                                    </li>
+                                )}
+                            </ul>
+                        </div>
+
+                        {/* Says plainly why the lesson body is not here, rather than
+                            rendering an empty region the reader has to interpret.
+                            This is a preview of someone else's goal: the quiz and
+                            coding content is generated per learner, on copy. */}
+                        <div className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
+                            <div className="flex items-start gap-2">
+                                <FileQuestion className="mt-0.5 h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400" />
+                                <div>
+                                    <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100">
+                                        No lesson content to preview
+                                    </p>
+                                    <p className="mt-1 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+                                        Explanations, quizzes and coding challenges are generated for
+                                        you when you add this goal. Until then only the outline above
+                                        is available.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ScrollArea>
+            </aside>
+        )}
+        </div>
     )
 }

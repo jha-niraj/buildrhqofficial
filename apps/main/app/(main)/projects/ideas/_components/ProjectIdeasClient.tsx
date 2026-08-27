@@ -593,7 +593,7 @@ export default function ProjectIdeasPage() {
 
             {/* Problem Detail Sheet */}
             <Sheet open={problemDetailOpen} onOpenChange={setProblemDetailOpen}>
-                <SheetContent side="bottom" className="h-[80dvh] w-full overflow-y-auto">
+                <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-2xl">
                     {selectedProblem && (
                         <section className="w-full max-w-5xl mx-auto">
                             <SheetHeader className="mb-6">

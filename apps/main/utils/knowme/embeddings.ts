@@ -13,7 +13,10 @@ import type {
 // Configuration
 export const EMBEDDING_CONFIG = {
 	model: "text-embedding-3-small", // Cost-effective, good quality
-	dimensions: 1024, // Match Upstash Vector database dimensions
+	// Must match the Vectorize index exactly:
+	//   npx wrangler vectorize create shipithq-knowme --dimensions=1024 --metric=cosine
+	// A mismatch is rejected at upsert time, not at startup.
+	dimensions: 1024,
 	maxInputTokens: 8191, // Max tokens per embedding request
 	batchSize: 100, // Max embeddings per batch
 };

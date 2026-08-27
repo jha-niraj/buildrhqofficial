@@ -1,14 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import {
 	FileText, FileQuestion, Code, Image as ImageIcon, Video, FileCode, 
-	Rocket, Mic, StickyNote, Layers, Send, Sparkles, Loader2, ChevronDown, 
-	ChevronUp,
+	Rocket, Mic, StickyNote, Layers, Send, Loader2, ChevronDown, 
 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Textarea } from "@repo/ui/components/ui/textarea";
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuTrigger,
+} from "@repo/ui/components/ui/dropdown-menu";
 import { cn } from "@repo/ui/lib/utils";
 import { 
 	generateExplanation, generateQuiz, generateFlashcards,
@@ -119,7 +123,6 @@ export function AIInputPanel({ studioId, onContentAdded, externalPrompt, onExter
 	const [selectedType, setSelectedType] = useState<StudioStepType>("EXPLANATION");
 	const [prompt, setPrompt] = useState("");
 	const [isGenerating, setIsGenerating] = useState(false);
-	const [showAllTypes, setShowAllTypes] = useState(false);
 
 	// Zustand store actions
 	const addStep = useStudioStore((s) => s.addStep);
@@ -322,130 +325,127 @@ export function AIInputPanel({ studioId, onContentAdded, externalPrompt, onExter
 		}
 	};
 
-	const primaryTypes = CONTENT_TYPES.filter((t) => !t.comingSoon).slice(0, 4);
-	const displayTypes = showAllTypes ? CONTENT_TYPES : primaryTypes;
-
 	return (
-		<div className="border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
-			<div className="max-w-4xl mx-auto px-6 py-4">
-				{/* Content type selector */}
-				<div className="mb-3">
-					<div className="flex items-center justify-between mb-2">
-						<p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-							What would you like to add?
-						</p>
-						{CONTENT_TYPES.length > 4 && (
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={() => setShowAllTypes(!showAllTypes)}
-								className="h-7 text-xs"
-							>
-								{showAllTypes ? (
-									<>
-										<ChevronUp className="h-3 w-3 mr-1" />
-										Show less
-									</>
-								) : (
-									<>
-										<ChevronDown className="h-3 w-3 mr-1" />
-										More options
-									</>
-								)}
-							</Button>
-						)}
-					</div>
-
-					<div className="flex flex-wrap gap-2">
-						{displayTypes.map((option) => {
-							const Icon = option.icon;
-							const isSelected = selectedType === option.type;
-
-							return (
-								<button
-									key={option.type}
-									onClick={() => setSelectedType(option.type)}
-									disabled={option.comingSoon}
-									className={cn(
-										"flex items-center gap-2 px-3 py-2 rounded-lg border transition-all",
-										isSelected
-											? "border-neutral-900 bg-neutral-50 dark:bg-neutral-900/30 text-neutral-700 dark:text-neutral-100"
-											: "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 text-neutral-700 dark:text-neutral-300",
-										option.comingSoon && "opacity-50 cursor-not-allowed"
-									)}
-								>
-									<Icon className="h-4 w-4" />
-									<span className="text-sm font-medium">{option.label}</span>
-									{option.comingSoon && (
-										<span className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-900/20 text-neutral-800 dark:text-neutral-100">
-											Soon
-										</span>
-									)}
-								</button>
-							);
-						})}
-					</div>
-				</div>
-
-				{/* Input area */}
-				<div className="flex gap-3">
-					<div className="flex-1 relative">
-						<Textarea
-							value={prompt}
-							onChange={(e) => setPrompt(e.target.value)}
-							onKeyDown={handleKeyDown}
-							placeholder={
-								selectedType === "EXPLANATION"
-									? "e.g., Explain JavaScript closures with examples"
-									: selectedType === "QUIZ"
-										? "e.g., Create a quiz on React hooks"
-										: selectedType === "NOTE"
-											? "Optional: Add a title or leave empty to add a blank note"
-											: selectedType === "CODE"
-												? "Optional: Name your code block or leave empty to add a blank editor"
-												: selectedType === "FLASHCARD"
-													? "e.g., Generate flashcards on JavaScript array methods"
-													: selectedType === "VIDEO"
-														? "e.g., React hooks tutorial videos"
-														: selectedType === "DOCUMENT"
-															? "e.g., TypeScript official documentation"
-															: `Ask AI to generate ${selectedOption?.label.toLowerCase()}...`
-							}
-							className="min-h-[60px] max-h-[120px] pr-12 resize-none rounded-xl border-neutral-200 dark:border-neutral-800 focus:border-neutral-900 dark:focus:border-neutral-200"
+		// ONE ROW. This panel used to stack a "What would you like to add?"
+		// label, a wrapping grid of type buttons, a "More options" toggle, a
+		// 60-120px textarea and a hint line - about 200px of permanent chrome in
+		// a pane whose entire job is showing the content ABOVE it.
+		//
+		// The type buttons became a dropdown because they are a single-choice
+		// control that is already showing its answer: the trigger names the
+		// selected type, so the four (or eleven) buttons were spending a whole
+		// row to display state one label could carry. The per-type hint moved
+		// into the dropdown items, where it is read while CHOOSING rather than
+		// after the choice is already made.
+		<div className="border-t border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950">
+			<div className="flex w-full items-end gap-2 px-3 py-2">
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button
+							variant="outline"
+							size="sm"
+							className="h-9 shrink-0 cursor-pointer gap-1.5 px-2.5"
 							disabled={isGenerating}
-						/>
-						<div className="absolute bottom-2 right-2">
-							<Button
-								onClick={handleGenerate}
-								disabled={
-									isGenerating ||
-									(!prompt.trim() && selectedType !== "CODE" && selectedType !== "NOTE")
-								}
-								size="icon"
-								className="h-8 w-8 rounded-lg bg-gradient-to-r from-neutral-800 to-pink-600 hover:from-neutral-700 hover:to-pink-700"
-							>
-								{isGenerating ? (
-									<Loader2 className="h-4 w-4 animate-spin" />
-								) : (
-									<Send className="h-4 w-4" />
-								)}
-							</Button>
-						</div>
-					</div>
+						>
+							{selectedOption ? (
+								<selectedOption.icon className="h-3.5 w-3.5" />
+							) : null}
+							<span className="text-xs font-medium">{selectedOption?.label ?? "Type"}</span>
+							<ChevronDown className="h-3 w-3 opacity-60" />
+						</Button>
+					</DropdownMenuTrigger>
+					{/* Bounded and scrolled: the list is eleven entries today and
+					    grows whenever a type is added, so it must not be allowed
+					    to run off the top of a short pane. */}
+					<DropdownMenuContent align="start" side="top" className="w-64 p-0">
+						<ScrollArea reflow className="max-h-72 min-w-0">
+							<div className="p-1">
+								{CONTENT_TYPES.map((option) => {
+									const Icon = option.icon;
+									const isSelected = selectedType === option.type;
+									return (
+										<button
+											key={option.type}
+											type="button"
+											onClick={() => setSelectedType(option.type)}
+											disabled={option.comingSoon}
+											className={cn(
+												"flex w-full items-start gap-2.5 rounded-md px-2 py-2 text-left transition-colors",
+												isSelected
+													? "bg-neutral-100 dark:bg-neutral-800"
+													: "hover:bg-neutral-100 dark:hover:bg-neutral-800/60",
+												option.comingSoon
+													? "cursor-not-allowed opacity-50"
+													: "cursor-pointer"
+											)}
+										>
+											<Icon className="mt-0.5 h-4 w-4 shrink-0 text-neutral-900 dark:text-neutral-100" />
+											<span className="min-w-0 flex-1">
+												<span className="flex items-center gap-1.5">
+													<span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+														{option.label}
+													</span>
+													{option.comingSoon && (
+														<span className="rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] text-neutral-700 dark:bg-neutral-700 dark:text-neutral-100">
+															Soon
+														</span>
+													)}
+												</span>
+												<span className="mt-0.5 block text-xs text-neutral-500 dark:text-neutral-400">
+													{option.description}
+												</span>
+											</span>
+										</button>
+									);
+								})}
+							</div>
+						</ScrollArea>
+					</DropdownMenuContent>
+				</DropdownMenu>
+
+				<div className="relative min-w-0 flex-1">
+					<Textarea
+						value={prompt}
+						onChange={(e) => setPrompt(e.target.value)}
+						onKeyDown={handleKeyDown}
+						placeholder={
+							selectedType === "EXPLANATION"
+								? "e.g., Explain JavaScript closures with examples"
+								: selectedType === "QUIZ"
+									? "e.g., Create a quiz on React hooks"
+									: selectedType === "NOTE"
+										? "Optional: Add a title or leave empty for a blank note"
+										: selectedType === "CODE"
+											? "Optional: Name your code block or leave empty"
+											: selectedType === "FLASHCARD"
+												? "e.g., Generate flashcards on JavaScript array methods"
+												: selectedType === "VIDEO"
+													? "e.g., React hooks tutorial videos"
+													: selectedType === "DOCUMENT"
+														? "e.g., TypeScript official documentation"
+														: `Ask AI to generate ${selectedOption?.label.toLowerCase()}...`
+						}
+						rows={1}
+						className="max-h-24 min-h-[36px] resize-none rounded-lg border-neutral-200 py-2 pr-3 text-sm focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
+						disabled={isGenerating}
+					/>
 				</div>
 
-				{/* Hint */}
-				{selectedOption && (
-					<motion.p
-						key={selectedType}
-						initial={{ opacity: 0, y: -5 }}
-						animate={{ opacity: 1, y: 0 }}
-						className="text-xs text-neutral-500 dark:text-neutral-400 mt-2 flex items-center gap-1"
-					>
-						<Sparkles className="h-3 w-3" />
-						{selectedOption.description}
-					</motion.p>
-				)}
+				<Button
+					onClick={handleGenerate}
+					disabled={
+						isGenerating ||
+						(!prompt.trim() && selectedType !== "CODE" && selectedType !== "NOTE")
+					}
+					size="icon"
+					className="h-9 w-9 shrink-0 cursor-pointer rounded-lg bg-gradient-to-r from-neutral-800 to-pink-600 hover:from-neutral-700 hover:to-pink-700"
+				>
+					{isGenerating ? (
+						<Loader2 className="h-4 w-4 animate-spin" />
+					) : (
+						<Send className="h-4 w-4" />
+					)}
+				</Button>
 			</div>
 		</div>
 	);

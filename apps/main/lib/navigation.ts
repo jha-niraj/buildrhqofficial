@@ -39,6 +39,18 @@ export interface NavigationConfig {
 // A wrong path here has no symptom until someone clicks it, which is why there is now a test:
 // `lib/navigation.test.ts` walks this tree and fails on any path with no page. Route groups
 // are resolved, so `jobs` living in `app/(jobs)/jobs` is correctly accepted.
+//
+// EVERY group whose parent is itself a page opens with an entry pointing AT that
+// parent. Without it the group's own landing page is the one page in the module
+// the sidebar cannot represent: you arrive from a header link or a card, the
+// group expands, and nothing inside it is marked current - so the sidebar says
+// you are nowhere. The label is "Overview" everywhere except Pathfinder, where
+// the parent page is a list of the user's goals and "My Goals" says what is
+// actually on it.
+//
+// Pathfinder has exactly two static pages, `/pathfinder` and
+// `/pathfinder/explore`; everything else under it is `[slug]`. So those two ARE
+// the complete set - there is no third link being withheld.
 export const mainNavigation: NavigationConfig = {
     primary: [
         {
@@ -53,6 +65,7 @@ export const mainNavigation: NavigationConfig = {
             icon: Code2,
             status: "active",
             children: [
+                { name: 'Overview', path: 'practice', icon: LayoutDashboard },
                 { name: 'DSA', path: 'practice/dsa', icon: Code2 },
                 { name: 'System Design', path: 'practice/system-design', icon: Network },
                 { name: 'Web Frontend', path: 'practice/web-frontend', icon: Globe },
@@ -65,6 +78,7 @@ export const mainNavigation: NavigationConfig = {
             icon: FolderKanban,
             status: "active",
             children: [
+                { name: 'Overview', path: 'projects', icon: LayoutDashboard },
                 { name: 'Ideas', path: 'projects/ideas', icon: Heading },
                 { name: 'My Projects', path: 'projects/myprojects', icon: User },
                 { name: 'All Projects', path: 'projects/allprojects', icon: User2 }
@@ -76,6 +90,7 @@ export const mainNavigation: NavigationConfig = {
             icon: Video,
             status: "active",
             children: [
+                { name: 'Overview', path: 'mock', icon: LayoutDashboard },
                 { name: 'Voice Mock', path: 'mock/voice', icon: Brain }
             ]
         },
@@ -85,6 +100,7 @@ export const mainNavigation: NavigationConfig = {
             icon: Compass,
             status: "active",
             children: [
+                { name: 'My Goals', path: 'pathfinder', icon: LayoutDashboard },
                 { name: 'Explore', path: 'pathfinder/explore', icon: Telescope }
             ]
         },
@@ -94,6 +110,7 @@ export const mainNavigation: NavigationConfig = {
             icon: Sparkles,
             status: "active",
             children: [
+                { name: 'Overview', path: 'ai', icon: LayoutDashboard },
                 { name: 'Job Interview', path: 'ai/interviewassistant', icon: Briefcase },
                 { name: 'My Generations', path: 'ai/interviewassistant/generations', icon: History },
                 { name: 'Public Generations', path: 'ai/interviewassistant/publicgenerations', icon: Globe },
@@ -111,6 +128,7 @@ export const mainNavigation: NavigationConfig = {
             icon: Briefcase,
             status: "active",
             children: [
+                { name: 'Overview', path: 'jobs', icon: LayoutDashboard },
                 { name: 'Browse', path: 'jobs/browse', icon: Search },
                 { name: 'Applications', path: 'jobs/applications', icon: Send },
                 { name: 'Saved', path: 'jobs/saved', icon: Bookmark },
@@ -131,6 +149,7 @@ export const mainNavigation: NavigationConfig = {
             icon: IdCard,
             status: "active",
             children: [
+                { name: 'Overview', path: 'knowme', icon: LayoutDashboard },
                 { name: 'Analytics', path: 'knowme/analytics', icon: BarChart3 },
                 { name: 'Settings', path: 'knowme/settings', icon: Server },
             ]

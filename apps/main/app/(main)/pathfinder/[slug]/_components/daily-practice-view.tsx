@@ -627,9 +627,25 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
                                                         <AccordionItem
                                                             key={sess.id}
                                                             value={`session-${sess.id}`}
-                                                            className="border border-neutral-200/60 dark:border-neutral-800 rounded-lg overflow-hidden bg-neutral-50/50 dark:bg-neutral-900/30"
+                                                            // NO `overflow-hidden` here. It was on this item for
+                                                            // rounded corners, and it silently disabled the sticky
+                                                            // date header: an ancestor with `overflow: hidden`
+                                                            // becomes the scroll container that `position: sticky`
+                                                            // measures against, and this item does not scroll - so
+                                                            // the header had zero room to stick and rode up out of
+                                                            // view with its own item. The corners are handled by
+                                                            // the trigger's own `rounded-lg`.
+                                                            // `[&>h3]:sticky` - the STICKY IS ON THE HEADER, not on
+                                                            // the trigger inside it. Radix renders
+                                                            // `<h3 class="flex"><button/></h3>`, so a sticky button
+                                                            // is a flex item whose containing block is that h3, and
+                                                            // an h3 is exactly as tall as the button: sticky had
+                                                            // nowhere to travel and the header scrolled away like
+                                                            // ordinary content. Moving it one level up makes the
+                                                            // scrollport the reference instead.
+                                                            className="border border-neutral-200/60 dark:border-neutral-800 rounded-lg bg-neutral-50/50 dark:bg-neutral-900/30 [&>h3]:sticky [&>h3]:top-0 [&>h3]:z-10"
                                                         >
-                                                            <AccordionTrigger className="sticky top-0 z-10 rounded-lg bg-neutral-100 py-3 px-4 hover:no-underline hover:bg-neutral-200/70 dark:bg-neutral-900 dark:hover:bg-neutral-800/70 [&[data-state=open]]:rounded-b-none">
+                                                            <AccordionTrigger className="w-full rounded-lg bg-neutral-100 py-3 px-4 hover:no-underline hover:bg-neutral-200/70 dark:bg-neutral-900 dark:hover:bg-neutral-800/70 [&[data-state=open]]:rounded-b-none">
                                                                 <div className="flex items-center justify-between w-full gap-3">
                                                                     <div className="flex items-center gap-2.5">
                                                                         <Calendar className="w-4 h-4 text-neutral-900 dark:text-neutral-100 shrink-0" />
@@ -647,19 +663,22 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
                                                                     </span>
                                                                 </div>
                                                             </AccordionTrigger>
-                                                            {/* The task list gets its OWN scroller so the date
-                                                                header above it stays put instead of scrolling
-                                                                away with its 15 tasks. Two things make that true:
-                                                                this bounded inner region, and `sticky top-0` on
-                                                                the trigger for when several dates are listed.
-                                                                The trigger's background has to be OPAQUE - the
-                                                                item surface is `/50` and `/30`, and rows would
-                                                                otherwise slide visibly underneath it. */}
-                                                            <AccordionContent className="p-0">
-                                                                <ScrollArea
-                                                                    reflow
-                                                                    className="max-h-[calc(100dvh-22rem)] min-w-0 px-2 pt-1 pb-3"
-                                                                >
+                                                            {/* The date header stays visible via `sticky top-0` on
+                                                                the trigger above, NOT via a scroller in here.
+                                                                A nested ScrollArea was tried and measured wrong:
+                                                                Radix's viewport is `h-full`, and a percentage
+                                                                height resolves against the parent's HEIGHT, which
+                                                                is `auto` when the bound is a `max-h`. So the root
+                                                                sat at its 591px cap while the viewport inside it
+                                                                grew to its content - 1350px - and the overflow was
+                                                                clipped rather than scrolled. Ten of the fifteen
+                                                                tasks were simply unreachable.
+                                                                One scroll region, owned by the panel, with a
+                                                                sticky header pinned inside it. The trigger's
+                                                                background has to be OPAQUE - the item surface is
+                                                                `/50` and `/30`, and rows would otherwise slide
+                                                                visibly underneath it. */}
+                                                            <AccordionContent className="px-2 pt-1 pb-3">
                                                                     <div className="space-y-1.5">
                                                                     <AnimatePresence>
                                                                         {
@@ -683,7 +702,6 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
                                                                         }
                                                                     </AnimatePresence>
                                                                     </div>
-                                                                </ScrollArea>
                                                             </AccordionContent>
                                                         </AccordionItem>
                                                     )

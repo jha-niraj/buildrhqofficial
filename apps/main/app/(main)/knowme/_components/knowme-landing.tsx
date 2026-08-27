@@ -232,14 +232,6 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
                         />
                         <div className="absolute top-[25%] left-[5%] w-96 h-96 rounded-full blur-[120px] animate-pulse-slow bg-neutral-100/30 dark:bg-neutral-800/20" />
                         <div className="absolute top-[20%] right-[10%] w-96 h-96 rounded-full blur-[120px] animate-pulse-slow animation-delay-2000 bg-neutral-100/40 dark:bg-neutral-800/20" />
-                        <div
-                            className={cn(
-                                "absolute inset-0 bg-[size:32px_32px]",
-                                "bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)]",
-                                "dark:bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)]",
-                                "[mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"
-                            )}
-                        />
                     </div>
                     <div className="container mx-auto px-4 max-w-7xl relative">
                         <div className="text-center max-w-4xl mx-auto">
@@ -539,15 +531,6 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
                     </div>
                 </section>
                 <section className="py-20 bg-neutral-900 dark:bg-white relative overflow-hidden">
-                    <div className="absolute inset-0 opacity-10">
-                        <div
-                            className={cn(
-                                "absolute inset-0 bg-[size:32px_32px]",
-                                "bg-[linear-gradient(to_right,#ffffff20_1px,transparent_1px),linear-gradient(to_bottom,#ffffff20_1px,transparent_1px)]",
-                                "dark:bg-[linear-gradient(to_right,#00000020_1px,transparent_1px),linear-gradient(to_bottom,#00000020_1px,transparent_1px)]"
-                            )}
-                        />
-                    </div>
                     <div className="container mx-auto px-4 max-w-4xl relative text-center">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -579,7 +562,7 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
             </div>
 
             <Sheet open={onboardingOpen!} onOpenChange={setOnboardingOpen}>
-                <SheetContent side="bottom" className="h-[80dvh] rounded-t-3xl">
+                <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-2xl">
                     <div className="max-w-2xl mx-auto py-6">
                         <SheetHeader className="text-center mb-6">
                             <div className="flex items-center justify-center gap-3 mb-2">

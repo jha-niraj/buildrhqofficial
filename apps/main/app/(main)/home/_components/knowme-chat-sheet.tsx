@@ -139,8 +139,8 @@ export default function KnowmeChatSheet({
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent
-                side="bottom"
-                className="h-[85dvh] rounded-t-2xl max-h-[85dvh] flex flex-col p-0"
+                side="right"
+                className="flex w-full flex-col p-0 sm:max-w-2xl"
             >
                 <SheetHeader className="p-4 border-b shrink-0">
                     <SheetTitle className="flex items-center gap-2">

@@ -90,7 +90,7 @@ export default function AddResourceSheet({ projectId }: AddResourceSheetProps) {
                     Add Learning Resource
                 </Button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="h-[70dvh] w-full overflow-y-auto">
+            <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-lg">
                 <section className="w-full max-w-5xl mx-auto">
                     <SheetHeader>
                         <SheetTitle>Add Learning Resource</SheetTitle>
