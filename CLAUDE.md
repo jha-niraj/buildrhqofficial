@@ -45,7 +45,9 @@ Dispatch with `startBackgroundJob(type, input, { cost })` from
 `actions/(main)/workers/jobs.action.ts`; follow it with `useBackgroundJob` /
 `awaitBackgroundJob`. Credits are held on dispatch and settled or refunded when
 the app sees a terminal status - the worker never touches credits.
-`apps/worker/README.md` has the four edits needed to add a job type.
+`apps/worker/README.md` has the five edits needed to add a job type - and
+the story of the fifth, which was missing from the list until a job shipped
+bound to a class the entry point never exported.
 
 `apps/shipitworker` is the exception and is NOT a job worker: it owns a
 Cloudflare Container that runs user code synchronously. Leave it alone.

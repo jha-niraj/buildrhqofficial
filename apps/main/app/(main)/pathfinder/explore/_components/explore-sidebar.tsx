@@ -65,9 +65,20 @@ export function ExploreSidebar({ goals }: ExploreSidebarProps) {
     }
 
     return (
-        <div className="w-[320px] lg:w-[360px] border-r border-neutral-200 dark:border-neutral-800 flex flex-col bg-white dark:bg-neutral-950">
-            <ScrollArea className="flex-1">
-                <div className="p-3 space-y-2">
+        <div className="w-[320px] lg:w-[360px] shrink-0 border-r border-neutral-200 dark:border-neutral-800 flex flex-col bg-white dark:bg-neutral-950">
+            {/* `reflow` + `min-w-0` - this is the shrink-to-fit trap from
+                docs/responsiveness.md, and it is why the goal cards overflowed the
+                panel with their titles cut off rather than ellipsised.
+
+                Radix wraps a ScrollArea's viewport children in a
+                `min-width:100%; display:table` box, and `display:table` sizes to
+                its content's MAX-CONTENT width. A long goal title therefore made
+                the card row wider than the 320px panel, the viewport clipped the
+                overflow instead of scrolling it, and the `truncate` on the title
+                never engaged - because there was nothing bounding it to truncate
+                against. The fix is on the scroller, not on the title. */}
+            <ScrollArea reflow className="min-h-0 min-w-0 flex-1">
+                <div className="min-w-0 p-3 space-y-2">
                     {
                         goals.map((goal) => {
                             const category = PATHFINDER_CATEGORIES[goal.category]
@@ -139,7 +150,13 @@ function ExploreGoalCard({
                     <div className="flex-1 min-w-0">
                         <h3 className={cn(
                             "text-sm font-medium truncate",
-                            isSelected ? "text-neutral-900 dark:text-neutral-800" : "text-neutral-900 dark:text-white"
+                            // `dark:text-neutral-100` when selected, not `-800`.
+                            // The selected card's dark background is
+                            // `dark:bg-neutral-900/30`, so `dark:text-neutral-800`
+                            // put near-black ink on a near-black surface - the
+                            // title of the SELECTED goal was the one you could not
+                            // read, which is the opposite of what selection means.
+                            isSelected ? "text-neutral-900 dark:text-neutral-100" : "text-neutral-900 dark:text-white"
                         )}>
                             {goal.title}
                         </h3>

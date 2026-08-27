@@ -7,3 +7,6 @@ export * from "./utils/referral";
 //   import { headers } from "next/headers"
 //   const session = await getSession(headers())
 export { getSession } from "./session";
+// Re-mints the cookie cache from the database. Use after writing a user column
+// that middleware routes on - see the note on the function.
+export { refreshSession } from "./session";

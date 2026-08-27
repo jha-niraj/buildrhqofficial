@@ -34,7 +34,13 @@ export default async function ExploreLayout({
             </div>
             <div className="flex-1 flex min-h-0">
                 <ExploreSidebar goals={goals} />
-                <div className="flex-1 min-w-0 overflow-hidden">
+                {/* `border-l` on the CONTENT pane, scoped to this route's own
+                    layout rather than the app shell - the two-pane explore screen
+                    is the only place this separation is wanted. The sidebar's
+                    `border-r` disappears against the pane when both surfaces are
+                    the same near-black, so the seam reads as a rendering gap
+                    rather than a divider. */}
+                <div className="flex-1 min-w-0 overflow-hidden border-l border-neutral-200 dark:border-neutral-800">
                     {children}
                 </div>
             </div>

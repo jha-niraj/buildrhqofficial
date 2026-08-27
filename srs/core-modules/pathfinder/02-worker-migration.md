@@ -1,7 +1,46 @@
-# Pathfinder — worker migration
+# Pathfinder - worker migration
 
-12 inline LLM calls across 5 files, none of them on a worker. This module has the
-heaviest AI load in the product and the least offloading.
+## Status - reconciled against the code 2026-08-27
+
+The header below said "12 inline LLM calls across 5 files, **none of them on a
+worker**". That has not been true for some time. Corrected rather than deleted,
+because a reader who trusted it would rebuild `PF-W1`, which is done.
+
+| task | state |
+|---|---|
+| `SHARED-1` `type` column | **done** - `packages/db/src/schema/worker.ts:100` |
+| `SHARED-2` polling hook | **done** - `apps/main/hooks/use-background-job.ts` |
+| `SHARED-3` credit hold | **done** - `apps/main/lib/credits/hold.ts` |
+| `PF-W1` verification generation | **done** - dispatches `verification_generation` from `actions/(main)/workers/verificationworker.action.ts:45`; `verification.action.ts` has zero inline model calls |
+| `PF-W2` sub-goal generation | **built 2026-08-27** - `apps/worker/src/jobs/subgoal-generation.ts`. Registered in all five places, typechecks, worker live. **Not yet run end to end** - see the outcome at the end of this file |
+| `PF-W3` voice transcription | **not started** - `voice_transcription` declared, unimplemented |
+| `PF-W4` goal creation | **done 2026-08-27, PROVEN end to end** - `apps/worker/src/jobs/goal-creation.ts`. See the outcome below |
+| `PF-W5` resource generation | **void 2026-08-27 - there is nothing to migrate.** `resources.action.ts` is dead code: zero importers of the module path anywhere in the repo. See below |
+| `PF-W6` studio link | **not started** - `studio-link.action.ts`, 1 inline call |
+
+So: **6 inline calls across 4 files**, not 12 across 5, and the heaviest one is
+already off the request path.
+
+The "Blocked by `SHARED-1`" line under each task below is satisfied everywhere -
+that column shipped. Read the task bodies for the design; ignore their blocking
+lines.
+
+**The roadmap is also encoded in the type union.** `JOB_TYPES` in
+`packages/db/src/schema/worker.ts` declares 20 types; `JOB_BINDINGS` in
+`apps/worker/src/env.ts` binds 13. The seven declared-but-unrunnable ones are
+exactly this backlog plus projects':
+
+    project_assessment  project_mock  task_details
+    subgoal_generation  goal_creation  resource_generation  voice_transcription
+
+Nothing dispatches any of them today, so this is an unfinished plan rather than a
+live bug - `jobStub` throws loudly on an unbound type rather than leaving a job
+at `waiting` forever.
+
+---
+
+This module has the heaviest AI load in the product and, before `PF-W1`, had the
+least offloading.
 
 **AI generation must stay intact.** Prompts, model IDs, temperatures and output
 schemas move verbatim. `subgoals.action.ts` pins `gpt-4o-mini` at `:348` and
@@ -218,3 +257,207 @@ So the service binding is configured and typed but cannot take effect until
 migration — a full OpenNext build, all the app secrets, the
 `shipithq-next-cache` R2 bucket, and moving any routes off the old name — and it
 needs Niraj's call on the naming before anything is created.
+
+---
+
+## PF-W5 is void - the code it migrates is dead
+
+Found 2026-08-27 while starting this migration. Recorded rather than quietly
+skipped, because the task above reads like real work and the next person would
+also start it.
+
+`apps/main/actions/(main)/pathfinder/resources.action.ts` (303 lines) has **zero
+importers**. Its only function export, `generateSubGoalResources`, is never
+called - the symbol appears exactly twice in the entire repo, and both are inside
+its own file (the definition and its own `console.error`).
+
+**Why it looks alive, and the trap involved.** Three things make this file read
+as in-use, and all three are misleading:
+
+1. **A sibling with the same filename.** `actions/(main)/projects/resources.action.ts`
+   IS live and imported in three places. A search for `resources.action` finds
+   those and looks like coverage.
+2. **A duplicated type name.** `SubGoalResources` appears to have 8 consumers.
+   Every one of them imports it from `app/store/pathfinderStore`, which declares
+   its **own** copy. The declaration in `resources.action.ts` has no consumers.
+   Same for `Flashcard`.
+3. It is 303 lines of complete, plausible implementation - an Exa fetch and an
+   OpenAI call running in parallel, with token accounting wired to
+   `logPathfinderUsage`. Nothing about reading it suggests it is unreachable.
+
+This is the third time this repo has been bitten by judging a file by symbol name
+rather than import path - `RES-8` recorded it for `resume-scrape.action.ts`,
+`CLN-2`/`ADM-25` for `resume-template.action.ts`, and now this. **Check the
+import specifier, not the symbol.**
+
+**Worth knowing beyond the deletion:** the pathfinder resources feature was never
+wired up. The two tabs that would show it -
+`pathfinder-videos-tab.tsx` and `pathfinder-flashcards-tab.tsx` - read
+`aiResources` out of the Zustand store, and nothing populates it from this
+generator. So "generate learning resources for a sub-goal" is not a feature that
+runs slowly on the request path; it is a feature that does not run.
+
+That is a product question, not a migration one: either wire the generator up
+(as a worker job, per this document) or delete it. Listed for Niraj in
+`plan/cleanup/candidates.md` as Group G rather than decided here.
+
+---
+
+## PF-W2 outcome, 2026-08-27
+
+**Scope, refined against the code.** The task named two `gpt-4o-mini` calls in
+`subgoals.action.ts` (`:347`, `:643`). Reading them, they are two different user
+actions, not one:
+
+- `:347` `generateAIContentForSubGoal` - runs when a sub-goal is CREATED. This is
+  what the task's own rationale is about ("runs when a user creates a goal - a
+  timeout at that moment is a user who never comes back").
+- `:643` - grades a submitted coding solution inside `submitSubGoalCoding`. A
+  separate action, short (`max_tokens: 1000`, `temperature: 0.3`), and
+  interactive. **Left alone and raised as its own task**; folding it in here
+  would have migrated two unrelated flows under one id.
+
+**A third call the task did not name, and it was the worst one.** `createSubGoal`
+also blocked on `generateExplanation` (`studios/ai-generation.actions.ts:10`) - a
+`gpt-4o-mini` completion with **no `max_tokens` at all**, asked for a detailed
+explanation with code snippets. Unbounded by construction. Migrating only the
+named call would have left the action blocking on the larger of the two and the
+task's stated goal unmet, so the job does both.
+
+**What moved and what did not.**
+
+| stays in the action (synchronous) | moved to the job |
+|---|---|
+| auth, goal ownership, usage limit | the explanation completion |
+| daily session, sub-goal row, stats | quiz + coding problems |
+| the Studio row | the `aiCodingProblem` / `hasCoding` write |
+| videos + docs (already fire-and-forget Exa lookups) | the session's `totalCodingProblems` counter |
+
+The user gets a real sub-goal and its Studio back immediately; the job fills them
+in. Same shape as `createTailoredResume`, and for the same reason: a failed job
+leaves a usable row rather than nothing.
+
+**Both prompts moved verbatim** - same model, temperature, token caps and JSON
+shape, including the singular `codingProblem` fallback the original tolerated
+because the model has been seen returning one object instead of an array.
+Dropping that in a migration would have read as the model getting worse.
+
+**Edge cases handled**
+- **Ownership is re-checked in the job**, not trusted from dispatch. The input is
+  a pointer (`subGoalId`) and the job joins to the goal to confirm `userId` -
+  a sub-goal id alone must not let anyone generate against someone else's goal.
+- **The two writes are a `db.batch`.** The sub-goal's problems and the session's
+  running count are a pair; the neon-http driver has no transactions, and a
+  half-applied pair leaves the counter disagreeing with the rows it counts.
+- **The explanation is best-effort.** If it fails the practice problems still
+  land, and the job reports which parts did - they are independently useful.
+- **The Studio step is an upsert**, matching `generateExplanation`: regenerating
+  a sub-goal must not stack two EXPLANATION steps.
+- **A failed DISPATCH is not a failed sub-goal.** The action returns success with
+  `generationError` set, because the row exists and is usable either way.
+
+**Registration verified in all five places** by script -
+`JOB_TYPES` (already declared), `JOB_BINDINGS`, `jobs/index.ts`,
+`wrangler.jsonc` (binding + a NEW `v5` tag, never folded into `v4`), and the
+entry-point export in `src/index.ts` - the fifth place that the README omitted
+until `ResumeStructure` shipped broken because of it.
+
+**Verified:** `npx tsc --noEmit` clean in `apps/main` and `apps/worker`; worker
+running on `:8787` with `SUBGOAL_GENERATION` bound; six job types remain declared
+but unrunnable (`project_assessment`, `project_mock`, `task_details`,
+`goal_creation`, `resource_generation`, `voice_transcription`).
+
+**NOT verified: an end-to-end run.** The signed-in account has no pathfinder
+goals - the only goal in the database belongs to a probe account - so creating a
+sub-goal through the UI needs a goal created first, which goes through
+`createPathfinderGoal` and its own still-inline model calls (`PF-W4`). Combined
+with the browser tab being backgrounded, the UI run did not happen. The job is
+built and wired; it has not been watched working.
+
+---
+
+## PF-W4 outcome, 2026-08-27 - and the transport bug it uncovered
+
+The task said **"Measure first"** and **"Check whether PF-W2 and PF-W4 are
+actually one flow before building two."** Measuring changed the answer twice.
+
+### They are not one flow, and goal creation was never the slow part
+
+`createPathfinderGoal` makes **no model call at all**. The two calls in
+`goals.action.ts` belong to different intents:
+
+| call | enclosing function | invoked by |
+|---|---|---|
+| `:436` | `generateAIStudyPlan` | `createPathfinderGoal`, **fire-and-forget** |
+| `:635` | `generateQuizAndCoding` | `generateContentForAISubGoal`, awaited, called from `daily-practice-view.tsx:469` |
+
+So PF-W2 (sub-goal creation), the study plan, and on-demand sub-goal content are
+**three** distinct user intents, not one. Only the first was migrated here; the
+`:635` path is a separate user action and is raised separately.
+
+### The study plan was a durability bug, not a latency one
+
+    generateAIStudyPlan(...).catch(err => console.error(...))
+
+A floating promise. Never awaited, no `waitUntil`. The action returns immediately
+and the isolate is then free to be torn down, so on Cloudflare **the plan may
+simply never be generated** - no error, no record of the attempt, just a goal
+that stays empty. "Sometimes my plan does not appear" is not a diagnosable bug
+report, which makes this shape worse than a slow request: a timeout at least
+tells you something happened.
+
+Two improvements the migration made on top of the move, both from reading the
+original:
+
+- **A duplicate-run guard on the DATA, not just the dispatch.** The original
+  appended sub-goals unconditionally, so a re-fired alarm would have silently
+  doubled every topic. The job now refuses a goal that already has sub-goals.
+- **One insert instead of N.** The original awaited an insert per topic - 8 to 15
+  sequential round trips - and a failure at topic 9 left a half-written plan with
+  the counters never updated.
+
+### The transport bug this uncovered - RES-17 was only half a fix
+
+The first dispatch failed with **`Failed to parse URL from [object Request]`** -
+the exact error `plan/resume/tasks.md:RES-17` recorded as fixed on 2026-08-25.
+
+RES-17 corrected the **HTTP fallback** and left the **service-binding path**
+building a `Request`, on the stated reasoning that "a Fetcher's contract requires
+one". It does not: `Fetcher.fetch` takes the same `(input, init)` signature as
+global fetch, and a string URL is a valid input. The local `ServiceBinding`
+interface declared `fetch: (request: Request)`, which made the correct call look
+wrong - **a narrow type standing as evidence for a claim that was not true.**
+
+`apps/main/wrangler.jsonc` declares a `WORKER` service binding, so the binding
+path is the one taken whenever the Cloudflare context resolves. Both paths in
+`callWorker` and `callExecutorWorker` now pass `(url, init)`; `buildRequest` has
+no callers and is marked superseded rather than deleted.
+
+That was the **third** layered cause of the same symptom. All three had to be
+fixed before any job could run:
+
+1. the HTTP path building a `Request` (RES-17)
+2. `WORKER_API_URL` pointing at `:3004`, so dispatches went nowhere (found today)
+3. the binding path building a `Request` (found today)
+
+### Verified - end to end, for the first time in this product
+
+Dispatched `goal_creation` for a real goal, through the same signed-token route
+the app uses:
+
+    dispatch -> 200
+    status   -> completed, 100%
+    result   -> { topicCount: 15, skipped: false }
+    goal.total_sub_goals = 15, sub_goal rows = 15
+
+The 15 topics are coherent and correctly ordered - B-tree basics through EXPLAIN,
+GiST/GIN, and tuning.
+
+**`background_job` all time: 6 failed, 1 completed.** The one completed row is
+this run. Before today, no background job had ever succeeded in this product.
+
+**Still not proven through the UI.** The dispatch was made with a signed token
+rather than by clicking, because the browser tab the tooling drives keeps being
+backgrounded and Radix sheets will not mount without animation frames. The
+worker, the job, the token, the DB writes and the counters are all proven; the
+one untested link is the click that calls the server action.

@@ -265,8 +265,24 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
             onOpenChange(isOpen)
             if (!isOpen) resetForm()
         }}>
-            <SheetContent side="bottom" className="h-[80dvh] overflow-y-auto">
-                <div className="max-w-lg mx-auto">
+            {/* A RIGHT-side panel, not a bottom sheet.
+                As `side="bottom"` at `h-[80dvh]` this covered four fifths of the
+                screen and centred a `max-w-lg` column inside a full-width sheet,
+                so the form read as a narrow strip floating in a large dark field
+                with the page it belongs to hidden behind it.
+
+                `w-full sm:max-w-xl` is the safe form docs/responsiveness.md
+                names: the Sheet primitive's own mobile width and margin survive
+                below `sm`, and only the desktop cap is widened. An UNPREFIXED
+                `max-w-*` here would beat the primitive's `max-w-[90%]` in the
+                class merge and go edge-to-edge on a phone.
+
+                `flex flex-col` + `overflow-hidden` on the shell, with the scroll
+                on the body below: the primitive carries `overflow-y-auto`, so
+                without this the sheet scrolls AND the body scrolls - two surfaces
+                for one region. */}
+            <SheetContent side="right" className="flex w-full flex-col overflow-hidden p-0 sm:max-w-xl">
+                <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
                     <SheetHeader className="mb-6">
                         <SheetTitle className="text-xl flex items-center gap-2">
                             <div className="p-1.5 bg-neutral-100 dark:bg-neutral-800 rounded-lg">

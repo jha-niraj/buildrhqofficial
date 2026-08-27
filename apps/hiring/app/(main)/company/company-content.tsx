@@ -463,8 +463,8 @@ export function CompanyProfileContent({ profile, stats }: CompanyProfileContentP
                                     Social Links
                                 </Label>
                                 <div className="grid md:grid-cols-3 gap-4">
-                                    <div className="flex items-center gap-2">
-                                        <div className="p-2 rounded-lg bg-neutral-100 dark:bg-neutral-800">
+                                    <div className="flex min-w-0 items-center gap-2">
+                                        <div className="shrink-0 p-2 rounded-lg bg-neutral-100 dark:bg-neutral-800">
                                             <Twitter className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                                         </div>
                                         {
@@ -476,17 +476,17 @@ export function CompanyProfileContent({ profile, stats }: CompanyProfileContentP
                                                         socialLinks: { ...formData.socialLinks, twitter: e.target.value }
                                                     })}
                                                     placeholder="Twitter URL"
-                                                    className="rounded-xl flex-1"
+                                                    className="rounded-xl flex-1 min-w-0"
                                                 />
                                             ) : (
-                                                <span className="text-neutral-600 dark:text-neutral-400 text-sm truncate">
+                                                <span className="min-w-0 text-neutral-600 dark:text-neutral-400 text-sm truncate">
                                                     {socialLinks.twitter || "Not set"}
                                                 </span>
                                             )
                                         }
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="p-2 rounded-lg bg-neutral-100 dark:bg-neutral-800">
+                                    <div className="flex min-w-0 items-center gap-2">
+                                        <div className="shrink-0 p-2 rounded-lg bg-neutral-100 dark:bg-neutral-800">
                                             <Linkedin className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                                         </div>
                                         {
@@ -498,17 +498,17 @@ export function CompanyProfileContent({ profile, stats }: CompanyProfileContentP
                                                         socialLinks: { ...formData.socialLinks, linkedin: e.target.value }
                                                     })}
                                                     placeholder="LinkedIn URL"
-                                                    className="rounded-xl flex-1"
+                                                    className="rounded-xl flex-1 min-w-0"
                                                 />
                                             ) : (
-                                                <span className="text-neutral-600 dark:text-neutral-400 text-sm truncate">
+                                                <span className="min-w-0 text-neutral-600 dark:text-neutral-400 text-sm truncate">
                                                     {socialLinks.linkedin || "Not set"}
                                                 </span>
                                             )
                                         }
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="p-2 rounded-lg bg-neutral-100 dark:bg-neutral-800">
+                                    <div className="flex min-w-0 items-center gap-2">
+                                        <div className="shrink-0 p-2 rounded-lg bg-neutral-100 dark:bg-neutral-800">
                                             <Github className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                                         </div>
                                         {
@@ -520,10 +520,10 @@ export function CompanyProfileContent({ profile, stats }: CompanyProfileContentP
                                                         socialLinks: { ...formData.socialLinks, github: e.target.value }
                                                     })}
                                                     placeholder="GitHub URL"
-                                                    className="rounded-xl flex-1"
+                                                    className="rounded-xl flex-1 min-w-0"
                                                 />
                                             ) : (
-                                                <span className="text-neutral-600 dark:text-neutral-400 text-sm truncate">
+                                                <span className="min-w-0 text-neutral-600 dark:text-neutral-400 text-sm truncate">
                                                     {socialLinks.github || "Not set"}
                                                 </span>
                                             )

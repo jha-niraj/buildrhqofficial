@@ -30,7 +30,7 @@ export default function ContactPage() {
     }
 
     return (
-        <div className="min-h-screen bg-white dark:bg-neutral-950">
+        <div className="min-h-dvh bg-white dark:bg-neutral-950">
             <section className="pt-32 pb-16 px-6 relative overflow-hidden">
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:60px_60px] opacity-50" />
                 <div className="max-w-7xl mx-auto relative z-10">

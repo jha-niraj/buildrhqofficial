@@ -73,6 +73,10 @@ ShipItHQ reads when it needs to know their background.
   core. Recoverable from git history if the feature is revived.
 - **PDF export design.** The two templates in `lib/resume-pdf/` are unchanged.
 - **Public resume sharing** (`/r/[slug]`). Works; untouched.
-- **Moving the remaining inline LLM calls to the worker.** `tailorResumeForJD`,
-  `scoreResumeAgainstJD`, cover letter generation and the imports still run in
-  server actions, against the rule in `CLAUDE.md`. Tracked as `RES-9`.
+- ~~**Moving the remaining inline LLM calls to the worker.**~~ **Done**
+  (`RES-9`, 2026-08-27). Every model call in this module now runs in
+  `apps/worker`. Two exceptions stay inline and are argued in that task:
+  `extractJobDescription` (one Exa fetch, no model, and interactive) and
+  `whisperTranscribe` (a speech model on a short clip, free, interactive).
+  `tailorResumeForJD` was not moved but deleted - it had been superseded by
+  `createTailoredResume` and had no callers (`RES-18`).

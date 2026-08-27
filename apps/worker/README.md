@@ -40,23 +40,45 @@ there is one place in the product where a charge or a refund can happen.
 | `mock_conversation` | `MockConversation` | ElevenLabs transcript |
 | `mock_feedback` | `MockFeedback` | a scored report over the whole transcript |
 | `resume_structure` | `ResumeStructure` | one gpt-4o pass turning an uploaded resume's extracted text into a structured draft |
+| `resume_tailor` | `ResumeTailor` | a gpt-4o rewrite of a whole resume against a whole job description; writes a copy, never the source |
+| `cover_letter` | `CoverLetter` | writes the letter from the resolved resume |
+| `resume_ats_score` | `ResumeAtsScore` | scores a resume against a JD on gpt-4o-mini |
+| `cover_letter_questions` | `CoverLetterQuestions` | the tailored questions asked before a letter is written |
+| `resume_import` | `ResumeImport` | up to four Exa scrapes and six GitHub REST calls, then a gpt-4o pass. The longest non-model wait in the product |
 
 ## Adding a job type
 
-Four edits, all four or none:
+**Five** edits, all five or none:
 
 1. add the type to `JOB_TYPES` in `packages/db/src/schema/worker.ts` (text
    column, so no migration)
 2. add a class in `src/jobs/` extending `JobDurableObject` - implement `run()`
    and nothing else
 3. add it to `JOB_BINDINGS` in `src/env.ts` and export it from `src/jobs/index.ts`
-4. add the binding **and** a migration tag in `wrangler.jsonc`
+4. add the binding **and** a NEW migration tag in `wrangler.jsonc` - tags are
+   append-only, so never add classes to a tag that has already been deployed
+5. **export the class from `src/index.ts`.** Wrangler binds Durable Objects by
+   looking them up on the entry module's exports; a class it cannot find there
+   has a binding with nothing behind it.
+
+Step 5 said "four edits" until 2026-08-27 and did not exist, which is exactly how
+`ResumeStructure` shipped bound-but-not-exported: it was correct in all four of
+the places the list named. Nothing catches that. `tsc` is happy, the binding
+type-checks, and the failure surfaces at dispatch - after the app has inserted
+the `background_job` row and put a hold on the user's credits.
 
 Then dispatch from the app with `startBackgroundJob(type, input, { cost })`.
 
 `input` must be a **pointer** (ids), never a payload: minutes can pass before the
 alarm fires, and every job re-reads current data rather than acting on a snapshot
 that is already stale.
+
+Two jobs carry a small payload anyway, and both are the same exception: a label
+or some pasted text that has no row to point at (`resume_structure`'s
+`draftName`, `resume_import`'s `pastedText`). Neither can go stale, because
+neither exists anywhere else. Cap anything like that at the call site - a Durable
+Object storage value is size-limited, and an oversized input fails the *dispatch*,
+which is a much worse error to explain than a failed job.
 
 ## What `JobDurableObject` handles for you
 

@@ -5,12 +5,9 @@ import { headers } from "next/headers";
 import { db, coverLetter as coverLetters, users, skills, workExperiences, portfolioProjects, resumeDraft } from "@repo/db";
 import { eq, and, desc } from "drizzle-orm";
 import Exa from "exa-js";
-import { openai, zodResponseFormat } from '@/lib/openai-client'
-import { z } from "zod";
 import { CoverLetterGenerationData } from "@/types/aitools/cover-letter";
 import { startBackgroundJob } from "@/actions/(main)/workers/jobs.action";
 import { priceOf } from "@/lib/credits/pricing";
-import { withCredits, OperationFailed } from "@/lib/credits/charge";
 
 // ── Exa client (lazy singleton) ──────────────────────────────────────────────
 let _exa: Exa | null = null
@@ -51,8 +48,53 @@ const WALL_MARKERS = [
     "verify you are human", "please enable cookies", "403 forbidden",
 ]
 
-/** Real postings are long. Every wall we have seen is a few hundred characters. */
+/** Real postings are long. Most walls we had seen were a few hundred characters. */
 const MIN_JD_CHARS = 400
+
+/**
+ * Wall text that identifies itself in the OPENING of the document, in any of the
+ * languages LinkedIn serves it in.
+ *
+ * Two things this fixes, found 2026-08-27 by fetching a real LinkedIn job URL:
+ *
+ * 1. **A long wall was never checked at all.** The body-marker test below only ran
+ *    when the text was under `MIN_JD_CHARS`, on the assumption above that walls are
+ *    short. LinkedIn returned **4,357 characters** of sign-in wall, sailed past the
+ *    length gate, had no marker in its `<title>` (LinkedIn serves the real role name
+ *    there even on the wall), and was handed back as a job description with
+ *    "Job description pulled in - check it before tailoring".
+ * 2. **The markers were English-only.** What came back was Dutch - "Akkoord en lid
+ *    worden van LinkedIn", "Door op Doorgaan te klikken om deel te nemen of u aan te
+ *    melden". Not one English marker matched. Exa serves whatever localisation the
+ *    edge decides, so the language of the wall is not ours to predict.
+ *
+ * Matched against the OPENING only, not the whole body, and that is deliberate: a
+ * real posting can legitimately say "sign in to our portal" somewhere in the middle,
+ * and rejecting it would be worse than the bug. No real posting OPENS by asking you
+ * to agree to a user agreement and join.
+ */
+const WALL_OPENERS: RegExp[] = [
+    // English
+    /agree\s*&?\s*join linkedin/i,
+    /by clicking continue to join or sign in/i,
+    /join linkedin to (see|view|apply)/i,
+    // Dutch - the one actually observed
+    /akkoord en lid worden van linkedin/i,
+    /door op doorgaan te klikken om deel te nemen of u aan te melden/i,
+    // German
+    /stimmen sie zu und treten sie linkedin bei/i,
+    // French
+    /accepter et rejoindre linkedin/i,
+    // Spanish / Portuguese
+    /aceptar y unirse a linkedin/i,
+    /concordar e ingressar no linkedin/i,
+    // Structural, language-independent: LinkedIn's wall always names its own
+    // agreement documents together, and a job posting never does.
+    /(user agreement|gebruikersovereenkomst|nutzungsvereinbarung|contrat d.utilisateur)[\s\S]{0,120}(privacy policy|privacybeleid|datenschutzrichtlinie|politique de confidentialit)/i,
+]
+
+/** How much of the front of the document counts as "the opening". */
+const WALL_OPENER_WINDOW = 400
 
 function wallReason(text: string, title: string, url: string): string | null {
     const body = text.toLowerCase()
@@ -62,6 +104,12 @@ function wallReason(text: string, title: string, url: string): string | null {
     // not one. Worth its own message because it is the URL people actually copy.
     if (/linkedin\.com\/jobs\/(search|search-results|collections)/i.test(url)) {
         return "That is a LinkedIn search page, not a single posting. Open the job itself - the URL looks like linkedin.com/jobs/view/1234567890 - or paste the description below."
+    }
+
+    // Checked BEFORE the length gate and regardless of length - a wall that is long
+    // is still a wall, and that is exactly what slipped through before.
+    if (WALL_OPENERS.some(re => re.test(text.slice(0, WALL_OPENER_WINDOW)))) {
+        return "That page returned its sign-in wall rather than the posting - LinkedIn serves one to readers that are not signed in. Open the job yourself and paste the description below."
     }
 
     if (body.length < MIN_JD_CHARS) {
@@ -240,65 +288,70 @@ export async function extractJobDescription(url: string) {
     }
 }
 
-// NOTE: OpenAI structured outputs do not support .optional() - use .nullable() instead.
-const QuestionsSchema = z.object({
-    questions: z.array(z.object({
-        id: z.string(),
-        text: z.string(),
-        type: z.enum(["TEXTAREA", "SINGLE", "MULTIPLE"]),
-        options: z.array(z.string()).nullable(), // null for TEXTAREA, array for SINGLE/MULTIPLE
-    }))
-});
+// The question shape used to be a zod schema here, handed to OpenAI as a strict
+// structured-output format. It moved into `apps/worker/src/jobs/cover-letter-
+// questions.ts` as prompt text plus a validator, because `zodResponseFormat` is
+// a Node SDK helper and the worker has no Node SDK. Its one hard-won note is
+// worth keeping: OpenAI structured outputs do not support `.optional()`, which
+// is why `options` was `.nullable()` and why the worker still insists the key is
+// present rather than merely allowed.
 
-export async function generateCoverLetterQuestions(jobDescription: string) {
+/**
+ * Start question generation on the worker (`cover_letter_questions`, RES-9).
+ *
+ * Moved for the same reason `generateAndSaveCoverLetter` was, and it should have
+ * gone in the same pass: this is the step immediately before it in the same
+ * screen. Leaving one inline and one queued gave the user two different waiting
+ * experiences one click apart, and only the queued one could refund - a request
+ * killed mid-completion leaves nothing running to notice it failed.
+ *
+ * The instruction and the model are unchanged. The `zodResponseFormat` schema is
+ * not: it is an OpenAI Node SDK helper the worker does not have, so the shape
+ * moved into the prompt and is validated on the way out instead. That validation
+ * is stricter than the schema was in one respect - `options` on a SINGLE question
+ * is the field the model actually drops, and a choice with nothing to choose is
+ * now downgraded to free text rather than rendered empty.
+ *
+ * Returns a jobId; `cover-letter-client.tsx` polls it.
+ */
+export async function generateCoverLetterQuestions(jobDescription: string): Promise<{
+    success: boolean
+    jobId?: string
+    error?: string
+    code?: string
+    required?: number
+    available?: number
+}> {
     try {
         const user = await currentUser();
-        if (!user) {
-            return { success: false, error: "Unauthorized" };
+        if (!user?.id) return { success: false, error: "Unauthorized" };
+
+        if (!jobDescription?.trim()) {
+            return { success: false, error: "Add the job description first" };
         }
 
-        const charged = await withCredits(
-            { userId: user.id!, operation: "cover_letter_questions", reason: "Cover letter: tailored questions" },
-            async () => {
-                const completion = await openai.chat.completions.create({
-                    model: "gpt-4o",
-                    messages: [
-                        {
-                            role: "system",
-                            content: `You are an expert technical recruiter and career coach. Review the provided Job Description and generate 3 to 5 targeted questions for the applicant. These questions should help customize their cover letter based on specific job requirements. The questions should ask for specific metrics, examples of experience with required tools, or how their past work aligns with core responsibilities.
-
-IMPORTANT: Always include the "options" field in every question. Set it to null for TEXTAREA questions and to an array of 3-4 choices for SINGLE or MULTIPLE questions. Never omit the field.`
-                        },
-                        {
-                            role: "user",
-                            content: `Job Description:\n\n${jobDescription}`
-                        }
-                    ],
-                    response_format: zodResponseFormat(QuestionsSchema, "questions_schema"),
-                });
-
-                const content = completion.choices[0]?.message?.content;
-                // No questions is a failed generation, not an empty result. Both a
-                // missing completion and output that will not parse mean the user
-                // has nothing to answer, so both refund rather than returning [].
-                if (!content) throw new OperationFailed("The question generator returned nothing.");
-
-                let questions: unknown[] = [];
-                try {
-                    questions = JSON.parse(content).questions ?? [];
-                } catch {
-                    throw new OperationFailed("Could not read the generated questions.");
-                }
-                if (!questions.length) throw new OperationFailed("No questions could be generated from that job description.");
-                return questions;
+        const started = await startBackgroundJob(
+            "cover_letter_questions",
+            { jobDescription },
+            {
+                cost: priceOf("cover_letter_questions"),
+                reason: "Cover letter: tailored questions",
             },
         );
 
-        if (!charged.success) {
-            return { success: false, error: charged.error, code: charged.code, required: charged.required, available: charged.available };
+        if (!started.success) {
+            return {
+                success: false,
+                error: started.error ?? "Could not start generating questions",
+                code: started.code,
+                required: started.required,
+                available: started.available,
+            };
         }
-        return { success: true, questions: charged.data };
+
+        return { success: true, jobId: started.jobId };
     } catch (e: unknown) {
+        console.error("[coverLetter] questions failed:", e);
         return { success: false, error: e instanceof Error ? e.message : "Failed to generate questions." };
     }
 }

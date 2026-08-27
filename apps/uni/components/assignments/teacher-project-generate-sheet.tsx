@@ -360,7 +360,7 @@ export default function TeacherProjectGenerateSheet({
                     )
                 }
             </SheetTrigger>
-            <SheetContent side="bottom" className="h-[80vh] overflow-y-auto">
+            <SheetContent side="bottom" className="h-[80dvh] overflow-y-auto">
                 <div className="max-w-3xl mx-auto">
                     <SheetHeader className="mb-6">
                         <SheetTitle className="text-2xl flex items-center gap-3">

@@ -634,7 +634,7 @@ export default function TeacherAssessmentCreateSheet({
                                                                                 newOptions[optIdx] = e.target.value
                                                                                 updateQuestion(idx, 'options', newOptions)
                                                                             }}
-                                                                            className="flex-1"
+                                                                            className="flex-1 min-w-0"
                                                                         />
                                                                     </div>
                                                                 ))}
@@ -704,7 +704,7 @@ export default function TeacherAssessmentCreateSheet({
                                                         checked={formData.classIds.includes(cls.id)}
                                                         onCheckedChange={() => toggleClass(cls.id)}
                                                     />
-                                                    <div className="flex-1">
+                                                    <div className="flex-1 min-w-0">
                                                         <div className="font-medium">{cls.name}</div>
                                                         <div className="text-xs text-neutral-500">
                                                             {cls.code && `${cls.code} • `}

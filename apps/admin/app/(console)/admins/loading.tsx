@@ -8,7 +8,7 @@ export default function Loading() {
     return (
         <div className="p-6">
             <ShimmerStyles />
-            <div className="mx-auto max-w-7xl">
+            <div className="w-full">
                 <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div className="space-y-2">
                         <Shimmer className="h-8 w-32" />

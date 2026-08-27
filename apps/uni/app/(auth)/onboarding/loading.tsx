@@ -9,7 +9,7 @@ import { Shimmer, ShimmerStyles } from "@repo/ui/components/skeleton-kit";
 
 export default function Loading() {
     return (
-        <div className="flex min-h-screen flex-col bg-white dark:bg-neutral-950">
+        <div className="flex min-h-dvh flex-col bg-white dark:bg-neutral-950">
             <ShimmerStyles />
 
             <nav className="w-full border-b border-neutral-200 bg-white/80 dark:border-neutral-800 dark:bg-neutral-950/80">

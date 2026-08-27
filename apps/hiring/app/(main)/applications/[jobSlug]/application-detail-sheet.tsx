@@ -91,7 +91,7 @@ export function ApplicationDetailSheet({
                                 exit={{ y: "100%" }}
                                 transition={{ type: "spring", damping: 30, stiffness: 300 }}
                                 className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-neutral-950 rounded-t-3xl overflow-hidden"
-                                style={{ height: "80vh" }}
+                                style={{ height: "80dvh" }}
                             >
                                 <div className="flex justify-center pt-3 pb-2">
                                     <div className="w-12 h-1.5 bg-neutral-300 dark:bg-neutral-700 rounded-full" />
@@ -104,7 +104,7 @@ export function ApplicationDetailSheet({
                                         <X className="w-5 h-5" />
                                     </Button>
                                 </div>
-                                <div className="overflow-y-auto h-[calc(80vh-80px)] p-6">
+                                <div className="overflow-y-auto h-[calc(80dvh-80px)] p-6">
                                     {
                                         isLoading ? (
                                             <div className="flex items-center justify-center h-full">
@@ -757,7 +757,7 @@ function AcceptDialog({
                             Interview Link
                         </p>
                         <div className="flex items-center gap-2">
-                            <code className="flex-1 text-sm bg-white dark:bg-neutral-900 px-3 py-2 rounded-lg truncate">
+                            <code className="flex-1 min-w-0 text-sm bg-white dark:bg-neutral-900 px-3 py-2 rounded-lg truncate">
                                 {interviewLink}
                             </code>
                             <Button

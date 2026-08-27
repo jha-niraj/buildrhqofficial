@@ -116,8 +116,12 @@ function PracticeHeader({ goal, onOpenEarnings, onOpenNotes }: { goal: Goal; onO
         <div className="flex-shrink-0 p-4 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <Link href={`/pathfinder/${goal.slug ?? goal.id}`}>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                    {/* Back goes to the goal LIST. It pointed at
+                        `/pathfinder/${goal.slug}` - the page this component is
+                        already rendering - so the button navigated to itself and
+                        appeared to do nothing. */}
+                    <Link href="/pathfinder">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
                             <ArrowLeft className="w-4 h-4" />
                         </Button>
                     </Link>
@@ -493,7 +497,32 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
     }
 
     return (
-        <div className="flex-1 flex flex-col overflow-hidden">
+        // `h-[var(--page-h)]`, not `flex-1`.
+        //
+        // This page is a full-height two-pane workspace, and it was relying on
+        // `flex-1` to get its height. Inside the app shell that never resolves:
+        // the page body is a Radix ScrollArea whose viewport is
+        // `display:table` (shrink-to-fit), so there is no definite height for
+        // `flex-1` to fill and the whole column collapsed to its content. Measured
+        // at **284px against a 943px viewport**, which crushed the task list's
+        // scroller to 70px and left the Start Mock Interview button sitting just
+        // below the date header with dead space beneath it.
+        //
+        // `h-dvh` on the ROOT is the right lever, and it has to be a class rather
+        // than `h-[var(--page-h)]`: measured live, `--page-h` is published on the
+        // shell's `[data-app-page]` element but does NOT inherit down to this page
+        // root, so `h-[var(--page-h)]` computed to `auto` - no better than the
+        // `flex-1` it replaced.
+        //
+        // `h-dvh` works either way. A rule in packages/ui/src/styles/globals.css
+        // retargets `h-dvh` inside `[data-app-page]` at `var(--page-h, 100dvh)`,
+        // so within the shell it becomes the page-card height; outside it, it is
+        // simply the viewport. Both are DEFINITE, which is the whole point.
+        //
+        // The same class on the row BELOW was useless for a different reason: that
+        // row is a `flex-1` item in a `flex-col`, and the flex algorithm decides a
+        // flex item's main size, overriding `height`. Root, not row.
+        <div className="flex h-dvh flex-col overflow-hidden">
             <PracticeHeader
                 goal={goal}
                 onOpenEarnings={goal.isPublic ? () => setEarningsSheetOpen(true) : undefined}
@@ -507,7 +536,7 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
                 isPublic={goal.isPublic ?? false}
             />
 
-            <div className="flex-1 flex overflow-hidden h-dvh">
+            <div className="flex min-h-0 flex-1 overflow-hidden">
                 <div className="w-[350px] border-r border-neutral-200 dark:border-neutral-800 flex flex-col bg-neutral-50/80 dark:bg-neutral-950 h-full">
                     <div className="p-3 border-b border-neutral-200 dark:border-neutral-800">
                         <Button
@@ -529,7 +558,12 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
 
                     <SessionStats session={session} />
 
-                    <ScrollArea className="flex-1 min-h-0">
+                    {/* `reflow` + `min-w-0`: without the pin, Radix's
+                        `display:table` viewport is shrink-to-fit, so this scroller
+                        collapsed to its content instead of filling the column -
+                        which is why the Start Mock Interview button below rode up
+                        under the date header instead of sitting at the bottom. */}
+                    <ScrollArea reflow className="min-h-0 min-w-0 flex-1">
                         <div className="p-3 space-y-2">
                             {
                                 (() => {
@@ -554,10 +588,29 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
                                             (s) => new Date(s.date).toISOString().slice(0, 10) === todayStr
                                         ) ?? sessionsToShow[0]
                                     return (
+                                        // `key` on an uncontrolled Accordion, and it is
+                                        // load-bearing: `defaultValue` is only read on the
+                                        // FIRST mount. `sessionsToShow` is empty on that
+                                        // render and populates afterwards, so the accordion
+                                        // mounted with a value matching no item and, being
+                                        // uncontrolled, never revisited it. The session sat
+                                        // closed with all 15 tasks inside it - the list
+                                        // looked empty while 21 rows were in the DOM.
+                                        //
+                                        // Keying on the session id remounts it once the real
+                                        // session arrives, so `defaultValue` is read again
+                                        // against data that exists.
+                                        //
+                                        // The fallback was also broken: `'new-${Date.now()}'`
+                                        // is single-quoted INSIDE a template literal, so it
+                                        // was the literal text, never interpolated. It is
+                                        // gone - there is nothing sensible to open when there
+                                        // is no session, and `collapsible` allows none open.
                                         <Accordion
+                                            key={defaultOpen?.id ?? 'no-session'}
                                             type="single"
                                             collapsible
-                                            defaultValue={`session-${defaultOpen?.id ?? 'new-${Date.now()}'}`}
+                                            defaultValue={defaultOpen ? `session-${defaultOpen.id}` : undefined}
                                             className="w-full space-y-1"
                                         >
                                             {
@@ -576,7 +629,7 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
                                                             value={`session-${sess.id}`}
                                                             className="border border-neutral-200/60 dark:border-neutral-800 rounded-lg overflow-hidden bg-neutral-50/50 dark:bg-neutral-900/30"
                                                         >
-                                                            <AccordionTrigger className="py-3 px-4 hover:no-underline hover:bg-neutral-100/80 dark:hover:bg-neutral-800/50 rounded-lg [&[data-state=open]]:rounded-b-none">
+                                                            <AccordionTrigger className="sticky top-0 z-10 rounded-lg bg-neutral-100 py-3 px-4 hover:no-underline hover:bg-neutral-200/70 dark:bg-neutral-900 dark:hover:bg-neutral-800/70 [&[data-state=open]]:rounded-b-none">
                                                                 <div className="flex items-center justify-between w-full gap-3">
                                                                     <div className="flex items-center gap-2.5">
                                                                         <Calendar className="w-4 h-4 text-neutral-900 dark:text-neutral-100 shrink-0" />
@@ -594,8 +647,20 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
                                                                     </span>
                                                                 </div>
                                                             </AccordionTrigger>
-                                                            <AccordionContent className="px-2 pt-1 pb-3">
-                                                                <div className="space-y-1.5">
+                                                            {/* The task list gets its OWN scroller so the date
+                                                                header above it stays put instead of scrolling
+                                                                away with its 15 tasks. Two things make that true:
+                                                                this bounded inner region, and `sticky top-0` on
+                                                                the trigger for when several dates are listed.
+                                                                The trigger's background has to be OPAQUE - the
+                                                                item surface is `/50` and `/30`, and rows would
+                                                                otherwise slide visibly underneath it. */}
+                                                            <AccordionContent className="p-0">
+                                                                <ScrollArea
+                                                                    reflow
+                                                                    className="max-h-[calc(100dvh-22rem)] min-w-0 px-2 pt-1 pb-3"
+                                                                >
+                                                                    <div className="space-y-1.5">
                                                                     <AnimatePresence>
                                                                         {
                                                                             sess.subGoals.map((subGoal) => (
@@ -617,7 +682,8 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
                                                                             ))
                                                                         }
                                                                     </AnimatePresence>
-                                                                </div>
+                                                                    </div>
+                                                                </ScrollArea>
                                                             </AccordionContent>
                                                         </AccordionItem>
                                                     )
@@ -634,7 +700,38 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
                         <PathfinderMockButton goalId={goal.id} goalTitle={goal.title} />
                     </div>
                 </div>
-                <ScrollArea className="flex-1 h-dvh min-h-0">
+                {/* The empty state is rendered OUTSIDE the ScrollArea.
+                    A `flex-1 items-center justify-center` box cannot centre inside
+                    Radix's `display:table` viewport - percentage and flex heights
+                    do not resolve through a table box, so it collapsed to its
+                    content and sat at the top-left. There is also nothing to
+                    scroll when there is no task selected.
+
+                    `h-dvh` was wrong here too: this pane is already inside a
+                    bounded column, so a viewport-height child overflows it. */}
+                {!selectedSubGoal ? (
+                    <div className="flex min-h-0 flex-1 items-center justify-center p-8">
+                        <div className="text-center">
+                            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+                                <Target className="w-8 h-8 text-neutral-400 dark:text-neutral-500" />
+                            </div>
+                            <h3 className="font-semibold text-neutral-700 dark:text-neutral-200 mb-1">
+                                Select a Task
+                            </h3>
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                Click on a task to view its quiz and coding challenge
+                            </p>
+                        </div>
+                    </div>
+                ) : (
+                // A plain bounded box, NOT a ScrollArea. `SubGoalContentTabs` is
+                // already `flex flex-col overflow-hidden h-full` with `flex-1
+                // overflow-hidden` panes - it scrolls itself. Wrapping it in a
+                // second scroller gave the studio an auto-height `display:table`
+                // parent, so nothing bounded it and it spilled past the card.
+                // One scroll region per axis, owned by the thing that knows its
+                // own layout.
+                <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
                     {
                         selectedSubGoal ? (
                             <SubGoalContentTabs
@@ -655,23 +752,10 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
                                     codingPassed: selectedSubGoal.codingPassed,
                                 }}
                             />
-                        ) : (
-                            <div className="flex-1 flex items-center justify-center">
-                                <div className="text-center">
-                                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
-                                        <Target className="w-8 h-8 text-neutral-400" />
-                                    </div>
-                                    <h3 className="font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
-                                        Select a Task
-                                    </h3>
-                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                                        Click on a task to view its quiz and coding challenge
-                                    </p>
-                                </div>
-                            </div>
-                        )
+                        ) : null
                     }
-                </ScrollArea>
+                </div>
+                )}
             </div>
         </div>
     )

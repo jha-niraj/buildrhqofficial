@@ -516,23 +516,59 @@ function AIToolsPanel({ draftId, open, onClose, onContentUpdated }: {
         toast.success('Job description pulled in - check it before tailoring')
     }
 
+    // Scoring runs on the worker too, since RES-9.
+    //
+    // The reason is this panel rather than the model call: Score and Tailor sit
+    // one above the other, and until now one returned inline and the other went
+    // through a job. Two adjacent buttons waited differently, and the inline one
+    // was the half with no phase label and no refund if the request died.
     const handleScore = async () => {
         if (!jd.trim()) return toast.error('Paste a job description first')
         setLoading('score')
-        const res = await scoreResumeAgainstJD(draftId, jd)
+
+        const started = await scoreResumeAgainstJD(draftId, jd)
+        if (!started.success || !started.jobId) {
+            setLoading(null)
+            return toast.error(creditErrorMessage(started, 'Failed to score'))
+        }
+
+        const outcome = await awaitBackgroundJob<{
+            score?: number
+            missing_keywords?: string[]
+            matched_keywords?: string[]
+            suggestions?: string[]
+        }>(started.jobId, (_p, phaseLabel) => { if (phaseLabel) setPhase(phaseLabel) })
+
         setLoading(null)
-        if (!res.success) return toast.error(creditErrorMessage(res, 'Failed to score'))
-        setScoreResult(res as unknown as { score: number; missing_keywords: string[]; matched_keywords: string[]; suggestions: string[] })
+        setPhase('')
+        if (!outcome.ok) return toast.error(outcome.error)
+
+        // `typeof`, not truthiness: 0 is a real score for a resume genuinely
+        // unrelated to the posting, and treating it as "no result" would hide the
+        // most useful answer this panel ever gives.
+        if (typeof outcome.result?.score !== 'number') {
+            return toast.error('The scorer did not return a score. Please try again.')
+        }
+
+        setScoreResult({
+            score: outcome.result.score,
+            missing_keywords: outcome.result.missing_keywords ?? [],
+            matched_keywords: outcome.result.matched_keywords ?? [],
+            suggestions: outcome.result.suggestions ?? [],
+        })
         setTailorResult(null)
     }
 
     // Tailoring makes a COPY and opens it.
     //
-    // `tailorResumeForJD` rewrote THIS draft in place, so tailoring for a job
-    // destroyed the honest resume you had built - and tailoring again ran against
-    // the already-narrowed copy, compounding it. The generation also runs on the
-    // worker now: it is a gpt-4o pass over a whole resume plus a whole JD, which
-    // is not a call a request can hold open.
+    // The version this replaced rewrote THIS draft in place, so tailoring for a
+    // job destroyed the honest resume you had built - and tailoring again ran
+    // against the already-narrowed copy, compounding it. That function was
+    // deleted in RES-18; the reasoning is kept here because the copy-not-rewrite
+    // rule is a live design decision, not history.
+    //
+    // The generation runs on the worker: it is a gpt-4o pass over a whole resume
+    // plus a whole JD, which is not a call a request can hold open.
     const handleTailor = async () => {
         if (!jd.trim() || !jobTitle.trim()) return toast.error('Enter job title and paste JD')
         setLoading('tailor')

@@ -181,9 +181,26 @@ export function CoverLetterClient({
     const handleGenerateQuestions = async (jd: string) => {
         setIsGeneratingQuestions(true)
         const res = await generateCoverLetterQuestions(jd)
+        if (!res.success || !res.jobId) {
+            setIsGeneratingQuestions(false)
+            return toast.error(creditErrorMessage(res, "Could not generate questions"))
+        }
+
+        // Follows the same worker path as writing the letter, one step later in
+        // this same screen. It used to be an inline call, which meant these two
+        // adjacent buttons waited differently and only one of them refunded.
+        const outcome = await awaitBackgroundJob<{ questions?: CoverLetterQuestion[] }>(
+            res.jobId,
+            (_progress, phaseLabel) => { if (phaseLabel) setGenerationPhase(phaseLabel) },
+        )
         setIsGeneratingQuestions(false)
-        if (!res.success) return toast.error(creditErrorMessage(res, "Could not generate questions"))
-        const qs = res.questions as CoverLetterQuestion[]
+        setGenerationPhase("")
+
+        if (!outcome.ok) return toast.error(outcome.error)
+
+        const qs = outcome.result?.questions ?? []
+        if (qs.length === 0) return toast.error("No questions could be generated from that job description")
+
         setQuestions(qs)
         setStep(2)
 

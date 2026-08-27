@@ -16,7 +16,17 @@ each was verified before being marked done.
 | RES-6 | Upload path in the resume hub + set-default UI + real blank | 1, 4 | done (2026-08-19) |
 | RES-7 | Tailor from a job URL, not only pasted text | 6 | done (2026-08-19) |
 | RES-8 | Delete dead code | 9 | done (2026-08-20) |
-| RES-9 | Move remaining inline LLM calls to the worker | - | not started (deferred) |
+| RES-9 | Move the last four inline LLM calls to the worker | 3 | done (2026-08-27) |
+| RES-10 | Editor form: real components, real dates, real scrolling | - | done (2026-08-25) |
+| RES-11 | Bullets are bullets, everywhere | - | done (2026-08-25) |
+| RES-12 | Contact row and links on the rendered resume | - | done (2026-08-25) |
+| RES-13 | Social links entered on the resume reach the profile | - | done (2026-08-25) |
+| RES-14 | Preview hierarchy | - | done (2026-08-25) |
+| RES-15 | AI Tools becomes a column; scrape refuses login walls | - | done (2026-08-25) |
+| RES-16 | The generated PDF, and the profile write-back | - | done (2026-08-25) |
+| RES-17 | Scrape quality, the worker dispatch, and the AI panel | - | done (2026-08-25) |
+| RES-18 | Delete the two superseded resume files | 9 | done (2026-08-27) |
+| RES-19 | Correct `docs/resume-system.md` against the shipped schema | - | done (2026-08-27) |
 
 Credit charging for this module's operations is tracked in
 `plan/credits/tasks.md` as `CR-4` through `CR-8`.
@@ -172,19 +182,215 @@ anything not directly related to the core features"):
 
 ---
 
-## RES-9 - Move remaining inline LLM calls to the worker
+## RES-9 - Move the last four inline LLM calls to the worker
 
-**Status:** not started - deferred
+**Status:** done, verified 2026-08-27
+**Serves:** definition-of-done 3 (parsing never blocks a request), generalised to
+every model call in the module
 
-`tailorResumeForJD` (full `gpt-4o` resume regeneration - the highest timeout
-risk), `scoreResumeAgainstJD`, `generateAndSaveCoverLetter`,
-`generateCoverLetterQuestions` and the import actions all call models inline in
-server actions, against the rule in `CLAUDE.md`. `resume_structure` (RES-2) is
-the only one on the worker.
+**History.** This task was written on 2026-08-20 naming five functions and
+deferred. Two of the five have since moved as part of other work and the task
+text was never updated, so it overstated what is left. Corrected 2026-08-27
+against the code:
 
-Deferred on 2026-08-20: it is a refactor of pre-existing code rather than part of
-the feature work, and `CR-4`..`CR-7` deliberately put the credit lifecycle in
-place first so the migration has refunds to inherit.
+| function | where it runs today |
+|---|---|
+| `generateAndSaveCoverLetter` | **worker** - `cover_letter` job |
+| `tailorResumeForJD` | inline, but **dead** - no callers, deleted by RES-18 |
+| `createTailoredResume` (its replacement) | **worker** - `resume_tailor` job |
+| `scoreResumeAgainstJD` | **inline** - `gpt-4o-mini`, `resume-draft.action.ts:451` |
+| `generateCoverLetterQuestions` | **inline** - `gpt-4o`, `cover-letter.action.ts:253` |
+| `importAndCreateDraft` | **inline** - Exa + `gpt-4o`, `resume-import.action.ts:114` |
+| `importProfileAndCreateDraft` | **inline** - Exa + GitHub + `gpt-4o`, `:253` |
+
+So four functions remain, needing **three** new job types.
+
+**Why.** `CLAUDE.md`: *anything that calls an LLM, or sleeps waiting on somebody
+else's API, runs in `apps/worker`.* The two import actions are the worst
+offenders in the whole product against that rule, and not marginally: before the
+model is even called, `importProfileAndCreateDraft` makes up to four sequential
+Exa `getContents` calls each carrying a `livecrawlTimeout: 10000`, plus three
+GitHub REST round trips and three more for languages. That is up to 40 seconds of
+someone else's API before an 8,000-character `gpt-4o` pass begins - on a request
+Cloudflare kills long before it returns, after `withCredits` has already taken 20
+credits. RES-17 proved this class of failure is not theoretical: `background_job`
+had been recording `resume_tailor` failures for four days.
+
+`scoreResumeAgainstJD` is the mildest of the four and still worth moving. It also
+writes `jdSnapshot` onto the master resume, which pollutes a row that is supposed
+to be job-agnostic - fixed in passing here.
+
+**Files**
+- new: `apps/worker/src/jobs/resume-ats-score.ts`
+- new: `apps/worker/src/jobs/cover-letter-questions.ts`
+- new: `apps/worker/src/jobs/resume-import.ts`
+- edit: `packages/db/src/schema/worker.ts` - three entries in `JOB_TYPES`
+- edit: `apps/worker/src/env.ts` - three entries in `JOB_BINDINGS`, plus
+  `EXA_API_KEY` and `GITHUB_TOKEN` on `Env`
+- edit: `apps/worker/src/jobs/index.ts` - three exports
+- edit: `apps/worker/wrangler.jsonc` - three bindings + a `v4` migration tag
+- edit: `apps/worker/.env.example`, `apps/worker/README.md`
+- edit: `apps/main/actions/(main)/ai/resume-draft.action.ts`
+- edit: `apps/main/actions/(main)/ai/cover-letter.action.ts`
+- edit: `apps/main/actions/(main)/ai/resume-import.action.ts`
+- edit: `apps/main/app/(main)/ai/resume/_components/resume-editor.tsx`
+- edit: `apps/main/app/(main)/ai/resume/_components/cover-letter-client.tsx`
+- edit: `apps/main/app/(main)/ai/resume/_components/resume-hub.tsx`
+- edit: `apps/main/app/(main)/ai/resume/import/_components/import-client.tsx`
+
+**Steps**
+1. Three job classes extending `JobDurableObject`, each implementing `run()` and
+   nothing else, following `resume-tailor.ts` as the model.
+2. Register each in all four required places. All four or none - `jobStub` throws
+   loudly on drift, which is the designed behaviour, but only after dispatch.
+3. Each action pre-creates whatever row the client will poll and open, then
+   dispatches with `startBackgroundJob(type, pointerInput, { cost })`. The
+   `withCredits` wrapper comes out: the hold is taken by `startBackgroundJob` and
+   settled or released by `getBackgroundJobStatus` on the first terminal status.
+   Prices are unchanged and still read from `priceOf`.
+4. Each call site swaps its `await` for `useBackgroundJob` / `awaitBackgroundJob`.
+
+**Edge cases**
+- **`input` must be a pointer, not a payload.** The README's rule. The import
+  jobs therefore carry the URLs and the draft id, and do their own scraping
+  inside the alarm - which is the point, since the scraping is most of the wait.
+- **The imports need `EXA_API_KEY` and a GitHub token in the worker**, which it
+  does not have today. Both go on `Env` and in `.env.example`. A missing key must
+  fail the job loudly at the start of `run()`, not produce an empty scrape that
+  looks like a private profile - `importProfileAndCreateDraft` already swallows
+  every fetch error with `.catch(() => '')`, so an unset key would currently read
+  as "could not extract data from any source" and refund, hiding a config error
+  behind a user-facing message about their profile being private.
+- **The two import actions charge on different rules and both must survive the
+  move.** `importAndCreateDraft` returns before the hold when no source produced
+  text (so a dead URL is free), and treats a failed draft insert as a refund
+  because the saved draft IS the product. `importProfileAndCreateDraft` charges
+  when only *some* sources succeed, because the model still ran. Neither rule is
+  a hold-system default; both have to be written into the job's throw/return
+  behaviour deliberately. See CR-6.
+- **A pre-created row changes what a refund means.** `createTailoredResume`
+  already sets the precedent: the row exists before the job so the user can open
+  it immediately and a failure leaves something usable. For an import there is no
+  useful partial - an empty draft is worse than no draft - so the import jobs
+  create the draft at the END of `run()`, and a failed job leaves the list
+  unchanged. This is the opposite call to tailoring and is deliberate.
+- **`scoreResumeAgainstJD` must keep treating 0 as a valid score.** CR-5's edge
+  case, and the reason the existing guard is `typeof === 'number'` rather than a
+  truthiness test. It survives the move verbatim.
+- **`jdSnapshot` stops being written to the master draft.** The score still
+  persists to `atsScore`; the JD text belongs to the scoring attempt, not to a
+  job-agnostic resume. Confirm nothing reads `jdSnapshot` before dropping the
+  write.
+- **The ATS score arrives asynchronously now**, into a panel RES-17 already had
+  to fix for exactly this reason: the score used to land off-screen with nothing
+  changing to say it had. A job makes the gap longer, so the panel needs a
+  visible pending state, not just a result slot.
+- **Do not change a prompt, a model or a temperature in this task.** The
+  `cover_letter` and `resume_tailor` moves both state this explicitly and it is
+  what made them reviewable - a move that also reworded a prompt cannot be told
+  apart from a regression.
+- **`extractJobDescription` stays inline, deliberately.** It is one Exa call with
+  no model behind it, and it is interactive: the user pastes a URL and watches the
+  JD box fill. Routing a ~5 second fetch through a Durable Object and a poll loop
+  would make it slower and worse. The rule it is being measured against is about
+  calls that do not fit in a request; this one does.
+- **`wrangler.jsonc` needs a NEW migration tag** (`v4`), not an addition to `v3`.
+  Editing a shipped tag is the failure mode that leaves the deployed classes and
+  the declared ones disagreeing.
+
+**Done when**
+`grep -rn "openai\." "apps/main/actions/(main)/ai/"` returns nothing outside
+`extractJobDescription`'s file-level import; each of the three new types appears
+in `JOB_TYPES`, `JOB_BINDINGS`, `jobs/index.ts` and `wrangler.jsonc`; an import
+run end to end produces a draft and one settled hold; and a forced failure in
+each of the three leaves the balance unchanged with a refund row.
+
+---
+
+### Outcome
+
+Three job classes, four actions turned into dispatchers, four call sites moved
+onto `awaitBackgroundJob`. The prompts, models and temperatures are unchanged;
+`resume_ats_score` additionally stops writing `jdSnapshot` to the master resume,
+as the task specified. Confirmed first that nothing READS `jdSnapshot` - the only
+other writers are the tailoring paths, where a JD snapshot on a job-specific
+draft is correct.
+
+**The registration list in `apps/worker/README.md` was wrong, and a shipped job
+was broken by it.**
+
+This is the finding worth keeping. The README said adding a job type is "four
+edits, all four or none": `JOB_TYPES`, the class, `JOB_BINDINGS` +
+`jobs/index.ts`, and the wrangler binding + migration tag. There is a **fifth**:
+Wrangler binds a Durable Object by looking the class up on the **entry module's**
+exports, and `src/index.ts` has its own export list.
+
+`ResumeStructure` was correct in all four of the places the list named and absent
+from the fifth. So `RESUME_STRUCTURE` has been bound, since RES-2, to a class the
+entry point never exported - the binding has nothing behind it. That job is the
+one behind every resume upload, onboarding included.
+
+Nothing catches this. `tsc` passes, the binding type-checks, `jobStub` finds a
+namespace, and the failure only surfaces at dispatch - after the app has inserted
+the `background_job` row and put a hold on the user's credits. It is very likely a
+second, still-live cause of the `resume_structure` failures RES-17 investigated
+and attributed entirely to the `callWorker` realm bug.
+
+Fixed three ways: the class is exported, the README now says five edits and
+explains the fifth, and `CLAUDE.md`'s one-line summary was corrected to match. A
+cross-check script run afterwards confirms **all 13 job types are present in all
+five places**.
+
+**Two more defects found in the call sites, both fixed here:**
+
+1. **`resume-hub.tsx` would have navigated to `/ai/resume/draft/undefined`.** Its
+   `result` is declared as a hand-written type with an optional `draft`, so
+   assigning the new dispatch result compiled cleanly and then read `undefined`
+   at runtime. `tsc` cannot see this - the annotation is wider than either shape.
+   The import branch now follows its job and returns, the way the upload branch
+   already did, instead of falling through to a shared success path that expects
+   a draft id.
+2. **The import page's progress bar was a timer, not progress.** Five invented
+   captions advanced by `setInterval` every 4 seconds: on a fast import it
+   claimed to be scraping LinkedIn after the resume was saved, and on a slow one
+   it sat at "Finalising" for a minute. Replaced with the job's four real phases,
+   thresholds mirroring the `progress()` calls in the job.
+
+**Deliberately left inline, with reasons:**
+
+- `extractJobDescription` - one Exa fetch, no model, and interactive: the user
+  pastes a URL and watches the JD box fill. A ~5 second fetch behind a Durable
+  Object and a poll loop is slower and worse. Named in the task.
+- `whisperTranscribe` - `whisper-1` on a short voice answer in the cover letter
+  form. A speech model rather than an LLM, free, sub-second on a clip that size,
+  and interactive in the same way. Found during the final sweep and judged the
+  same call; recorded here so the next reader does not have to re-derive it.
+
+**Known consequence, not a defect.** The hub card's ATS badge now updates on the
+next navigation rather than immediately, because the score is written by the
+worker and the action no longer calls `revalidatePath`. A `router.refresh()`
+after scoring was considered and rejected: it would remount the editor mid-session
+and cost the user any unsaved form state, which is a worse trade than a badge
+that is one navigation behind.
+
+**Needs configuration before this works in production:** `EXA_API_KEY` and
+`GITHUB_TOKEN` on the worker. Both are in `apps/worker/.env.production.example`
+with what they are for. The import job fails loudly on a missing `EXA_API_KEY`
+rather than scraping nothing - without that guard an unset key would reach the
+user as "make sure your profiles are public", sending them to fix something that
+is not broken.
+
+**Verified:** `npx tsc --noEmit` clean in `apps/main`, `apps/worker` and
+`packages/db`; all 13 job types confirmed present in all five registration points
+by script; `grep -rn "openai" "apps/main/actions/(main)/ai/"` returns only
+`whisper.action.ts`'s REST call; `grep -rn -e "-" -e "-"` (em/en dash check)
+clean across `apps` and `packages`.
+
+**Not verified:** an end-to-end run of any of the three jobs against the live
+worker. That needs `EXA_API_KEY` on the worker and a `wrangler deploy` with the
+`v4` migration tag, neither of which this pass did. The credit-refund path is
+inherited unchanged from `startBackgroundJob` / `getBackgroundJobStatus`, which
+`cover_letter` and `resume_tailor` already exercise in production.
 
 ---
 
@@ -457,7 +663,38 @@ headings measure 7.11:1; saving twice inserts once and updates thereafter;
 
 ## RES-17 - Scrape quality, the worker dispatch, and the AI panel
 
-**Status:** done, verified 2026-08-25
+**Status:** done, verified 2026-08-25 - **but finding 1 was only half fixed. See
+the correction immediately below.**
+
+> ### Correction, 2026-08-27: `callWorker` was fixed on one path of two
+>
+> This task diagnosed the `[object Request]` realm bug correctly and fixed the
+> **HTTP fallback**. It left the **service-binding path** still building a
+> `Request`, on the reasoning recorded below that "the binding path still builds
+> a `Request` because a Fetcher's contract requires one".
+>
+> That reasoning is wrong. `Fetcher.fetch` takes the same `(input, init)`
+> signature as global fetch and accepts a string URL. What made it look right was
+> this repo's own `ServiceBinding` interface, which declared
+> `fetch: (request: Request) => Promise<Response>` - a narrow local type standing
+> in as evidence for a claim about Cloudflare's API.
+>
+> `apps/main/wrangler.jsonc` declares a `WORKER` service binding, so the binding
+> path is the one taken whenever the Cloudflare context resolves. A
+> `goal_creation` dispatch on 2026-08-27 failed with the identical
+> `Failed to parse URL from [object Request]`, two days after this task was
+> marked verified.
+>
+> Fixed in `srs/core-modules/pathfinder/02-worker-migration.md` under PF-W4, which
+> also records the second cause this masked: `WORKER_API_URL` in the local env
+> pointed at `:3004`, so even the corrected HTTP path dispatched to a port with
+> nothing on it. **Three layered causes, one symptom.**
+>
+> **Why the verification did not catch it:** this task's "Done when" was
+> *"`background_job` stops recording 'Failed to parse URL from [object Request]'"*
+> - a check on the ABSENCE of new failures, which passes trivially if nobody
+> dispatches a job. No job was run. The first job this product ever completed was
+> on 2026-08-27.
 
 **Why.** Four separate defects from one tailoring session.
 
@@ -517,3 +754,144 @@ two groups with one name.
 `background_job` stops recording "Failed to parse URL from [object Request]", a
 LinkedIn fetch yields the advert alone, the Job Title field reads
 "Founding Backend Engineer", and no duplicate-key warning appears.
+
+---
+
+## RES-18 - Delete the two superseded resume files
+
+**Status:** done, verified 2026-08-27
+**Serves:** definition-of-done 9
+
+**Why.** Two files in this module are dead in the way RES-8 was written to
+prevent, and both are the *name-collision* shape that RES-8's own edge-case
+section warned about - a symbol search says they are used, an import-path search
+says nothing reaches them.
+
+| File / symbol | Lines | Why it is dead |
+|---|---:|---|
+| `actions/(main)/ai/resume-template.action.ts` | 205 | Exports `getResumeTemplates`, and so does the live `resume-draft.action.ts:68`. Every caller imports from `resume-draft`. Zero importers of this path across `apps` and `packages`. Already listed as `CLN-2` and recorded as deleted on 2026-08-20; the deletion never reached the tree - see `plan/cleanup/candidates.md`. |
+| `tailorResumeForJD` in `resume-draft.action.ts:535` | ~95 | Superseded by `createTailoredResume`. The only occurrence of the name anywhere outside its own definition is a comment in `resume-editor.tsx:531` explaining why it was replaced. |
+
+**Steps**
+1. Re-verify both by import path, not by symbol, immediately before deleting.
+2. Delete the file; delete the function and the imports that only it used.
+3. Typecheck `apps/main`.
+
+**Edge cases**
+- **The name collision is the whole risk.** `grep -rn getResumeTemplates` returns
+  hits in live files. Confirm the import SPECIFIER (`from '.../resume-template'`)
+  rather than the symbol, or the wrong file goes. This is the exact trap that
+  RES-8 recorded for `resume-scrape.action.ts`.
+- **`tailorResumeForJD` is charged.** It calls `withCredits` with
+  `resume_tailor_jd`. That price is still live and still correct - it is what
+  `createTailoredResume` charges through `startBackgroundJob`. Delete the
+  function, **not** the price.
+- **`resume-template.action.ts` writes to `resumeTemplate` and
+  `templatePurchase`.** Deleting actions is not deleting schema; RES-8 already
+  settled that those tables stay. No migration is part of this task.
+- **The comment in `resume-editor.tsx:531` explains a live design decision** -
+  why tailoring spins off a copy instead of rewriting in place. Rewrite it to
+  stop naming a function that no longer exists; do not delete the reasoning.
+- **`ResumeDraftContent` and the OpenAI import in `resume-draft.action.ts` may
+  become unused** once the function goes, or may not - `scoreResumeAgainstJD`
+  uses both until RES-9 lands. Check, do not assume; an unused import is a lint
+  error and a wrongly-removed one is a compile error.
+
+**Done when**
+`grep -rn "resume-template\|tailorResumeForJD" apps packages` returns only the
+rewritten comment, and `cd apps/main && npx tsc --noEmit` passes.
+
+**Outcome.** 338 lines gone: `resume-template.action.ts` (205),
+`tailorResumeForJD` and its banner (110), and one thing the plan did not
+anticipate.
+
+**Found while deleting:** `resume-draft.action.ts` carried its OWN
+`isResumeDraftContent` type guard (23 lines, line 435), private to the file
+because `"use server"` modules may only export async functions. Its only caller
+was `tailorResumeForJD`. It duplicated the exported guard of the same name in
+`packages/db/src/resume.ts`, which is the one the worker and every other consumer
+already use - so this was a second copy of a shared invariant, kept alive by one
+dead function. Removed with it; nothing else referenced it.
+
+The three imports the plan flagged as *possibly* orphaned all survive:
+`ResumeDraftContent` (7 uses), `openai` and `OperationFailed` are still needed by
+`scoreResumeAgainstJD` until RES-9 moves it. Checked rather than assumed, as the
+edge case required.
+
+**Verified:** `grep -rn "resume-template\|tailorResumeForJD" apps packages`
+returns only the rewritten comment in `resume-editor.tsx`;
+`cd apps/main && npx tsc --noEmit` exits 0.
+
+---
+
+## RES-19 - Correct `docs/resume-system.md` against the shipped schema
+
+**Status:** done, verified 2026-08-27
+
+**Why.** The doc is the only prose description of how the resume system fits
+together, and it describes a column that does not exist. It was written on
+2026-08-20 from the branch that called the flag `is_primary`; what merged and
+shipped calls it `is_default`. A reader following the doc writes a query that
+returns nothing, or worse, adds a second flag.
+
+| doc says | schema says |
+|---|---|
+| `resume_draft.is_primary` | `resume_draft.is_default` (`aitools.ts:348`) |
+| "the draft marked `isPrimary`" | `isDefault` - which is what `lib/resume/primary.ts` already reads |
+| migration `0008_big_rhino.sql` | `0008_supreme_supernaut.sql`; there is no `big_rhino` |
+
+**Files** `docs/resume-system.md`
+
+**Steps**
+1. Rename the flag throughout. The *concept* - one authoritative resume per user,
+   enforced by a partial unique index - is correct and stays; only the identifier
+   is wrong.
+2. Re-quote the migration from the file that actually exists.
+3. Update the "Still to do" section: it says "nothing costs credits", which
+   stopped being true when `CR-4`..`CR-6` shipped, and it names
+   `tailorResumeForJD` as kept, which RES-18 removes.
+4. Leave `PLATFORM_TEMPLATES`' palette note alone - still true, still unfixed.
+
+**Edge cases**
+- **`lib/resume/primary.ts` is already correct** and reads `isDefault`. This task
+  changes documentation only; a "fix" that renamed the column to match the doc
+  would need a migration and would break `setDefaultResumeDraft`, the partial
+  unique index and RES-1's whole invariant.
+- **The file name `primary.ts` and the type `ResumeSource` keep their names.**
+  "Primary resume" is good product language even though the column is
+  `is_default`; the doc should say so once rather than leaving the next reader to
+  wonder whether they are two things.
+
+**Done when**
+`grep -n "is_primary\|isPrimary\|big_rhino" docs/resume-system.md` returns
+nothing, and every SQL identifier the doc quotes exists in
+`packages/db/drizzle/`.
+
+**Outcome.** Four corrections, one of them bigger than the task expected.
+
+1. `is_primary` -> `is_default` throughout, and `isPrimary` -> `isDefault`.
+2. **The migration was not one file, it was two, four apart.** The doc quoted a
+   single `0008_big_rhino.sql` containing six statements. What actually shipped:
+   `0008_supreme_supernaut.sql` added the flag and a lookup index;
+   `0012_aberrant_random.sql`, four migrations later, added `source_draft_id`,
+   `tailored_for_company`, `cover_letter.resume_draft_id` and the partial unique
+   index `resume_draft_one_default_per_user`. The doc now shows both, and says
+   why the gap matters: for four migrations the flag existed with no constraint
+   behind it, which is the reason `setDefaultResumeDraft` swaps inside a
+   `db.batch` instead of trusting the index to reject a second write.
+3. "Still to do" had gone stale in two of its four entries - it said *nothing
+   costs credits* (CR-4..CR-8 shipped) and that `tailorResumeForJD` was kept
+   (RES-18 deleted it two hours earlier). Both struck through with what replaced
+   them rather than deleted, so a reader holding an older copy can tell what
+   moved. The `scoreResumeAgainstJD` entry stays and now points at RES-9.
+4. Added a short note on why the column is `is_default` while the file that
+   reads it is `primary.ts` - the concept and the identifier genuinely differ,
+   and leaving that unexplained is what invites a "fix" that renames the column.
+
+**Deliberate exception to the Done-when line.** One `is_primary` remains, in the
+sentence explaining that the name never shipped. Removing it would delete the
+explanation for the mismatch, which is the thing this task exists to record.
+
+**Verified:** `grep -n "isPrimary\|big_rhino"` returns nothing; both migration
+filenames the doc now quotes exist in `packages/db/drizzle/`; no em or en dashes
+introduced.

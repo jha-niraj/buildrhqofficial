@@ -7,6 +7,7 @@ import {
 } from "lucide-react"
 import { motion } from "framer-motion"
 import Link from "next/link"
+import { TrendChart } from "../../_components/trend-chart"
 import { cn } from "@/lib/utils"
 import type { StatsData } from "@/types/admin"
 
@@ -33,7 +34,13 @@ function PlatformCard({ title, description, icon: Icon, color, bgColor, href, st
                 )}
             >
                 <div className={cn("absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 -translate-y-1/2 translate-x-1/2", bgColor)} />
-                {pendingActions && pendingActions > 0 && (
+                {/* `(pendingActions ?? 0) > 0`, not `pendingActions && pendingActions > 0`.
+                    The second form short-circuits on a falsy `0` and RETURNS it, and React
+                    renders `0` as a text node - a bare digit above the card, which is what
+                    hiring and university both showed. The `> 0` guard never got to run.
+                    Main passes `undefined`, which renders nothing, so only two of the three
+                    cards were affected and it read as a data bug rather than a render one. */}
+                {(pendingActions ?? 0) > 0 && (
                     <div className="absolute top-4 right-4">
                         <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-neutral-50 dark:bg-neutral-800/20 text-neutral-800 dark:text-neutral-100 text-xs font-medium">
                             <AlertCircle className="w-3 h-3" />
@@ -165,11 +172,31 @@ export interface AllStats {
         activeCommunities?: number
         totalFeedback?: number
     } | null
+    /** Real, DB-derived series for the two charts (ADM-27). `[]` means "no data
+     *  yet", which the chart renders as an empty state rather than a flat line. */
+    userGrowth: Array<{ date: string; count: number }>
+    revenue: Array<{ date: string; amount: number }>
 }
+
+/**
+ * The console's most-used controls, moved to the top of the page (ADM-27).
+ *
+ * They used to sit in the bottom-right cell of a two-column row, below the stat
+ * tiles and all three platform cards - which on a laptop put the thing people
+ * click most below the fold, under everything they were only glancing at.
+ */
+const QUICK_LINKS = [
+    { href: "/users", label: "Manage Users", icon: Users },
+    { href: "/hiring/companies", label: "Companies", icon: Building2 },
+    { href: "/uni/universities", label: "Universities", icon: GraduationCap },
+    { href: "/credits", label: "Credits", icon: CreditCard },
+    { href: "/feedback", label: "Feedback", icon: MessageCircle },
+    { href: "/admins", label: "Admin Users", icon: Shield },
+] as const
 
 export function DashboardClient({ initialStats }: { initialStats: AllStats }) {
     const { data: session } = useSession()
-    const { main, hiring, uni, overview } = initialStats
+    const { main, hiring, uni, overview, userGrowth, revenue } = initialStats
 
     const pendingActions: PendingActionProps[] = ([
         { title: "company verifications pending", count: hiring?.pendingVerifications ?? 0, type: "warning" as const, href: "/hiring/companies/verification", platform: "hiring" as const },
@@ -193,11 +220,56 @@ export function DashboardClient({ initialStats }: { initialStats: AllStats }) {
                 </div>
             </div>
 
+            {/* Quick Links FIRST (ADM-27). A horizontal strip rather than the old
+                2-up grid in a side panel: six short labels fit one row from `md`,
+                and below that they scroll sideways in their own container instead
+                of costing three stacked rows at the top of a bounded page.
+                `min-w-0` + `shrink-0` per docs/responsiveness.md - a tile in a
+                flex row has no column to fill and collapses to its text. */}
+            <div className="mb-8">
+                <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Quick Links</h2>
+                <div className="-mx-1 min-w-0 overflow-x-auto px-1 pb-1">
+                    <div className="flex w-max gap-3 md:grid md:w-full md:grid-cols-3 lg:grid-cols-6">
+                        {QUICK_LINKS.map(({ href, label, icon: Icon }) => (
+                            <Link
+                                key={href}
+                                href={href}
+                                className="flex w-44 shrink-0 items-center gap-3 rounded-lg border border-neutral-200 bg-white p-3 transition-colors hover:bg-neutral-100 md:w-auto dark:border-neutral-800 dark:bg-neutral-900 dark:hover:bg-neutral-800"
+                            >
+                                <Icon className="h-5 w-5 shrink-0 text-neutral-900 dark:text-white" />
+                                <span className="min-w-0 truncate text-sm font-medium text-neutral-900 dark:text-white">{label}</span>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <QuickStat title="Total Users" value={main?.totalUsers?.toLocaleString() ?? "0"} change={main?.growthRate as number} icon={Users} color="bg-neutral-900" />
                 <QuickStat title="Active Admins" value={main?.totalAdmins?.toString() ?? "0"} icon={Shield} color="bg-neutral-900" />
                 <QuickStat title="Total Credits" value={main?.totalCredits?.toLocaleString() ?? "0"} icon={CreditCard} color="bg-neutral-900" />
                 <QuickStat title="New This Month" value={main?.newUsersThisMonth?.toLocaleString() ?? "0"} change={main?.growthRate as number} icon={TrendingUp} color="bg-neutral-900" />
+            </div>
+
+            {/* Trends. Two series, both real - see page.tsx for why hiring and
+                university get no chart. */}
+            <div className="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
+                <TrendChart
+                    title="User Growth"
+                    subtitle="New sign-ups per day"
+                    data={userGrowth}
+                    dataKey="count"
+                    emptyLabel="No sign-ups recorded yet"
+                    footer={`${userGrowth.reduce((a, r) => a + r.count, 0).toLocaleString()} new users over the period`}
+                />
+                <TrendChart
+                    title="Credit Revenue"
+                    subtitle="Credits purchased per day"
+                    data={revenue}
+                    dataKey="amount"
+                    emptyLabel="No purchases recorded yet"
+                    footer={`${revenue.reduce((a, r) => a + r.amount, 0).toLocaleString()} credits over the period`}
+                />
             </div>
 
             <div className="mb-8">
@@ -251,54 +323,22 @@ export function DashboardClient({ initialStats }: { initialStats: AllStats }) {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Pending Actions</h2>
-                        <span className="text-sm text-neutral-500 dark:text-neutral-400">{pendingActions.reduce((acc, a) => acc + a.count, 0)} total</span>
-                    </div>
-                    <div className="space-y-3">
-                        {pendingActions.length === 0 ? (
-                            <div className="flex items-center gap-3 p-4 rounded-lg bg-neutral-50 dark:bg-neutral-800/10 text-neutral-800 dark:text-neutral-100">
-                                <CheckCircle className="w-5 h-5" />
-                                <span className="font-medium">All caught up - no pending actions</span>
-                            </div>
-                        ) : (
-                            pendingActions.map((action, index) => <PendingAction key={index} {...action} />)
-                        )}
-                    </div>
+            {/* Pending Actions is now the full width of the page: Quick Links used
+                to occupy the other half of this row and has moved to the top. */}
+            <div className="rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                    <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Pending Actions</h2>
+                    <span className="text-sm text-neutral-500 dark:text-neutral-400">{pendingActions.reduce((acc, a) => acc + a.count, 0)} total</span>
                 </div>
-
-                <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Quick Links</h2>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                        <Link href="/users" className="flex items-center gap-3 p-3 rounded-lg bg-neutral-50 dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors">
-                            <Users className="w-5 h-5 text-neutral-900 dark:text-white" />
-                            <span className="text-sm font-medium text-neutral-900 dark:text-white">Manage Users</span>
-                        </Link>
-                        <Link href="/hiring/companies" className="flex items-center gap-3 p-3 rounded-lg bg-neutral-50 dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors">
-                            <Building2 className="w-5 h-5 text-neutral-900 dark:text-white" />
-                            <span className="text-sm font-medium text-neutral-900 dark:text-white">Companies</span>
-                        </Link>
-                        <Link href="/uni/universities" className="flex items-center gap-3 p-3 rounded-lg bg-neutral-50 dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors">
-                            <GraduationCap className="w-5 h-5 text-neutral-900 dark:text-white" />
-                            <span className="text-sm font-medium text-neutral-900 dark:text-white">Universities</span>
-                        </Link>
-                        <Link href="/credits" className="flex items-center gap-3 p-3 rounded-lg bg-neutral-50 dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors">
-                            <CreditCard className="w-5 h-5 text-neutral-900 dark:text-white" />
-                            <span className="text-sm font-medium text-neutral-900 dark:text-white">Credits</span>
-                        </Link>
-                        <Link href="/feedback" className="flex items-center gap-3 p-3 rounded-lg bg-neutral-50 dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors">
-                            <MessageCircle className="w-5 h-5 text-neutral-900 dark:text-white" />
-                            <span className="text-sm font-medium text-neutral-900 dark:text-white">Feedback</span>
-                        </Link>
-                        <Link href="/admins" className="flex items-center gap-3 p-3 rounded-lg bg-neutral-50 dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors">
-                            <Shield className="w-5 h-5 text-neutral-900 dark:text-white" />
-                            <span className="text-sm font-medium text-neutral-900 dark:text-white">Admin Users</span>
-                        </Link>
-                    </div>
+                <div className="space-y-3">
+                    {pendingActions.length === 0 ? (
+                        <div className="flex items-center gap-3 rounded-lg bg-neutral-50 p-4 text-neutral-800 dark:bg-neutral-800/10 dark:text-neutral-100">
+                            <CheckCircle className="h-5 w-5 shrink-0" />
+                            <span className="font-medium">All caught up - no pending actions</span>
+                        </div>
+                    ) : (
+                        pendingActions.map((action, index) => <PendingAction key={index} {...action} />)
+                    )}
                 </div>
             </div>
         </div>

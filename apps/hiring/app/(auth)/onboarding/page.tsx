@@ -64,7 +64,7 @@ const roleOptions = [
 // Loading fallback component
 function OnboardingLoading() {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 mx-auto w-full max-w-7xl">
+        <div className="min-h-dvh flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 mx-auto w-full max-w-7xl">
             <div className="flex flex-col items-center gap-4">
                 <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
                 <p className="text-neutral-500">Loading...</p>
@@ -221,7 +221,7 @@ function OnboardingContent() {
     }
 
     return (
-        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+        <div className="min-h-dvh bg-neutral-50 dark:bg-neutral-950">
             <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800">
                 <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-3">

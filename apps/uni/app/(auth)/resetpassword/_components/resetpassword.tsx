@@ -140,7 +140,7 @@ const ResetPassword = (): JSX.Element | null => {
 
     if (isSuccess) {
         return (
-            <div className="min-h-screen w-full bg-white dark:bg-neutral-950 flex flex-col items-center justify-center">
+            <div className="min-h-dvh w-full bg-white dark:bg-neutral-950 flex flex-col items-center justify-center">
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -157,7 +157,7 @@ const ResetPassword = (): JSX.Element | null => {
     }
 
     return (
-        <div className="min-h-screen w-full bg-white dark:bg-neutral-950 flex flex-col items-center justify-center relative p-4">
+        <div className="min-h-dvh w-full bg-white dark:bg-neutral-950 flex flex-col items-center justify-center relative p-4">
             <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
                 {/* Replaces the static 40px grid. The grid read as a form field
                     behind a card; a slow monochrome motif gives the panel depth

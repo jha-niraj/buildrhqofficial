@@ -262,7 +262,7 @@ export default function PricingPage() {
     }
 
     return (
-        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+        <div className="min-h-dvh bg-neutral-50 dark:bg-neutral-950">
             <main className="pt-32 pb-20">
                 <div className="max-w-7xl mx-auto px-6 mb-16 relative">
                     <div className="text-center mb-8">

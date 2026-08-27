@@ -6,10 +6,9 @@
 // This barrel used to re-export a second, older generation of profile UI as
 // well: a header, a tab bar, a sidebar and eight tab components, which existed
 // only to render somebody else's profile and rendered it as a visibly different
-// page. Those files are still on disk pending Niraj's call - see
-// `plan/cleanup/candidates.md`, Group E - but they are no longer exported, so
-// nothing can reach them by accident and `tsc` no longer type-checks them into
-// the build.
+// page. Deleted on 2026-08-27 - 13 files, ~4,636 lines - see
+// `plan/cleanup/candidates.md`, Group E. Recoverable from git history if the
+// tabbed layout is ever wanted back.
 
 export { ProfileView } from "./profile-view";
 export type {

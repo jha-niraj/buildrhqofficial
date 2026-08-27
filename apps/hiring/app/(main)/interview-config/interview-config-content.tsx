@@ -469,7 +469,7 @@ export function InterviewConfigContent({ initialProcesses, initialStats }: Inter
             }}>
                 <SheetContent
                     side="bottom"
-                    className="h-[90vh] rounded-t-3xl flex flex-col"
+                    className="h-[90dvh] rounded-t-3xl flex flex-col"
                 >
                     <SheetHeader>
                         <SheetTitle>
@@ -492,7 +492,7 @@ export function InterviewConfigContent({ initialProcesses, initialStats }: Inter
                 </SheetContent>
             </Sheet>
             <Sheet open={isDetailSheetOpen} onOpenChange={setIsDetailSheetOpen}>
-                <SheetContent className="w-full sm:max-w-2xl h-[95vh] overflow-y-auto">
+                <SheetContent className="w-full sm:max-w-2xl h-[95dvh] overflow-y-auto">
                     <SheetHeader>
                         <SheetTitle>{selectedProcess?.name}</SheetTitle>
                         <SheetDescription>
@@ -550,7 +550,7 @@ export function InterviewConfigContent({ initialProcesses, initialStats }: Inter
             <Sheet open={isTemplatesOpen} onOpenChange={setIsTemplatesOpen}>
                 <SheetContent
                     side="bottom"
-                    className="h-[90vh] rounded-t-3xl flex flex-col"
+                    className="h-[90dvh] rounded-t-3xl flex flex-col"
                 >
                     <div className="max-w-7xl mx-auto w-full flex flex-col h-full">
                         <SheetHeader className="pb-4 border-b border-neutral-200 dark:border-neutral-800">

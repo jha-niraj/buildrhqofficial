@@ -299,7 +299,7 @@ export function JobsContent({ initialJobs, stats, interviewProcesses: _interview
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center gap-3 mb-2 flex-wrap">
-                                                    <Link href={`/jobs/${job.slug}/edit`}>
+                                                    <Link href={`/jobs/${job.slug}/edit`} className="min-w-0">
                                                         <h3 className="font-bold text-lg text-neutral-900 dark:text-white hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors truncate">
                                                             {job.title}
                                                         </h3>

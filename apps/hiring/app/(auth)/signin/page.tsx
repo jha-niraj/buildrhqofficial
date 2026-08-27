@@ -98,7 +98,7 @@ function SignInForm({ searchParams }: SignInFormProps) {
         : "/register";
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-950 p-4 mx-auto w-full max-w-7xl">
+        <div className="min-h-dvh flex items-center justify-center bg-white dark:bg-neutral-950 p-4 mx-auto w-full max-w-7xl">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -257,7 +257,7 @@ function SignInForm({ searchParams }: SignInFormProps) {
 export default function SignInPage() {
     return (
         <Suspense fallback={
-            <div className="flex min-h-screen items-center justify-center bg-white dark:bg-neutral-950">
+            <div className="flex min-h-dvh items-center justify-center bg-white dark:bg-neutral-950">
                 <Loader2 className="h-8 w-8 animate-spin text-neutral-400" />
             </div>
         }>

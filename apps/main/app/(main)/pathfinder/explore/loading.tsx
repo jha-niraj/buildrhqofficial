@@ -1,48 +1,28 @@
-// Hand-matched to the goal explorer.
-import { Shimmer, ShimmerStyles } from "@repo/ui/components/skeleton-kit";
+// Matches the CONTENT PANE only.
+//
+// `explore/layout.tsx` renders the 320px goal sidebar itself as a server
+// component, so this skeleton stands in for `page.tsx` alone - the pane to its
+// right. It previously rendered `mx-auto max-w-7xl px-6 py-8` with a centred
+// `max-w-3xl` column and a 2-up card grid: a whole-page layout drawn inside one
+// pane, which then collapsed into a centred empty state when the real content
+// arrived.
+import { Shimmer, ShimmerStyles } from "@repo/ui/components/skeleton-kit"
 
 export default function Loading() {
     return (
-        <div className="mx-auto max-w-7xl px-6 py-8">
+        <div className="flex h-full items-center justify-center p-8">
             <ShimmerStyles />
-
-            <div className="mx-auto max-w-3xl">
-            <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div className="space-y-2">
-                    <Shimmer className="h-8 w-56" />
-                    <Shimmer className="h-4 w-80" delay={0.06} />
+            <div className="flex flex-col items-center text-center">
+                <Shimmer className="h-16 w-16 rounded-2xl" />
+                <Shimmer className="mt-6 h-6 w-52" delay={0.06} />
+                <Shimmer className="mt-3 h-4 w-80" delay={0.1} />
+                <Shimmer className="mt-1.5 h-4 w-64" delay={0.12} />
+                <div className="mt-6 flex items-center gap-4">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <Shimmer key={i} className="h-4 w-16" delay={0.14 + i * 0.04} />
+                    ))}
                 </div>
-                <Shimmer className="h-10 w-36 rounded-xl" delay={0.12} />
-            </div>
-
-            <div className="mb-6 flex flex-col gap-3 sm:flex-row">
-                <Shimmer className="h-10 flex-1 rounded-lg" />
-                <Shimmer className="h-10 w-full rounded-lg sm:w-44" delay={0.06} />
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="rounded-2xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 p-5">
-                        <div className="flex items-start justify-between">
-                            <Shimmer className="h-11 w-11 rounded-xl" delay={i * 0.05} />
-                            <Shimmer className="h-6 w-20 rounded-full" delay={i * 0.05} />
-                        </div>
-                        <Shimmer className="mt-4 h-5 w-3/4" delay={i * 0.05} />
-                        <Shimmer className="mt-2 h-4 w-full" delay={i * 0.05} />
-                        <Shimmer className="mt-1.5 h-4 w-5/6" delay={i * 0.05} />
-                        <div className="mt-4 flex flex-wrap gap-1.5">
-                            {[0, 1, 2].map((j) => (
-                                <Shimmer key={j} className="h-5 w-14 rounded-md" delay={i * 0.05} />
-                            ))}
-                        </div>
-                        <div className="mt-4 flex items-center justify-between border-t border-neutral-100 pt-3 dark:border-neutral-800">
-                            <Shimmer className="h-3.5 w-24" delay={i * 0.05} />
-                            <Shimmer className="h-3.5 w-16" delay={i * 0.05} />
-                        </div>
-                    </div>
-                ))}
-            </div>
             </div>
         </div>
-    );
+    )
 }

@@ -194,7 +194,7 @@ export default function TransactionsPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-dvh flex items-center justify-center">
                 <div className="text-center">
                     <Loader2 className="h-8 w-8 animate-spin mx-auto text-neutral-400" />
                     <p className="mt-2 text-neutral-500">Loading transactions...</p>

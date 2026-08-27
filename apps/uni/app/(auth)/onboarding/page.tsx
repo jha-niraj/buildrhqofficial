@@ -153,7 +153,7 @@ export default function OnboardingPage() {
     ]
 
     return (
-        <div className="min-h-screen bg-white dark:bg-neutral-950 flex flex-col mx-auto w-full max-w-7xl">
+        <div className="min-h-dvh bg-white dark:bg-neutral-950 flex flex-col mx-auto w-full max-w-7xl">
             <Dialog open={showExitDialog} onOpenChange={setShowExitDialog}>
                 <DialogContent className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800">
                     <DialogHeader>

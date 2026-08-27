@@ -9,7 +9,7 @@ export default function Loading() {
     return (
         <div className="p-6">
             <ShimmerStyles />
-            <div className="mx-auto max-w-7xl">
+            <div className="w-full">
                 <div className="mb-6 space-y-2">
                     <Shimmer className="h-8 w-48" />
                     <Shimmer className="h-4 w-64" delay={0.06} />

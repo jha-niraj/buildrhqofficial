@@ -78,10 +78,44 @@ Per `CLAUDE.md`. Scope to the package being edited.
 
 ---
 
+## Status - reconciled against the code 2026-08-27
+
+Read this before the ordering table below it, which is now partly historical.
+
+| item | state |
+|---|---|
+| `SHARED-1` `type` column on `background_job` | **done** - `schema/worker.ts:100`, plus a shared `JobType` union both sides import |
+| `SHARED-2` one polling hook | **done** - `useBackgroundJob` / `awaitBackgroundJob` in `apps/main/hooks/use-background-job.ts`, with backoff, a deadline and a terminal-state stop |
+| `SHARED-3` one credit-hold helper | **done** - `lib/credits/hold.ts` (reserve/settle/release) and `lib/credits/charge.ts` (`withCredits`) |
+| `PRJ-B1` / `PF-B1` credit loss on failure | **done** for every flow that runs on the worker: `startBackgroundJob` holds, `getBackgroundJobStatus` settles or releases on the first terminal status |
+| `PF-B2` verification runs inline | **done** - it is the `verification_generation` job |
+| `PRJ-B2` no error boundaries | **done** - `app/(main)/projects/error.tsx` and `app/(main)/pathfinder/error.tsx` |
+| worker migration | **partly done.** 13 of 20 declared job types are runnable. See each module's `02-worker-migration.md` status table |
+
+So items 1, 2 and 3 of the ordering table below are finished, and item 4 is the
+live one.
+
+**Two of the three remaining `projects` migrations are blocked on a product
+decision, not on engineering** - `PRJ-W2` on whether assessments survive the
+narrowing, `PRJ-W3` on the overlap with the standalone `mock` module. Only
+`PRJ-W5` is a free engineering choice, and it was deferred deliberately. The
+unblocked work is therefore all in `pathfinder`: `PF-W2` through `PF-W6`.
+
+### A naming collision worth knowing about
+
+**`PRJ-*` means two different things in this repo.** Here it is the projects
+worker/blocker backlog (`PRJ-W1`, `PRJ-B1`). In `plan/projects/tasks.md` it is
+the solo-ification work (`PRJ-1` through `PRJ-6`, all done 2026-08-20). They are
+unrelated task sets that share a prefix. Cite the file, not just the id.
+
+---
+
 ## Suggested order
 
 The blockers first, because they are the ones that make the modules feel broken
 rather than incomplete, and two of them cost users real credits.
+
+*(Items 1-3 are done - see the status table above. Kept for the reasoning.)*
 
 | # | what | why first |
 |---|------|-----------|

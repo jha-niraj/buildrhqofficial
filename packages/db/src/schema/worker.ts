@@ -50,6 +50,15 @@ export const JOB_TYPES = [
     // on request paths that could not hold them.
     "resume_tailor",
     "cover_letter",
+    // The last three inline model calls in the resume module, moved 2026-08-27
+    // (plan/resume/tasks.md:RES-9). The imports are the reason this batch is not
+    // optional: before a model is called at all, a profile import makes up to
+    // four Exa fetches carrying a 10s livecrawl timeout each, plus six GitHub
+    // REST round trips. That is someone else's API, minutes of it, on a request
+    // that had already taken 20 credits.
+    "resume_ats_score",
+    "cover_letter_questions",
+    "resume_import",
 ] as const;
 
 export type JobType = (typeof JOB_TYPES)[number];

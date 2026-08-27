@@ -32,7 +32,7 @@ import {
 import { PATHFINDER_CATEGORIES } from '@/types/pathfinder'
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
-    ResponsiveContainer, PieChart, Pie, Cell
+    ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line
 } from 'recharts'
 
 type Goal = PathfinderGoal
@@ -45,15 +45,31 @@ interface PathfinderDashboardProps {
 
 const categoryConfig = PATHFINDER_CATEGORIES
 
+// Same unpaired-ink bug as the stat tiles below: `text-neutral-800` with no
+// `dark:` counterpart measures 1.18:1 on the dark card, so these status badges
+// were unreadable in dark mode. Paired throughout.
+//
+// `FAILED` keeps red and `ABANDONED` keeps a muted neutral - those two carry
+// MEANING in their colour, which the monochrome rule in CLAUDE.md allows for a
+// semantic status badge. The other three were decorative and are now ink.
 const statusConfig: Record<PathfinderStatus, { label: string; icon: React.ReactNode; color: string; bg: string }> = {
-    ACTIVE: { label: 'Active', icon: <Play className="w-3 h-3" />, color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
-    VERIFICATION: { label: 'Verifying', icon: <Zap className="w-3 h-3" />, color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
-    COMPLETED: { label: 'Completed', icon: <CheckCircle className="w-3 h-3" />, color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
-    FAILED: { label: 'Retry', icon: <XCircle className="w-3 h-3" />, color: 'text-red-600', bg: 'bg-red-500/10' },
-    ABANDONED: { label: 'Paused', icon: <PauseCircle className="w-3 h-3" />, color: 'text-neutral-600', bg: 'bg-neutral-500/10' },
+    ACTIVE: { label: 'Active', icon: <Play className="w-3 h-3" />, color: 'text-neutral-900 dark:text-neutral-100', bg: 'bg-neutral-900/5 dark:bg-white/10' },
+    VERIFICATION: { label: 'Verifying', icon: <Zap className="w-3 h-3" />, color: 'text-neutral-900 dark:text-neutral-100', bg: 'bg-neutral-900/5 dark:bg-white/10' },
+    COMPLETED: { label: 'Completed', icon: <CheckCircle className="w-3 h-3" />, color: 'text-neutral-900 dark:text-neutral-100', bg: 'bg-neutral-900/5 dark:bg-white/10' },
+    FAILED: { label: 'Retry', icon: <XCircle className="w-3 h-3" />, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-500/10' },
+    ABANDONED: { label: 'Paused', icon: <PauseCircle className="w-3 h-3" />, color: 'text-neutral-600 dark:text-neutral-400', bg: 'bg-neutral-500/10' },
 }
 
-const PIE_COLORS = ['#10b981', '#525252', '#737373', '#404040', '#ec4899', '#a3a3a3', '#171717', '#737373', '#14b8a6', '#e11d48']
+// Monochrome, per the palette rule in CLAUDE.md. This was
+// ['#10b981', ..., '#ec4899', ..., '#14b8a6', '#e11d48'] - emerald, pink, teal
+// and rose, which is where the green donut segment came from.
+//
+// A neutral RAMP rather than one neutral repeated: a pie needs its slices to be
+// tellable apart, and lightness is the only channel left once hue is given up.
+// Ordered light-to-dark so the first (largest) slice is the most prominent in
+// both themes. `currentColor` is not an option here - recharts writes `fill` on
+// each Cell and they must differ from each other.
+const PIE_COLORS = ['#a3a3a3', '#525252', '#d4d4d4', '#404040', '#737373', '#e5e5e5', '#262626', '#f5f5f5', '#171717', '#8a8a8a']
 
 function GoalCard({ goal, onAssign }: { goal: Goal; onAssign: () => void }) {
     const category = categoryConfig[goal.category]
@@ -179,13 +195,24 @@ function StatsSection({ goals }: { goals: Goal[] }) {
     const totalCoding = goals.reduce((sum, g) => sum + g.totalCodingSolved, 0)
     const maxStreak = Math.max(...goals.map(g => g.streakDays), 0)
 
+    // Every one of these was `color: 'text-neutral-800'` with NO `dark:` pair.
+    // On the dark card (`neutral-900`) that measures **1.18:1** - the numbers were
+    // not dim, they were invisible, which is exactly what the screenshots showed.
+    //
+    // Worth naming why it survived two contrast passes: these colours live in a
+    // DATA ARRAY, not in a `className` string. The repo-wide pairing sweep in
+    // plan/app-shell/manual-pass-1.md task 4 and my own audit both parsed
+    // `className=` attributes, so neither could see them. A colour is a colour
+    // wherever it is written down.
+    const STAT_INK = 'text-neutral-900 dark:text-neutral-100'
+    const STAT_BG = 'bg-neutral-900/5 dark:bg-white/5'
     const stats = [
-        { label: 'Active', value: activeGoals.length, icon: <Target className="w-4 h-4" />, color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
-        { label: 'Done', value: completedGoals.length, icon: <Trophy className="w-4 h-4" />, color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
-        { label: 'Tasks', value: `${completedTasks}/${totalTasks}`, icon: <CheckCircle2 className="w-4 h-4" />, color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
-        { label: 'Quiz', value: totalQuiz, icon: <Brain className="w-4 h-4" />, color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
-        { label: 'Code', value: totalCoding, icon: <Code2 className="w-4 h-4" />, color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
-        { label: 'Streak', value: `${maxStreak}d`, icon: <Flame className="w-4 h-4" />, color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
+        { label: 'Active', value: activeGoals.length, icon: <Target className="w-4 h-4" />, color: STAT_INK, bg: STAT_BG },
+        { label: 'Done', value: completedGoals.length, icon: <Trophy className="w-4 h-4" />, color: STAT_INK, bg: STAT_BG },
+        { label: 'Tasks', value: `${completedTasks}/${totalTasks}`, icon: <CheckCircle2 className="w-4 h-4" />, color: STAT_INK, bg: STAT_BG },
+        { label: 'Quiz', value: totalQuiz, icon: <Brain className="w-4 h-4" />, color: STAT_INK, bg: STAT_BG },
+        { label: 'Code', value: totalCoding, icon: <Code2 className="w-4 h-4" />, color: STAT_INK, bg: STAT_BG },
+        { label: 'Streak', value: `${maxStreak}d`, icon: <Flame className="w-4 h-4" />, color: STAT_INK, bg: STAT_BG },
     ]
 
     return (
@@ -199,6 +226,80 @@ function StatsSection({ goals }: { goals: Goal[] }) {
                     <div className={cn("text-lg font-semibold", stat.color)}>{stat.value}</div>
                 </div>
             ))}
+        </div>
+    )
+}
+
+/**
+ * Cumulative goals over the last 30 days.
+ *
+ * Real data only - derived from each goal's own `createdAt`. There is no other
+ * time series on this page, so this is the one honest line available; nothing
+ * here is invented to fill the space.
+ *
+ * The series is DENSE - every day in the window gets a point, including days
+ * with no new goal. A sparse series plotted on an evenly spaced axis draws three
+ * goals three weeks apart as three adjacent points, which is a line of the wrong
+ * SHAPE, not merely the wrong labels. Same lesson as the admin analytics fix.
+ */
+function GoalTrendChart({ goals }: { goals: Goal[] }) {
+    const DAYS = 30
+    const today = new Date()
+    const start = new Date(today)
+    start.setDate(start.getDate() - (DAYS - 1))
+    start.setHours(0, 0, 0, 0)
+
+    // How many goals existed BEFORE the window opens - the line starts there
+    // rather than at zero, or a long-standing account looks like it began today.
+    let running = goals.filter((g) => new Date(g.createdAt) < start).length
+
+    const perDay = new Map<string, number>()
+    for (const g of goals) {
+        const d = new Date(g.createdAt)
+        if (d < start) continue
+        const key = d.toISOString().split('T')[0] as string
+        perDay.set(key, (perDay.get(key) ?? 0) + 1)
+    }
+
+    const data: Array<{ date: string; label: string; total: number }> = []
+    const cursor = new Date(start)
+    for (let i = 0; i < DAYS; i++) {
+        const key = cursor.toISOString().split('T')[0] as string
+        running += perDay.get(key) ?? 0
+        data.push({
+            date: key,
+            label: cursor.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
+            total: running,
+        })
+        cursor.setDate(cursor.getDate() + 1)
+    }
+
+    if (goals.length === 0) return null
+
+    return (
+        <div>
+            <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-3">Goals Over Time</h3>
+            <div className="bg-white dark:bg-neutral-900/50 rounded-xl border border-neutral-200/60 dark:border-neutral-800/60 p-3
+                [--chart-1:#171717] [--chart-axis:#737373] [--chart-cursor:#00000008]
+                dark:[--chart-1:#f5f5f5] dark:[--chart-axis:#a3a3a3] dark:[--chart-cursor:#ffffff0a]">
+                <ResponsiveContainer width="100%" height={160}>
+                    <LineChart data={data} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                        <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'var(--chart-axis)' }} axisLine={false} tickLine={false} minTickGap={28} />
+                        <YAxis tick={{ fontSize: 10, fill: 'var(--chart-axis)' }} axisLine={false} tickLine={false} width={25} allowDecimals={false} />
+                        <RechartsTooltip
+                            cursor={{ stroke: 'var(--chart-cursor)' }}
+                            contentStyle={{ background: 'var(--popover)', color: 'var(--popover-foreground)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }}
+                            labelStyle={{ fontWeight: 600, color: 'var(--popover-foreground)' }}
+                            formatter={(v) => [v ?? 0, 'Goals']}
+                        />
+                        <Line type="monotone" dataKey="total" stroke="var(--chart-1)" strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
+                    </LineChart>
+                </ResponsiveContainer>
+                <p className="mt-2 text-center text-[10px] text-neutral-500 dark:text-neutral-400">
+                    Last {DAYS} days &middot; {goals.length} {goals.length === 1 ? 'goal' : 'goals'} total
+                </p>
+            </div>
         </div>
     )
 }
@@ -219,25 +320,52 @@ function ActivityChart({ goals }: { goals: Goal[] }) {
     return (
         <div>
             <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-3">Goal Activity</h3>
-            <div className="bg-white dark:bg-neutral-900/50 rounded-xl border border-neutral-200/60 dark:border-neutral-800/60 p-3">
+            {/* The chart palette lives here as CSS variables with `dark:`
+                counterparts, so every series, axis and cursor inverts with the
+                theme. Recharts takes colours as prop STRINGS, not classes, so a
+                Tailwind `dark:` utility cannot reach inside it - a variable set on
+                an ancestor is the only thing that can.
+
+                Values are neutrals from the Tailwind ramp, chosen so the three
+                series stay distinguishable in both themes: dark-to-light in light
+                mode, light-to-dark in dark mode. */}
+            <div className="bg-white dark:bg-neutral-900/50 rounded-xl border border-neutral-200/60 dark:border-neutral-800/60 p-3
+                [--chart-1:#171717] [--chart-2:#737373] [--chart-3:#d4d4d4] [--chart-axis:#737373] [--chart-cursor:#00000008]
+                dark:[--chart-1:#f5f5f5] dark:[--chart-2:#a3a3a3] dark:[--chart-3:#525252] dark:[--chart-axis:#a3a3a3] dark:[--chart-cursor:#ffffff0a]">
+                {/* `var(--border)`, NOT `hsl(var(--border))`.
+                    `--border` in packages/ui/src/styles/globals.css is an `oklch()`
+                    COLOUR, not a triple of HSL channels - so `hsl(var(--border))`
+                    resolved to `hsl(oklch(0.922 0 0))`, which is invalid CSS and
+                    painted nothing. The grid lines and the tooltip background were
+                    simply absent in both themes, which is most of why these charts
+                    read as "not visible".
+
+                    The three series colours come from CSS variables set on the
+                    wrapper below with `dark:` counterparts, so they invert with the
+                    theme instead of being one hardcoded value that only suits one.
+                    Same pattern as the admin TrendChart. */}
                 <ResponsiveContainer width="100%" height={180}>
                     <BarChart data={chartData} barSize={12} barGap={2}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                        <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#a3a3a3' }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fontSize: 10, fill: '#a3a3a3' }} axisLine={false} tickLine={false} width={25} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                        <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'var(--chart-axis)' }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fontSize: 10, fill: 'var(--chart-axis)' }} axisLine={false} tickLine={false} width={25} allowDecimals={false} />
                         <RechartsTooltip
-                            contentStyle={{ background: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: 8, fontSize: 12 }}
-                            labelStyle={{ fontWeight: 600 }}
+                            cursor={{ fill: 'var(--chart-cursor)' }}
+                            contentStyle={{ background: 'var(--popover)', color: 'var(--popover-foreground)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }}
+                            labelStyle={{ fontWeight: 600, color: 'var(--popover-foreground)' }}
                         />
-                        <Bar dataKey="tasks" fill="#10b981" radius={[3, 3, 0, 0]} name="Tasks" />
-                        <Bar dataKey="quiz" fill="#404040" radius={[3, 3, 0, 0]} name="Quiz" />
-                        <Bar dataKey="code" fill="#737373" radius={[3, 3, 0, 0]} name="Code" />
+                        <Bar dataKey="tasks" fill="var(--chart-1)" radius={[3, 3, 0, 0]} name="Tasks" />
+                        <Bar dataKey="quiz" fill="var(--chart-2)" radius={[3, 3, 0, 0]} name="Quiz" />
+                        <Bar dataKey="code" fill="var(--chart-3)" radius={[3, 3, 0, 0]} name="Code" />
                     </BarChart>
                 </ResponsiveContainer>
                 <div className="flex items-center justify-center gap-4 mt-2">
-                    <span className="flex items-center gap-1.5 text-[10px] text-neutral-500 dark:text-neutral-400"><span className="w-2 h-2 rounded-sm bg-neutral-900" />Tasks</span>
-                    <span className="flex items-center gap-1.5 text-[10px] text-neutral-500 dark:text-neutral-400"><span className="w-2 h-2 rounded-sm bg-neutral-900" />Quiz</span>
-                    <span className="flex items-center gap-1.5 text-[10px] text-neutral-500 dark:text-neutral-400"><span className="w-2 h-2 rounded-sm bg-neutral-900" />Code</span>
+                    {/* Each swatch now matches the bar it labels. All three were
+                        `bg-neutral-900` - identical to each other, so the legend
+                        distinguished nothing, and nearly invisible on the dark card. */}
+                    <span className="flex items-center gap-1.5 text-[10px] text-neutral-500 dark:text-neutral-400"><span className="w-2 h-2 rounded-sm" style={{ background: 'var(--chart-1)' }} />Tasks</span>
+                    <span className="flex items-center gap-1.5 text-[10px] text-neutral-500 dark:text-neutral-400"><span className="w-2 h-2 rounded-sm" style={{ background: 'var(--chart-2)' }} />Quiz</span>
+                    <span className="flex items-center gap-1.5 text-[10px] text-neutral-500 dark:text-neutral-400"><span className="w-2 h-2 rounded-sm" style={{ background: 'var(--chart-3)' }} />Code</span>
                 </div>
             </div>
         </div>
@@ -373,7 +501,13 @@ function OverviewContent({ goals, groups: _groups }: { goals: Goal[]; groups: Gr
     if (goals.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center h-full text-center py-20">
-                <BarChart3 className="w-12 h-12 text-neutral-300 dark:text-neutral-700 mb-4" />
+                {/* `dark:text-neutral-500`, not `-700`. On the dark card (`neutral-900`)
+                    a `neutral-700` glyph measures 1.73:1 - a smudge at best.
+                    `neutral-500` measures 3.78:1, which clears WCAG's 3:1 minimum
+                    for a graphical object (this is a 48px icon, not body text)
+                    and reads as a deliberately muted icon rather than a rendering
+                    failure. Measured, not guessed, per CLAUDE.md. */}
+                <BarChart3 className="w-12 h-12 text-neutral-400 dark:text-neutral-500 mb-4" />
                 <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-1">No stats yet</h3>
                 <p className="text-xs text-neutral-400">Create your first goal to see stats here</p>
             </div>
@@ -383,6 +517,7 @@ function OverviewContent({ goals, groups: _groups }: { goals: Goal[]; groups: Gr
     return (
         <div className="space-y-6">
             <StatsSection goals={goals} />
+            <GoalTrendChart goals={goals} />
             <ActivityChart goals={goals} />
             <CategoryChart goals={goals} />
             <ProgressOverview goals={goals} />

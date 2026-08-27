@@ -16,8 +16,8 @@ import {
 import { eq, and, desc, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { ResumeDraftContent, emptyResumeDraftContent, PLATFORM_TEMPLATES } from '@/types/resume-draft'
-import { openai } from '@/lib/openai-client'
-import { withCredits, OperationFailed } from '@/lib/credits/charge'
+import { startBackgroundJob } from '@/actions/(main)/workers/jobs.action'
+import { priceOf } from '@/lib/credits/pricing'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Seed platform templates (call once or on demand)
@@ -422,206 +422,51 @@ export async function duplicateResumeDraft(id: string) {
     return { success: true, draft: copy }
 }
 
-/**
- * Whether a model response is safe to store as a resume's `content`.
- *
- * Deliberately structural rather than deep: the six sections are what the editor
- * and every AI consumer index into, and a missing one is a crash rather than an
- * empty section. It does not vet individual entries - a slightly wrong bullet is
- * the user's to fix, an `undefined` where an array belongs is not.
- *
- * Not exported: `"use server"` modules may only export async functions.
- */
-function isResumeDraftContent(value: unknown): value is ResumeDraftContent {
-    if (!value || typeof value !== 'object') return false
-    const c = value as Record<string, unknown>
-    if (!c.header || typeof c.header !== 'object') return false
-    return (
-        Array.isArray(c.experience) &&
-        Array.isArray(c.projects) &&
-        Array.isArray(c.education) &&
-        Array.isArray(c.skills) &&
-        Array.isArray(c.certifications)
-    )
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // AI: Score resume against a job description
+//
+// Runs on the worker as `resume_ats_score` (RES-9). It is `gpt-4o-mini` with a
+// short answer and it usually did survive a request, so the move is not about
+// the timeout - it is that this button sits directly above "Tailor This Resume",
+// which has been a job since the tailoring rewrite. One inline and one queued, a
+// few seconds apart in the same panel, gave the same panel two different waiting
+// behaviours, and the inline one was the half that could not refund.
+//
+// Returns a jobId. `resume-editor.tsx` polls it with `useBackgroundJob`.
 // ─────────────────────────────────────────────────────────────────────────────
 export async function scoreResumeAgainstJD(draftId: string, jobDescription: string) {
     const session = await getSession(headers())
     if (!session?.user?.id) return { success: false, error: 'Unauthorized' }
 
+    if (!jobDescription?.trim()) return { success: false, error: 'Paste the job description first' }
+
+    // Ownership is confirmed BEFORE the hold is taken. Charging for someone
+    // else's draft id and then failing is a refund that should never have needed
+    // to happen - CR-5's rule, and it stays on this side of the dispatch because
+    // the hold is taken by `startBackgroundJob`.
     const draft = await db.query.resumeDraft.findFirst({
         where: and(eq(resumeDraft.id, draftId), eq(resumeDraft.userId, session.user.id)),
+        columns: { id: true },
     })
     if (!draft) return { success: false, error: 'Draft not found' }
 
-    const content = draft.content as unknown as ResumeDraftContent
-    const resumeText = JSON.stringify(content)
-
-    // Charged only after ownership is confirmed above - taking money for someone
-    // else's draft id and then failing is a refund that should never have
-    // needed to happen.
-    const charged = await withCredits(
-        { userId: session.user.id, operation: 'resume_ats_score', reason: 'Resume: ATS score against a job description' },
-        async () => {
-            const res = await openai.chat.completions.create({
-                model: 'gpt-4o-mini',
-                messages: [
-                    {
-                        role: 'system',
-                        content: 'You are an ATS expert. Score a resume against a job description 0-100. Return JSON only.',
-                    },
-                    {
-                        role: 'user',
-                        content: `Job Description:\n${jobDescription}\n\nResume:\n${resumeText}\n\nReturn: {"score": number, "missing_keywords": string[], "matched_keywords": string[], "suggestions": string[]}`,
-                    },
-                ],
-                response_format: { type: 'json_object' },
-            })
-
-            // `JSON.parse` on model output was previously unguarded and would
-            // throw straight past the caller.
-            let parsed: { score?: unknown; missing_keywords?: string[]; matched_keywords?: string[]; suggestions?: string[] }
-            try {
-                parsed = JSON.parse(res.choices[0]?.message?.content ?? '{}')
-            } catch {
-                throw new OperationFailed('The ATS scorer returned output we could not read.')
-            }
-            // A score of 0 is a legitimate score, so this checks the type rather
-            // than truthiness.
-            if (typeof parsed.score !== 'number' || Number.isNaN(parsed.score)) {
-                throw new OperationFailed('The ATS scorer did not return a score.')
-            }
-            return {
-                score: parsed.score,
-                missing_keywords: parsed.missing_keywords ?? [],
-                matched_keywords: parsed.matched_keywords ?? [],
-                suggestions: parsed.suggestions ?? [],
-            }
-        },
+    const started = await startBackgroundJob(
+        'resume_ats_score',
+        { draftId, jobDescription },
+        { cost: priceOf('resume_ats_score'), reason: 'Resume: ATS score against a job description' },
     )
 
-    if (!charged.success) {
-        return { success: false, error: charged.error, code: charged.code, required: charged.required, available: charged.available }
-    }
-
-    await db.update(resumeDraft)
-        .set({ atsScore: charged.data.score, jdSnapshot: jobDescription })
-        .where(and(eq(resumeDraft.id, draftId), eq(resumeDraft.userId, session.user.id)))
-    revalidatePath('/ai/resume')
-    return { success: true, ...charged.data }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// AI: Tailor resume bullets for a specific JD
-//
-// SUPERSEDED by `createTailoredResume` in `resume-primary.action.ts`. Do not call
-// this from new code, and do not reintroduce it in the editor.
-//
-// Two reasons it was replaced rather than fixed in place:
-//
-//   1. It rewrites the draft it is given - see the comment at the update below.
-//      Tailoring for one job therefore destroyed the user's master resume, and
-//      tailoring again ran against the already-narrowed copy, compounding it.
-//   2. It is an inline `gpt-4o` completion over a whole resume plus a whole job
-//      description, which is one of the longest calls in the product and does not
-//      survive a Cloudflare request.
-//
-// Kept, not deleted, per the "nothing is deleted" rule in
-// `srs/core-modules/README.md` - the decision on what to cut is Niraj's.
-// ─────────────────────────────────────────────────────────────────────────────
-export async function tailorResumeForJD(draftId: string, jobDescription: string, jobTitle: string) {
-    const session = await getSession(headers())
-    if (!session?.user?.id) return { success: false, error: 'Unauthorized' }
-
-    const draft = await db.query.resumeDraft.findFirst({
-        where: and(eq(resumeDraft.id, draftId), eq(resumeDraft.userId, session.user.id)),
-    })
-    if (!draft) return { success: false, error: 'Draft not found' }
-
-    // The model call and the validation are inside the hold; the WRITE is not.
-    // A tailor that comes back malformed must refund AND leave the stored resume
-    // exactly as it was, so nothing touches the draft until the charge settles.
-    const charged = await withCredits(
-        { userId: session.user.id, operation: 'resume_tailor_jd', reason: `Resume: tailored for ${jobTitle || 'a job description'}` },
-        async () => {
-        const content = draft.content as unknown as ResumeDraftContent
-
-        const res = await openai.chat.completions.create({
-            model: 'gpt-4o',
-            messages: [
-                {
-                    role: 'system',
-                    content: `You are an expert resume coach. Given a resume and a job description, do two things:
-    1. Rewrite the experience bullet points to better match the JD language and keywords. Keep all facts accurate - only rephrase and reframe.
-    2. Identify what important skills or experiences mentioned in the JD are MISSING from this resume and list them as suggestions.
-
-    Return JSON in this exact format:
-    {
-      "updatedContent": { ...full updated resume content matching the original structure... },
-      "suggestions": ["Missing: Kubernetes experience", "Add: mention of CI/CD pipelines", ...],
-      "keywordsAdded": ["React", "TypeScript", ...],
-      "summary": "Tailored 3 bullet points and updated skills order to match the JD."
-    }`,
-                },
-                {
-                    role: 'user',
-                    content: `Job Title: ${jobTitle}\n\nJob Description:\n${jobDescription}\n\nCurrent Resume:\n${JSON.stringify(content, null, 2)}`,
-                },
-            ],
-            response_format: { type: 'json_object' },
-        })
-
-        let result: { updatedContent?: unknown; suggestions?: string[]; keywordsAdded?: string[]; summary?: string }
-        try {
-            result = JSON.parse(res.choices[0]?.message?.content ?? '{}')
-        } catch {
-            throw new OperationFailed('The resume tailor returned output we could not read.')
-        }
-
-        // The tailored content OVERWRITES a working resume. Validate before writing:
-        // the previous version set `content` to whatever came back, so a malformed
-        // response wrote `undefined` over the user's resume - and kept the charge.
-        // Destroying the resume and billing for it is the worst outcome in this
-        // module, so a response that does not have the right shape refunds and
-        // leaves the stored draft untouched.
-        const updated = result.updatedContent as ResumeDraftContent | undefined
-        if (!isResumeDraftContent(updated)) {
-            throw new OperationFailed('The tailored resume came back malformed, so your existing resume was left unchanged.')
-        }
-
+    if (!started.success) {
         return {
-            updated,
-            suggestions: (result.suggestions ?? []) as string[],
-            keywordsAdded: (result.keywordsAdded ?? []) as string[],
-            summary: (result.summary ?? '') as string,
+            success: false,
+            error: started.error ?? 'Could not start scoring',
+            code: started.code,
+            required: started.required,
+            available: started.available,
         }
-
-        },
-    )
-
-    if (!charged.success) {
-        return { success: false, error: charged.error, code: charged.code, required: charged.required, available: charged.available }
     }
 
-    // Update THIS draft in place - do not create a new one.
-    await db.update(resumeDraft)
-        .set({
-            content: charged.data.updated as any,
-            tailoredFor: jobTitle,
-            jdSnapshot: jobDescription,
-        })
-        .where(and(eq(resumeDraft.id, draftId), eq(resumeDraft.userId, session.user.id)))
-    revalidatePath('/ai/resume')
-    return {
-        success: true,
-        updatedContent: charged.data.updated,
-        suggestions: charged.data.suggestions,
-        keywordsAdded: charged.data.keywordsAdded,
-        summary: charged.data.summary,
-    }
+    return { success: true, jobId: started.jobId }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

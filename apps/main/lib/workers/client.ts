@@ -26,7 +26,12 @@ import "server-only";
 
 /** The subset of a Cloudflare service binding this app uses. */
 interface ServiceBinding {
-    fetch: (request: Request) => Promise<Response>;
+    // The real `Fetcher.fetch` takes the same `(input, init)` signature as global
+    // fetch. This was typed as accepting only a `Request`, which is what made
+    // `binding.fetch(url, init)` look wrong and kept the realm bug alive on the
+    // binding path long after the HTTP path was fixed - the narrow type was
+    // evidence for a claim that was not true.
+    fetch: (input: string | Request, init?: RequestInit) => Promise<Response>;
 }
 
 /**
@@ -81,6 +86,12 @@ function buildInit(init: CallInit): RequestInit {
 }
 
 /** A `Request`, for the service-binding path, which takes one by contract. */
+// SUPERSEDED 2026-08-27 - no callers. BOTH transports now pass (url, init):
+// building a `Request` here was the realm hazard that broke every background job,
+// and RES-17 only removed half of it. Kept rather than deleted so the next person
+// sees why it must not come back; delete it once the worker has been watched
+// completing a job end to end.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function buildRequest(url: string, init: CallInit): Request {
     return new Request(url, buildInit(init));
 }
@@ -99,7 +110,22 @@ export async function callWorker(path: string, init: CallInit): Promise<Response
     // this app against an older wrangler.jsonc still finds the worker.
     const binding = await getBinding("WORKER", "GENERATION_WORKER");
     if (binding) {
-        return binding.fetch(buildRequest(`https://shipithq-worker${path}`, init));
+        // (url, init) here too - see the long note below.
+        //
+        // This line was the HALF of the realm bug that RES-17 did not fix. That task
+        // corrected the HTTP fallback and left this one building a `Request`, on the
+        // stated reasoning that "a Fetcher's contract requires one". It does not:
+        // `Fetcher.fetch` takes the same `(input, init)` signature as global fetch,
+        // and a string URL is a valid input.
+        //
+        // The consequence was that every job dispatched through the SERVICE BINDING
+        // kept failing with the identical "Failed to parse URL from [object Request]",
+        // while the fallback path looked fixed. `apps/main/wrangler.jsonc` declares a
+        // `WORKER` service binding, so this is the path taken whenever the Cloudflare
+        // context resolves - which is most of the time that matters. Proven on
+        // 2026-08-27 by a `goal_creation` dispatch failing with that exact string
+        // long after the HTTP path had been corrected.
+        return binding.fetch(`https://shipithq-worker${path}`, buildInit(init));
     }
     const base =
         process.env.WORKER_URL ||
@@ -137,7 +163,11 @@ export async function callWorker(path: string, init: CallInit): Promise<Response
 export async function callExecutorWorker(path: string, init: CallInit & { signal?: AbortSignal }): Promise<Response> {
     const binding = await getBinding("CODE_EXECUTOR");
     if (binding) {
-        return binding.fetch(buildRequest(`https://shipithq-shipitworker${path}`, init));
+        // Same fix as `callWorker`'s binding path - (url, init), never a `Request`.
+        return binding.fetch(`https://shipithq-shipitworker${path}`, {
+            ...buildInit(init),
+            ...(init.signal ? { signal: init.signal } : {}),
+        });
     }
     // Same realm hazard as `callWorker` - url and init, not a Request. The signal only
     // applies here; over a binding the executor enforces its own timeout in the container.

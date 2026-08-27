@@ -23,6 +23,11 @@ export const JOB_BINDINGS = {
 	resume_structure: "RESUME_STRUCTURE",
 	resume_tailor: "RESUME_TAILOR",
 	cover_letter: "COVER_LETTER",
+	resume_ats_score: "RESUME_ATS_SCORE",
+	cover_letter_questions: "COVER_LETTER_QUESTIONS",
+	resume_import: "RESUME_IMPORT",
+	subgoal_generation: "SUBGOAL_GENERATION",
+	goal_creation: "GOAL_CREATION",
 } as const satisfies Partial<Record<JobType, string>>
 
 export type RunnableJobType = keyof typeof JOB_BINDINGS
@@ -41,6 +46,22 @@ export type Env = {
 	PATHFINDER_ASSISTANT_ID?: string
 	/** ElevenLabs, for the voice jobs (mock interview + standup transcripts). */
 	ELEVENLABS_API_KEY?: string
+	/**
+	 * Exa, for the resume import job's LinkedIn / Twitter / portfolio scrapes.
+	 *
+	 * Optional on the type because a worker without it still runs every other
+	 * job, but `ResumeImport` fails loudly on the first line of `run()` when it is
+	 * missing rather than scraping nothing. An unset key would otherwise reach the
+	 * user as "make sure your profiles are public", which sends them to fix
+	 * something that is not broken.
+	 */
+	EXA_API_KEY?: string
+	/**
+	 * GitHub token for the import job's REST calls. Genuinely optional - the
+	 * GitHub API serves unauthenticated requests at 60/hour, which is enough for
+	 * development and fails only under load.
+	 */
+	GITHUB_TOKEN?: string
 	WORKER_SECRET: string
 	NODE_ENV?: string
 }

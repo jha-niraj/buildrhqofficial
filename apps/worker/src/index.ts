@@ -4,6 +4,18 @@ import { jobStub } from "./jobs"
 
 // Durable Object classes must be exported from the worker entry point for
 // wrangler to bind them.
+//
+// This list is the FIFTH place a job type has to be registered, and the README's
+// "four edits, all four or none" did not name it - which is how `ResumeStructure`
+// came to be bound in wrangler.jsonc, given a `v2` migration tag, and left out of
+// here. It is bound to a class the entry point does not export, so the binding
+// has nothing behind it. Added below along with the three RES-9 jobs; the README
+// now lists five edits.
+//
+// Keep this list in sync with `JOB_BINDINGS` in `env.ts`. If they ever disagree
+// again the symptom is not a compile error - `jobStub` resolves a binding and the
+// dispatch fails at runtime, after the app has already inserted the job row and
+// held the user's credits.
 export {
 	ProjectGeneration,
 	VerificationGeneration,
@@ -12,8 +24,14 @@ export {
 	StandupVoice,
 	MockConversation,
 	MockFeedback,
+	ResumeStructure,
 	ResumeTailor,
 	CoverLetter,
+	ResumeAtsScore,
+	CoverLetterQuestions,
+	ResumeImport,
+	SubGoalGeneration,
+	GoalCreation,
 } from "./jobs"
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -10,7 +10,7 @@ import { motion } from "framer-motion"
 export default function HeroSection() {
 
     return (
-        <div className="relative min-h-screen w-full overflow-hidden bg-white dark:bg-neutral-950 flex flex-col items-center justify-center pt-20">
+        <div className="relative min-h-svh w-full overflow-hidden bg-white dark:bg-neutral-950 flex flex-col items-center justify-center pt-20">
             <div className="relative z-10 w-full px-6">
                 <div className="mx-auto max-w-4xl text-center">
                     <motion.div

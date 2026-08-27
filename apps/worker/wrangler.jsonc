@@ -29,7 +29,12 @@
 			{ "name": "MOCK_FEEDBACK", "class_name": "MockFeedback" },
 			{ "name": "RESUME_STRUCTURE", "class_name": "ResumeStructure" },
 			{ "name": "RESUME_TAILOR", "class_name": "ResumeTailor" },
-			{ "name": "COVER_LETTER", "class_name": "CoverLetter" }
+			{ "name": "COVER_LETTER", "class_name": "CoverLetter" },
+			{ "name": "RESUME_ATS_SCORE", "class_name": "ResumeAtsScore" },
+			{ "name": "COVER_LETTER_QUESTIONS", "class_name": "CoverLetterQuestions" },
+			{ "name": "RESUME_IMPORT", "class_name": "ResumeImport" },
+			{ "name": "SUBGOAL_GENERATION", "class_name": "SubGoalGeneration" },
+			{ "name": "GOAL_CREATION", "class_name": "GoalCreation" }
 		]
 	},
 
@@ -60,6 +65,19 @@
 			// config disagreeing about what v2 created.
 			"tag": "v3",
 			"new_sqlite_classes": ["ResumeTailor", "CoverLetter"]
+		},
+		{
+			// v4 for the same reason v3 was not folded into v2. See the note above.
+			"tag": "v4",
+			"new_sqlite_classes": ["ResumeAtsScore", "CoverLetterQuestions", "ResumeImport"]
+		},
+		{
+			"tag": "v5",
+			"new_sqlite_classes": ["SubGoalGeneration"]
+		},
+		{
+			"tag": "v6",
+			"new_sqlite_classes": ["GoalCreation"]
 		}
 	],
 

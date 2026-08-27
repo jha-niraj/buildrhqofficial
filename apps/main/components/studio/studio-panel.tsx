@@ -182,7 +182,7 @@ export function StudioPanel({
                         animate={{ width, opacity: 1 }}
                         exit={{ width: 0, opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        className={`hidden lg:flex flex-col flex-shrink-0 border-l border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 overflow-hidden h-[calc(100vh-4rem)] sticky top-14 ${className || ""}`}
+                        className={`hidden lg:flex flex-col flex-shrink-0 border-l border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 overflow-hidden h-full min-h-0 ${className || ""}`}
                     >
                         <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 shrink-0">
                             <div className="flex items-center gap-2">

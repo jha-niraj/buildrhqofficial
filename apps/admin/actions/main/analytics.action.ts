@@ -10,6 +10,52 @@ interface DateRange {
     to?: Date
 }
 
+/**
+ * Turn a sparse `{ "YYYY-MM-DD": value }` map into a DENSE, ascending series -
+ * one entry per day between `from` and `to`, with absent days filled as `0`.
+ *
+ * Why this exists (ADM-29). The grouped maps these actions build only contain
+ * dates that had a row, and that is not a time series: rendered on an evenly
+ * spaced axis, three sign-ups on the 1st, the 14th and the 30th draw as three
+ * ADJACENT points - a steady trickle. The gaps, which are most of the month,
+ * disappear. The shape of the line is wrong, not just its labels.
+ *
+ * It also settles ordering. `Object.entries` returns string keys in insertion
+ * order, so the series inherited whatever order the query returned;
+ * `getUserGrowthStats` sorts by `createdAt` and was fine, `getRevenueStats` has
+ * no `orderBy` and could zig backwards in time. Generating the dates here rather
+ * than reading them off the map makes that unrepresentable.
+ *
+ * Stepping is in UTC because the keys are UTC (`toISOString().split("T")[0]`).
+ * Walking local days against UTC keys drops or duplicates a day at the boundary
+ * in any non-zero offset - which is every timezone this product runs in.
+ */
+function denseDailySeries<K extends string>(
+    grouped: Record<string, number>,
+    from: Date,
+    to: Date,
+    key: K,
+): Array<{ date: string } & Record<K, number>> {
+    const out: Array<{ date: string } & Record<K, number>> = []
+
+    // Normalise both ends to UTC midnight so the loop is a whole number of days
+    // and the final day is always included.
+    const cursor = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate()))
+    const last = new Date(Date.UTC(to.getUTCFullYear(), to.getUTCMonth(), to.getUTCDate()))
+
+    // A guard, not a limit: a caller passing an inverted or absurd range should
+    // get a short series rather than a loop that never ends.
+    const MAX_DAYS = 366
+
+    for (let i = 0; cursor <= last && i <= MAX_DAYS; i++) {
+        const date = cursor.toISOString().split("T")[0] as string
+        out.push({ date, [key]: grouped[date] ?? 0 } as { date: string } & Record<K, number>)
+        cursor.setUTCDate(cursor.getUTCDate() + 1)
+    }
+
+    return out
+}
+
 // Get overview statistics
 export async function getOverviewStats(dateRange?: DateRange): Promise<AdminResponse<{
     totalUsers: number
@@ -96,10 +142,9 @@ export async function getUserGrowthStats(dateRange?: DateRange): Promise<AdminRe
             }
         })
 
-        const chartData = Object.entries(dailyData).map(([date, count]) => ({
-            date,
-            count,
-        }))
+        // Dense and ascending - see `denseDailySeries`. A day with no sign-ups
+        // is a `0`, not an absent entry, or the gaps vanish from the line.
+        const chartData = denseDailySeries(dailyData, from, to, "count")
 
         return {
             success: true,
@@ -205,10 +250,10 @@ export async function getRevenueStats(dateRange?: DateRange): Promise<AdminRespo
             totalRevenue += amount
         })
 
-        const chartData = Object.entries(dailyRevenue).map(([date, amount]) => ({
-            date,
-            amount,
-        }))
+        // Dense and ascending. This one also FIXES the order: the payments query
+        // has no `orderBy`, so the old insertion-ordered series could run
+        // backwards through the month.
+        const chartData = denseDailySeries(dailyRevenue, from, to, "amount")
 
         return {
             success: true,

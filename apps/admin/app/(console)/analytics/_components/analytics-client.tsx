@@ -1,49 +1,100 @@
 "use client"
 
 import { useCallback, useState } from "react"
-import { BarChart3, Users, TrendingUp, Activity, Download } from "lucide-react"
+import { BarChart3, Users, TrendingUp, Activity, RefreshCw, CreditCard, MessageSquare, Receipt } from "lucide-react"
 import {
-    getOverviewStats, getUserGrowthStats, getEngagementStats, getModuleUsageStats,
+    getOverviewStats, getUserGrowthStats, getEngagementStats, getModuleUsageStats, getRevenueStats,
 } from "@/actions/main/analytics.action"
 import { toast } from "@repo/ui/components/ui/sonner"
 import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { TrendChart } from "../../_components/trend-chart"
 
 type SuccessData<T> = T extends { success: true; data: infer D } ? D : never
 type OverviewStats = SuccessData<Awaited<ReturnType<typeof getOverviewStats>>>
 type UserGrowthData = SuccessData<Awaited<ReturnType<typeof getUserGrowthStats>>>
 type EngagementData = SuccessData<Awaited<ReturnType<typeof getEngagementStats>>>
 type ModuleUsageData = SuccessData<Awaited<ReturnType<typeof getModuleUsageStats>>>
+type RevenueData = SuccessData<Awaited<ReturnType<typeof getRevenueStats>>>
+
+/** One headline figure. */
+function StatCard({
+    icon: Icon,
+    value,
+    label,
+    sub,
+}: {
+    icon: React.ElementType
+    value: string
+    label: string
+    sub?: string
+}) {
+    return (
+        <div className="min-w-0 rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
+            <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-900 dark:bg-neutral-100">
+                    <Icon className="h-5 w-5 text-white dark:text-neutral-900" />
+                </div>
+                <div className="min-w-0">
+                    {/* `tabular-nums` and NOT `truncate`: docs/responsiveness.md is
+                        explicit that truncating a figure CHANGES it - "12,345,678"
+                        clipped to "12,345..." reads as a smaller number, and nothing
+                        on screen says it was cut. Labels truncate; values step down. */}
+                    <p className="text-xl font-semibold tabular-nums text-neutral-900 sm:text-2xl dark:text-white">{value}</p>
+                    <p className="truncate text-sm text-neutral-500 dark:text-neutral-400">{label}</p>
+                </div>
+            </div>
+            {sub && <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">{sub}</p>}
+        </div>
+    )
+}
+
+/** A labelled figure in a list. Used by Engagement. */
+function MetricRow({ label, value }: { label: string; value: number | undefined }) {
+    return (
+        <div className="flex items-center justify-between gap-3">
+            <span className="min-w-0 truncate text-neutral-600 dark:text-neutral-400">{label}</span>
+            <span className="shrink-0 text-xl font-semibold tabular-nums text-neutral-900 dark:text-white">
+                {value?.toLocaleString() ?? "0"}
+            </span>
+        </div>
+    )
+}
 
 export function AnalyticsClient({
     initialOverview,
     initialGrowth,
     initialEngagement,
     initialModuleUsage,
+    initialRevenue,
 }: {
     initialOverview: OverviewStats | null
     initialGrowth: UserGrowthData | null
     initialEngagement: EngagementData | null
     initialModuleUsage: ModuleUsageData | null
+    initialRevenue: RevenueData | null
 }) {
     const [overviewStats, setOverviewStats] = useState<OverviewStats | null>(initialOverview)
     const [userGrowth, setUserGrowth] = useState<UserGrowthData | null>(initialGrowth)
     const [engagement, setEngagement] = useState<EngagementData | null>(initialEngagement)
     const [moduleUsage, setModuleUsage] = useState<ModuleUsageData | null>(initialModuleUsage)
+    const [revenue, setRevenue] = useState<RevenueData | null>(initialRevenue)
     const [isLoading, setIsLoading] = useState(false)
 
     const fetchAnalytics = useCallback(async () => {
         setIsLoading(true)
         try {
-            const [overviewRes, growthRes, engagementRes, moduleRes] = await Promise.all([
+            const [overviewRes, growthRes, engagementRes, moduleRes, revenueRes] = await Promise.all([
                 getOverviewStats(),
                 getUserGrowthStats(),
                 getEngagementStats(),
                 getModuleUsageStats(),
+                getRevenueStats(),
             ])
             if (overviewRes.success) setOverviewStats(overviewRes.data)
             if (growthRes.success) setUserGrowth(growthRes.data)
             if (engagementRes.success) setEngagement(engagementRes.data)
             if (moduleRes.success) setModuleUsage(moduleRes.data)
+            if (revenueRes.success) setRevenue(revenueRes.data)
         } catch (error) {
             console.error("Failed to fetch analytics:", error)
             toast.error("Failed to load analytics")
@@ -52,139 +103,180 @@ export function AnalyticsClient({
         }
     }, [])
 
+    const periodLabel = userGrowth?.period
+        ? `${new Date(userGrowth.period.from).toLocaleDateString("en-GB", { day: "numeric", month: "short" })} - ${new Date(userGrowth.period.to).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`
+        : "Last 30 days"
+
+    // `getModuleUsageStats` hard-codes four of its five modules to `0` - only
+    // Mock Interviews is a real query. Showing all five as bars would be four
+    // claims of a measured zero, so the unmeasured ones are listed separately
+    // and labelled as not yet instrumented. See ADM-30.
+    const MEASURED_MODULES = new Set(["Mock Interviews"])
+    const measured = moduleUsage?.modules?.filter((m) => MEASURED_MODULES.has(m.name)) ?? []
+    const notInstrumented = moduleUsage?.modules?.filter((m) => !MEASURED_MODULES.has(m.name)) ?? []
+    const measuredMax = Math.max(...measured.map((m) => m.count), 1)
+
     return (
-        <div className="p-6 lg:p-8 max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white flex items-center gap-3">
-                        <BarChart3 className="w-7 h-7" />
+        <div className="w-full p-6 lg:p-8">
+            <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="min-w-0">
+                    <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">
+                        <BarChart3 className="h-7 w-7 shrink-0" />
                         Platform Analytics
                     </h1>
-                    <p className="text-neutral-500 dark:text-neutral-400 mt-1">Insights and metrics for your platform</p>
+                    <p className="mt-1 text-neutral-500 dark:text-neutral-400">
+                        Insights and metrics for your platform &middot; {periodLabel}
+                    </p>
                 </div>
+                {/* A refresh icon, not a download one. The button has always said
+                    "Refresh" and shown `Download`; one of the two was wrong and it
+                    was the icon. */}
                 <button
                     onClick={fetchAnalytics}
                     disabled={isLoading}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-neutral-700 to-neutral-900 rounded-lg hover:from-neutral-600 hover:to-neutral-800 disabled:opacity-50 transition-colors"
+                    className="flex shrink-0 cursor-pointer items-center gap-2 rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-neutral-800 disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200"
                 >
-                    {isLoading ? <InlineLoader size="sm" /> : <Download className="w-4 h-4" />}
+                    {isLoading ? <InlineLoader size="sm" /> : <RefreshCw className="h-4 w-4" />}
                     Refresh
                 </button>
             </div>
+
+            {/* Headline figures. Every one of these traces to a real query.
+                `totalProjects` and `activeCommunities` are deliberately NOT here:
+                `getOverviewStats` returns them hard-coded to `0` with its own
+                comment saying the tables are not wired up, so a tile for them
+                would report a measured zero for something never measured. */}
             {overviewStats && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-neutral-900 to-neutral-800 flex items-center justify-center">
-                                <Users className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-semibold text-neutral-900 dark:text-white">{overviewStats.totalUsers?.toLocaleString()}</p>
-                                <p className="text-sm text-neutral-500 dark:text-neutral-400">Total Users</p>
-                            </div>
-                        </div>
-                        <p className="text-xs text-neutral-900 dark:text-neutral-300">+{overviewStats.newUsers} new this period</p>
-                    </div>
-                    <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-neutral-900 to-neutral-800 flex items-center justify-center">
-                                <TrendingUp className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-semibold text-neutral-900 dark:text-white">{overviewStats.totalProjects?.toLocaleString()}</p>
-                                <p className="text-sm text-neutral-500 dark:text-neutral-400">Total Projects</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-neutral-900 to-neutral-800 flex items-center justify-center">
-                                <Activity className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-semibold text-neutral-900 dark:text-white">{overviewStats.activeCommunities?.toLocaleString()}</p>
-                                <p className="text-sm text-neutral-500 dark:text-neutral-400">Communities</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-neutral-900 to-neutral-800 flex items-center justify-center">
-                                <BarChart3 className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-semibold text-neutral-900 dark:text-white">{overviewStats.totalFeedback?.toLocaleString()}</p>
-                                <p className="text-sm text-neutral-500 dark:text-neutral-400">Feedback</p>
-                            </div>
-                        </div>
-                    </div>
+                <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <StatCard
+                        icon={Users}
+                        value={overviewStats.totalUsers?.toLocaleString() ?? "0"}
+                        label="Total Users"
+                        sub={`${overviewStats.newUsers?.toLocaleString() ?? 0} new this period`}
+                    />
+                    <StatCard
+                        icon={TrendingUp}
+                        value={overviewStats.newUsers?.toLocaleString() ?? "0"}
+                        label="New Users"
+                        sub={periodLabel}
+                    />
+                    <StatCard
+                        icon={CreditCard}
+                        value={overviewStats.totalCredits?.toLocaleString() ?? "0"}
+                        label="Credits Held"
+                        sub="Across every account"
+                    />
+                    <StatCard
+                        icon={MessageSquare}
+                        value={overviewStats.totalFeedback?.toLocaleString() ?? "0"}
+                        label="Feedback"
+                        sub={periodLabel}
+                    />
                 </div>
             )}
-            {userGrowth && (
-                <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 mb-8">
-                    <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">User Growth</h2>
-                    <div className="h-64 flex items-end justify-between gap-2">
-                        {userGrowth.chartData?.slice(0, 30).map((item, index) => (
-                            <div key={index} className="flex-1 flex flex-col items-center gap-2">
-                                <div
-                                    className="w-full bg-gradient-to-t from-neutral-900 to-neutral-800 rounded-t"
-                                    style={{
-                                        height: `${Math.max((item.count / Math.max(...userGrowth.chartData.map((d) => d.count), 1)) * 100, 5)}%`,
-                                    }}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-4 text-center">
-                        Last 30 days &middot; Total new users: {userGrowth.total}
-                    </p>
+
+            {/* The two time series. Both replaced hand-rolled `<div>` bars that had
+                a `Math.max(…, 5)` height floor - which drew a visible bar on a day
+                when nothing happened, making "nothing" and "a little" identical. */}
+            <div className="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
+                <TrendChart
+                    title="User Growth"
+                    subtitle="New sign-ups per day"
+                    data={userGrowth?.chartData ?? []}
+                    dataKey="count"
+                    emptyLabel="No sign-up data for this period"
+                    footer={`${userGrowth?.total?.toLocaleString() ?? 0} new users over the period`}
+                />
+                <TrendChart
+                    title="Revenue"
+                    subtitle="Credits purchased per day"
+                    data={revenue?.chartData ?? []}
+                    dataKey="amount"
+                    emptyLabel="No completed payments in this period"
+                    footer={
+                        revenue
+                            ? `${revenue.totalRevenue.toLocaleString()} total across ${revenue.transactionCount.toLocaleString()} ${revenue.transactionCount === 1 ? "transaction" : "transactions"}`
+                            : undefined
+                    }
+                />
+            </div>
+
+            {revenue && revenue.transactionCount > 0 && (
+                <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <StatCard icon={Receipt} value={revenue.totalRevenue.toLocaleString()} label="Total Revenue" sub={periodLabel} />
+                    <StatCard icon={Activity} value={revenue.transactionCount.toLocaleString()} label="Transactions" sub={periodLabel} />
+                    <StatCard
+                        icon={TrendingUp}
+                        value={Math.round(revenue.averageValue).toLocaleString()}
+                        label="Average Value"
+                        sub="Per completed payment"
+                    />
                 </div>
             )}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 {engagement && (
-                    <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6">
-                        <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Engagement Metrics</h2>
+                    <div className="min-w-0 rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
+                        <h2 className="mb-1 text-lg font-semibold text-neutral-900 dark:text-white">Engagement</h2>
+                        <p className="mb-4 text-sm text-neutral-500 dark:text-neutral-400">Activity recorded in this period</p>
                         <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <span className="text-neutral-600 dark:text-neutral-400">Projects Started</span>
-                                <span className="text-xl font-semibold text-neutral-900 dark:text-white">{engagement.projectsStarted?.toLocaleString()}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-neutral-600 dark:text-neutral-400">Feedback Submitted</span>
-                                <span className="text-xl font-semibold text-neutral-900 dark:text-white">{engagement.feedbackSubmitted?.toLocaleString()}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-neutral-600 dark:text-neutral-400">Communities Joined</span>
-                                <span className="text-xl font-semibold text-neutral-900 dark:text-white">{engagement.communitiesJoined?.toLocaleString()}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-neutral-600 dark:text-neutral-400">Mocks Completed</span>
-                                <span className="text-xl font-semibold text-neutral-900 dark:text-white">{engagement.mocksCompleted?.toLocaleString()}</span>
-                            </div>
+                            <MetricRow label="Feedback submitted" value={engagement.feedbackSubmitted} />
+                            <MetricRow label="Mocks completed" value={engagement.mocksCompleted} />
+                            <MetricRow label="Projects started" value={engagement.projectsStarted} />
+                            <MetricRow label="Communities joined" value={engagement.communitiesJoined} />
                         </div>
                     </div>
                 )}
+
                 {moduleUsage && (
-                    <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6">
-                        <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Module Usage</h2>
+                    <div className="min-w-0 rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
+                        <h2 className="mb-1 text-lg font-semibold text-neutral-900 dark:text-white">Module Usage</h2>
+                        <p className="mb-4 text-sm text-neutral-500 dark:text-neutral-400">Sessions recorded per module</p>
+
                         <div className="space-y-3">
-                            {moduleUsage.modules?.map((module, index) => (
-                                <div key={index} className="space-y-2">
-                                    <div className="flex items-center justify-between text-sm">
-                                        <span className="text-neutral-600 dark:text-neutral-400">{module.name}</span>
-                                        <span className="font-semibold text-neutral-900 dark:text-white">{module.count?.toLocaleString()}</span>
+                            {measured.map((module) => (
+                                <div key={module.name} className="space-y-2">
+                                    <div className="flex items-center justify-between gap-3 text-sm">
+                                        <span className="min-w-0 truncate text-neutral-600 dark:text-neutral-400">{module.name}</span>
+                                        <span className="shrink-0 font-semibold tabular-nums text-neutral-900 dark:text-white">
+                                            {module.count?.toLocaleString()}
+                                        </span>
                                     </div>
-                                    <div className="w-full bg-neutral-200 dark:bg-neutral-800 rounded-full h-2">
+                                    <div className="h-2 w-full rounded-full bg-neutral-200 dark:bg-neutral-800">
+                                        {/* No `Math.max(…, 5)` floor. A module with no
+                                            sessions renders an EMPTY track, because a
+                                            5%-filled bar for zero is the chart telling
+                                            a small lie in the product's own voice. */}
                                         <div
-                                            className="bg-gradient-to-r from-neutral-700 to-neutral-900 h-2 rounded-full"
-                                            style={{
-                                                width: `${Math.max((module.count / Math.max(...moduleUsage.modules.map((m) => m.count), 1)) * 100, 5)}%`,
-                                            }}
+                                            className="h-2 rounded-full bg-neutral-900 dark:bg-neutral-100"
+                                            style={{ width: `${(module.count / measuredMax) * 100}%` }}
                                         />
                                     </div>
                                 </div>
                             ))}
                         </div>
+
+                        {notInstrumented.length > 0 && (
+                            <div className="mt-6 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+                                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                                    Not yet instrumented
+                                </p>
+                                <p className="mb-3 text-xs text-neutral-500 dark:text-neutral-400">
+                                    These modules have no usage query behind them yet, so they are listed rather than
+                                    charted - a bar here would report a measured zero for something never measured.
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    {notInstrumented.map((module) => (
+                                        <span
+                                            key={module.name}
+                                            className="rounded-full border border-neutral-200 px-2.5 py-1 text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"
+                                        >
+                                            {module.name}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

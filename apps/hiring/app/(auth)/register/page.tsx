@@ -137,7 +137,7 @@ function SignUpForm() {
     };
 
     return (
-        <div className="min-h-screen flex bg-white dark:bg-neutral-950 mx-auto w-full max-w-7xl">
+        <div className="min-h-dvh flex bg-white dark:bg-neutral-950 mx-auto w-full max-w-7xl">
             <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-center items-center bg-neutral-950 overflow-hidden">
                 <div className="relative z-10 px-12 max-w-lg">
                     <motion.div
@@ -470,7 +470,7 @@ export default function RegisterPage() {
     return (
         <Suspense
             fallback={
-                <div className="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-950">
+                <div className="min-h-dvh flex items-center justify-center bg-white dark:bg-neutral-950">
                     <Loader2 className="h-8 w-8 animate-spin text-neutral-400" />
                 </div>
             }

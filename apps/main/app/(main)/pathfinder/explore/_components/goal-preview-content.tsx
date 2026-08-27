@@ -8,7 +8,7 @@ import { Badge } from '@repo/ui/components/ui/badge'
 import { Progress } from '@repo/ui/components/ui/progress'
 import {
     Copy, Loader2, Code2, Brain, CheckCircle2, User, BookOpen,
-    ArrowRight, Sparkles
+    ChevronDown, Sparkles
 } from 'lucide-react'
 import { copyPathfinderGoal } from '@/actions/(main)/pathfinder'
 import { useUserStore } from '@/app/store/useUserStore'
@@ -54,6 +54,18 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
     const router = useRouter()
     const { credits } = useUserStore()
     const [copying, setCopying] = useState(false)
+    // Which topics are expanded. The card used to render an ArrowRight and no
+    // handler at all - it looked like a link and did nothing when clicked. There
+    // is nowhere to navigate to either: this is a PREVIEW of someone else's goal,
+    // and its sub-goals are not yours until you copy it. So the affordance now
+    // does the one honest thing available - reveals the full description, which
+    // was otherwise clamped to two lines with no way to read the rest.
+    const [expanded, setExpanded] = useState<Set<string>>(new Set())
+    const toggle = (id: string) => setExpanded((prev) => {
+        const next = new Set(prev)
+        if (next.has(id)) next.delete(id); else next.add(id)
+        return next
+    })
     const category = PATHFINDER_CATEGORIES[goal.category as keyof typeof PATHFINDER_CATEGORIES]
     const price = goal.creditPrice ?? 0
     const canAfford = (credits ?? 0) >= price
@@ -84,7 +96,11 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
 
     return (
         <ScrollArea className="h-full">
-            <div className="p-6 max-w-3xl mx-auto">
+            {/* Full width. This was `max-w-3xl mx-auto`, which centred a 768px column
+                inside a pane that is already the narrower half of a two-pane
+                layout - so the study plan sat in a thin ribbon with dead space on
+                both sides while its own cards wrapped. The pane IS the measure. */}
+            <div className="w-full p-6">
                 {/* Hero Section */}
                 <div className="mb-8">
                     <div className="flex items-start gap-4 mb-4">
@@ -185,9 +201,12 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {goal.subGoals.map((sg, idx) => (
-                                <div
+                                <button
                                     key={sg.id}
-                                    className="group p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/50 hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-sm transition-all"
+                                    type="button"
+                                    onClick={() => toggle(sg.id)}
+                                    aria-expanded={expanded.has(sg.id)}
+                                    className="group w-full cursor-pointer p-4 text-left rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/50 hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-sm transition-all"
                                 >
                                     <div className="flex items-start gap-3">
                                         <div className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 shrink-0">
@@ -198,7 +217,10 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                                                 {sg.title}
                                             </p>
                                             {sg.description && (
-                                                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 line-clamp-2 leading-relaxed">
+                                                <p className={cn(
+                                                    "text-xs text-neutral-500 dark:text-neutral-400 mt-1 leading-relaxed",
+                                                    !expanded.has(sg.id) && "line-clamp-2",
+                                                )}>
                                                     {sg.description}
                                                 </p>
                                             )}
@@ -227,9 +249,12 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                                                 )}
                                             </div>
                                         </div>
-                                        <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-neutral-500 transition-colors shrink-0 mt-1" />
+                                        <ChevronDown className={cn(
+                                            "w-4 h-4 shrink-0 mt-1 text-neutral-400 transition-transform group-hover:text-neutral-600 dark:text-neutral-500 dark:group-hover:text-neutral-300",
+                                            expanded.has(sg.id) && "rotate-180",
+                                        )} />
                                     </div>
-                                </div>
+                                </button>
                             ))}
                         </div>
                     </div>

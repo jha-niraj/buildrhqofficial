@@ -10,6 +10,11 @@ export { MockFeedback } from "./mock-feedback"
 export { ResumeStructure } from "./resume-structure"
 export { ResumeTailor } from "./resume-tailor"
 export { CoverLetter } from "./cover-letter"
+export { ResumeAtsScore } from "./resume-ats-score"
+export { CoverLetterQuestions } from "./cover-letter-questions"
+export { ResumeImport } from "./resume-import"
+export { SubGoalGeneration } from "./subgoal-generation"
+export { GoalCreation } from "./goal-creation"
 
 /**
  * Resolve the Durable Object that owns a job type.

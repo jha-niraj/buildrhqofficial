@@ -794,8 +794,8 @@ export default function RolesPermissionsPage() {
                                                     </div>
                                                     <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
                                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                                                            <div className="flex items-center gap-2 text-neutral-500">
-                                                                <Mail className="w-4 h-4" />
+                                                            <div className="flex min-w-0 items-center gap-2 text-neutral-500">
+                                                                <Mail className="w-4 h-4 shrink-0" />
                                                                 <span className="truncate">{member.email}</span>
                                                             </div>
                                                             {

@@ -96,18 +96,18 @@ export const adminNavigation: NavigationConfig = {
                 // (admins/profile) stays reachable from there.
             ],
         },
-        {
-            name: "System",
-            path: "system",
-            icon: Settings,
-            requiredPermission: "system",
-            children: [
-                { name: "Settings", path: "system/settings", icon: Settings },
-                // "Database" was removed from the tree on 2026-08-24, and the page,
-                // its two server actions and its types were deleted afterwards on
-                // request. Nothing at system/database remains.
-            ],
-        },
+        // A LEAF, not a parent. There is no `app/(console)/system/page.tsx` - only
+        // `system/settings` - and `AppSidebar` renders a parent as a real `<Link>`
+        // to its own path as well as an expander (app-sidebar.tsx:327 and :306), so
+        // "System" was a clickable 404 in the sidebar. Found by `pnpm check-nav`,
+        // 2026-08-27.
+        //
+        // Pointed at its one child rather than given a `system/page.tsx`, because
+        // "Database" was removed from the tree on 2026-08-24 and its page deleted
+        // afterwards on request - which left this parent with a single child, and a
+        // one-child expander is a click that buys nothing. If a second System page
+        // is ever added, this goes back to a parent AND gets a real `system` page.
+        { name: "System", path: "system/settings", icon: Settings, requiredPermission: "system" },
     ],
 }
 

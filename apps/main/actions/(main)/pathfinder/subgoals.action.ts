@@ -14,9 +14,10 @@ import { revalidatePath } from 'next/cache'
 import type OpenAI from 'openai'
 import { openai } from '@/lib/openai-client'
 import {
-    generateExplanation, generateVideos, generateDocuments
+    generateVideos, generateDocuments
 } from '@/actions/(main)/studios/ai-generation.actions'
 import { canRunPathfinderAI, getGoalUsageSummary } from './usage.action'
+import { startBackgroundJob } from '@/actions/(main)/workers/jobs.action'
 
 
 // ================================================================================
@@ -246,41 +247,43 @@ export async function createSubGoal(input: CreateSubGoalInput) {
             .set({ studioId: studio.id })
             .where(eq(pathfinderSubGoals.id, subGoal.id))
 
-        // Generate explanation via Studio's generateExplanation
-        const explanationResult = await generateExplanation(
-            studio.id,
-            `Provide a detailed explanation of "${input.title}". Include key concepts, practical examples, code snippets where relevant, and best practices. Use clear markdown formatting.`
-        )
-
-        // Add videos and docs - non-blocking
+        // Videos and docs stay here and stay fire-and-forget: they are Exa
+        // lookups against the Studio, they were already non-blocking, and nothing
+        // in the response depends on them.
         Promise.all([
             generateVideos(studio.id, input.title),
             generateDocuments(studio.id, input.title),
         ]).catch((err) => console.error('Failed to add videos/docs to studio:', err))
 
-        // Generate coding problems only (quiz lives in Studio)
-        await generateAIContentForSubGoal(
-            subGoal.id,
-            input.goalId,
-            session.user.id,
-            input.title,
-            goal.category,
-            goal.level
+        // The two MODEL calls move to the worker (PF-W2).
+        //
+        // This action used to block on both: `generateExplanation`, a gpt-4o-mini
+        // completion with no `max_tokens` at all, and `generateAIContentForSubGoal`,
+        // quiz plus up to three coding problems at 2000 tokens. Either can outrun a
+        // Cloudflare request budget; together they reliably would - and this runs
+        // when a user creates their first sub-goal, which is close to the first
+        // thing they ever do in this module.
+        //
+        // Everything above stays synchronous, so the user gets a real sub-goal and
+        // its Studio back immediately and the generation fills them in. Same shape
+        // as `createTailoredResume`: a failed job leaves a usable row rather than
+        // nothing.
+        const started = await startBackgroundJob(
+            'subgoal_generation',
+            { subGoalId: subGoal.id },
         )
-
-        // Refetch sub-goal with studio and coding content
-        const updatedSubGoal = await db.query.pathfinderSubGoals.findFirst({
-            where: eq(pathfinderSubGoals.id, subGoal.id),
-            with: { goal: true },
-        })
 
         const usageSummary = await getGoalUsageSummary(input.goalId)
 
         revalidatePath(`/pathfinder/${input.goalId}`)
         return {
             success: true,
-            subGoal: updatedSubGoal ?? subGoal,
-            usageCost: explanationResult.success ? 1 : 0,
+            subGoal,
+            // The job id the client follows. A failed DISPATCH is not a failed
+            // sub-goal - the row exists and is usable - so this returns success
+            // either way and the caller decides whether to poll.
+            jobId: started.success ? started.jobId : undefined,
+            generationError: started.success ? undefined : started.error,
             usageSummary: usageSummary ?? undefined,
         }
     } catch (error) {
@@ -291,8 +294,21 @@ export async function createSubGoal(input: CreateSubGoalInput) {
 
 // ================================================================================
 // GENERATE AI CONTENT FOR SUB-GOAL (Quiz + Optional Coding)
+//
+// SUPERSEDED by the `subgoal_generation` worker job (PF-W2) -
+// `apps/worker/src/jobs/subgoal-generation.ts`, which runs this exact prompt with
+// the same model, temperature and token cap. It has no callers.
+//
+// KEPT, not deleted, per the "nothing is deleted" rule in
+// `srs/core-modules/README.md`: dead code in these two modules is listed for
+// Niraj to decide on, never removed as a side effect of a migration. Listed in
+// `plan/cleanup/candidates.md` as CLN-41.
+//
+// Do not call it from new code. If the prompt needs to change, change it in the
+// worker - two copies drifting apart is exactly what this comment exists to stop.
 // ================================================================================
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function generateAIContentForSubGoal(
     subGoalId: string,
     goalId: string,

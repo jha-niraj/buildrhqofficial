@@ -26,14 +26,22 @@ consequences:
 
 ## The primary resume
 
-One row, `resume_draft.is_primary`, enforced as at most one per user by a **partial
-unique index** rather than by convention. Two primaries is not a cosmetic bug: it
+One row, `resume_draft.is_default`, enforced as at most one per user by a **partial
+unique index** rather than by convention. Two of them is not a cosmetic bug: it
 means two features disagree about who the user is.
+
+**On the two names.** The column is `is_default` and the file that reads it is
+`lib/resume/primary.ts`. That is deliberate, not drift. "Default" is what the
+column and the UI say - there is a star on each card in the hub and a Default
+badge - and "primary resume" is the concept: the one authoritative answer to
+"who is this user". An earlier draft of this document called the column
+`is_primary`; it never shipped under that name, and `plan/resume/tasks.md:RES-1`
+is the record of what did.
 
 `apps/main/lib/resume/primary.ts` is the only thing that decides what "this user's
 resume" means. Priority, most to least authoritative:
 
-1. the draft marked `isPrimary` - an explicit choice by the user
+1. the draft marked `isDefault` - an explicit choice by the user
 2. the newest **untailored** draft - the closest thing to a master. A JD-tailored
    copy is deliberately skipped: it is narrowed to one job, and using it as the base
    for a different job compounds the narrowing
@@ -126,37 +134,67 @@ live in `packages/db/src/resume.ts` and are imported by both.
 version of the app, or by a model that returned the wrong shape, can be missing
 whole sections, and every array access downstream assumes all six keys exist.
 
-## Migration
+## Migrations
 
-`packages/db/drizzle/0008_big_rhino.sql`. Entirely additive and safe to apply:
+**Two** of them, not one. Worth knowing, because the flag and the constraint that
+makes it an invariant arrived four migrations apart.
+
+`packages/db/drizzle/0008_supreme_supernaut.sql` - the flag and its lookup index:
+
+```sql
+ALTER TABLE "resume_draft" ADD COLUMN "is_default" boolean DEFAULT false NOT NULL;
+CREATE INDEX "resume_draft_user_id_is_default_idx" ON "resume_draft" USING btree ("user_id","is_default");
+```
+
+`packages/db/drizzle/0012_aberrant_random.sql` - tailoring lineage, the cover
+letter's link to a draft, and the uniqueness constraint:
 
 ```sql
 ALTER TABLE "cover_letter" ALTER COLUMN "job_url" DROP NOT NULL;
 ALTER TABLE "cover_letter" ADD COLUMN "resume_draft_id" text;
-ALTER TABLE "resume_draft" ADD COLUMN "is_primary" boolean DEFAULT false NOT NULL;
 ALTER TABLE "resume_draft" ADD COLUMN "source_draft_id" text;
 ALTER TABLE "resume_draft" ADD COLUMN "tailored_for_company" text;
 ALTER TABLE "cover_letter" ADD CONSTRAINT ... FOREIGN KEY ("resume_draft_id") ... ON DELETE set null;
-CREATE UNIQUE INDEX "resume_draft_one_primary_per_user" ON "resume_draft" ("user_id") WHERE "is_primary";
+CREATE UNIQUE INDEX "resume_draft_one_default_per_user" ON "resume_draft" USING btree ("user_id") WHERE "resume_draft"."is_default";
 ```
+
+Both are additive and safe to apply.
 
 `job_url` was `NOT NULL`, which meant "paste a job description" had no way to save -
 a JD is as often pasted as linked.
 
-The partial unique index cannot conflict on existing data, because nothing has
-`is_primary = true` yet. **No user has a primary until they set one**, so until then
-the resolver runs on fallback 2 (newest untailored draft), which is the old
-behaviour plus determinism.
+The partial unique index could not conflict on existing data when it landed,
+because nothing had `is_default = true` yet. **No user has a default until they
+set one or create their first draft**, and until then the resolver runs on
+fallback 2 (newest untailored draft), which is the old behaviour plus
+determinism.
+
+The gap between 0008 and 0012 is why `setDefaultResumeDraft` swaps inside a
+`db.batch` rather than trusting the index to reject a second write: the two
+statements have to land together, and the neon-http driver has no transactions.
+See `plan/resume/tasks.md:RES-1`.
 
 ## Still to do
 
-- **Nothing costs credits**, because nothing did before. Introducing a price for
-  tailoring or cover letters is a product decision, not a refactor.
+Reconciled against the code on 2026-08-27. Two of the four entries that used to
+be here have been done since, and are recorded rather than dropped so that
+somebody reading an older copy of this file can tell what changed.
+
+- ~~**Nothing costs credits.**~~ **Done.** Every AI operation in the module is
+  priced from `lib/credits/pricing.ts` and charged reserve -> settle-or-refund.
+  Tailoring is 20, an ATS score is 5, a cover letter is 15, an import is 20, and
+  parsing an uploaded resume is deliberately free. The prices and the reasoning
+  behind each are in `plan/credits/overview.md`; the work is `CR-4`..`CR-8`.
+- ~~`tailorResumeForJD` is superseded but not deleted.~~ **Deleted** on
+  2026-08-27 as `plan/resume/tasks.md:RES-18`, with Niraj's approval, along with
+  the private `isResumeDraftContent` copy that only it used. Do not reintroduce
+  it: `createTailoredResume` is the replacement and the reason is at the top of
+  "Tailoring for a JD" above.
 - `scoreResumeAgainstJD` is still inline. It is `gpt-4o-mini` with a small output,
   so it usually survives a request - but it writes `jdSnapshot` onto the master
   resume, which is mild pollution of a row that is supposed to be job-agnostic.
-- `tailorResumeForJD` is **superseded but not deleted**, per the "nothing is
-  deleted" rule in `srs/core-modules/README.md`. It has no callers. Do not
-  reintroduce it.
+  Both the move and dropping that write are `plan/resume/tasks.md:RES-9`, which
+  also covers the two import actions and `generateCoverLetterQuestions` - the
+  last inline model calls in the module.
 - `PLATFORM_TEMPLATES` in `apps/main/types/resume-draft.ts` uses indigo, pink and
   emerald, which `CLAUDE.md` rules out.

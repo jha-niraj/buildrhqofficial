@@ -24,7 +24,8 @@ import type {
 } from "@/types/knowme";
 import {
 	generateApiKey,
-	calculateNextUpdate
+	calculateNextUpdate,
+	deleteNamespace
 } from "@/utils/knowme";
 
 // ============================================
@@ -469,11 +470,24 @@ export async function deleteKnowMeProfile(): Promise<
 			return { success: false, error: "Profile not found" };
 		}
 
-		// Delete profile (cascade will delete related data)
-		await db.delete(knowMeProfiles).where(eq(knowMeProfiles.id, profile.id));
+		// Vectors FIRST, rows second.
+		//
+		// This was a `TODO` with the call commented out below the delete, and it
+		// was a privacy defect rather than a tidiness one: the cascade clears
+		// `know_me_*` in Postgres, but the embedded copy of the user's personal
+		// data lives in Upstash, and that is what the PUBLIC chat endpoint
+		// (`/api/v1/knowme/chat`) actually queries. So "delete my profile" left
+		// the user's data both present and answerable by strangers.
+		//
+		// Ordering matters. Vectors are removed before the rows because
+		// `profile.id` IS the namespace - drop the row first and a failure here
+		// leaves an orphaned namespace whose key nothing records any more. If the
+		// namespace delete throws, the whole action fails and the profile is still
+		// there to try again, which is the recoverable direction.
+		await deleteNamespace(profile.id);
 
-		// TODO: Also delete vectors from Upstash
-		// await deleteNamespace(profile.id);
+		// Cascade clears the related know_me_* rows.
+		await db.delete(knowMeProfiles).where(eq(knowMeProfiles.id, profile.id));
 
 		revalidatePath("/knowme");
 

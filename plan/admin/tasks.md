@@ -14,7 +14,10 @@ Status legend: `not started` / `in progress` / `blocked` / `done (YYYY-MM-DD)`.
 ## Phase 1 - the gate (done: 1, 2, 3)
 
 ### ADM-1 - Gate the console on `admin_access`, on the server
-- [ ] **Status:** in progress (2026-08-24) - middleware.ts and app/(console)/layout.tsx
+- [x] **Status:** DONE, verified end to end 2026-08-27 against a running dev
+  server and a real signed-in non-admin account. See "ADM-1 verified" at the end
+  of this file for the evidence. Original in-progress note kept below.
+- [ ] ~~**Status:** in progress (2026-08-24)~~ - middleware.ts and app/(console)/layout.tsx
   written and typecheck clean; sign-out target and the four route groups merged
   into app/(console) as part of this task (see ADM-3). Verified by curl: an
   unauthenticated request to /dashboard, /users, /credits etc. gets a 307 to
@@ -237,6 +240,55 @@ nav array and a colour.
 `find apps/admin/app -name "layout.tsx"` returns two files (root and console);
 and every sidebar item, clicked in both a `SUPER_ADMIN` and a restricted team
 member session, opens a real page.
+
+---
+
+### Verification pass, 2026-08-27
+
+Two of the three Done-when clauses now hold, and the third is **more** than
+half proven - by a checker rather than a click-through.
+
+| clause | state |
+|---|---|
+| `grep -rn "navItems"` returns only the nav config | **passes** - it returns *nothing*: the string does not appear in the app at all any more, the four hard-coded arrays having gone with the route groups |
+| `find app -name "layout.tsx"` returns two files | **passes** - `app/layout.tsx` and `app/(console)/layout.tsx` |
+| every sidebar item opens a real page, in both roles | **the destination half is proven for all 23 paths; the role-filter half is not** |
+
+**New: `pnpm check-nav` in `apps/admin`.** A port of `apps/main`'s checker,
+which exists there because two dead nav entries shipped. `plan/admin/overview.md`
+opens by recording that this console "links to 11 routes that do not exist", and
+a click-through is not something anybody re-runs - so the rule is now a script
+that fails.
+
+It is also **stronger than the click-through it replaces**: clicking proves the
+links a given role can *see*: the checker proves all 23 regardless of role, so a
+destination that only a SUPER_ADMIN's sidebar renders is covered without a
+SUPER_ADMIN session.
+
+**It found a live 404 on its first run: `System`.**
+
+`app/(console)/system/` contains only `settings/`; there is no
+`system/page.tsx`. And `AppSidebar` renders a parent item as a real `<Link>` to
+its own path as well as an expander - `app-sidebar.tsx:327` for the expanded
+sidebar, `:306` for the collapsed popover. So clicking "System" in the sidebar
+was a 404, which is definition-of-done 5 failing in the shipped console.
+
+It became reachable through an earlier correct decision: "Database" was removed
+from the tree on 2026-08-24 and its page deleted afterwards on request, which
+left System a parent with exactly one child. Fixed by making it a **leaf**
+pointing at `system/settings` - a one-child expander is a click that buys
+nothing - rather than by adding a `system/page.tsx` with nothing on it. The
+comment in `lib/navigation.ts` says what to do if a second System page ever
+lands.
+
+**Verified:** `pnpm check-nav` reports all 23 paths resolving literally, and
+fails with the offending path when one is deliberately broken (tested by
+pointing `dashboard` at `dashboard-wrong`). `npx tsc --noEmit` clean.
+
+**Still open, and the only thing keeping this task open:** a restricted
+`TEAM_MEMBER` session, to confirm `filterItems` renders the right SUBSET. That
+is a different claim from "the links resolve" and needs a real account - see the
+note at the end of this file.
 
 ---
 
@@ -1997,3 +2049,664 @@ cannot substitute for. Nothing was found or fixed in this pass that
 requires a signed-in account to reach (every route in this app gates
 behind auth), so the deferred real-account click-through testing flagged
 on ADM-21 covers this pass too.
+
+
+---
+
+## Verification session, 2026-08-27
+
+Ran against a real dev server for the first time. `apps/admin/.env` did not
+exist - no app in the repo had one - so it was generated from `apps/main/.env`:
+23 shared keys copied byte-identical (a differing `BETTER_AUTH_SECRET` would
+make the shared cookie fail to verify, which is the premise of ADM-1) and 9
+per-app keys pointed at `:6002`. Gitignored, per `apps/admin/.gitignore:29`.
+
+`pnpm dev` came up on :6002 clean. The `middleware`-is-deprecated warning is the
+expected one `CLAUDE.md` records: the Cloudflare adapter does not support Next
+16's `proxy.ts`.
+
+### Verified
+
+**Unauthenticated access - definition-of-done 1, first half.** Every gated route
+returns `307` to `/`, and the AI route returns `401`:
+
+| route | result |
+|---|---|
+| `/dashboard` `/users` `/credits` `/credits/payments` `/admins` `/admins/audit` `/admins/invitations` `/analytics` `/feedback` `/hiring` `/uni` `/system/settings` | `307 -> http://localhost:6002/` |
+| `POST /api/ai/chat` | `401` |
+| `/` (sign-in) | `200` |
+
+**The gate covers everything - definition-of-done 2.** All 20 console pages live
+under `app/(console)/`, so the server layout in ADM-1 wraps every one of them.
+The only two pages outside it are `app/page.tsx` (the sign-in screen, which *is*
+this app's `/signin`) and `app/join/[token]` (invite accept) - both of which
+must be public, and both of which ADM-8 already names as deliberately excluded.
+The only route handlers in the app are `api/ai/chat`, which does its own
+`adminAccess` lookup, and better-auth's own `api/auth/[...all]`. So there is no
+page and no handler that decides its own access, and none in a `useEffect` -
+`app/page.tsx` calls `checkAdminAccess()` client-side, but it is choosing where
+to SEND an already-signed-in visitor, not granting anything.
+
+**Definition-of-done 3** follows: no route handler creates a user, sets a
+password or writes an `admin_access` row. ADM-2 deleted the one that did, and
+only two handlers remain.
+
+**ADM-4's geometry, structurally.** One shell publishes both halves of the
+contract - `data-app-page` and `--page-h: calc(100dvh - 1.5rem)`
+(`layout-client.tsx:129-131`) - the outer wrapper is `h-dvh` and `<main>` is
+`h-[calc(100dvh-1.5rem)]`, so the 100vh-child-in-a-padded-100vh-parent overflow
+the overview diagnosed cannot recur. **Zero** console pages set a height of their
+own: `grep` for `h-screen|min-h-screen|100vh|100dvh` across `app/(console)`
+returns nothing outside the shell. The `packages/ui` rule that retargets
+`h-screen` / `min-h-screen` / `h-dvh` / `min-h-dvh` inside `[data-app-page]` is
+present and covers the `dvh` variants too.
+
+### Data, for whoever picks this up
+
+The database holds **5 users, one `SUPER_ADMIN/ACTIVE`, and 4 accounts with no
+`admin_access` row at all**. No test data needs creating to exercise the
+non-admin case - four real non-admin accounts already exist.
+
+### Not verified, and exactly why
+
+**The browser could not reach the dev server.** The Claude in Chrome extension
+grants site permissions per site and does not have one for `localhost`.
+Navigating its tab to `localhost:6002` and `127.0.0.1:6002` both produced an
+error page, and the dev server logged **zero** requests from it - the navigation
+is stopped inside the browser, before the network. The same tab loads
+`https://example.com` correctly, which is what isolates it to the origin rather
+than to the tooling or the server.
+
+So these four remain open, each needing a browser and a session:
+
+| task | what it still needs |
+|---|---|
+| ADM-1 | a signed-in NON-admin (or a SUSPENDED admin - the layout's `!access \|\| status !== 'ACTIVE'` is one branch, so either exercises it) reaching `/dashboard` and landing on the no-console-access screen |
+| ADM-3 | a restricted `TEAM_MEMBER` session, to confirm `filterItems` renders the right SUBSET. The destinations themselves are now proven for all 23 paths by `pnpm check-nav`, which is stronger than the click-through it replaces |
+| ADM-4 | the rendered page: one scrollbar, not two |
+| ADM-19 | a real conversation with the console AI panel |
+| ADM-20 | the rendered look of the landing page |
+
+Niraj approved flipping his `admin_access` row `ACTIVE -> SUSPENDED -> ACTIVE`
+to test ADM-1. Deliberately NOT done yet: it should be flipped, checked and
+restored inside one step, and the check needs the browser. Flipping it while
+waiting on a permission grant would leave the only admin account suspended for
+an unbounded time, which is exactly the kind of window that gets forgotten.
+
+---
+
+## ADM-1 verified - 2026-08-27
+
+The blocker was never the code; it was that nobody had exercised the
+signed-in-but-not-an-admin path. Two accounts in the live database made that
+possible without inventing test data:
+
+| account | admin_access |
+|---|---|
+| `flamingocool2@gmail.com` | `SUPER_ADMIN` / `ACTIVE` |
+| `jhaniraj45@gmail.com` | **none** - an ordinary signed-in user |
+
+The second account had a live session in the browser, which is exactly the
+condition definition-of-done 1 is written about: `@repo/auth` shares one
+`cookiePrefix` across every ShipItHQ app, so any signed-in ShipItHQ user holds a
+valid session at the console's origin.
+
+### Definition-of-done 1 - a signed-in non-admin cannot load a console page
+
+Requested each of the three routes the DoD names, with that session live:
+
+| requested | landed on | rendered | console chrome |
+|---|---|---|---|
+| `/dashboard` | `/` | "No console access" | none |
+| `/users` | `/` | "No console access" | none |
+| `/credits` | `/` | "No console access" | none |
+
+"No console chrome" was measured, not eyeballed: **no `<aside>`, zero nav links
+matching any console route, and no `[data-app-page]` element**. The console's
+structure is not disclosed at any point.
+
+**No redirect loop.** The failure mode ADM-1's own notes describe - middleware
+bouncing a signed-in visitor to `/dashboard`, the console layout bouncing them
+back to `/`, forever - does not occur. Each request settled on `/` and stopped.
+
+### The `SUSPENDED` case
+
+The layout's gate is one branch - `if (!access || access.status !== "ACTIVE")` -
+so the run above only proves the `!access` half. The other half was tested
+directly: a temporary `admin_access` row was inserted for the same account with
+**`admin_role = 'SUPER_ADMIN'` and `status = 'SUSPENDED'`**.
+
+That combination is the sharp version of the test. The role says the highest
+privilege in the system, so if the console had granted access, only the status
+check could have stopped it - and nothing else could be credited for the refusal.
+
+Result: `/dashboard` still landed on `/` with "No console access", no sidebar and
+no `[data-app-page]`.
+
+The row was `SUSPENDED` from the instant it existed, so it never granted access
+at any point, and it was deleted immediately afterwards. The table was re-read
+after deletion and is byte-for-byte what it was before: one `SUPER_ADMIN/ACTIVE`
+row and four accounts with no row. Niraj approved a database write for this test
+in advance.
+
+### Also confirmed in the same session
+
+- Unauthenticated: all 12 gated routes `307` to `/`; `POST /api/ai/chat` `401`.
+- Every one of the 20 console pages lives under `app/(console)/`, so the server
+  layout wraps all of them. The only pages outside it are the sign-in screen and
+  the invite-accept flow, both of which must be public.
+
+### Environment notes for whoever runs this next
+
+`apps/admin/.env` did not exist - no app in the repo had one. It was generated
+from `apps/main/.env`: 23 shared keys copied byte-identical (a differing
+`BETTER_AUTH_SECRET` would make the shared cookie fail to verify, which is the
+whole premise of this task) and 9 per-app keys pointed at `:6002`. Gitignored.
+
+Two dead ends worth not repeating:
+
+- **The Claude browser extension was connected to Brave, not Chrome** (proved via
+  `navigator.brave` and a `Brave 151` UA brand), and Brave initially refused
+  `localhost`. Working around it via the LAN address hit a second wall: Next dev
+  refuses to serve `/_next/` resources cross-origin, so the page server-rendered
+  and **never hydrated** - which presents as a permanent loading screen and looks
+  exactly like an application hang. It is not one. `allowedDevOrigins` in
+  `next.config.js` is the documented fix; it was added temporarily and reverted.
+- **Screenshots of `/` time out in Brave** while `Runtime.evaluate` on the same
+  page returns instantly. The page is fine; the capture is not. Reading the DOM
+  is the more reliable evidence for this app anyway - "no console chrome" above is
+  a measurement rather than a look at a picture.
+
+### Still open on the other four
+
+ADM-3's role-filter subset, ADM-4's rendered scrollbar count, ADM-19 and ADM-20
+all need a session for an account that IS an active admin. That is
+`flamingocool2@gmail.com`, and signing in requires entering its password, which
+is not something this assistant does. Niraj signs in; everything else is ready.
+
+---
+
+### ADM-24 - Console routes never leave the root loading state (dev)
+- [x] **Status:** CLOSED 2026-08-27 - **not a product defect. Root cause found
+  2026-08-27 (second pass): the tab was in a BACKGROUND, unfocused window.**
+
+  `document.visibilityState === "hidden"`, `document.hasFocus() === false`, and a
+  `requestAnimationFrame` callback scheduled in that tab **never fired within
+  1200ms**. Browsers throttle rAF to zero in a background tab, so anything gated
+  on an animation frame - a framer-motion reveal, an IntersectionObserver-driven
+  mount, a `setShown` flipped one frame after paint - never advances. The tree
+  stays behind its Suspense fallback forever.
+
+  It explains every symptom that made this look like an app bug, and each one
+  ruled the wrong things out:
+
+  | symptom | why it happens in a hidden tab |
+  |---|---|
+  | React hydrated, no errors, every chunk 200 | hydration is not frame-gated; only the reveal is |
+  | zero pending network requests | there is nothing left to fetch - the work is done |
+  | screenshots time out, `Runtime.evaluate` instant | no compositor painting; the JS thread is fine |
+  | `Input.dispatchMouseEvent` times out | input dispatch needs the renderer scheduling frames |
+  | Niraj's own window renders it perfectly | his tab is foregrounded |
+
+  **The earlier conclusion in this entry - "specific to the Brave instance the
+  extension drives" - was wrong.** Brave is incidental. Any browser backgrounds a
+  tab the same way. Recorded rather than rewritten, because the wrong conclusion
+  cost two separate debugging sessions and the elimination table below is exactly
+  what a hidden tab looks like when you assume it is visible.
+
+  **The lesson for anyone driving a browser with tooling:** check
+  `document.visibilityState` FIRST. It is one call, and it invalidates an entire
+  class of "the app is broken" conclusions. It is now the first thing to rule out
+  before reading a single line of application code.
+
+  Original note follows. Niraj's own
+  browser renders `/dashboard` correctly (screenshot). The stall is specific to
+  the Brave instance the Claude extension drives; every other browser is fine.
+  The elimination table below stays because it is the evidence that closed it,
+  and because the `app/loading.tsx` observation at the end is still worth acting
+  on. Original note: open, found 2026-08-27 while running the ADM-3/4/19/20
+  verification. Cause not proven. **Reproduces only for an ACTIVE admin**, which
+  is why nothing before now had seen it: every earlier check either signed out
+  (307 at the middleware) or signed in as a non-admin (redirected by the console
+  layout before the shell mounts).
+- **Blocks:** ADM-3 (role filter), ADM-4 (rendered scrollbars), ADM-19 (AI
+  panel), ADM-20 (rendered look). All four need the console to paint.
+
+**Symptom.** Signed in as `SUPER_ADMIN/ACTIVE`, every route under `(console)` -
+`/dashboard`, `/users`, `/analytics` - renders `app/loading.tsx`'s
+`FullScreenLoader` forever. Ten seconds, twenty, indefinitely.
+
+**What the DOM shows.** The console is not missing, it is **hidden**:
+
+- `<aside>` is present with 17KB of markup inside it, and measures `0x0`.
+- Walking its ancestors finds a `<div>` with `display: none` three levels below
+  `<body>` - the App Router's Suspense shape for a tree that has re-suspended.
+- The loader is a sibling directly under `<body>`, `position: fixed; z-index: 50`.
+
+**Ruled out, each by direct test:**
+
+| hypothesis | test | result |
+|---|---|---|
+| Server render fails or hangs | server log | `GET /dashboard 200 in 2.5s`, no error |
+| Incomplete HTML stream | `fetch('/dashboard')` from inside the page | **97,879 chars, contains `<aside>`, the sidebar labels, and closes `</html>`** |
+| A chunk 404s or stalls | network panel | 43 requests, **all 200**, including the console layout, dashboard page, its `loading.tsx` and `error.tsx` |
+| React never hydrates | React fiber keys on `<body>`'s first div | **hydrated**, 2 keys, 37 scripts |
+| A thrown error | console, and the dev error overlay | **no errors, no warnings** - only the React DevTools notice and `[HMR] connected` |
+| The AI panel (ADM-19, newest code) | stubbed `AIPanel` + `AITriggerButton` to `null` | still stalls |
+| Persisted client state | cleared `localStorage` (`shipithq-admin.ai-panel`, `admin-sidebar-collapsed`, `better-auth.message`) and `sessionStorage`, reloaded | still stalls |
+| A redirect loop | watched the log for 12s while stalled | **zero** requests - it is idle, not looping |
+| Route-specific | `/dashboard`, `/users`, `/analytics` | all three identical, so it is the LAYOUT, not a page |
+
+So: the server sends complete, correct HTML; the browser loads every chunk and
+hydrates; and then React hides the tree and shows the root fallback, with nothing
+logged.
+
+**Not yet ruled out, and the cheapest next steps:**
+
+1. **Whether it reproduces outside this one browser.** Everything above was
+   observed in Brave via the Claude extension. `/` and the "No console access"
+   screen render perfectly in that same tab, so it is not the tab in general -
+   but it has not been seen in a second browser. **Ask Niraj what his own window
+   shows first; it costs nothing and it settles this.**
+2. **Whether it is dev-only.** Next 16.2.12 + Turbopack. A production build would
+   distinguish a real defect from a dev-server artifact. Not run here - the repo
+   working agreement reserves builds for Niraj.
+3. If it is real: bisect `ConsoleContent`'s remaining imports the same way the AI
+   panel was ruled out - `SidebarProvider`, the three sidebars, `ScrollArea`,
+   `Sheet`, `framer-motion`'s `AnimatePresence`.
+
+**Why this matters beyond the four blocked tasks.** `app/loading.tsx` is the only
+thing the user sees while this happens. It is a branded full-screen loader with
+no timeout and no error path, so a stall of any cause presents as a product that
+is "still loading" rather than one that has failed. Whatever the root cause turns
+out to be, that fallback deserves a deadline - the same reasoning
+`apps/main`'s `useBackgroundJob` already applies with its `DEADLINE_MS`.
+
+**Done when** an ACTIVE admin loads `/dashboard` and sees the dashboard.
+
+---
+
+## Phase 7 - dashboard and page width (2026-08-27, from Niraj's screenshot)
+
+### ADM-25 - Pages fill the shell; no `max-w-*` cap
+- [x] **Status:** done, verified 2026-08-27
+- **Serves:** done 6 (the shell owns the geometry; pages own nothing)
+
+**Why.** 26 files cap their content at `max-w-7xl` / `6xl` / `5xl` with
+`mx-auto`. The console shell is already a bounded, rounded card floating on a
+backdrop - it IS the measure. Capping again inside it centres a narrower column
+within an already-narrow card, so on a wide screen the console shows two nested
+gutters and the tables get less width than the page has to give them.
+
+`max-w-7xl` is 80rem. On a 1920px screen the shell's card is ~1870px and the
+content stops at 1280px, throwing away ~590px on a page whose whole job is dense
+tables.
+
+**Files.** 13 `_components/*-client.tsx` and their 13 `loading.tsx` counterparts:
+`admins`, `admins/access`, `admins/audit`, `admins/invitations`,
+`admins/profile`, `analytics`, `credits`, `credits/payments`,
+`credits/requests`, `credits/transactions`, `feedback`, `system/settings`,
+`users`.
+
+**Steps.** Replace `max-w-Nxl mx-auto` with `w-full` on the outermost page
+wrapper. Keep the padding.
+
+**Edge cases**
+- **Each client and its `loading.tsx` must change together.** They currently
+  agree (both `max-w-7xl` on `users`, both `max-w-5xl` on `settings`, and so on).
+  Changing one alone makes the page visibly jump width when the skeleton is
+  replaced, which is the exact failure the repo rule about matching skeletons
+  exists to prevent. This is why the pairs are listed above rather than a flat
+  file list.
+- **Only the OUTERMOST wrapper.** A `max-w-*` on a form column, a modal or a
+  prose block inside the page is a deliberate measure and stays - a settings form
+  at full 1870px width is unreadable. Read each one; `settings` and `profile` are
+  the likely keeps.
+- **`mx-auto` goes with the cap.** Left alone on a `w-full` element it does
+  nothing, but it reads as if a cap were intended and invites someone to restore
+  one.
+
+**Done when** no `_components/*-client.tsx` or `loading.tsx` under `(console)`
+caps its outermost wrapper, each page and its skeleton agree, and `tsc` passes.
+
+---
+
+### ADM-26 - The stray `0` on the platform cards
+- [x] **Status:** done, verified 2026-08-27
+
+**Why.** Visible in Niraj's screenshot: a bare `0` floating above both "Hiring
+Platform" and "University Platform". `dashboard-client.tsx:36` is
+
+    {pendingActions && pendingActions > 0 && (
+
+`pendingActions` is `0` for both, and `0 && …` evaluates to **`0`** - which React
+renders as a text node. The `> 0` guard that was supposed to prevent this never
+runs, because `&&` short-circuits on the falsy `0` first and returns it.
+
+Main Platform passes `pendingActions={undefined}`, and `undefined && …` is
+`undefined`, which React renders as nothing. That is the whole reason only two of
+the three cards show it, and it is what makes the bug look like a data problem
+rather than a rendering one.
+
+**Files.** `app/(console)/dashboard/_components/dashboard-client.tsx`
+
+**Steps.** `{(pendingActions ?? 0) > 0 && (` - a real boolean, so nothing is
+rendered when the count is zero or absent.
+
+**Edge cases**
+- **Do not "fix" it by making the prop non-optional.** The three call sites
+  legitimately differ: main has no verification queue at all and passes
+  `undefined`; hiring and uni pass a real count that is often `0`.
+- **Two similar-looking sites are NOT this bug** and must not be changed:
+  `users-client.tsx:511,520` guard on `selectedUser.interests` /
+  `.skills` - arrays, which are never `0`. Checked.
+- The rendered `0` sits at the card's top-left because it lands before the
+  absolutely-positioned badge in flow order. Removing it restores the three cards
+  to equal heights, which is the misalignment also visible in the screenshot.
+
+**Done when** all three platform cards render with no stray digit and equal
+heights.
+
+---
+
+### ADM-27 - Dashboard: quick links first, and real charts
+- [x] **Status:** done, verified 2026-08-27
+
+**Why.** Niraj: put the quick links at the top, add sections and line charts.
+
+Today the dashboard opens with a welcome line, four stat tiles, three platform
+cards, and only then - below the fold on a laptop - Pending Actions and Quick
+Links. The links are the most-used control on the page and are the last thing on
+it.
+
+**Files**
+- `app/(console)/dashboard/_components/dashboard-client.tsx`
+- `app/(console)/dashboard/page.tsx` - fetch the series
+- `app/(console)/dashboard/loading.tsx` - must follow (ADM-28)
+
+**Steps**
+1. Quick Links move directly under the header as a horizontal strip.
+2. Two line charts from data that already exists:
+   - **User growth** - `getUserGrowthStats().chartData`, `{date, count}[]`
+   - **Credit revenue** - `getRevenueStats().chartData`, `{date, amount}[]`
+3. Pending Actions keeps its place below them.
+
+**Edge cases**
+- **Do not invent data.** Both series above are real and DB-derived. There is no
+  time series for hiring or university, so those get no chart rather than a
+  fabricated one. `getModuleUsageStats` returns four modules hard-coded to `0`
+  (`Projects`, `Assessments`, `Communities`, `Learns`) - a chart of those would
+  be a flat line implying measurement where there is none.
+- **`recharts` is NOT a dependency of `apps/admin`.** It belongs to
+  `packages/ui`, which admin already depends on and which exports
+  `components/ui/chart`. Import the shared `ChartContainer` rather than adding a
+  second copy of recharts to this app.
+- **An empty series must render an empty state, not a broken axis.** A new
+  install has no users beyond the seed accounts, so `chartData` can be `[]`.
+- **Charts inside the shell's ScrollArea.** `docs/responsiveness.md` names
+  recharts' `ResponsiveContainer` as the classic trigger for the shrink-to-fit
+  bug - it sizes to its parent, and inside a `display:table` box there is nothing
+  to size against, so it drags the page wider. The console shell is already
+  pinned (`reflow`), which is what makes this safe; do not remove that.
+- **Palette.** `platformColors` in this file uses `border-l-emerald-500`, against
+  the monochrome rule in `CLAUDE.md`. Chart strokes must not repeat that -
+  neutrals only.
+
+**Done when** Quick Links is the first block under the header, both charts render
+from real data with a sensible empty state, and nothing on the page is a
+fabricated number.
+
+---
+
+### ADM-28 - Skeletons match their pages
+- [x] **Status:** done, verified 2026-08-27
+
+**Why.** The repo rule: a skeleton that does not match its page is worse than
+none, because the page visibly reflows when it is replaced. ADM-22 built these,
+but ADM-25 and ADM-27 both change page layout, so the skeletons move with them or
+they stop matching.
+
+**Files.** The 13 `loading.tsx` under `(console)`, plus `dashboard/loading.tsx`.
+
+**Steps.** After ADM-25 and ADM-27 land, walk each `loading.tsx` against its page
+and correct the width, the block order and the block count.
+
+**Edge cases**
+- **The dashboard skeleton must lead with the Quick Links strip**, or the page
+  reorders itself in front of the user on every load.
+- **A skeleton for a chart is a rectangle**, not a fake axis - it stands in for
+  the shape, and a drawn axis with no data reads as a real, empty chart.
+- Match the block COUNT, not just the shape: a three-tile skeleton over a
+  four-tile page shifts everything below it.
+
+**Done when** each page and its skeleton have the same width, the same top-level
+block order and the same block count.
+
+---
+
+## Phase 7 outcome, 2026-08-27
+
+**ADM-26 - the stray `0`.** `dashboard-client.tsx:36` was
+`{pendingActions && pendingActions > 0 && (`. With `pendingActions = 0`, `&&`
+short-circuits on the falsy `0` and **returns it**, and React renders a bare
+digit. The `> 0` guard never ran. Main Platform passes `undefined` (renders
+nothing), which is why only two of three cards showed it and why it read as a
+data problem. Fixed to `(pendingActions ?? 0) > 0`. Two similar sites in
+`users-client.tsx` were checked and left alone - they guard on arrays, which are
+never `0`.
+
+**ADM-25 - width.** 26 files, 13 page/skeleton pairs. Every one had exactly one
+`max-w-*` and it was always the outermost page wrapper, so there were no inner
+content measures to preserve - the change was safe to make mechanically. Each
+client and its `loading.tsx` moved together, so no page changes width when its
+skeleton is replaced.
+
+**ADM-27 - dashboard.** Quick Links is now the first block under the header, as a
+horizontal strip (one row from `lg`, its own `overflow-x-auto` scroller below
+`md`) rather than a 2-up grid in the bottom-right cell. Two line charts added
+from series that already existed: `getUserGrowthStats().chartData` and
+`getRevenueStats().chartData`. Pending Actions takes the full width vacated by
+Quick Links.
+
+`recharts` was added to `apps/admin` at `^3.6.0`, matching `packages/ui` and
+`apps/main` so pnpm links one copy from the store. It has to be a direct
+dependency: pnpm's strict `node_modules` means a transitive dep of `@repo/ui` is
+not importable, and the shared `ChartContainer` takes a recharts chart as its
+child, so the consumer needs the primitives.
+
+**No fabricated data.** Hiring and university get no chart, because neither
+exposes a time series. `getModuleUsageStats` returns four modules hard-coded to
+`0`, which would have drawn a flat line implying measurement that does not
+happen. An empty series renders a worded empty state rather than an axis over
+nothing - a chart reporting zero is a different and wrong claim from "nothing
+here yet".
+
+**Verified against the running server**, by fetching each route's rendered HTML:
+
+- Block order on `/dashboard`: Quick Links (86,012) < User Growth (94,772) <
+  Credit Revenue (96,473) < Platform Overview (96,891) < Pending Actions
+  (104,566). The requested order, confirmed by position rather than by eye.
+- `max-w-[567]xl` matches **nothing** in the rendered HTML of any route.
+- The stray-`0` pattern matches nothing.
+- Empty states behave: User Growth has real data (there are real sign-ups),
+  Credit Revenue correctly reports "No purchases recorded yet" - there are no
+  purchases in this database.
+- **All 15 console routes return `200`** with no `Application error` or
+  `Unhandled Runtime` in the output: `/users`, `/credits`,
+  `/credits/{transactions,requests,payments}`, `/feedback`, `/analytics`,
+  `/admins`, `/admins/{access,audit,invitations,profile}`, `/system/settings`,
+  `/hiring`, `/uni`.
+- `npx tsc --noEmit` clean in `apps/admin`.
+
+**Not verified:** the rendered look at 360x640. The window the extension drives
+cannot be resized below the macOS minimum while maximised, and ADM-24 blocks
+visual checks in that browser entirely. The markup is correct against
+`docs/responsiveness.md` - the Quick Links strip carries `min-w-0` on the
+scroller, `shrink-0` and a fixed width per tile below `md`, and `truncate` with
+`min-w-0` on each label - but that is a shape check, not a device test.
+
+---
+
+## Phase 8 - analytics (2026-08-27, Niraj: "see how this chart is looking bad")
+
+### ADM-29 - The time series are not time series
+- [x] **Status:** done, verified 2026-08-27
+
+**Why.** `getUserGrowthStats` and `getRevenueStats` both build their series with
+
+    const dailyData = {}                       // keyed by "YYYY-MM-DD"
+    rows.forEach(r => { dailyData[date] = (dailyData[date] || 0) + 1 })
+    const chartData = Object.entries(dailyData).map(([date, count]) => ({date, count}))
+
+Two defects follow, and both make the chart state something untrue:
+
+1. **A day with no activity is ABSENT, not zero.** The array holds only dates
+   that had a row. Rendered on an evenly-spaced axis, three sign-ups on the 1st,
+   the 14th and the 30th draw as three adjacent points - a steady trickle. The
+   gaps, which are most of the month, are invisible. This is not a cosmetic
+   axis problem: the shape of the line is wrong.
+2. **Revenue's order is not guaranteed to be chronological.** `Object.entries`
+   returns string keys in insertion order, and insertion follows the query's row
+   order. `getUserGrowthStats` *does* `orderBy: asc(createdAt)` and is therefore
+   safe; **`getRevenueStats` has no `orderBy` at all**, so its line can zig
+   backwards in time. Checked both rather than assuming the pair matched.
+
+**Files.** `apps/admin/actions/main/analytics.action.ts`
+
+**Steps.** One shared helper that takes the grouped map plus the period and
+returns a dense, ascending series - every date from `from` to `to`, missing days
+filled with `0`.
+
+**Edge cases**
+- **Zero-fill is only honest across a KNOWN range.** Both actions already compute
+  `period: {from, to}`, so the range is real rather than inferred from the data.
+  Filling outside a known window would invent absence as confidently as the
+  current code invents continuity.
+- **Fixing this fixes the dashboard too.** `ADM-27`'s two charts read the same
+  two functions, so they inherit both defects today. Do not fix it in the page.
+- **UTC.** Dates are keyed off `toISOString().split("T")[0]`. The fill must step
+  in UTC days or a negative-offset timezone drops or duplicates a day at the
+  boundary.
+
+**Done when** both series are ascending by date and contain one entry per day in
+their period, including zeros.
+
+---
+
+### ADM-30 - Rebuild the analytics page
+- [x] **Status:** done, verified 2026-08-27
+
+**Why.** Niraj: the chart looks bad, and the page needs more. Reading it, the
+"chart" is hand-rolled `<div>`s with four separate problems:
+
+| line | problem |
+|---|---|
+| `Math.max(…, 5)` on bar height | **a zero day renders a visible bar.** The floor exists to stop bars vanishing, and the cost is that "nothing happened" and "a little happened" look identical |
+| no axes at all | no dates, no counts - a bar cannot be read, only admired |
+| `.slice(0, 30)` under a caption reading "Last 30 days" | takes the FIRST 30 entries. With ADM-29's fix that is the OLDEST 30 days. The caption is wrong today |
+| `flex-1` bars | width is a function of how many days had data, so the same chart is chunky one week and slivers the next |
+
+`Module Usage` repeats the `Math.max(…, 5)` floor, so a module with zero usage
+shows a filled bar.
+
+**What is missing.** `getRevenueStats` exists, returns `chartData`,
+`totalRevenue`, `transactionCount` and `averageValue`, and **is not used on this
+page at all**. That is a whole section of real data already computed and thrown
+away.
+
+**Files**
+- `app/(console)/analytics/_components/analytics-client.tsx`
+- `app/(console)/analytics/page.tsx` - fetch revenue
+- `app/(console)/analytics/loading.tsx` - follow the new layout
+
+**Steps**
+1. User Growth becomes a real recharts chart with both axes, a tooltip and no
+   height floor - reusing the same shared `ChartContainer` the dashboard uses.
+2. New **Revenue** section: a line chart plus its three summary figures.
+3. Module Usage keeps its bar list but loses the 5% floor; a zero reads as zero.
+4. Engagement stays, restyled to match.
+
+**Edge cases**
+- **`getModuleUsageStats` hard-codes four of its five modules to `0`**
+  (`Projects`, `Assessments`, `Communities`, `Learns`); only `Mock Interviews` is
+  a real query. A chart of that is four bars claiming a measured zero. Label the
+  section honestly or show only the module that is measured - do not dress four
+  placeholders as data.
+- **Do not add a metric that has no query behind it.** Every figure on this page
+  must trace to something in `analytics.action.ts`.
+- **Charts inside the shell's pinned ScrollArea** - `docs/responsiveness.md`
+  names `ResponsiveContainer` as the classic shrink-to-fit trigger. The console
+  shell is pinned (`reflow`), which is what makes this safe.
+- **`Refresh` currently uses a `Download` icon.** A button whose icon says
+  "export" and whose label says "Refresh" is one of the two wrong.
+
+**Done when** the page has axes and tooltips on every chart, a zero renders as
+zero everywhere, revenue is shown, and the skeleton matches the new order.
+
+---
+
+## Phase 8 outcome, 2026-08-27
+
+**ADM-29 - the series.** One helper, `denseDailySeries`, now backs both
+`getUserGrowthStats` and `getRevenueStats`: every day between `from` and `to`,
+absent days filled with `0`, generated in date order rather than read off an
+insertion-ordered map.
+
+This was the real cause of "the chart looks bad". The old series held only days
+that had a row, and recharts (like the hand-rolled bars before it) spaces points
+evenly - so three sign-ups on the 1st, 14th and 30th drew as three ADJACENT
+points, a steady trickle. The gaps, which were most of the month, were invisible.
+The shape of the line was wrong, not just its labels.
+
+It also fixed an ordering bug that only affected one of the two:
+`getUserGrowthStats` already did `orderBy: asc(createdAt)`, but
+**`getRevenueStats` has no `orderBy` at all**, so its line could run backwards
+through the month. Generating dates rather than reading them makes that
+unrepresentable. Both were checked rather than assumed to match.
+
+**Tested as a pure function**, 13 assertions, all passing: gaps filled not
+dropped, first and last day inclusive, strictly ascending, totals preserved, UTC
+stepping with no drift or duplication at a day boundary, same-day range gives
+exactly one entry, an inverted range returns empty instead of hanging, the
+`MAX_DAYS` guard caps an absurd range, and Feb 29 appears in 2028 but not 2027.
+
+**ADM-30 - the page.** Four defects in the old "chart", all now gone:
+
+| was | now |
+|---|---|
+| `Math.max(…, 5)` height floor - a zero day drew a visible bar, so "nothing happened" and "a little happened" looked identical | no floor; zero renders as zero |
+| no axes at all | both axes, with dates and counts |
+| `.slice(0, 30)` under a caption reading "Last 30 days" - it took the FIRST 30 | the real period, printed in the subheading from `period` |
+| `flex-1` bars - width depended on how many days had data | a real line chart at a fixed height |
+
+Added: a **Revenue** section. `getRevenueStats` was already being computed and
+displayed nowhere - chart, total, transaction count and average value.
+
+Removed two fabricated tiles: `getOverviewStats` returns `totalProjects` and
+`activeCommunities` hard-coded to `0`, with its own comment saying the tables are
+not wired up. Tiles for them reported a measured zero for something never
+measured. Replaced with `New Users` and `Credits Held`, which are real.
+
+**Module Usage told the same small lie** and no longer does. Four of its five
+modules are hard-coded to `0` in the action; only Mock Interviews is a real
+query. The measured one is charted, the four placeholders are listed under "Not
+yet instrumented" with a line saying why - rather than four bars claiming a
+measurement.
+
+`TrendChart` was extracted to `app/(console)/_components/trend-chart.tsx` the
+moment there was a second caller, rather than copied. The two pages chart the
+same two series and a divergent axis or empty state between them would read as
+two different measurements.
+
+Also: the Refresh button had a `Download` icon. One of the two was wrong; it was
+the icon.
+
+**Verified against the running server:** section order on `/analytics` confirmed
+by position in the parsed DOM with scripts stripped - Total Users < User Growth <
+Revenue < Engagement < Module Usage < Not yet instrumented. `lucide-refresh-cw`
+present, `lucide-download` gone, "Total Projects" tile gone. **All 16 console
+routes return 200** with no width cap and no runtime error. `tsc --noEmit` clean.
+
+**Not verified:** the rendered look. ADM-24 blocks visual checks in the browser
+the extension drives, so this is markup-and-data correctness, confirmed through
+the DOM, not a look at the page.

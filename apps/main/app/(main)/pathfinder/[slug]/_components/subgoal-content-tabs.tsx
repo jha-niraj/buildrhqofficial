@@ -34,33 +34,38 @@ export function SubGoalContentTabs({
     subGoal,
 }: SubGoalContentTabsProps) {
     return (
-        <Tabs defaultValue="notes" className="flex-1 flex flex-col overflow-hidden h-full">
-            <TabsList className="flex-shrink-0 mx-4 mt-4 h-auto flex-wrap gap-1">
-                <TabsTrigger value="notes" className="text-xs gap-1">
-                    <StickyNote className="w-3 h-3" />
-                    Notes
-                </TabsTrigger>
-                {
-                    hasCoding && (
-                        <TabsTrigger value="coding" className="text-xs gap-1">
-                            <Code2 className="w-3 h-3" />
-                            Coding
-                            {
-                                codingCompleted && (
-                                    <CheckCircle2
-                                        className={cn(
-                                            'w-3 h-3',
-                                            codingPassed ? 'text-neutral-900 dark:text-neutral-100' : 'text-red-500'
-                                        )}
-                                    />
-                                )
-                            }
-                        </TabsTrigger>
-                    )
-                }
-            </TabsList>
+        <Tabs defaultValue="notes" className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+            {/* The bar only earns its space when there is something to switch
+                BETWEEN. "Coding" is conditional on `hasCoding`, so a sub-goal
+                without a coding challenge rendered a full-width bar containing
+                exactly one tab - a control that cannot do anything, sitting
+                directly above the Studio header it duplicates.
+                Hidden at one tab, shown at two. Not deleted: removing it would
+                take the Coding tab with it wherever `hasCoding` is true. */}
+            {hasCoding && (
+                <TabsList className="mx-4 mt-4 h-auto flex-shrink-0 flex-wrap gap-1">
+                    <TabsTrigger value="notes" className="text-xs gap-1">
+                        <StickyNote className="w-3 h-3" />
+                        Notes
+                    </TabsTrigger>
+                    <TabsTrigger value="coding" className="text-xs gap-1">
+                        <Code2 className="w-3 h-3" />
+                        Coding
+                        {
+                            codingCompleted && (
+                                <CheckCircle2
+                                    className={cn(
+                                        'w-3 h-3',
+                                        codingPassed ? 'text-neutral-900 dark:text-neutral-100' : 'text-red-500'
+                                    )}
+                                />
+                            )
+                        }
+                    </TabsTrigger>
+                </TabsList>
+            )}
 
-            <TabsContent value="notes" className="flex-1 overflow-hidden m-0">
+            <TabsContent value="notes" className="m-0 flex min-h-0 flex-1 overflow-hidden">
                 <PathfinderNotesTab
                     subGoalId={subGoalId}
                     subGoalTitle={subGoalTitle}
@@ -71,7 +76,7 @@ export function SubGoalContentTabs({
 
             {
                 hasCoding && (
-                    <TabsContent value="coding" className="flex-1 overflow-hidden m-0 p-4">
+                    <TabsContent value="coding" className="m-0 flex min-h-0 flex-1 overflow-hidden p-4">
                         <SubGoalCodingComponent subGoal={subGoal} onComplete={onCodingComplete} />
                     </TabsContent>
                 )

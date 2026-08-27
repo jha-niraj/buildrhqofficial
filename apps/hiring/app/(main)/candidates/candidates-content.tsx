@@ -444,8 +444,8 @@ export function CandidatesContent({ initialCandidates, stats, jobs }: Candidates
                                                                 </Badge>
                                                             </div>
                                                             <div className="flex items-center gap-4 text-sm text-neutral-500 mt-1">
-                                                                <div className="flex items-center gap-1">
-                                                                    <Mail className="w-3.5 h-3.5" />
+                                                                <div className="flex min-w-0 items-center gap-1">
+                                                                    <Mail className="w-3.5 h-3.5 shrink-0" />
                                                                     <span className="truncate">{candidate.email}</span>
                                                                 </div>
                                                                 <div className="flex items-center gap-1">
@@ -539,7 +539,7 @@ export function CandidatesContent({ initialCandidates, stats, jobs }: Candidates
             }
 
             <Sheet open={isDetailSheetOpen} onOpenChange={setIsDetailSheetOpen}>
-                <SheetContent className="w-full sm:max-w-2xl h-[95vh] overflow-y-auto p-0">
+                <SheetContent className="w-full sm:max-w-2xl h-[95dvh] overflow-y-auto p-0">
                     {
                         selectedCandidate && (
                             <CandidateDetailSheet

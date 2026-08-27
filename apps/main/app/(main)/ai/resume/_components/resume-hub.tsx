@@ -15,7 +15,7 @@ import { Textarea } from '@repo/ui/components/ui/textarea'
 import {
     Plus, FileText, Upload, Globe, Github, Linkedin,
     Download, Copy, Trash2, Eye, ExternalLink, Sparkles,
-    LayoutTemplate, Clock, Lock, CheckCircle2, Settings, Star, FileUp, ArrowRight,
+    LayoutTemplate, Clock, Lock, CheckCircle2, Settings, Star, FileUp, ArrowRight, Files,
 } from 'lucide-react'
 import { DotmSquare11 } from '@repo/ui/components/ui/dotm-square-11'
 import toast from '@repo/ui/components/ui/sonner'
@@ -24,6 +24,7 @@ import {
     duplicateResumeDraft, setDefaultResumeDraft
 } from '@/actions/(main)/ai/resume-draft.action'
 import { importAndCreateDraft } from '@/actions/(main)/ai/resume-import.action'
+import { awaitBackgroundJob } from '@/hooks/use-background-job'
 import { uploadResume } from '@/actions/(main)/user/resume.action'
 import { validateResumeFile } from '@/lib/resume-extractor.client'
 import { emptyResumeDraftContent } from '@/types/resume-draft'
@@ -134,8 +135,37 @@ function NewResumeSheet({ templates, open, onClose }: {
                     setLoading(false)
                     return toast.error('Provide at least one import source')
                 }
-                result = await importAndCreateDraft({ name, templateSlug: selectedTemplate, linkedinUrl, githubUrl, pastedText })
-            } else if (source === 'blank') {
+
+                // Importing runs on the worker (RES-9): up to four scrapes of
+                // somebody else's site, each with a 10-second livecrawl budget,
+                // then a gpt-4o pass. There is no draft to redirect to until the
+                // job lands, so this branch follows the job and returns rather
+                // than falling through to the shared success path below - which
+                // reads `result.draft.id` and would otherwise navigate to
+                // `/ai/resume/draft/undefined`.
+                const started = await importAndCreateDraft({
+                    name, templateSlug: selectedTemplate, linkedinUrl, githubUrl, pastedText,
+                })
+                if (!started.success || !started.jobId) {
+                    setLoading(false)
+                    return toast.error(creditErrorMessage(started, 'Failed to create resume'))
+                }
+
+                const outcome = await awaitBackgroundJob<{ draftId?: string }>(started.jobId)
+                setLoading(false)
+
+                if (!outcome.ok) return toast.error(outcome.error)
+                if (!outcome.result?.draftId) {
+                    return toast.error('The import finished but no resume was saved. Please try again.')
+                }
+
+                toast.success('Resume created from your imported data!')
+                onClose()
+                router.push(`/ai/resume/draft/${outcome.result.draftId}`)
+                return
+            }
+
+            if (source === 'blank') {
                 // Actually blank. This used to call createDraftFromProfile, so
                 // "Start from scratch" handed back a resume already full of
                 // profile data with no way to tell it had ignored the choice.
@@ -158,9 +188,7 @@ function NewResumeSheet({ templates, open, onClose }: {
             // stack of red that reads as five separate failures. Nothing had failed: the
             // resume was created every time.
             toast.success(
-                source === 'import' ? 'Resume created from your imported data!'
-                    : source === 'blank' ? 'Blank resume created!'
-                    : 'Resume created from your profile!',
+                source === 'blank' ? 'Blank resume created!' : 'Resume created from your profile!',
                 result.missingFields?.length
                     ? {
                         description:
@@ -419,15 +447,33 @@ function ResumeCard({ draft, onDelete, onTogglePublic, onDuplicate, onSetDefault
                 </div>
             )}
 
-            {/* Actions */}
-            <div className="flex items-center gap-1.5 pt-1 border-t border-black/5 dark:border-white/5">
-                <Button size="sm" className="flex-1 h-7 text-xs bg-neutral-900 text-white dark:bg-white dark:text-black hover:opacity-90" asChild><Link href={`/ai/resume/draft/${draft.id}`}>
-                    <Settings className="w-3 h-3 mr-1" /> Edit
+            {/* Actions
+                Two rows, not one. This was a single `flex` row holding a `flex-1`
+                Edit button, FIVE fixed 28px icon buttons, a text "Duplicate" and a
+                trash - about 250px of content that cannot shrink, inside a card
+                roughly 200px wide in the 3-up grid. So it overflowed the card:
+                "Duplicate" clipped mid-word and the trash icon rendered outside
+                the border.
+
+                docs/responsiveness.md section 4 is explicit that `flex-wrap` is a
+                deferral rather than a fix - it converts overflow into height - and
+                that the answer is to keep the primary action labelled and inline
+                while the secondaries collapse. Here the primary takes its own full
+                width row and every secondary becomes an equal icon button on a
+                wrapping row beneath it, which fits at any card width.
+
+                "Duplicate" lost its text for the same reason: it was the only
+                labelled secondary and the widest single item in the row. */}
+            <div className="flex flex-col gap-1.5 pt-1 border-t border-black/5 dark:border-white/5">
+                <Button size="sm" className="h-7 w-full min-w-0 text-xs bg-neutral-900 text-white dark:bg-white dark:text-black hover:opacity-90" asChild><Link href={`/ai/resume/draft/${draft.id}`}>
+                    <Settings className="w-3 h-3 mr-1 shrink-0" /> Edit
                 </Link></Button>
+                <div className="flex flex-wrap items-center gap-1.5">
                 <Button
                     size="sm"
                     variant="outline"
-                    className="h-7 w-7 p-0"
+                    className="h-7 w-7 p-0 shrink-0"
+                    aria-label="Download PDF"
                     title="Download PDF"
                     onClick={() => window.open(`/api/resume/pdf/${draft.id}`, '_blank')}
                 >
@@ -436,7 +482,8 @@ function ResumeCard({ draft, onDelete, onTogglePublic, onDuplicate, onSetDefault
                 <Button
                     size="sm"
                     variant="outline"
-                    className="h-7 w-7 p-0"
+                    className="h-7 w-7 p-0 shrink-0"
+                    aria-label={draft.isDefault ? 'Already the default resume' : 'Use this resume for AI features'}
                     title={draft.isDefault
                         ? 'This is the resume ShipItHQ AI uses'
                         : 'Use this resume for AI features'}
@@ -448,7 +495,8 @@ function ResumeCard({ draft, onDelete, onTogglePublic, onDuplicate, onSetDefault
                 <Button
                     size="sm"
                     variant="outline"
-                    className="h-7 w-7 p-0"
+                    className="h-7 w-7 p-0 shrink-0"
+                    aria-label={draft.isPublic ? 'Make private' : 'Make public'}
                     title={draft.isPublic ? 'Make private' : 'Make public'}
                     onClick={() => onTogglePublic(draft.id, !draft.isPublic)}
                 >
@@ -457,7 +505,8 @@ function ResumeCard({ draft, onDelete, onTogglePublic, onDuplicate, onSetDefault
                 <Button
                     size="sm"
                     variant="outline"
-                    className="h-7 w-7 p-0"
+                    className="h-7 w-7 p-0 shrink-0"
+                    aria-label="Copy share link"
                     title="Copy share link"
                     onClick={() => {
                         const url = resumeShareUrl(draft.shareSlug)
@@ -474,7 +523,8 @@ function ResumeCard({ draft, onDelete, onTogglePublic, onDuplicate, onSetDefault
                     <Button
                         size="sm"
                         variant="outline"
-                        className="h-7 w-7 p-0"
+                        className="h-7 w-7 p-0 shrink-0"
+                        aria-label="Open public link"
                         title="Open public link"
                         onClick={() => window.open(`/r/${draft.shareSlug}`, '_blank')}
                     >
@@ -483,21 +533,25 @@ function ResumeCard({ draft, onDelete, onTogglePublic, onDuplicate, onSetDefault
                 )}
                 <Button
                     size="sm"
-                    variant="ghost"
-                    className="h-7 px-2 text-[10px] text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
+                    variant="outline"
+                    className="h-7 w-7 p-0 shrink-0"
+                    aria-label="Duplicate resume"
                     title="Duplicate resume"
                     onClick={() => onDuplicate(draft.id)}
                 >
-                    Duplicate
+                    <Files className="w-3 h-3" />
                 </Button>
                 <Button
                     size="sm"
                     variant="ghost"
-                    className="h-7 w-7 p-0 text-neutral-400 hover:text-red-500"
+                    className="h-7 w-7 p-0 shrink-0 text-neutral-400 hover:text-red-500"
+                    aria-label="Delete resume"
+                    title="Delete resume"
                     onClick={() => onDelete(draft.id)}
                 >
                     <Trash2 className="w-3 h-3" />
                 </Button>
+                </div>
             </div>
         </div>
     )

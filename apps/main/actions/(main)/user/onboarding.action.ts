@@ -1,6 +1,6 @@
 "use server"
 
-import { getSession } from "@repo/auth"
+import { getSession, refreshSession } from "@repo/auth"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { db, users } from "@repo/db"
@@ -83,6 +83,20 @@ export async function completeOnboarding(data: {
             learningPreferences: data.learningPreferences || [],
             onboardingCompleted: true,
         }).where(eq(users.id, userId))
+
+        // Re-mint the session cookie cache from the database.
+        //
+        // Without this the user completes onboarding and is sent straight back to
+        // it. `auth.ts` runs better-auth's cookie cache with a 5-minute maxAge, and
+        // `middleware.ts` reads `onboardingCompleted` out of that signed cookie on
+        // its warm path without touching the database - so the row says `true`, the
+        // cookie still says `false`, and the gate bounces them. Submitting again
+        // does not help; it only clears when the cookie expires, which is why the
+        // symptom looks random rather than reproducible.
+        //
+        // `revalidatePath` below does NOT cover this. It clears Next's render
+        // cache, which is a different cache from better-auth's session cookie.
+        await refreshSession(await headers())
 
         revalidatePath("/")
         return { success: true }

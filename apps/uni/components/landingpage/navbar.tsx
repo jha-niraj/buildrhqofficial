@@ -134,7 +134,7 @@ export default function Navbar() {
                 {
                     isMobileMenuOpen && (
                         <Sheet open={isMobileMenuOpen} onOpenChange={() => setIsMobileMenuOpen(false)}>
-                            <SheetContent side="top" className="w-full h-auto max-h-[80vh] p-0 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+                            <SheetContent side="top" className="w-full h-auto max-h-[80dvh] p-0 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
                                 <div className="flex flex-col h-full">
                                     <div className="flex-1 overflow-auto py-6 px-4 font-medium">
                                         <div className="grid grid-cols-1 gap-2">

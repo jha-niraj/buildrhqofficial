@@ -13,18 +13,41 @@ import {
 } from "lucide-react"
 import toast from "@repo/ui/components/ui/sonner"
 import { importProfileAndCreateDraft } from "@/actions/(main)/ai/resume-import.action"
+import { awaitBackgroundJob } from "@/hooks/use-background-job"
 import { useResumeHubStore } from "@/app/store/resumeHubStore"
 import { creditErrorMessage, priceSuffix } from "@/lib/credits/notify"
 import { saveMyProfileLinks } from "@/actions/(main)/user/profile-links.action"
 import { githubUsernameFrom, twitterHandleFrom, type ProfileLinks } from "@/lib/profile-links"
 
+/**
+ * The four stages the import job actually reports, and the progress percentage
+ * each one starts at.
+ *
+ * These used to be five invented captions advanced by a `setInterval` every four
+ * seconds, which is a progress bar that describes a schedule rather than a job:
+ * on a fast import it claimed to be scraping LinkedIn after the resume was
+ * already saved, and on a slow one it sat at "Finalising" for a minute. Since
+ * RES-9 the work runs on the worker and reports real phases, so the checklist
+ * shows where it genuinely is.
+ *
+ * The thresholds mirror the `progress()` calls in
+ * `apps/worker/src/jobs/resume-import.ts`. They are read as "at least", so a
+ * phase the job skips still advances the list rather than stalling it.
+ */
 const STAGES = [
-    "Scraping LinkedIn profile…",
-    "Fetching GitHub repositories…",
-    "Analysing portfolio & socials…",
-    "Building resume with AI…",
-    "Finalising and saving draft…",
-]
+    { at: 0, label: "Reading your profiles…" },
+    { at: 30, label: "Reading your code…" },
+    { at: 55, label: "Writing your resume with AI…" },
+    { at: 85, label: "Saving your draft…" },
+] as const
+
+function stageIndexFor(progress: number): number {
+    let idx = 0
+    for (let i = 0; i < STAGES.length; i++) {
+        if (progress >= STAGES[i]!.at) idx = i
+    }
+    return idx
+}
 
 /**
  * `links` is what the user already has on their profile. The page is a server component, so
@@ -80,15 +103,6 @@ export function ImportClient({ links }: { links: ProfileLinks }) {
         setLoading(true)
         setStageIdx(0)
 
-        // Animate through stages while waiting
-        const interval = setInterval(() => {
-            setStageIdx((i) => {
-                const next = Math.min(i + 1, STAGES.length - 1)
-                setImportProgress({ stage: STAGES[next]!, percent: Math.round(((next + 1) / STAGES.length) * 100) })
-                return next
-            })
-        }, 4000)
-
         try {
             // Save the links back BEFORE the import, not after: the import is the slow part
             // and the one that can fail, and there is no reason for a failed extraction to
@@ -107,19 +121,44 @@ export function ImportClient({ links }: { links: ProfileLinks }) {
                 portfolioUrl: portfolioUrl.trim() || undefined,
             })
 
-            clearInterval(interval)
-            setImportProgress(null)
-
-            if (!res.success) {
+            if (!res.success || !res.jobId) {
+                setImportProgress(null)
                 toast.error(creditErrorMessage(res, "Import failed"))
                 setLoading(false)
                 return
             }
 
+            // The scraping and the model call run on the worker; this follows the
+            // job. The credit hold settles or refunds the first time this poll
+            // sees a terminal status, so an import that dies against a private
+            // LinkedIn or a rate-limited GitHub gives the 20 credits back instead
+            // of charging for a request that never returned.
+            const outcome = await awaitBackgroundJob<{ draftId?: string }>(
+                res.jobId,
+                (progress, phaseLabel) => {
+                    const idx = stageIndexFor(progress)
+                    setStageIdx(idx)
+                    setImportProgress({ stage: phaseLabel || STAGES[idx]!.label, percent: progress })
+                },
+            )
+
+            setImportProgress(null)
+
+            if (!outcome.ok) {
+                toast.error(outcome.error)
+                setLoading(false)
+                return
+            }
+
+            if (!outcome.result?.draftId) {
+                toast.error("The import finished but no resume was saved. Please try again.")
+                setLoading(false)
+                return
+            }
+
             toast.success("AI resume created! Redirecting to editor…")
-            router.push(`/ai/resume/draft/${res.draft!.id}`)
+            router.push(`/ai/resume/draft/${outcome.result.draftId}`)
         } catch {
-            clearInterval(interval)
             setImportProgress(null)
             toast.error("Something went wrong. Please try again.")
             setLoading(false)
@@ -170,7 +209,7 @@ export function ImportClient({ links }: { links: ProfileLinks }) {
                     </div>
                     <div>
                         <p className="text-base font-semibold text-neutral-800 dark:text-neutral-200">
-                            {STAGES[stageIdx]}
+                            {STAGES[stageIdx]!.label}
                         </p>
                         <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">This takes 20-40 seconds. Please wait…</p>
                     </div>
@@ -183,7 +222,7 @@ export function ImportClient({ links }: { links: ProfileLinks }) {
                     </div>
                     <div className="space-y-2">
                         {STAGES.map((s, i) => (
-                            <div key={s} className={`flex items-center gap-2 text-xs transition-colors ${i <= stageIdx ? "text-neutral-700 dark:text-neutral-300" : "text-neutral-300 dark:text-neutral-400"}`}>
+                            <div key={s.label} className={`flex items-center gap-2 text-xs transition-colors ${i <= stageIdx ? "text-neutral-700 dark:text-neutral-300" : "text-neutral-300 dark:text-neutral-400"}`}>
                                 {i < stageIdx ? (
                                     <CheckCircle2 className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100 shrink-0" />
                                 ) : i === stageIdx ? (
@@ -191,7 +230,7 @@ export function ImportClient({ links }: { links: ProfileLinks }) {
                                 ) : (
                                     <div className="w-3.5 h-3.5 rounded-full border border-neutral-200 dark:border-neutral-700 shrink-0" />
                                 )}
-                                {s}
+                                {s.label}
                             </div>
                         ))}
                     </div>

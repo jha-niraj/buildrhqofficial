@@ -89,7 +89,7 @@ export function AccessClient({
     }
 
     return (
-        <div className="p-6 lg:p-8 max-w-7xl mx-auto">
+        <div className="w-full p-6 lg:p-8">
             <div className="mb-6">
                 <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white flex items-center gap-3">
                     <Shield className="w-7 h-7" /> Access Control

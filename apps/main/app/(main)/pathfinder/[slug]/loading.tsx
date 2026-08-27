@@ -1,71 +1,71 @@
-// Hand-matched to the pathfinder goal page (tabbed, 2/3 + 1/3).
-import { Shimmer, ShimmerStyles } from "@repo/ui/components/skeleton-kit";
+// Matches `daily-practice-view.tsx`: a two-pane workspace, not a page column.
+//
+// It was `mx-auto max-w-7xl px-6 py-8` over a `lg:grid-cols-3` block - a centred
+// three-column page. The real screen is a fixed 350px left panel (header, Add
+// Task, three stat tiles, the task list, and a pinned Start Mock Interview
+// button) beside a flexible right pane. The skeleton drew a different page
+// entirely, so the whole layout reflowed the moment it was replaced.
+import { Shimmer, ShimmerStyles } from "@repo/ui/components/skeleton-kit"
 
 export default function Loading() {
     return (
-        <div className="mx-auto max-w-7xl px-6 py-8">
+        <div className="flex h-dvh overflow-hidden">
             <ShimmerStyles />
 
-            <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div className="space-y-2">
-                    <Shimmer className="h-8 w-56" />
-                    <Shimmer className="h-4 w-80" delay={0.06} />
-                </div>
-                <Shimmer className="h-10 w-36 rounded-xl" delay={0.12} />
-            </div>
-
-            <div className="mb-6 flex flex-wrap gap-2 border-b border-neutral-200 pb-2 dark:border-neutral-800">
-                {Array.from({ length: 6 }).map((_, i) => (
-                    <Shimmer key={i} className="h-9 w-28 rounded-lg" delay={i * 0.05} />
-                ))}
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <div className="space-y-6 lg:col-span-2">
-                    <div className="rounded-2xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 p-6">
-                        <div className="flex items-start gap-4">
-                            <Shimmer className="h-16 w-16 shrink-0 rounded-2xl" />
-                            <div className="min-w-0 flex-1 space-y-2">
-                                <Shimmer className="h-7 w-3/4" delay={0.05} />
-                                <Shimmer className="h-4 w-1/2" delay={0.08} />
-                                <div className="flex gap-2 pt-1">
-                                    {[0, 1, 2].map((j) => (
-                                        <Shimmer key={j} className="h-5 w-16 rounded-full" delay={0.1 + j * 0.03} />
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="mt-6 space-y-2">
-                            {Array.from({ length: 8 }).map((_, i) => (
-                                <Shimmer key={i} className="h-4 w-full" delay={0.14 + i * 0.03} />
-                            ))}
-                            <Shimmer className="h-4 w-2/3" delay={0.4} />
+            {/* Left panel - fixed 350px, matching the real one */}
+            <div className="flex w-[350px] shrink-0 flex-col border-r border-neutral-200 bg-neutral-50/80 dark:border-neutral-800 dark:bg-neutral-950">
+                <div className="shrink-0 border-b border-neutral-200 p-4 dark:border-neutral-800">
+                    <div className="flex items-center gap-3">
+                        <Shimmer className="h-8 w-8 shrink-0 rounded-md" />
+                        <div className="min-w-0 flex-1 space-y-1.5">
+                            <Shimmer className="h-4 w-48" delay={0.05} />
+                            <Shimmer className="h-3 w-32" delay={0.07} />
                         </div>
                     </div>
-                    <div className="rounded-2xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 space-y-3 p-6">
-                        <Shimmer className="h-5 w-40" />
-                        {Array.from({ length: 5 }).map((_, i) => (
-                            <Shimmer key={i} className="h-4 w-full" delay={i * 0.04} />
-                        ))}
-                    </div>
                 </div>
-                <div className="space-y-4">
-                    <div className="rounded-2xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 space-y-3 p-5">
-                        <Shimmer className="h-5 w-28" />
-                        <Shimmer className="h-11 w-full rounded-xl" delay={0.06} />
-                        <Shimmer className="h-11 w-full rounded-xl" delay={0.1} />
-                    </div>
-                    <div className="rounded-2xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 space-y-2.5 p-5">
-                        <Shimmer className="h-4 w-24" />
-                        {Array.from({ length: 5 }).map((_, i) => (
-                            <div key={i} className="flex justify-between">
-                                <Shimmer className="h-3.5 w-20" delay={i * 0.04} />
-                                <Shimmer className="h-3.5 w-16" delay={i * 0.04} />
+
+                <div className="shrink-0 p-3">
+                    <Shimmer className="h-9 w-full rounded-lg" delay={0.1} />
+                </div>
+
+                <div className="grid shrink-0 grid-cols-3 gap-2 px-3 pb-3">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="rounded-lg border border-neutral-200 p-2 text-center dark:border-neutral-800">
+                            <Shimmer className="mx-auto h-5 w-10" delay={i * 0.04} />
+                            <Shimmer className="mx-auto mt-1.5 h-3 w-12" delay={i * 0.04} />
+                        </div>
+                    ))}
+                </div>
+
+                {/* Task list - takes the remaining height, as the real scroller does */}
+                <div className="min-h-0 flex-1 space-y-2 overflow-hidden px-3">
+                    <Shimmer className="h-10 w-full rounded-lg" delay={0.16} />
+                    {Array.from({ length: 7 }).map((_, i) => (
+                        <div key={i} className="flex items-start gap-3 rounded-lg p-3">
+                            <Shimmer className="h-4 w-4 shrink-0 rounded-full" delay={0.18 + i * 0.03} />
+                            <div className="min-w-0 flex-1 space-y-1.5">
+                                <Shimmer className="h-4 w-full" delay={0.18 + i * 0.03} />
+                                <Shimmer className="h-5 w-28 rounded-full" delay={0.18 + i * 0.03} />
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Pinned to the bottom, like the real Start Mock Interview button */}
+                <div className="shrink-0 border-t border-neutral-200 p-3 dark:border-neutral-800">
+                    <Shimmer className="h-9 w-full rounded-lg" delay={0.4} />
+                </div>
+            </div>
+
+            {/* Right pane - the real one shows a centred "Select a Task" empty state
+                until something is picked, so the skeleton centres too. */}
+            <div className="flex min-w-0 flex-1 items-center justify-center p-8">
+                <div className="flex flex-col items-center text-center">
+                    <Shimmer className="h-16 w-16 rounded-full" delay={0.2} />
+                    <Shimmer className="mt-4 h-5 w-32" delay={0.24} />
+                    <Shimmer className="mt-2 h-4 w-64" delay={0.26} />
                 </div>
             </div>
         </div>
-    );
+    )
 }

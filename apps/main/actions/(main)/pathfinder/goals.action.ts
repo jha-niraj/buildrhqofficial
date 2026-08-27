@@ -16,6 +16,7 @@ import {
 import { eq, and, desc, asc, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { PATHFINDER_CREDITS } from '@/lib/constants/pricing'
+import { startBackgroundJob } from '@/actions/(main)/workers/jobs.action'
 
 // ================================================================================
 // TYPES
@@ -219,20 +220,32 @@ export async function createPathfinderGoal(input: CreateGoalInput) {
             projectStatus: 'PENDING',
         })
 
-        // Generate AI study plan if requested (non-blocking)
+        // The study plan runs on the worker (PF-W4).
+        //
+        // This was a FLOATING PROMISE - `generateAIStudyPlan(...).catch(...)`,
+        // never awaited, with no `waitUntil`. The action returned immediately and
+        // the isolate was then free to be torn down, so on Cloudflare the plan
+        // could simply never be generated: no error, no record of the attempt,
+        // just a goal that stays empty. "Sometimes my plan does not appear" is not
+        // a diagnosable bug report, which makes that shape worse than a slow
+        // request - a timeout at least tells you something happened.
+        //
+        // As a job it gets a row, a status, retries and a visible failure.
+        let planJobId: string | undefined
+        let planError: string | undefined
         if (input.generateAIPlan) {
-            generateAIStudyPlan(
-                goal.id,
-                session.user.id,
-                input.title,
-                input.category,
-                input.level,
-                input.focusAreas
-            ).catch((err) => console.error('Failed to generate AI study plan:', err))
+            const started = await startBackgroundJob(
+                'goal_creation',
+                { goalId: goal.id, focusAreas: input.focusAreas ?? [] },
+            )
+            if (started.success) planJobId = started.jobId
+            // A failed dispatch does not fail the goal - the goal exists and can
+            // be planned by hand or retried.
+            else planError = started.error
         }
 
         revalidatePath('/pathfinder')
-        return { success: true, goalId: goal.id, slug: goal.slug }
+        return { success: true, goalId: goal.id, slug: goal.slug, planJobId, planError }
     } catch (error) {
         console.error('Error creating goal:', error)
         return { success: false, error: 'Failed to create goal' }
@@ -397,6 +410,14 @@ interface StudyPlanTopic {
     order: number
 }
 
+// SUPERSEDED by the `goal_creation` worker job (PF-W4) -
+// `apps/worker/src/jobs/goal-creation.ts`, which runs this exact prompt with the
+// same model, temperature and token cap. It has no callers.
+//
+// KEPT, not deleted, per the "nothing is deleted" rule in
+// `srs/core-modules/README.md`. Listed in `plan/cleanup/candidates.md` as CLN-42.
+// Do not call it from new code - if the prompt changes, change it in the worker.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function generateAIStudyPlan(
     goalId: string,
     userId: string,

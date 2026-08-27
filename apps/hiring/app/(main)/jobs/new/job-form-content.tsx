@@ -843,7 +843,7 @@ export default function JobFormContent({ interviewProcesses }: JobFormContentPro
     }
 
     return (
-        <div className="h-screen bg-neutral-50 dark:bg-neutral-950">
+        <div className="h-dvh bg-neutral-50 dark:bg-neutral-950">
             <div className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800">
                 <div className="container mx-auto px-6 py-6">
                     <Link

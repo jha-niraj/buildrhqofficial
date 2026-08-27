@@ -131,7 +131,7 @@ function VerifyContent() {
 
     if (isVerified) {
         return (
-            <div className="min-h-screen w-full bg-white dark:bg-neutral-950 flex flex-col items-center justify-center mx-auto w-full max-w-7xl">
+            <div className="min-h-dvh w-full bg-white dark:bg-neutral-950 flex flex-col items-center justify-center mx-auto w-full max-w-7xl">
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -148,7 +148,7 @@ function VerifyContent() {
     }
 
     return (
-        <div className="min-h-screen w-full bg-white dark:bg-neutral-950 flex flex-col items-center justify-center relative p-4">
+        <div className="min-h-dvh w-full bg-white dark:bg-neutral-950 flex flex-col items-center justify-center relative p-4">
             <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
                 {/* Replaces the static 40px grid. The grid read as a form field
                     behind a card; a slow monochrome motif gives the panel depth
@@ -256,7 +256,7 @@ function VerifyContent() {
 export default function Verify() {
     return (
         <Suspense fallback={
-            <div className="flex min-h-screen items-center justify-center bg-white dark:bg-neutral-950">
+            <div className="flex min-h-dvh items-center justify-center bg-white dark:bg-neutral-950">
                 <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
             </div>
         }>

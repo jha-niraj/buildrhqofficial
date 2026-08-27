@@ -1,72 +1,92 @@
-// Hand-matched to admin analytics: header + Refresh button, 4 stat tiles, a
-// full-width User Growth bar chart, then a 2-up row of Engagement Metrics
-// (label/value rows, not a chart) and Module Usage (progress bars) - not a
-// uniform 2x2 chart grid, which is what the previous skeleton assumed
-// (ADM-22).
+// Hand-matched to the analytics page, in the order analytics-client.tsx renders
+// (ADM-30):
+//
+//   title + Refresh -> 4 stat cards -> 2 trend charts (xl:2-up) ->
+//   Engagement beside Module Usage (lg:2-up)
+//
+// The revenue summary row between the charts and the two panels is NOT in this
+// skeleton on purpose: it only renders when there is at least one completed
+// payment, and a skeleton for a block that usually does not appear would make
+// the page shrink on nearly every load. A skeleton should match the common case,
+// and growing is a gentler reflow than shrinking.
+//
+// Chart placeholders are plain rectangles, not drawn axes - an axis with no line
+// reads as a real chart reporting zero, which is a different claim from "still
+// loading".
 import { Shimmer, ShimmerStyles } from "@repo/ui/components/skeleton-kit"
 
 export default function Loading() {
     return (
-        <div className="p-6">
+        <div className="w-full p-6 lg:p-8">
             <ShimmerStyles />
-            <div className="mx-auto max-w-7xl">
-                <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div className="space-y-2">
-                        <Shimmer className="h-8 w-56" />
-                        <Shimmer className="h-4 w-64" delay={0.06} />
-                    </div>
-                    <Shimmer className="h-9 w-28 rounded-lg" delay={0.1} />
-                </div>
 
-                <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 p-6">
-                            <div className="mb-2 flex items-center gap-3">
-                                <Shimmer className="h-10 w-10 rounded-lg" delay={i * 0.05} />
-                                <div className="space-y-1.5">
-                                    <Shimmer className="h-6 w-16" delay={i * 0.05} />
-                                    <Shimmer className="h-3 w-20" delay={i * 0.05} />
-                                </div>
+            <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="space-y-2">
+                    <Shimmer className="h-8 w-64" />
+                    <Shimmer className="h-4 w-80" delay={0.06} />
+                </div>
+                <Shimmer className="h-9 w-28 rounded-lg" delay={0.1} />
+            </div>
+
+            <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
+                        <div className="flex items-center gap-3">
+                            <Shimmer className="h-10 w-10 rounded-lg" delay={i * 0.05} />
+                            <div className="space-y-1.5">
+                                <Shimmer className="h-7 w-20" delay={i * 0.05} />
+                                <Shimmer className="h-3.5 w-24" delay={i * 0.05} />
                             </div>
                         </div>
-                    ))}
-                </div>
+                        <Shimmer className="mt-2 h-3 w-32" delay={i * 0.05} />
+                    </div>
+                ))}
+            </div>
 
-                <div className="mb-8 rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 p-6">
-                    <Shimmer className="mb-4 h-5 w-32" />
-                    <div className="flex h-64 items-end gap-2">
-                        {Array.from({ length: 30 }).map((_, i) => (
-                            <div key={i} className="flex-1" style={{ height: `${20 + (i % 7) * 10}%` }}>
-                                <Shimmer className="h-full w-full rounded-t" delay={i * 0.01} />
+            <div className="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
+                {Array.from({ length: 2 }).map((_, i) => (
+                    <div key={i} className="rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
+                        <Shimmer className="h-5 w-32" delay={i * 0.06} />
+                        <Shimmer className="mt-2 h-3.5 w-44" delay={i * 0.06} />
+                        <Shimmer className="mt-4 h-56 w-full rounded-lg" delay={i * 0.06} />
+                        <Shimmer className="mt-3 h-3.5 w-56" delay={i * 0.06} />
+                    </div>
+                ))}
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <div className="rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
+                    <Shimmer className="h-5 w-32" />
+                    <Shimmer className="mt-2 h-3.5 w-52" delay={0.05} />
+                    <div className="mt-4 space-y-4">
+                        {Array.from({ length: 4 }).map((_, i) => (
+                            <div key={i} className="flex items-center justify-between">
+                                <Shimmer className="h-4 w-36" delay={i * 0.05} />
+                                <Shimmer className="h-6 w-12" delay={i * 0.05} />
                             </div>
                         ))}
                     </div>
-                    <Shimmer className="mx-auto mt-4 h-3.5 w-56" />
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <div className="rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 p-6">
-                        <Shimmer className="mb-4 h-5 w-40" />
-                        <div className="space-y-4">
-                            {Array.from({ length: 4 }).map((_, i) => (
-                                <div key={i} className="flex items-center justify-between">
-                                    <Shimmer className="h-4 w-32" delay={i * 0.05} />
-                                    <Shimmer className="h-5 w-12" delay={i * 0.05} />
+                <div className="rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
+                    <Shimmer className="h-5 w-36" />
+                    <Shimmer className="mt-2 h-3.5 w-48" delay={0.05} />
+                    <div className="mt-4 space-y-3">
+                        {Array.from({ length: 1 }).map((_, i) => (
+                            <div key={i} className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <Shimmer className="h-4 w-28" delay={i * 0.05} />
+                                    <Shimmer className="h-4 w-10" delay={i * 0.05} />
                                 </div>
-                            ))}
-                        </div>
+                                <Shimmer className="h-2 w-full rounded-full" delay={i * 0.05} />
+                            </div>
+                        ))}
                     </div>
-                    <div className="rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 p-6">
-                        <Shimmer className="mb-4 h-5 w-32" />
-                        <div className="space-y-3">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                                <div key={i} className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <Shimmer className="h-3.5 w-24" delay={i * 0.05} />
-                                        <Shimmer className="h-3.5 w-10" delay={i * 0.05} />
-                                    </div>
-                                    <Shimmer className="h-2 w-full rounded-full" delay={i * 0.05} />
-                                </div>
+                    <div className="mt-6 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+                        <Shimmer className="h-3 w-36" />
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            {Array.from({ length: 4 }).map((_, i) => (
+                                <Shimmer key={i} className="h-6 w-24 rounded-full" delay={i * 0.04} />
                             ))}
                         </div>
                     </div>

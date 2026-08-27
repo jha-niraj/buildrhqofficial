@@ -357,7 +357,7 @@ export default function AssignmentDetailContent({ job, submissions }: Assignment
     }
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA]">
+        <div className="min-h-dvh bg-[#FAFAFA]">
             <div className="bg-white border-b border-[#e6e6e6]">
                 <div className="container mx-auto px-6 py-6">
                     <Link
