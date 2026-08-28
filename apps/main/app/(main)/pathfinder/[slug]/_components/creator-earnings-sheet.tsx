@@ -123,7 +123,7 @@ export function CreatorEarningsSheet({
                             </div>
                         </div>
                         <div className="p-4 rounded-lg bg-neutral-50 dark:bg-neutral-900/30 border border-neutral-200 dark:border-neutral-800">
-                            <p className="text-sm font-medium text-neutral-900 dark:text-neutral-800 flex items-center gap-2">
+                            <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
                                 <DollarSign className="w-4 h-4" />
                                 Total earned from this goal
                             </p>

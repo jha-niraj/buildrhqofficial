@@ -72,21 +72,31 @@ function titleCase(s: string) {
 }
 
 // Chart colours are literal hex, not Tailwind classes: Recharts writes them into
-// SVG `stroke`/`fill` attributes, where a class name means nothing. Orange is the
-// brand line, emerald the "completed / positive" line, neutral the context line.
-const INK = "#525252"
-const ACCENT = "#171717"
-const OK = "#10b981"
+// SVG `stroke`/`fill` attributes, where a class name means nothing.
+//
+// MONOCHROME, and series are told apart by DASH rather than by hue - matching the
+// credits chart. Emerald used to mark the "completed" line, which broke the
+// palette rule in CLAUDE.md and, worse, carried no meaning a reader could act on:
+// two lines in two colours say "these differ", where solid-versus-dashed says
+// which is which even in greyscale or to a reader who cannot separate hues.
+//
+// The values themselves come from CSS variables on the wrapper so they can flip
+// for dark mode; recharts cannot read `currentColor`.
+const INK = "var(--home-ink)"
+const ACCENT = "var(--home-ink)"
+const OK = "var(--home-muted)"
 
 // Categorical ramp for the activity-mix bars. Ordered by LUMINANCE, not hue, so
 // the categories stay distinguishable in a monochrome brand - and readable for
 // anyone who cannot separate hues. The two non-neutrals are the semantic pair
 // (green = positive, red = attention) that still carry meaning elsewhere.
-const MIX_COLORS = ["#171717", "#404040", "#10b981", "#737373", "#a3a3a3", "#ef4444", "#525252", "#d4d4d4"]
+const MIX_COLORS = ["#171717", "#404040", "#525252", "#737373", "#8a8a8a", "#a3a3a3", "#bdbdbd", "#d4d4d4"]
 
 type Tone = "default" | "ok" | "warn" | "bad"
 const toneCls = (t?: Tone) =>
-	t === "ok" ? "text-emerald-600 dark:text-emerald-400"
+	// "ok" no longer means green. A completed count is not a status the reader has
+	// to act on, and colouring it made every zero on this page read as a failure.
+	t === "ok" ? "text-neutral-900 dark:text-white"
 		: t === "warn" ? "text-neutral-800 dark:text-neutral-100"
 			: t === "bad" ? "text-red-600 dark:text-red-400"
 				: "text-neutral-900 dark:text-white"
@@ -119,23 +129,43 @@ function TrendChart({ data, lines, height = "h-60", fill }: {
 	fill?: boolean
 }) {
 	return (
-		<div className={cn(fill ? "h-full min-h-[220px]" : height)}>
+		// The two inks live here as CSS variables so they can flip for dark mode.
+		// recharts writes `stroke` as a real SVG attribute and cannot read
+		// `currentColor`, which is why this cannot simply be a Tailwind class.
+		<div className={cn(
+			"[--home-ink:#171717] [--home-muted:#737373] [--home-grid:#e5e5e5]",
+			"dark:[--home-ink:#f5f5f5] dark:[--home-muted:#a3a3a3] dark:[--home-grid:#262626]",
+			fill ? "h-full min-h-[220px]" : height,
+		)}>
 			<ResponsiveContainer width="100%" height="100%">
 				<LineChart data={data} margin={{ top: 8, right: 12, left: -18, bottom: 0 }}>
-					<CartesianGrid stroke="currentColor" className="text-neutral-200 dark:text-neutral-800" strokeOpacity={0.6} vertical={false} />
-					<XAxis dataKey="month" tick={{ fontSize: 11, fill: "currentColor" }} className="text-neutral-600 dark:text-neutral-400" axisLine={false} tickLine={false} />
-					<YAxis allowDecimals={false} width={34} tick={{ fontSize: 11, fill: "currentColor" }} className="text-neutral-600 dark:text-neutral-400" axisLine={false} tickLine={false} />
+					<CartesianGrid stroke="var(--home-grid)" strokeDasharray="3 3" vertical={false} />
+					<XAxis
+						dataKey="month"
+						tick={{ fontSize: 12, fill: "var(--home-muted)" }}
+						axisLine={false}
+						tickLine={false}
+						minTickGap={24}
+					/>
+					<YAxis
+						allowDecimals={false}
+						width={40}
+						tick={{ fontSize: 12, fill: "var(--home-muted)" }}
+						axisLine={false}
+						tickLine={false}
+					/>
 					<Tooltip
+						cursor={{ stroke: "var(--home-muted)", strokeDasharray: "3 3" }}
 						contentStyle={{
-							background: "var(--color-card)",
-							border: "1px solid var(--color-border)",
+							background: "var(--popover)",
+							border: "1px solid var(--border)",
 							borderRadius: 10,
 							fontSize: 12,
+							color: "var(--popover-foreground)",
 						}}
-						labelStyle={{ color: "var(--color-foreground)", fontWeight: 600, marginBottom: 4 }}
-						itemStyle={{ color: "var(--color-muted-foreground)" }}
+						labelStyle={{ color: "var(--popover-foreground)", fontWeight: 600, marginBottom: 4 }}
 					/>
-					{lines.map((l) => (
+					{lines.map((l, i) => (
 						<Line
 							key={l.key}
 							type="monotone"
@@ -143,6 +173,11 @@ function TrendChart({ data, lines, height = "h-60", fill }: {
 							name={l.name}
 							stroke={l.color}
 							strokeWidth={2}
+							// The SECOND series is dashed. That is what tells the two
+							// apart now that both are the same ink - and it survives
+							// greyscale, colour blindness and a printed page, which a
+							// hue never did.
+							strokeDasharray={i === 0 ? undefined : "4 3"}
 							dot={false}
 							activeDot={{ r: 4 }}
 						/>
@@ -151,9 +186,19 @@ function TrendChart({ data, lines, height = "h-60", fill }: {
 			</ResponsiveContainer>
 			{/* Legend is hand-rolled so it matches the rest of the type scale. */}
 			<div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
-				{lines.map((l) => (
-					<span key={l.key} className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
-						<span className="h-0.5 w-3 rounded-full" style={{ backgroundColor: l.color }} />
+				{lines.map((l, i) => (
+					<span key={l.key} className="flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+						{/* The swatch has to be DASHED when its line is, or the legend
+							stops identifying anything: two identical marks beside two
+							different names is worse than no legend. */}
+						<span
+							className="h-0.5 w-4 rounded-full"
+							style={
+								i === 0
+									? { backgroundColor: l.color }
+									: { backgroundImage: `repeating-linear-gradient(90deg, ${l.color} 0 4px, transparent 4px 7px)` }
+							}
+						/>
 						{l.name}
 					</span>
 				))}
@@ -283,7 +328,7 @@ export default function HomeDashboard({
 						</Link>
 					))}
 					{completionRate > 0 && (
-						<span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-400">
+						<span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-neutral-100 px-3 py-1.5 text-sm font-semibold text-neutral-900 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100">
 							<TrendingUp className="h-3 w-3" />
 							{completionRate}% done
 						</span>

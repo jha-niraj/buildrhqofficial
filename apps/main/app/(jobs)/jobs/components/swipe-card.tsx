@@ -231,13 +231,13 @@ export function SwipeCard({
                                     <span>{job.interviewProcess.rounds.length} rounds</span>
                                     {job.interviewProcess.estimatedDurationWeeks && (
                                         <>
-                                            <span className="text-neutral-600 dark:text-neutral-700">•</span>
+                                            <span className="text-neutral-600 dark:text-neutral-400">•</span>
                                             <span>~{job.interviewProcess.estimatedDurationWeeks}w</span>
                                         </>
                                     )}
                                     {job.interviewProcess.rounds.some(r => r.hasMockInterview) && (
                                         <>
-                                            <span className="text-neutral-600 dark:text-neutral-700">•</span>
+                                            <span className="text-neutral-600 dark:text-neutral-400">•</span>
                                             <Mic className="w-4 h-4" />
                                         </>
                                     )}

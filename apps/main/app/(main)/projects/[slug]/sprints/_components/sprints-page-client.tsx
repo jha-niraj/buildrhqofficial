@@ -552,7 +552,7 @@ export default function SprintsPageClient({
                         {project.sprints?.length || 0} sprints available
                     </p>
                 </div>
-                <ScrollArea className="flex-1 w-full px-3">
+                <ScrollArea className="min-h-0 flex-1 w-full px-3">
                     <div className="space-y-2 py-2">
                         {
                             project.sprints?.map((sprint: Sprint, index: number) => {
@@ -833,7 +833,7 @@ export default function SprintsPageClient({
                 </div>
                 <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
                     <div className="w-full lg:w-[400px] shrink-0 flex flex-col border-r border-neutral-200 dark:border-neutral-800">
-                        <ScrollArea className="flex-1 w-full relative">
+                        <ScrollArea className="min-h-0 flex-1 w-full relative">
                             <div className="w-full p-4 space-y-3">
                                 {
                                     activeSprint ? (
@@ -934,35 +934,35 @@ export default function SprintsPageClient({
                                 <TabsList className="flex bg-transparent p-0 h-auto gap-1 flex-wrap">
                                     <TabsTrigger
                                         value="taskDetails"
-                                        className="flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800"
+                                        className="flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm transition-all"
                                     >
                                         <FileText className="h-4 w-4" />
                                         <span className="hidden sm:inline">Task Details</span>
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="assessment"
-                                        className="flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800"
+                                        className="flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm transition-all"
                                     >
                                         <Brain className="h-4 w-4" />
                                         <span className="hidden sm:inline">Assessment</span>
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="standup"
-                                        className="flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800"
+                                        className="flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm transition-all"
                                     >
                                         <Mic className="h-4 w-4 text-neutral-800 dark:text-neutral-200" />
                                         <span className="hidden sm:inline">Daily Standup</span>
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="resources"
-                                        className="flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800"
+                                        className="flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm transition-all"
                                     >
                                         <Book className="h-4 w-4" />
                                         <span className="hidden sm:inline">Resources</span>
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="errors"
-                                        className="flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800"
+                                        className="flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm transition-all"
                                     >
                                         <AlertTriangle className="h-4 w-4" />
                                         <span className="hidden sm:inline">Errors</span>

@@ -106,7 +106,7 @@ export function ProjectAssistantButtons({
                                 Resources Library
                             </SheetTitle>
                         </SheetHeader>
-                        <ScrollArea className="flex-1">
+                        <ScrollArea className="min-h-0 flex-1">
                             <div className="w-full px-6 py-6">
                                 <ResourcesList
                                     projectId={projectId}
@@ -127,7 +127,7 @@ export function ProjectAssistantButtons({
                                 Errors & Mistakes
                             </SheetTitle>
                         </SheetHeader>
-                        <ScrollArea className="flex-1">
+                        <ScrollArea className="min-h-0 flex-1">
                             <div className="w-full px-6 py-6">
                                 <ErrorsTab
                                     projectId={projectId}

@@ -181,10 +181,10 @@ export default function DailyStandupSheet({
                                 <div className="flex items-start gap-3">
                                     <CheckCircle2 className="w-5 h-5 text-neutral-800 dark:text-neutral-100 flex-shrink-0 mt-0.5" />
                                     <div>
-                                        <h3 className="font-semibold text-neutral-900 dark:text-neutral-800 mb-1">
+                                        <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
                                             Daily Standup Active
                                         </h3>
-                                        <p className="text-sm text-neutral-800 dark:text-neutral-700">
+                                        <p className="text-sm text-neutral-800 dark:text-neutral-200">
                                             Your standup is configured and ready to go!
                                         </p>
                                     </div>
@@ -233,10 +233,10 @@ export default function DailyStandupSheet({
                                 </div>
                             </div>
                             <div className="bg-neutral-50 dark:bg-neutral-800/10 border border-neutral-200 dark:border-neutral-800/30 rounded-lg p-4">
-                                <h4 className="font-medium text-neutral-900 dark:text-neutral-800 mb-2">
+                                <h4 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">
                                     📝 Standup submissions will be available here soon!
                                 </h4>
-                                <p className="text-sm text-neutral-800 dark:text-neutral-700">
+                                <p className="text-sm text-neutral-800 dark:text-neutral-200">
                                     The submission interface is being built. You&apos;ll be able to submit your daily standups directly from here.
                                 </p>
                             </div>
@@ -244,13 +244,13 @@ export default function DailyStandupSheet({
                     ) : (
                         <div className="space-y-6">
                             <div className="bg-neutral-50 dark:bg-neutral-800/10 border border-neutral-200 dark:border-neutral-800/30 rounded-lg p-4">
-                                <h3 className="font-semibold text-neutral-900 dark:text-neutral-800 mb-2">
+                                <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
                                     🚀 Build Professional Habits
                                 </h3>
-                                <p className="text-sm text-neutral-800 dark:text-neutral-700 mb-3">
+                                <p className="text-sm text-neutral-800 dark:text-neutral-200 mb-3">
                                     Daily standups help you stay accountable, track progress, and develop habits used in real software teams.
                                 </p>
-                                <ul className="space-y-1 text-sm text-neutral-800 dark:text-neutral-700">
+                                <ul className="space-y-1 text-sm text-neutral-800 dark:text-neutral-200">
                                     <li className="flex items-start gap-2">
                                         <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
                                         <span>Share what you worked on yesterday</span>
@@ -334,14 +334,14 @@ export default function DailyStandupSheet({
                             </div>
                             <div className="bg-neutral-50 dark:bg-neutral-800/10 border border-neutral-200 dark:border-neutral-800/30 rounded-lg p-4">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="font-semibold text-neutral-900 dark:text-neutral-800">
+                                    <span className="font-semibold text-neutral-900 dark:text-neutral-100">
                                         Weekly Cost
                                     </span>
-                                    <span className="text-2xl font-bold text-neutral-900 dark:text-neutral-800">
+                                    <span className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
                                         {weeklyCredits} credits
                                     </span>
                                 </div>
-                                <p className="text-sm text-neutral-800 dark:text-neutral-700">
+                                <p className="text-sm text-neutral-800 dark:text-neutral-200">
                                     {selectedDays.length} days × 5 credits/day = {weeklyCredits} credits/week
                                 </p>
                                 <p className="text-xs text-neutral-700 dark:text-neutral-100 mt-2">

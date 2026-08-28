@@ -379,7 +379,7 @@ function TaskItem({
                                             hasDetailAccess && taskDetail && (
                                                 <div className="space-y-3 bg-neutral-50 dark:bg-neutral-800/10 rounded-lg p-3 border border-neutral-200 dark:border-neutral-800">
                                                     <div>
-                                                        <p className="text-xs font-semibold text-neutral-900 dark:text-neutral-800 mb-2">
+                                                        <p className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
                                                             Sub-tasks Breakdown:
                                                         </p>
                                                         <div className="space-y-2">
@@ -411,14 +411,14 @@ function TaskItem({
                                                     {
                                                         (taskDetail.commonErrors.length > 0 || taskDetail.errorsToWatchout.length > 0) && (
                                                             <div className="bg-neutral-50 dark:bg-neutral-800/20 rounded-lg p-2 border border-neutral-200 dark:border-neutral-800">
-                                                                <p className="text-xs font-semibold text-neutral-900 dark:text-neutral-800 mb-1 flex items-center gap-1">
+                                                                <p className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 mb-1 flex items-center gap-1">
                                                                     <AlertCircle className="w-3 h-3" />
                                                                     Watch Out For:
                                                                 </p>
                                                                 <ul className="space-y-1">
                                                                     {
                                                                         [...taskDetail.commonErrors, ...taskDetail.errorsToWatchout].slice(0, 3).map((err, idx) => (
-                                                                            <li key={idx} className="text-xs text-neutral-800 dark:text-neutral-700 flex items-start gap-1">
+                                                                            <li key={idx} className="text-xs text-neutral-800 dark:text-neutral-200 flex items-start gap-1">
                                                                                 <span>⚠️</span>
                                                                                 <span>{err}</span>
                                                                             </li>
@@ -594,22 +594,22 @@ function TaskItem({
                     <div className="py-4 space-y-3">
                         <div className="bg-neutral-50 dark:bg-neutral-800/10 rounded-lg p-3 border border-neutral-200 dark:border-neutral-800">
                             <ul className="space-y-2 text-sm">
-                                <li className="flex items-center gap-2 text-neutral-800 dark:text-neutral-700">
+                                <li className="flex items-center gap-2 text-neutral-800 dark:text-neutral-200">
                                     <CheckCircle2 className="w-4 h-4" />
                                     Step-by-step sub-tasks
                                 </li>
-                                <li className="flex items-center gap-2 text-neutral-800 dark:text-neutral-700">
+                                <li className="flex items-center gap-2 text-neutral-800 dark:text-neutral-200">
                                     <CheckCircle2 className="w-4 h-4" />
                                     Terminal commands
                                 </li>
-                                <li className="flex items-center gap-2 text-neutral-800 dark:text-neutral-700">
+                                <li className="flex items-center gap-2 text-neutral-800 dark:text-neutral-200">
                                     <CheckCircle2 className="w-4 h-4" />
                                     Common errors to avoid
                                 </li>
                             </ul>
                         </div>
                         <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-800/10 rounded-lg p-2 border border-neutral-200 dark:border-neutral-800">
-                            <span className="text-sm font-medium text-neutral-900 dark:text-neutral-800">
+                            <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                                 Cost: 1 Credit
                             </span>
                         </div>

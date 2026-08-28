@@ -47,7 +47,7 @@ a user sees. The nav comment and the home page now agree.
 
 ## KM-3 - Verify the loop end to end
 
-**Status:** not started
+**Status:** BLOCKED on the Vectorize index (2026-08-28)
 **Serves:** definition-of-done 1
 
 **Why.** 13 tables, **0 rows**. Every code path in this module is unexercised.
@@ -92,7 +92,7 @@ exactly like "the loop does not work".
 
 ## KM-4 - Recruiter verification
 
-**Status:** not started
+**Status:** decided, 2026-08-28 (a public persona is public)
 **Serves:** definition-of-done 3
 
 `chat.action.ts:83` was `// TODO: Check if user is a verified recruiter`. Today
@@ -122,7 +122,7 @@ user nothing. The TODO is replaced with the reasoning so the next reader does no
 
 ## KM-5 - The remaining platform handlers
 
-**Status:** not started
+**Status:** done, 2026-08-28 (stopped offering what has no handler)
 
 `data.action.ts:484` was `// TODO: Add other platform handlers`. The settings
 screen offers to connect platforms; one is implemented. Either build the rest or
@@ -149,7 +149,7 @@ here.
 
 ## KM-6 - One shared user-knowledge source
 
-**Status:** not started
+**Status:** blocked on KM-3, which is blocked on the Vectorize index
 
 The real version of "merge KnowMe with the AI chat" - see the decision in
 `overview.md`. Merge the KNOWLEDGE, keep the two chats. `lib/resume/primary.ts`

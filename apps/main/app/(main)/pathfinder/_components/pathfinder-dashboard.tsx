@@ -290,8 +290,8 @@ function GoalTrendChart({ goals }: { goals: Goal[] }) {
                 <ResponsiveContainer width="100%" height={160}>
                     <LineChart data={data} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                        <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'var(--chart-axis)' }} axisLine={false} tickLine={false} minTickGap={28} />
-                        <YAxis tick={{ fontSize: 10, fill: 'var(--chart-axis)' }} axisLine={false} tickLine={false} width={25} allowDecimals={false} />
+                        <XAxis dataKey="label" tick={{ fontSize: 12, fill: 'var(--chart-axis)' }} axisLine={false} tickLine={false} minTickGap={28} />
+                        <YAxis tick={{ fontSize: 12, fill: 'var(--chart-axis)' }} axisLine={false} tickLine={false} width={44} allowDecimals={false} />
                         <RechartsTooltip
                             cursor={{ stroke: 'var(--chart-cursor)' }}
                             contentStyle={{ background: 'var(--popover)', color: 'var(--popover-foreground)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }}
@@ -352,8 +352,8 @@ function ActivityChart({ goals }: { goals: Goal[] }) {
                 <ResponsiveContainer width="100%" height={180}>
                     <BarChart data={chartData} barSize={12} barGap={2}>
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                        <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'var(--chart-axis)' }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fontSize: 10, fill: 'var(--chart-axis)' }} axisLine={false} tickLine={false} width={25} allowDecimals={false} />
+                        <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--chart-axis)' }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fontSize: 12, fill: 'var(--chart-axis)' }} axisLine={false} tickLine={false} width={44} allowDecimals={false} />
                         <RechartsTooltip
                             cursor={{ fill: 'var(--chart-cursor)' }}
                             contentStyle={{ background: 'var(--popover)', color: 'var(--popover-foreground)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }}
@@ -715,7 +715,7 @@ export function PathfinderDashboard({ initialGoals, initialGroups }: PathfinderD
                         "w-full lg:w-[400px] xl:w-[440px] border-r border-neutral-200/60 dark:border-neutral-800/60 flex flex-col bg-white dark:bg-neutral-900/30",
                         mobileTab !== 'goals' && "hidden lg:flex"
                     )}>
-                        <ScrollArea className="flex-1">
+                        <ScrollArea className="min-h-0 flex-1">
                             <div className="p-4">
                                 <GoalsList />
                             </div>
@@ -727,7 +727,7 @@ export function PathfinderDashboard({ initialGoals, initialGroups }: PathfinderD
                         "flex-1 flex flex-col",
                         mobileTab !== 'overview' && "hidden lg:flex"
                     )}>
-                        <ScrollArea className="flex-1">
+                        <ScrollArea className="min-h-0 flex-1">
                             <div className="p-6">
                                 <h2 className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-4">Overview</h2>
                                 <OverviewContent goals={displayGoals} groups={displayGroups} />

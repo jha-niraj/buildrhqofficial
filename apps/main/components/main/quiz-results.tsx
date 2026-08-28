@@ -390,7 +390,7 @@ export default function QuizResults({
                                                                             </span>
                                                                             <span className={cn(
                                                                                 "flex-1",
-                                                                                isCorrect && "text-neutral-800 dark:text-neutral-700 font-medium",
+                                                                                isCorrect && "text-neutral-800 dark:text-neutral-200 font-medium",
                                                                                 isSelected && !isCorrect && "text-red-800 dark:text-red-200"
                                                                             )}>
                                                                                 {option.text}
@@ -404,7 +404,7 @@ export default function QuizResults({
                                                         {
                                                             selectedQuestion.explanation && (
                                                                 <div className="p-4 bg-neutral-50 dark:bg-neutral-800/20 border border-neutral-200 dark:border-neutral-800 rounded-lg">
-                                                                    <h5 className="font-medium text-neutral-800 dark:text-neutral-700 mb-2">
+                                                                    <h5 className="font-medium text-neutral-800 dark:text-neutral-200 mb-2">
                                                                         Explanation
                                                                     </h5>
                                                                     <p className="text-sm text-neutral-700 dark:text-neutral-100">

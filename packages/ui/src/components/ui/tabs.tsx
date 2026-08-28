@@ -103,8 +103,12 @@ const TabsList = React.forwardRef<
             {box && (
                 <span
                     aria-hidden
-                    className="pointer-events-none absolute inset-y-1 -z-10 rounded-lg bg-gray-200 shadow-sm transition-[transform,width] duration-300 ease-out motion-reduce:transition-none dark:bg-neutral-700"
-                    style={{ width: box.width, transform: `translateX(${box.left}px)`, left: 0 }}
+                    className="pointer-events-none absolute inset-y-1 -z-10 rounded-lg bg-gray-200 shadow-sm transition-[transform,width] duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none dark:bg-neutral-700"
+                    // `will-change` promotes the pill to its own layer, so the slide
+                    // is composited instead of repainting the tab bar every frame.
+                    // Without it the movement is subtly steppy on a busy page - the
+                    // "flanky" part, as distinct from the duration.
+                    style={{ width: box.width, transform: `translateX(${box.left}px)`, left: 0, willChange: 'transform, width' }}
                 />
             )}
             {children}

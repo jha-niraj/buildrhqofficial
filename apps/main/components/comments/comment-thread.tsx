@@ -234,7 +234,7 @@ export function CommentThread({
                     </div>
                 ) : nodes.length === 0 ? (
                     <div className="py-8 text-center">
-                        <MessageSquare className="h-6 w-6 text-neutral-600 dark:text-neutral-700 mx-auto mb-2" />
+                        <MessageSquare className="h-6 w-6 text-neutral-600 dark:text-neutral-400 mx-auto mb-2" />
                         <p className="text-sm text-neutral-500 dark:text-neutral-400">
                             No comments yet.{isLoggedIn ? " Be the first." : ""}
                         </p>

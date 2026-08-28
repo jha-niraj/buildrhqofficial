@@ -73,7 +73,7 @@ export function PracticeSidebar({ activeModule, activeCategory }: PracticeSideba
                     Dashboard
                 </Link>
             </div>
-            <ScrollArea className="flex-1">
+            <ScrollArea className="min-h-0 flex-1">
                 <div className="p-3 space-y-1">
                     {
                     (Object.keys(MODULE_CONFIG) as PracticeModule[]).map((mod) => {

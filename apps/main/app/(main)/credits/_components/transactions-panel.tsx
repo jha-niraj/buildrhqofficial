@@ -6,6 +6,7 @@ import { useSession } from '@repo/auth/client';
 import {
 	Card, CardContent, CardHeader, CardTitle
 } from "@repo/ui/components/ui/card"
+import { ScrollArea } from '@repo/ui/components/ui/scroll-area'
 import { Badge } from "@repo/ui/components/ui/badge"
 import {
 	Tabs, TabsContent, TabsList, TabsTrigger
@@ -32,6 +33,35 @@ interface CreditTransaction {
 }
 
 /**
+ * A purchase that did NOT grant credits.
+ *
+ * These live in `payments`, not `credit_transaction`, because nothing was
+ * granted - and that is exactly why they have to be shown here. A ledger of
+ * successful grants cannot answer "I tried to pay and got nothing", which is
+ * the question that sends someone to their history in the first place.
+ */
+interface PaymentAttempt {
+	id: string
+	credits: number
+	amount: string
+	currency: "INR" | "USD" | "NA"
+	status: "FAILED" | "CANCELLED" | "REFUNDED"
+	createdAt: string
+	notes?: { reason?: string } | null
+}
+
+/** One row of the merged list: a real ledger entry, or a failed attempt. */
+type LedgerRow =
+	| { kind: "txn"; at: number; txn: CreditTransaction }
+	| { kind: "attempt"; at: number; attempt: PaymentAttempt }
+
+const ATTEMPT_COPY: Record<PaymentAttempt["status"], string> = {
+	FAILED: "Payment failed",
+	CANCELLED: "Checkout closed before payment",
+	REFUNDED: "Purchase refunded",
+}
+
+/**
  * `embedded` drops the page chrome so this can live inside the History panel on /purchase.
  *
  * The panel is ~520px of a page that is already a card, so the full-page dressing - the grid
@@ -54,6 +84,26 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 	const enterFade = embedded ? false : { opacity: 0 }
 	const { data: session, isPending } = useSession()
 	const [transactions, setTransactions] = useState<CreditTransaction[]>([])
+	const [attempts, setAttempts] = useState<PaymentAttempt[]>([])
+
+	// Two ledgers, not one.
+	//
+	// They answer different questions and mixing them made both harder to read:
+	// "where did my credits go" is a list of spends, while "what have I paid for"
+	// is a list of money. A PURCHASE row belongs to the second - it is the credit
+	// side of a payment - and a failed attempt only makes sense there too.
+	const byTime = (a: LedgerRow, b: LedgerRow) => b.at - a.at
+	const asRow = (txn: CreditTransaction): LedgerRow => ({ kind: "txn", at: new Date(txn.createdAt).getTime(), txn })
+
+	// Usage: what credits were spent on, and every grant that was not bought.
+	const usageRows: LedgerRow[] = transactions.filter((t) => t.type !== "PURCHASE").map(asRow).sort(byTime)
+
+	// Purchases: money. Successful buys alongside the attempts that failed or
+	// were abandoned, so a failure sits directly above the retry that worked.
+	const purchaseRows: LedgerRow[] = [
+		...transactions.filter((t) => t.type === "PURCHASE").map(asRow),
+		...attempts.map((attempt) => ({ kind: "attempt" as const, at: new Date(attempt.createdAt).getTime(), attempt })),
+	].sort(byTime)
 	const [referrals, setReferrals] = useState<ReferralSummary | null>(null)
 	const [copied, setCopied] = useState(false)
 
@@ -61,9 +111,8 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 	// component for no benefit - the tab only matters on first render.
 	const [initialTab] = useState(() => {
 		if (typeof window === "undefined") return "transactions"
-		return new URLSearchParams(window.location.search).get("tab") === "referrals"
-			? "referrals"
-			: "transactions"
+		const tab = new URLSearchParams(window.location.search).get("tab")
+		return tab === "referrals" || tab === "purchases" ? tab : "transactions"
 	})
 	const [isLoading, setIsLoading] = useState(true)
 	const [refreshing, setRefreshing] = useState(false)
@@ -77,6 +126,7 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 			if (transactionsRes.ok) {
 				const transactionsData = await transactionsRes.json()
 				setTransactions(transactionsData.transactions || [])
+				setAttempts(transactionsData.attempts || [])
 			}
 
 			// Referrals replaced the platform-transfer fetch. A server action rather than a
@@ -145,6 +195,168 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 	// button and the tab bar all slid away and you could not switch tabs without
 	// scrolling back up. `h-full` + `min-h-0` lets the header and tabs stay put
 	// while only the list moves - see the ScrollArea on each TabsContent below.
+	// The list scrolls, the card header and the tab bar above it do not.
+	//
+	// This was a bare `overflow-y-auto` on CardContent, which works but gives the
+	// OS scrollbar - a wide grey slab against a 520px panel, and the only one in
+	// the app, since everything else scrolls in a ScrollArea. The comment above
+	// already claimed there was a ScrollArea here; now there is.
+	//
+	// `min-h-0` alongside `flex-1` is load-bearing and not decoration: a flex
+	// child's `min-height` is `auto`, so without it the ScrollArea refuses to
+	// shrink below its content, grows past the panel, and scrolls nothing. The
+	// bound must never go on the root as `max-h` either - Radix's viewport is
+	// `h-full`, which against an auto-height parent resolves to auto and CLIPS
+	// the overflow with no scrollbar to admit it.
+	const ListScroll = ({ children, className }: { children: React.ReactNode; className?: string }) =>
+		embedded ? (
+			<ScrollArea reflow className={cn('min-h-0 min-w-0 flex-1', className)}>
+				{children}
+			</ScrollArea>
+		) : (
+			<>{children}</>
+		)
+
+	// One card, rendered by both ledger tabs. The row markup used to live inline
+	// in the transactions tab; a second tab would have meant a second copy, and
+	// the first divergence between them would have been a bug nobody could see
+	// from either file alone.
+	const LedgerCard = ({ items, title, icon, emptyTitle, emptyBody }: {
+		items: LedgerRow[]
+		title: string
+		icon: React.ReactNode
+		emptyTitle: string
+		emptyBody: string
+	}) => (
+		<Card className={cn("border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-sm rounded-xl overflow-hidden", embedded && "flex min-h-0 flex-1 flex-col")}>
+			<CardHeader className="shrink-0 border-b border-neutral-100 dark:border-neutral-800 px-6 py-4">
+				<CardTitle className="flex items-center gap-2 text-base font-semibold text-neutral-900 dark:text-white">
+					{icon}
+					{title}
+					<Badge variant="secondary" className="ml-auto bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-mono text-xs">
+						{items.length}
+					</Badge>
+				</CardTitle>
+			</CardHeader>
+			<CardContent className={cn("p-0", embedded && "flex min-h-0 flex-1 flex-col overflow-hidden")}>
+				<ListScroll>
+				{items.length === 0 ? (
+					<div className="flex flex-col items-center justify-center py-20 text-center px-6">
+						<div className="w-14 h-14 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl flex items-center justify-center mb-5">
+							<Receipt className="h-6 w-6 text-neutral-600 dark:text-neutral-400" />
+						</div>
+						<p className="text-neutral-900 dark:text-white font-medium mb-1">{emptyTitle}</p>
+						<p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6 max-w-xs">{emptyBody}</p>
+						<Button asChild variant="outline" className="border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900">
+							<Link href="/purchase">Buy Credits</Link>
+						</Button>
+					</div>
+				) : (
+					<div className="divide-y divide-neutral-100 dark:divide-neutral-800">
+										{items.map((row, index) => row.kind === "attempt" ? (
+											/* An attempt granted nothing, so it gets no +/- figure -
+												printing "0" next to a real charge reads as a charge of
+												zero rather than as no charge at all. The money amount
+												is shown instead, muted, with the reason underneath. */
+											<div
+												key={`attempt-${row.attempt.id}`}
+												className="flex items-center justify-between px-6 py-4 hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors"
+											>
+												<div className="flex items-center gap-4">
+													<div className="w-8 h-8 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg flex items-center justify-center flex-shrink-0">
+														<Receipt className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
+													</div>
+													<div className="min-w-0">
+														<p className="text-sm font-medium text-neutral-900 dark:text-white">
+															{ATTEMPT_COPY[row.attempt.status]}
+														</p>
+														<p className="text-xs text-neutral-600 dark:text-neutral-400 mt-0.5">
+															{row.attempt.credits} credits
+															{row.attempt.notes?.reason ? ` - ${row.attempt.notes.reason}` : ""}
+														</p>
+														<div className="flex items-center gap-1.5 mt-0.5">
+															<Calendar className="h-3 w-3 text-neutral-600 dark:text-neutral-400" />
+															<span className="text-xs text-neutral-500 dark:text-neutral-400 font-mono">
+																{formatDate(row.attempt.createdAt)}
+															</span>
+														</div>
+													</div>
+												</div>
+												<div className="text-right flex flex-col items-end gap-1.5">
+													<span className="font-mono text-sm text-neutral-500 dark:text-neutral-400">
+														{row.attempt.currency === "USD" ? "$" : "\u20B9"}{row.attempt.amount}
+													</span>
+													<Badge className="text-xs px-2 py-0 bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+														{row.attempt.status}
+													</Badge>
+												</div>
+											</div>
+										) : (
+											(() => { const transaction = row.txn; return (
+											<motion.div
+												key={transaction.id}
+												// No motion at all when embedded, and `initial={false}`
+												// alone was not enough: Radix unmounts the inactive tab,
+												// so switching back REMOUNTS these rows and the staggered
+												// `animate` replays from the top - six rows fading in one
+												// after another, which is the flashing on every tab switch.
+												// A zero duration leaves the values applied with nothing
+												// to play.
+												initial={embedded ? false : { opacity: 0, y: 10 }}
+												animate={{ opacity: 1, y: 0 }}
+												transition={embedded ? { duration: 0 } : { delay: index * 0.05 }}
+												className="flex items-center justify-between px-6 py-4 hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors"
+											>
+												<div className="flex items-center gap-4">
+													<div className="w-8 h-8 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg flex items-center justify-center flex-shrink-0">
+														{getTransactionIcon(transaction.type)}
+													</div>
+													<div>
+														<p className="text-sm font-medium text-neutral-900 dark:text-white">
+															{transaction.description}
+														</p>
+														<div className="flex items-center gap-1.5 mt-0.5">
+															<Calendar className="h-3 w-3 text-neutral-600 dark:text-neutral-400" />
+															<span className="text-xs text-neutral-500 dark:text-neutral-400 font-mono">
+																{formatDate(transaction.createdAt)}
+															</span>
+														</div>
+													</div>
+												</div>
+												<div className="text-right flex flex-col items-end gap-1.5">
+													<span className={`font-bold font-mono text-sm ${
+														transaction.type === 'PURCHASE' || transaction.type === 'BONUS' || transaction.type === 'REWARD'
+															? 'text-neutral-900 dark:text-white'
+															: 'text-neutral-500 dark:text-neutral-400'
+													}`}>
+														{/* `Math.abs`, because the SIGN IS ALREADY IN THE VALUE.
+															SPEND rows are stored negative (`-3`), and prefixing
+															another minus rendered "--3". The prefix is chosen from
+															`type` and the magnitude printed separately, so the two
+															can never contradict each other. */}
+														{transaction.type === 'PURCHASE' || transaction.type === 'BONUS' || transaction.type === 'REWARD' ? '+' : '-'}
+														{Math.abs(transaction.amount).toLocaleString()}
+													</span>
+													<div className="flex items-center gap-2">
+														{transaction.currency !== 'NA' && (
+															<span className="text-xs text-neutral-600 dark:text-neutral-400 font-mono">{transaction.currency}</span>
+														)}
+														<Badge className={`text-xs px-2 py-0 ${getTransactionColor(transaction.type)}`}>
+															{transaction.type}
+														</Badge>
+													</div>
+												</div>
+											</motion.div>
+											) })()
+										))}
+									
+					</div>
+				)}
+				</ListScroll>
+			</CardContent>
+		</Card>
+	)
+
 	const Shell = ({ children }: { children: React.ReactNode }) =>
 		embedded ? (
 			<div className="flex h-full min-h-0 flex-col px-5 pt-5">{children}</div>
@@ -263,7 +475,10 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 				>
 					<TabsList
 						className={cn(
-							'shrink-0 grid w-full grid-cols-2 gap-1 rounded-lg border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900',
+							// `grid`, not the shared component's `flex`: three equal columns.
+							// The border and background come from TabsList itself - repeating
+							// them here just layered a second surface under the pill.
+							'shrink-0 grid w-full grid-cols-3',
 							// A panel is 520px wide and the tab bar is navigation, not
 							// content. Full-height triggers made it the biggest thing on
 							// screen after the title.
@@ -272,18 +487,52 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 					>
 						<TabsTrigger
 							value="transactions"
+							// NO `data-[state=active]:bg-*` or `shadow-sm` here.
+							//
+							// The shared TabsList already renders a sliding indicator pill
+							// behind the triggers, and its own comment says that pill
+							// REPLACED per-trigger backgrounds precisely so the switch reads
+							// as one object moving. Re-adding them meant three things animated
+							// for one click: the pill sliding 300ms, and a background
+							// cross-fading in on the new tab while fading out on the old.
+							// That is the flashing.
+							//
+							// Colour only. The pill supplies the surface.
 							className={cn(
-								'flex items-center justify-center gap-2 rounded-md data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800 dark:data-[state=active]:text-white',
+								'flex items-center justify-center gap-2 rounded-md text-neutral-600 transition-colors data-[state=active]:text-neutral-900 dark:text-neutral-400 dark:data-[state=active]:text-white',
 								embedded ? 'h-8 text-xs' : 'text-sm'
 							)}
 						>
 							<CreditCard className="h-3.5 w-3.5" />
-							Credit Transactions
+							Usage
+						</TabsTrigger>
+						<TabsTrigger
+							value="purchases"
+							// Colour only - see the note on the trigger above for why no
+							// per-trigger background belongs here.
+							className={cn(
+								'flex items-center justify-center gap-2 rounded-md text-neutral-600 transition-colors data-[state=active]:text-neutral-900 dark:text-neutral-400 dark:data-[state=active]:text-white',
+								embedded ? 'h-8 text-xs' : 'text-sm'
+							)}
+						>
+							<Receipt className="h-3.5 w-3.5" />
+							Purchases
 						</TabsTrigger>
 						<TabsTrigger
 							value="referrals"
+							// NO `data-[state=active]:bg-*` or `shadow-sm` here.
+							//
+							// The shared TabsList already renders a sliding indicator pill
+							// behind the triggers, and its own comment says that pill
+							// REPLACED per-trigger backgrounds precisely so the switch reads
+							// as one object moving. Re-adding them meant three things animated
+							// for one click: the pill sliding 300ms, and a background
+							// cross-fading in on the new tab while fading out on the old.
+							// That is the flashing.
+							//
+							// Colour only. The pill supplies the surface.
 							className={cn(
-								'flex items-center justify-center gap-2 rounded-md data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800 dark:data-[state=active]:text-white',
+								'flex items-center justify-center gap-2 rounded-md text-neutral-600 transition-colors data-[state=active]:text-neutral-900 dark:text-neutral-400 dark:data-[state=active]:text-white',
 								embedded ? 'h-8 text-xs' : 'text-sm'
 							)}
 						>
@@ -292,103 +541,44 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 						</TabsTrigger>
 					</TabsList>
 
-					{/* Credit Transactions Tab */}
-					{/* The SCROLL REGION, in embedded mode. `min-h-0` is
-						load-bearing: a flex child defaults to `min-height: auto`,
-						which means it refuses to shrink below its content, so the
-						column grows instead of scrolling and the header slides away
-						again. On the standalone page there is no bounded height to
+					{/* ── Usage ──
+						Spends and grants. The SCROLL REGION in embedded mode: `min-h-0`
+						is load-bearing, because a flex child defaults to
+						`min-height: auto` and refuses to shrink below its content, so
+						the column grows instead of scrolling and the header slides
+						away. On the standalone page there is no bounded height to
 						scroll inside, so it stays a plain block and the page scrolls. */}
 					<TabsContent
 						value="transactions"
 						className={embedded ? 'mt-0 flex min-h-0 flex-1 flex-col overflow-hidden' : undefined}
 					>
-						<Card className={cn("border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-sm rounded-xl overflow-hidden", embedded && "flex min-h-0 flex-1 flex-col")}>
-							<CardHeader className="shrink-0 border-b border-neutral-100 dark:border-neutral-800 px-6 py-4">
-								<CardTitle className="flex items-center gap-2 text-base font-semibold text-neutral-900 dark:text-white">
-									<CreditCard className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
-									Credit Transactions
-									<Badge variant="secondary" className="ml-auto bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-mono text-xs">
-										{transactions.length}
-									</Badge>
-								</CardTitle>
-							</CardHeader>
-							<CardContent className={cn("p-0", embedded && "min-h-0 flex-1 overflow-y-auto")}>
-								{transactions.length === 0 ? (
-									<div className="flex flex-col items-center justify-center py-20 text-center px-6">
-										<div className="w-14 h-14 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl flex items-center justify-center mb-5">
-											<Receipt className="h-6 w-6 text-neutral-600 dark:text-neutral-400" />
-										</div>
-										<p className="text-neutral-900 dark:text-white font-medium mb-1">No transactions yet</p>
-										<p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6 max-w-xs">
-											Start by purchasing some credits to see your transaction history here.
-										</p>
-										<Button asChild variant="outline" className="border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900">
-											<Link href="/purchase">Buy Credits</Link>
-										</Button>
-									</div>
-								) : (
-									<div className="divide-y divide-neutral-100 dark:divide-neutral-800">
-										{transactions.map((transaction, index) => (
-											<motion.div
-												key={transaction.id}
-												// No motion at all when embedded, and `initial={false}`
-												// alone was not enough: Radix unmounts the inactive tab,
-												// so switching back REMOUNTS these rows and the staggered
-												// `animate` replays from the top - six rows fading in one
-												// after another, which is the flashing on every tab switch.
-												// A zero duration leaves the values applied with nothing
-												// to play.
-												initial={embedded ? false : { opacity: 0, y: 10 }}
-												animate={{ opacity: 1, y: 0 }}
-												transition={embedded ? { duration: 0 } : { delay: index * 0.05 }}
-												className="flex items-center justify-between px-6 py-4 hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors"
-											>
-												<div className="flex items-center gap-4">
-													<div className="w-8 h-8 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg flex items-center justify-center flex-shrink-0">
-														{getTransactionIcon(transaction.type)}
-													</div>
-													<div>
-														<p className="text-sm font-medium text-neutral-900 dark:text-white">
-															{transaction.description}
-														</p>
-														<div className="flex items-center gap-1.5 mt-0.5">
-															<Calendar className="h-3 w-3 text-neutral-600 dark:text-neutral-400" />
-															<span className="text-xs text-neutral-500 dark:text-neutral-400 font-mono">
-																{formatDate(transaction.createdAt)}
-															</span>
-														</div>
-													</div>
-												</div>
-												<div className="text-right flex flex-col items-end gap-1.5">
-													<span className={`font-bold font-mono text-sm ${
-														transaction.type === 'PURCHASE' || transaction.type === 'BONUS' || transaction.type === 'REWARD'
-															? 'text-neutral-900 dark:text-white'
-															: 'text-neutral-500 dark:text-neutral-400'
-													}`}>
-														{/* `Math.abs`, because the SIGN IS ALREADY IN THE VALUE.
-															SPEND rows are stored negative (`-3`), and prefixing
-															another minus rendered "--3". The prefix is chosen from
-															`type` and the magnitude printed separately, so the two
-															can never contradict each other. */}
-														{transaction.type === 'PURCHASE' || transaction.type === 'BONUS' || transaction.type === 'REWARD' ? '+' : '-'}
-														{Math.abs(transaction.amount).toLocaleString()}
-													</span>
-													<div className="flex items-center gap-2">
-														{transaction.currency !== 'NA' && (
-															<span className="text-xs text-neutral-600 dark:text-neutral-400 font-mono">{transaction.currency}</span>
-														)}
-														<Badge className={`text-xs px-2 py-0 ${getTransactionColor(transaction.type)}`}>
-															{transaction.type}
-														</Badge>
-													</div>
-												</div>
-											</motion.div>
-										))}
-									</div>
-								)}
-							</CardContent>
-						</Card>
+						<LedgerCard
+							items={usageRows}
+							title="Credit Usage"
+							icon={<CreditCard className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />}
+							emptyTitle="No usage yet"
+							emptyBody="Credits you spend on features, and any grants or bonuses, will appear here."
+						/>
+					</TabsContent>
+
+					{/* ── Purchases ──
+						Money, kept apart from usage on purpose: "what have I paid for"
+						and "where did my credits go" are different questions, and a
+						single merged list answered neither cleanly. Failed and
+						abandoned attempts belong here rather than in usage - they
+						granted nothing, so they are not usage, but they are very much
+						part of the payment record. */}
+					<TabsContent
+						value="purchases"
+						className={embedded ? 'mt-0 flex min-h-0 flex-1 flex-col overflow-hidden' : undefined}
+					>
+						<LedgerCard
+							items={purchaseRows}
+							title="Purchases"
+							icon={<Receipt className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />}
+							emptyTitle="No purchases yet"
+							emptyBody="Credit packs you buy show up here, along with any payment that failed or was cancelled."
+						/>
 					</TabsContent>
 
 					{/* ── Referrals ──
@@ -414,7 +604,8 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 									</Badge>
 								</CardTitle>
 							</CardHeader>
-							<CardContent className={cn("p-6 space-y-6", embedded && "min-h-0 flex-1 overflow-y-auto")}>
+							<CardContent className={cn("p-0", embedded ? "flex min-h-0 flex-1 flex-col overflow-hidden" : "p-6")}>
+								<ListScroll className="[&_[data-radix-scroll-area-viewport]>div]:space-y-6 [&_[data-radix-scroll-area-viewport]>div]:p-6">
 								{/* The link, and one button to copy it. This is the whole point of
 									the tab - everything below is evidence that it worked. */}
 								<div>
@@ -491,6 +682,7 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 										</p>
 									</div>
 								)}
+								</ListScroll>
 							</CardContent>
 						</Card>
 					</TabsContent>

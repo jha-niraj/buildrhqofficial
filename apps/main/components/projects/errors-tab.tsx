@@ -197,7 +197,7 @@ function ErrorCard({
                                                 Corrected Code
                                             </h5>
                                             <pre className="bg-neutral-50 dark:bg-neutral-800/20 border border-neutral-200 dark:border-neutral-800 rounded-lg p-3 text-xs overflow-x-auto">
-                                                <code className="text-neutral-800 dark:text-neutral-700">{error.fixedCode}</code>
+                                                <code className="text-neutral-800 dark:text-neutral-200">{error.fixedCode}</code>
                                             </pre>
                                         </div>
                                     )
@@ -571,7 +571,7 @@ export default function ErrorsTab({ projectId, isEnrolled, isCreator }: ErrorsTa
                     </div>
                 ) : errors.length === 0 ? (
                     <div className="text-center py-12">
-                        <AlertTriangle className="w-12 h-12 mx-auto mb-3 text-neutral-600 dark:text-neutral-700" />
+                        <AlertTriangle className="w-12 h-12 mx-auto mb-3 text-neutral-600 dark:text-neutral-400" />
                         <h4 className="font-medium text-neutral-700 dark:text-neutral-300 mb-1">No errors shared yet</h4>
                         <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
                             Be the first to help others by sharing common pitfalls

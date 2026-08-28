@@ -396,7 +396,7 @@ export default function ProjectIdeasPage() {
                                                 </div>
                                             ) : platformProjects.length === 0 ? (
                                                 <div className="text-center py-12 rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50">
-                                                    <Zap className="w-8 h-8 text-neutral-600 dark:text-neutral-700 mx-auto mb-3" />
+                                                    <Zap className="w-8 h-8 text-neutral-600 dark:text-neutral-400 mx-auto mb-3" />
                                                     <p className="text-sm text-neutral-500 dark:text-neutral-400">No curated projects for this selection yet.</p>
                                                     <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">Try selecting a different technology or check back soon!</p>
                                                 </div>
@@ -490,7 +490,7 @@ export default function ProjectIdeasPage() {
                                                 </Badge>
                                             </div>
                                             <div className="text-center py-8 rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800">
-                                                <Target className="w-6 h-6 text-neutral-600 dark:text-neutral-700 mx-auto mb-2" />
+                                                <Target className="w-6 h-6 text-neutral-600 dark:text-neutral-400 mx-auto mb-2" />
                                                 <p className="text-sm text-neutral-500 dark:text-neutral-400">No ideas for this technology yet.</p>
                                             </div>
                                         </div>
@@ -539,7 +539,7 @@ export default function ProjectIdeasPage() {
                             </div>
                         ) : problemStatements.length === 0 ? (
                             <div className="text-center py-16 border border-dashed border-neutral-200 dark:border-neutral-800 rounded-xl bg-neutral-50/50 dark:bg-neutral-900/50">
-                                <Target className="w-10 h-10 text-neutral-600 dark:text-neutral-700 mx-auto mb-3" />
+                                <Target className="w-10 h-10 text-neutral-600 dark:text-neutral-400 mx-auto mb-3" />
                                 <h3 className="text-base font-medium text-neutral-900 dark:text-white mb-1">No problem statements found</h3>
                                 <p className="text-sm text-neutral-500 dark:text-neutral-400">Nothing here yet - check back soon.</p>
                             </div>

@@ -202,19 +202,19 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
             </motion.div>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="grid grid-cols-4 mb-8 bg-slate-100 dark:bg-neutral-800 p-1 rounded-xl">
-                    <TabsTrigger value="data" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-700">
+                    <TabsTrigger value="data" className="rounded-lg">
                         <Database className="w-4 h-4 mr-2" />
                         Data Sources
                     </TabsTrigger>
-                    <TabsTrigger value="privacy" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-700">
+                    <TabsTrigger value="privacy" className="rounded-lg">
                         <Shield className="w-4 h-4 mr-2" />
                         Privacy
                     </TabsTrigger>
-                    <TabsTrigger value="api" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-700">
+                    <TabsTrigger value="api" className="rounded-lg">
                         <Key className="w-4 h-4 mr-2" />
                         API
                     </TabsTrigger>
-                    <TabsTrigger value="customize" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-700">
+                    <TabsTrigger value="customize" className="rounded-lg">
                         <Bot className="w-4 h-4 mr-2" />
                         Customize
                     </TabsTrigger>

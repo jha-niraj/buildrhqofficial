@@ -623,7 +623,7 @@ export default function Quiz({
                                 exit={{ opacity: 0, height: 0 }}
                                 className="mb-4 p-3 bg-neutral-50 dark:bg-neutral-800/20 border border-neutral-200 dark:border-neutral-800 rounded-lg"
                             >
-                                <p className="text-sm text-neutral-800 dark:text-neutral-700">
+                                <p className="text-sm text-neutral-800 dark:text-neutral-200">
                                     <strong>Hint:</strong> {currentQuestion.hint}
                                 </p>
                             </motion.div>

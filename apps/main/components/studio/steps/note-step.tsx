@@ -171,7 +171,7 @@ export function NoteStep({ step, studioId }: NoteStepProps) {
 				<div className="flex items-center justify-between px-6 pt-5 pb-3">
 					<div className="flex items-center gap-2">
 						<StickyNote className="h-5 w-5 text-neutral-800 dark:text-neutral-100" />
-						<span className="text-sm font-medium text-neutral-900 dark:text-neutral-800">
+						<span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
 							Personal Note
 						</span>
 					</div>
@@ -323,7 +323,7 @@ export function NoteStep({ step, studioId }: NoteStepProps) {
 						className={cn(
 							"flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all",
 							isEnhancing
-								? "bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-700 cursor-wait"
+								? "bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 cursor-wait"
 								: "bg-gradient-to-r from-neutral-100 to-pink-100 dark:from-neutral-800/40 dark:to-pink-900/40 text-neutral-700 dark:text-neutral-100 hover:from-neutral-200 hover:to-pink-200 dark:hover:from-neutral-800/60 dark:hover:to-pink-900/60"
 						)}
 					>
@@ -371,7 +371,7 @@ function ToolbarButton({
 			className={cn(
 				"p-1.5 rounded-md transition-colors",
 				active
-					? "bg-neutral-200 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-800"
+					? "bg-neutral-200 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
 					: "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800/30",
 				disabled && "opacity-40 cursor-not-allowed"
 			)}

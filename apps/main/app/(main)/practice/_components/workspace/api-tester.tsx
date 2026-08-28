@@ -107,7 +107,7 @@ export function APITester({ testCases, onRunTest, code }: APITesterProps) {
                     Run All
                 </Button>
             </div>
-            <ScrollArea className="flex-1">
+            <ScrollArea className="min-h-0 flex-1">
                 <div className="p-2 space-y-1">
                     {testCases.map((tc) => {
                         const result = results[tc.id];

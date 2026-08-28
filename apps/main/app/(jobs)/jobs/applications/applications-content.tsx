@@ -689,7 +689,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                             animate={{ opacity: 1 }}
                             className="text-center py-16"
                         >
-                            <FileText className="w-16 h-16 text-neutral-600 dark:text-neutral-700 mx-auto mb-4" />
+                            <FileText className="w-16 h-16 text-neutral-600 dark:text-neutral-400 mx-auto mb-4" />
                             <h3 className="text-xl font-medium text-neutral-900 dark:text-white mb-2">
                                 No applications found
                             </h3>

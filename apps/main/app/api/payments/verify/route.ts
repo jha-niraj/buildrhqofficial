@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { getSession } from '@repo/auth';
 import { db, users, payments, creditTransactions } from '@repo/db';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 
 export async function POST(req: NextRequest) {
     const session = await getSession(req.headers);
@@ -83,7 +83,15 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        // Update payment status
+        // Claim the payment with a CONDITIONAL update, not a bare one.
+        //
+        // The webhook settles the same order independently, and in the normal
+        // case both run. `db` is neon-http and has no transactions, so the old
+        // "read status, then write" here was a real race: both readers see
+        // PENDING, both write COMPLETED, and the user is credited twice.
+        //
+        // Postgres serialises an UPDATE ... WHERE status='PENDING' per row, so
+        // exactly one of the racers gets a row back, and only that one grants.
         const [updatedPayment] = await db.update(payments)
             .set({
                 status: 'COMPLETED',
@@ -91,10 +99,25 @@ export async function POST(req: NextRequest) {
                 signature: razorpay_signature,
                 completedAt: new Date(),
             })
-            .where(eq(payments.id, payment.id))
+            .where(and(
+                eq(payments.id, payment.id),
+                // CANCELLED/FAILED are claimable: a dismiss report can land
+                // after the money was captured. See the note in the webhook.
+                inArray(payments.status, ['PENDING', 'CANCELLED', 'FAILED']),
+            ))
             .returning();
 
-        if (!updatedPayment) throw new Error("Failed to update payment")
+        // Zero rows means the webhook got there first. The payment IS settled
+        // and the credits ARE granted, just not by this call - so this is a
+        // success for the caller, not an error.
+        if (!updatedPayment) {
+            return NextResponse.json({
+                success: true,
+                message: 'Payment already processed',
+                paymentId: payment.id,
+                credits: payment.credits,
+            });
+        }
         console.log('Payment updated successfully');
 
         // Add credits to user account

@@ -176,7 +176,7 @@ function JobsSidebarContent() {
             </div>
 
             {/* Navigation */}
-            <ScrollArea className="flex-1 px-3 py-4">
+            <ScrollArea className="min-h-0 flex-1 px-3 py-4">
                 {/* Jobs Section */}
                 <div className="space-y-1 mb-6">
                     {!isCollapsed && (

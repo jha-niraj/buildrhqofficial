@@ -172,7 +172,7 @@ Thank you for your purchase!
 									<div>
 										<div className="flex items-center justify-center gap-3">
 											<CheckCircle2 className="w-5 h-5 text-neutral-800 dark:text-neutral-100 mt-0.5 flex-shrink-0" />
-											<p className="font-semibold text-sm text-neutral-900 dark:text-neutral-800 mb-1">
+											<p className="font-semibold text-sm text-neutral-900 dark:text-neutral-100 mb-1">
 												Credits Added Successfully
 											</p>
 										</div>

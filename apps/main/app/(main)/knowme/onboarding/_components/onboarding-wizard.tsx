@@ -399,7 +399,7 @@ function DataSourcesStep({
                 />
             </div>
             <div className="bg-neutral-50 dark:bg-neutral-800/20 border border-neutral-200 dark:border-neutral-800 rounded-xl p-4">
-                <p className="text-sm text-neutral-800 dark:text-neutral-700 flex items-start gap-2">
+                <p className="text-sm text-neutral-800 dark:text-neutral-200 flex items-start gap-2">
                     <Sparkles className="w-4 h-4 mt-0.5 flex-shrink-0" />
                     <span>
                         <strong>Tip:</strong> More data = better answers.
@@ -445,7 +445,7 @@ function PlatformsStep({
                         <Sparkles className="w-5 h-5 text-neutral-800 dark:text-neutral-100" />
                     </div>
                     <div>
-                        <h4 className="font-medium text-neutral-900 dark:text-neutral-800 mb-1">
+                        <h4 className="font-medium text-neutral-900 dark:text-neutral-100 mb-1">
                             First, let&apos;s train with ShipItHQ data
                         </h4>
                         <p className="text-sm text-neutral-700 dark:text-neutral-100">
@@ -496,7 +496,7 @@ function PlatformsStep({
 
             {/* Tip */}
             <div className="bg-neutral-50 dark:bg-neutral-800/20 border border-neutral-200 dark:border-neutral-800 rounded-xl p-4">
-                <p className="text-sm text-neutral-800 dark:text-neutral-700 flex items-start gap-2">
+                <p className="text-sm text-neutral-800 dark:text-neutral-200 flex items-start gap-2">
                     <Sparkles className="w-4 h-4 mt-0.5 flex-shrink-0" />
                     <span>
                         <strong>Tip:</strong> You can also train your AI by chatting with it! 

@@ -68,7 +68,7 @@ function StepIndicator({ current }: { current: number }) {
                             </div>
                             {
                                 i < steps.length - 1 && (
-                                    <ChevronRight className="w-3.5 h-3.5 text-neutral-600 dark:text-neutral-700 mx-1" />
+                                    <ChevronRight className="w-3.5 h-3.5 text-neutral-600 dark:text-neutral-400 mx-1" />
                                 )
                             }
                         </div>

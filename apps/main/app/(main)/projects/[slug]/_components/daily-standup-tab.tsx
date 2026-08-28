@@ -273,11 +273,11 @@ Keep responses brief and natural.`,
                 </div>
 
                 <div className="bg-neutral-50 dark:bg-neutral-800/10 border border-neutral-200 dark:border-neutral-800 rounded-xl p-4">
-                    <h4 className="font-medium text-neutral-900 dark:text-neutral-800 mb-2 flex items-center gap-2">
+                    <h4 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2 flex items-center gap-2">
                         <Mic className="w-4 h-4" />
                         Tips for a Great Standup
                     </h4>
-                    <ul className="text-sm text-neutral-800 dark:text-neutral-700 space-y-1">
+                    <ul className="text-sm text-neutral-800 dark:text-neutral-200 space-y-1">
                         <li>• Be specific about what you worked on</li>
                         <li>• Mention any challenges or blockers</li>
                         <li>• Keep it concise (2-3 minutes)</li>
@@ -303,10 +303,10 @@ Keep responses brief and natural.`,
                             <CheckCircle2 className="w-5 h-5 text-neutral-800 dark:text-neutral-100" />
                         </div>
                         <div>
-                            <h3 className="font-semibold text-neutral-900 dark:text-neutral-800 mb-1">
+                            <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
                                 Daily Standup Active
                             </h3>
-                            <p className="text-sm text-neutral-800 dark:text-neutral-700">
+                            <p className="text-sm text-neutral-800 dark:text-neutral-200">
                                 Your voice standup schedule for {projectTitle} is active.
                             </p>
                         </div>
@@ -373,7 +373,7 @@ Keep responses brief and natural.`,
                                     <Mic className="w-5 h-5 text-neutral-800 dark:text-neutral-100" />
                                 </div>
                                 <div>
-                                    <h4 className="font-semibold text-neutral-900 dark:text-neutral-800">
+                                    <h4 className="font-semibold text-neutral-900 dark:text-neutral-100">
                                         Today&apos;s Voice Standup Ready
                                     </h4>
                                     <p className="text-sm text-neutral-700 dark:text-neutral-100">
@@ -475,13 +475,13 @@ Keep responses brief and natural.`,
             </div>
 
             <div className="bg-neutral-50 dark:bg-neutral-800/10 border border-neutral-200 dark:border-neutral-800/30 rounded-xl p-4">
-                <h3 className="font-semibold text-neutral-900 dark:text-neutral-800 mb-2">
+                <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
                     🎙️ Voice-Powered Standups
                 </h3>
-                <p className="text-sm text-neutral-800 dark:text-neutral-700 mb-3">
+                <p className="text-sm text-neutral-800 dark:text-neutral-200 mb-3">
                     Practice real-world standup meetings with our AI interviewer. Just like in a real team!
                 </p>
-                <ul className="space-y-1 text-sm text-neutral-800 dark:text-neutral-700">
+                <ul className="space-y-1 text-sm text-neutral-800 dark:text-neutral-200">
                     <li className="flex items-start gap-2">
                         <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
                         <span>Talk through what you worked on yesterday</span>
@@ -565,14 +565,14 @@ Keep responses brief and natural.`,
             {/* Cost display */}
             <div className="bg-neutral-50 dark:bg-neutral-800/10 border border-neutral-200 dark:border-neutral-800/30 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-neutral-900 dark:text-neutral-800">
+                    <span className="font-semibold text-neutral-900 dark:text-neutral-100">
                         Weekly Cost
                     </span>
-                    <span className="text-2xl font-bold text-neutral-900 dark:text-neutral-800">
+                    <span className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
                         {weeklyCredits} credits
                     </span>
                 </div>
-                <p className="text-sm text-neutral-800 dark:text-neutral-700">
+                <p className="text-sm text-neutral-800 dark:text-neutral-200">
                     {selectedDays.length} days × 5 credits/day = {weeklyCredits} credits/week
                 </p>
             </div>

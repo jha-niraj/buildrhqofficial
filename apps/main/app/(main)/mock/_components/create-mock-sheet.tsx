@@ -28,6 +28,7 @@ import { useRouter } from 'next/navigation'
 import { cn } from '@repo/ui/lib/utils'
 import Link from 'next/link'
 import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { AnimatedIcon } from '@repo/ui/components/animated-icons'
 
 interface CreateMockSheetProps {
     trigger?: React.ReactNode
@@ -385,15 +386,31 @@ export function CreateMockSheet({
                                         </div>
                                         <Progress value={((step + 1) / steps.length) * 100} className="h-2" />
                                     </div>
-                                    <div className="flex items-center gap-3 mb-6 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900/30 border border-neutral-200 dark:border-neutral-800">
-                                        <Sparkles className="w-5 h-5 text-neutral-800 dark:text-neutral-100" />
+                                    {/* The affordability line, and it now LOOKS different
+                                        when the answer is no. It read identically either way,
+                                        so the one fact that decides whether the user can
+                                        finish this wizard was styled as neutral information.
+                                        A short shortfall line appears rather than leaving them
+                                        to subtract two numbers themselves. */}
+                                    <div className={cn(
+                                        'mb-6 flex items-center gap-3 rounded-xl border p-3',
+                                        userCredits < totalCredits
+                                            ? 'border-neutral-900 bg-neutral-100 dark:border-neutral-100 dark:bg-neutral-800'
+                                            : 'border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/30'
+                                    )}>
+                                        <Sparkles className="h-5 w-5 shrink-0 text-neutral-800 dark:text-neutral-100" />
                                         <div className="flex-1">
-                                            <span className="text-sm font-medium text-neutral-900 dark:text-neutral-800">
-                                                {totalCredits} Credits Required
+                                            <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                                                {totalCredits} credits required
                                             </span>
-                                            <span className="text-sm text-neutral-800 dark:text-neutral-100 ml-2">
-                                                (You have {userCredits})
+                                            <span className="ml-2 text-sm text-neutral-600 dark:text-neutral-400">
+                                                you have {userCredits.toLocaleString()}
                                             </span>
+                                            {userCredits < totalCredits && (
+                                                <p className="mt-0.5 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                                                    Need {(totalCredits - userCredits).toLocaleString()} more to start this.
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
                                     <AnimatePresence mode="wait">
@@ -446,7 +463,7 @@ export function CreateMockSheet({
                                                                             MOCK_CATEGORIES.filter(c => c.value !== 'ALL').map((cat) => (
                                                                                 <SelectItem key={cat.value} value={cat.value}>
                                                                                     <span className="flex items-center gap-2">
-                                                                                        <span>{cat.icon}</span>
+                                                                                        <AnimatedIcon name={cat.icon} size={16} className="shrink-0" />
                                                                                         <span>{cat.label}</span>
                                                                                     </span>
                                                                                 </SelectItem>
@@ -527,7 +544,7 @@ export function CreateMockSheet({
                                                         <div className="p-4 bg-neutral-50 dark:bg-neutral-900/20 border border-neutral-200 dark:border-neutral-800 rounded-xl">
                                                             <div className="flex gap-2">
                                                                 <BookOpen className="w-5 h-5 text-neutral-800 dark:text-neutral-100 flex-shrink-0 mt-0.5" />
-                                                                <div className="text-sm text-neutral-900 dark:text-neutral-800">
+                                                                <div className="text-sm text-neutral-900 dark:text-neutral-100">
                                                                     <p className="font-medium mb-1">Pro Tip</p>
                                                                     <p className="text-neutral-700 dark:text-neutral-100">
                                                                         Adding your syllabus helps the AI ask more targeted questions.

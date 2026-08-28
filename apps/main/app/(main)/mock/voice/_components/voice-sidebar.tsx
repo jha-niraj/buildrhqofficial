@@ -19,6 +19,7 @@ import { MOCK_CATEGORIES } from '../_constants/mock-categories'
 import React, { useState } from 'react'
 import { useUserStore } from '@/app/store/useUserStore'
 import { CreateMockSheet } from '../../_components/create-mock-sheet'
+import { AnimatedIcon } from '@repo/ui/components/animated-icons'
 
 export function VoiceSidebar() {
     const router = useRouter()
@@ -112,7 +113,7 @@ export function VoiceSidebar() {
                                         }
                                     }}
                                 >
-                                    <span className="mr-2">{cat.icon}</span>
+                                    <AnimatedIcon name={cat.icon} size={16} className="mr-2 shrink-0" />
                                     {cat.label}
                                     {currentCategory === cat.value && (
                                         <Badge className="ml-auto h-4 px-1 text-xs">active</Badge>

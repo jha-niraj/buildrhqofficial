@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts'
-import TransactionsClient from '@/app/(main)/transactions/_components/TransactionsClient'
+import TransactionsClient from './transactions-panel'
 import { Button } from '@repo/ui/components/ui/button'
 import { ScrollArea } from '@repo/ui/components/ui/scroll-area'
 import { Badge } from '@repo/ui/components/ui/badge'
@@ -47,7 +47,16 @@ export function CreditsClient({ data, error }: { data: CreditsOverview | null; e
     // the width is applied with NO transition while dragging. Animating it
     // during a drag starts a new transition on every mousemove, so the panel
     // chases the cursor and settles late, which reads as it moving on its own.
-    const [historyOpen, setHistoryOpen] = useState(false)
+    // Open on arrival when the URL asks for a tab. The sidebar's Referrals entry
+    // links to `/credits?tab=referrals`, and the panel is where referrals now live -
+    // landing on a closed panel would make that link look broken. Read in the
+    // initialiser, not an effect, so the panel is open on the first paint rather
+    // than flicking open after it; `transactions-panel` reads the same param for
+    // which tab to start on, so both halves of the deep link agree.
+    const [historyOpen, setHistoryOpen] = useState(() => {
+        if (typeof window === 'undefined') return false
+        return new URLSearchParams(window.location.search).has('tab')
+    })
     const [historyWidth, setHistoryWidth] = useState(520)
     const [historyResizing, setHistoryResizing] = useState(false)
 

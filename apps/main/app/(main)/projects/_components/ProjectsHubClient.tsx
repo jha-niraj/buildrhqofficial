@@ -198,7 +198,7 @@ export default function ProjectsHomePage() {
 											My Projects
 										</Button>
 									</Link>
-									<span className="hidden sm:block text-neutral-600 dark:text-neutral-700 py-2">|</span>
+									<span className="hidden sm:block text-neutral-600 dark:text-neutral-400 py-2">|</span>
 									<Button
 										onClick={scrollToProjects}
 										variant="ghost"

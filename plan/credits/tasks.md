@@ -594,3 +594,107 @@ Three other things went in with it:
   in whole rupees and USD to two places, and `prefers-reduced-motion` sets the
   final value immediately - a price someone cannot pin down is worse than no
   animation.
+
+## CR-15 - Retire /transactions into the credits page - DONE 2026-08-28
+
+**Why.** CR-11 gave `/credits` a History panel that mounts the same client the
+`/transactions` route rendered, with the same two tabs. Two URLs for one view is
+the state where they drift, and Niraj asked for the standalone one to go.
+
+**What went.**
+
+- `app/(main)/transactions/page.tsx` and its `loading.tsx`, deleted.
+- `_components/TransactionsClient.tsx` moved to
+  `app/(main)/credits/_components/transactions-panel.tsx`. It is not a route's
+  private component any more, it is the credits panel, and a `_components`
+  folder under a route with no `page.tsx` is a trap for the next reader.
+
+**Five references had to move with it,** and only one of them was an import -
+this is the part a delete gets wrong:
+
+| Where | Was | Now |
+|---|---|---|
+| `credits-client.tsx` | `@/app/(main)/transactions/_components/...` | `./transactions-panel` |
+| `PurchaseClient.tsx` | imported, never rendered | removed |
+| `mainsidebar.tsx` | Referrals to `/transactions?tab=referrals` | `/credits?tab=referrals` |
+| `app/robots.ts` | disallowed `/transactions/` | removed |
+| `credits.action.ts` | `revalidatePath("/transactions")` | `revalidatePath("/credits")` |
+
+**The deep link needed one more change.** `historyOpen` started `false`, so the
+sidebar's Referrals entry would have opened `/credits` with the panel shut and
+the link would look broken. It is now seeded from the URL in the `useState`
+initialiser rather than an effect, so the panel is open on the first paint
+instead of flicking open after it. `transactions-panel` already reads the same
+`?tab` param for which tab to start on, so both halves of the link agree.
+
+**Done when.** `tsc` clean, `check-nav` 36/36, zero references to the old path
+anywhere in the repo, and both consumers recompiling with no errors. All four
+verified.
+
+### Left deliberately: the `embedded` prop
+
+`transactions-panel` still branches on `embedded` in 26 places, and the `false`
+branch - the standalone page's entrance animations and its full-page header - is
+now unreachable, because the only caller passes `embedded`. Unwinding it is a
+refactor of the whole component, not part of deleting a route, so it is logged
+as CLN-48 rather than done half-way here.
+
+## CR-16 - Buy goes straight to payment, and the packs animate - DONE 2026-08-28
+
+**Why the sheet went.** Clicking Buy opened a "Confirm purchase" sheet headed
+"Verify allocation before executing transaction", listing what the credits would
+buy. Three things were wrong with it at once:
+
+1. **The numbers were wrong.** Every row read `0-1 units` - Projects, AI Job
+   Interview and Bug Hunter all showed the same useless range, so the panel that
+   existed to tell you what you were getting told you nothing.
+2. **One row advertised a feature as unavailable.** "Mock (Coming Soon) - 0
+   units", on the screen where the user is about to pay. Mock ships today; the
+   label was stale.
+3. **It restated a decision already made.** The pack's contents are on the card
+   the user just clicked. A confirmation step that repeats the offer less
+   accurately than the page behind it is friction, not safety - there is nothing
+   destructive to confirm, the payment provider has its own confirm step, and
+   the amount is re-verified server-side when the order is created.
+
+Buy now calls `initiatePayment` directly. The signed-out branch is kept exactly
+as it was: it still routes to `/register?callbackUrl=<checkout path>` rather
+than firing a toast, so the pack survives the round trip through sign-up.
+
+The deep link from `apps/web` (`/purchase?plan=&credits=&currency=`) landed on
+the same sheet and now goes straight to payment too. Clicking a pack on the
+marketing site IS the decision; asking again on arrival was asking twice.
+
+**`lib/credit-usage.ts` deleted** - 94 lines, and the sheet was its only
+consumer. `computeUsageForCredits`, `creditUsageConfig` and `formatCountRange`
+had no other caller anywhere in the repo.
+
+### The packs had no entrance at all
+
+`PricingBento` carried zero motion, on either the marketing site or in-app, so
+the whole price grid arrived in one blink. Added:
+
+- **Per-card entrance**, `whileInView` with `once: true` and a 70ms stagger, so
+  the row reads left to right. `y: 16` deliberately small - with four across, a
+  tall travel leaves the last card still climbing while the first has settled.
+- **Hover lift** of 4px on a spring, replacing nothing (the card only had a
+  border/shadow transition).
+- **Section entrance** on the purchase page wrapper, so the grid arrives as one
+  movement rather than five unrelated ones.
+
+`whileInView` rather than `animate` throughout: the packs sit near the fold on a
+long page, and an entrance that finished before you scrolled to it is the same
+as no entrance.
+
+Two details worth keeping:
+
+- `useReducedMotion` skips both the entrance and the hover lift. A card that
+  jumps under the cursor is precisely the motion that setting exists to disable.
+- The card keeps `transition-colors` in CSS and gives only the lift to framer.
+  Handing colour to framer as well would mean restating every `dark:` variant as
+  a JS value.
+
+**Done when.** `tsc` clean across `apps/{main,web}` and `packages/ui`; `/purchase`
+200 with no compile errors; no reference anywhere to the sheet's state, its
+helpers, or the deleted module; exactly one `<Sheet>` left in `PurchaseClient`,
+the Bounty one. All verified.

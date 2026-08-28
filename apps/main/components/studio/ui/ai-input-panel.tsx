@@ -359,7 +359,7 @@ export function AIInputPanel({ studioId, onContentAdded, externalPrompt, onExter
 					    grows whenever a type is added, so it must not be allowed
 					    to run off the top of a short pane. */}
 					<DropdownMenuContent align="start" side="top" className="w-64 p-0">
-						<ScrollArea reflow className="max-h-72 min-w-0">
+						<ScrollArea reflow className="[&_[data-radix-scroll-area-viewport]]:max-h-72 min-w-0">
 							<div className="p-1">
 								{CONTENT_TYPES.map((option) => {
 									const Icon = option.icon;

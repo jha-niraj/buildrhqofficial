@@ -22,9 +22,6 @@ import {
 	paymentConfig, calculatePrice, packagePrice, parseCheckoutIntent, checkoutPath,
 	getPackageByCredits
 } from '@repo/pricing'
-import {
-	computeUsageForCredits, creditUsageConfig, formatCountRange
-} from '@/lib/credit-usage'
 import { submitCreditRequest } from '../../../../actions/(main)/user/dashboard.action'
 import { PricingBento } from '@repo/ui/components/pricing-bento'
 import {
@@ -35,7 +32,6 @@ import {
 } from '@repo/ui/components/ui/accordion'
 import { pricingFaqs } from '@repo/pricing/faqs'
 import { ScrollArea } from '@repo/ui/components/ui/scroll-area'
-import TransactionsClient from '@/app/(main)/transactions/_components/TransactionsClient'
 
 // Load Razorpay types
 interface RazorpayResponse {
@@ -54,13 +50,23 @@ interface RazorpayOptions {
 	order_id: string
 	handler: (response: RazorpayResponse) => void
 	prefill: { name: string; email: string }
-	theme: { color: string }
+	theme: { color: string; backdrop_color?: string }
 	modal: { ondismiss: () => void }
+}
+
+/** What Razorpay hands `payment.failed`. Only the fields worth recording. */
+interface RazorpayFailure {
+	error?: {
+		code?: string
+		description?: string
+		reason?: string
+		metadata?: { order_id?: string; payment_id?: string }
+	}
 }
 
 interface RazorpayInstance {
 	open: () => void
-	on: (event: string, callback: () => void) => void
+	on: (event: 'payment.failed', callback: (response: RazorpayFailure) => void) => void
 }
 
 declare global {
@@ -85,12 +91,6 @@ export default function PurchasePage() {
 	const [isProcessing, setIsProcessing] = useState(false)
 	const [isProcessingDialogOpen, setIsProcessingDialogOpen] = useState(false)
 	const [processingStatus, setProcessingStatus] = useState<'initializing' | 'processing' | 'verifying' | 'redirecting'>('initializing')
-	const [isUsageSheetOpen, setIsUsageSheetOpen] = useState(false)
-
-	// Transaction States
-	const [pendingCredits, setPendingCredits] = useState<number | null>(null)
-	const [pendingPrice, setPendingPrice] = useState<number | null>(null)
-	const [usageSummary, setUsageSummary] = useState(() => computeUsageForCredits(50))
 
 	// Form States
 	const [requestCredits, setRequestCredits] = useState(25)
@@ -105,6 +105,60 @@ export default function PurchasePage() {
 	}
 
 	// Payment Logic
+	// Tell the server how a checkout ended when it did NOT end in payment.
+	//
+	// `keepalive` because the most common caller is `ondismiss`, and a user who
+	// closes checkout often closes the tab in the same breath - a normal fetch is
+	// abandoned with the document, which is exactly the case this is here to
+	// record. Fire and forget: a failed report must never surface an error over a
+	// payment screen the user has already walked away from, and the webhook
+	// settles the row independently if this never lands.
+	// The order whose checkout is currently open, or null. Read on `pagehide`,
+	// and cleared by every path that already reports an outcome so a settled
+	// payment is never reported as abandoned on the way out.
+	const openOrder = useRef<string | null>(null)
+
+	const recordAttempt = (orderId: string, status: 'CANCELLED' | 'FAILED', reason?: string) => {
+		openOrder.current = null
+		const body = JSON.stringify({ orderId, status, reason })
+		try {
+			// `sendBeacon` first: it is the only transport the browser promises to
+			// deliver after the document goes away, which is the whole point here.
+			// It needs a Blob with an explicit type, because its default is
+			// text/plain and the route parses JSON.
+			if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+				const ok = navigator.sendBeacon('/api/payments/attempt', new Blob([body], { type: 'application/json' }))
+				if (ok) return
+			}
+			void fetch('/api/payments/attempt', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body,
+				keepalive: true,
+			}).catch(() => {})
+		} catch {
+			// Reporting an abandoned checkout is best-effort by design.
+		}
+	}
+
+	// ── Leaving the page with checkout still open ─────────────────────────────
+	// Razorpay's `ondismiss` fires when the user closes the modal. It does NOT
+	// fire when the document goes away underneath it - a refresh, a back
+	// navigation, closing the tab. Those left the payments row at PENDING for
+	// ever, which is the same hole `ondismiss` was added to close.
+	//
+	// `pagehide` rather than `beforeunload`: `beforeunload` is unreliable on
+	// mobile, where the tab is often discarded without it, and it disqualifies
+	// the page from the back/forward cache. `pagehide` fires in both cases.
+	useEffect(() => {
+		const onHide = () => {
+			const orderId = openOrder.current
+			if (orderId) recordAttempt(orderId, 'CANCELLED', 'Left the page during checkout')
+		}
+		window.addEventListener('pagehide', onHide)
+		return () => window.removeEventListener('pagehide', onHide)
+	}, [])
+
 	const initiatePayment = async (credits: number, price: number) => {
 		if (!session?.user) {
 			toast.error('Please sign in to purchase credits')
@@ -139,7 +193,10 @@ export default function PurchasePage() {
 				order_id: data.orderId,
 				handler: async function (response: RazorpayResponse) {
 					try {
-						document.body.classList.remove('rzp-open')
+						// Cleared before verifying, not after: the redirect to
+						// /purchase/success fires `pagehide`, and a stale ref there
+						// would report a payment we just took as abandoned.
+						openOrder.current = null
 						setIsProcessingDialogOpen(true)
 						setProcessingStatus('verifying')
 						const verifyResponse = await fetch('/api/payments/verify', {
@@ -168,10 +225,29 @@ export default function PurchasePage() {
 					}
 				},
 				prefill: { name: session.user.name || '', email: session.user.email || '' },
-				theme: { color: '#000000' },
+				// Checkout paints its own full-viewport backdrop, and its default is
+				// near-white - so opening it from a dark app flashed the whole screen
+				// white behind the card. `backdrop_color` is the only hook Razorpay
+				// gives for it; the surrounding page is in an iframe overlay we cannot
+				// style from here, and the `rzp-open` class this file used to toggle
+				// never had a rule behind it (it has been removed).
+				//
+				// Read from the live theme rather than hardcoded: this page is
+				// reachable in both, and a dark backdrop under a light app is the
+				// same mistake in reverse.
+				theme: {
+					color: '#000000',
+					backdrop_color: document.documentElement.classList.contains('dark')
+						? 'rgba(10, 10, 10, 0.94)'
+						: 'rgba(38, 38, 38, 0.72)',
+				},
 				modal: {
 					ondismiss: function () {
-						document.body.classList.remove('rzp-open')
+						// Closing checkout is an outcome, not a non-event. Without this
+						// the payments row sits at PENDING for ever, and in the admin
+						// table an abandoned attempt is indistinguishable from one that
+						// is still in flight.
+						recordAttempt(data.orderId, 'CANCELLED')
 						setIsProcessingDialogOpen(false)
 						setIsProcessing(false)
 					},
@@ -179,14 +255,19 @@ export default function PurchasePage() {
 			}
 
 			const rzp = new window.Razorpay(options)
-			rzp.on('payment.failed', function () {
-				toast.error('Payment failed')
+			rzp.on('payment.failed', function (failure) {
+				// Razorpay's own description is more use to support than "Payment
+				// failed" - it distinguishes a declined card from an expired UPI
+				// collect request. Recorded on the row, shown to the user as-is.
+				const reason = failure?.error?.description || 'Payment failed'
+				toast.error(reason)
+				recordAttempt(data.orderId, 'FAILED', reason)
 				setIsProcessingDialogOpen(false)
 				setIsProcessing(false)
 			})
 			setIsProcessingDialogOpen(false)
 			await new Promise(requestAnimationFrame)
-			document.body.classList.add('rzp-open')
+			openOrder.current = data.orderId
 			rzp.open()
 		} catch (err: unknown) {
 			const error = err instanceof Error ? err : new Error('Payment failed')
@@ -205,15 +286,18 @@ export default function PurchasePage() {
 		router.push(`/register?callbackUrl=${encodeURIComponent(back)}`)
 	}
 
-	const openUsageSheet = (credits: number, price: number) => {
+	// Buy opens the payment provider. There used to be a "Confirm purchase" sheet
+	// in between, listing what the credits would buy - it went because the numbers
+	// in it were wrong (every row read "0-1 units", and one row advertised a feature
+	// as Coming Soon) and because the pack's contents are already on the card the
+	// user just clicked. A confirmation step that restates the purchase less
+	// accurately than the page behind it is pure friction.
+	const startCheckout = (credits: number, price: number) => {
 		if (!session?.user) {
 			sendToSignUp(credits)
 			return
 		}
-		setPendingCredits(credits)
-		setPendingPrice(price)
-		setUsageSummary(computeUsageForCredits(credits, creditUsageConfig))
-		setIsUsageSheetOpen(true)
+		initiatePayment(credits, price)
 	}
 
 	// ── Checkout handoff from the marketing site ──────────────────────────────
@@ -241,11 +325,9 @@ export default function PurchasePage() {
 			return
 		}
 
-		const price = packagePrice(intent.pkg, intent.currency)
-		setPendingCredits(intent.pkg.credits)
-		setPendingPrice(price)
-		setUsageSummary(computeUsageForCredits(intent.pkg.credits, creditUsageConfig))
-		setIsUsageSheetOpen(true)
+		// Arriving from apps/web with a pack already chosen: that click was the
+		// decision, so go straight to payment rather than re-asking here.
+		initiatePayment(intent.pkg.credits, packagePrice(intent.pkg, intent.currency))
 	}, [searchParams, session, sessionPending, router])
 
 	const handleRequestSubmit = async () => {
@@ -395,7 +477,7 @@ export default function PurchasePage() {
 									<Button
 										size="sm"
 										className="h-9 cursor-pointer"
-										onClick={() => openUsageSheet(basicCredits, calculatePrice(basicCredits, currency))}
+										onClick={() => startCheckout(basicCredits, calculatePrice(basicCredits, currency))}
 									>
 										Buy
 									</Button>
@@ -434,14 +516,25 @@ export default function PurchasePage() {
 					price - and all three of those are now questions in the FAQ at
 					the bottom, answered in sentences rather than as slogans. */}
 				{/* ── Bento Pricing ── */}
-				<div className="mb-20">
+				{/* The section fades up as a whole and the cards stagger inside it, so
+					the grid arrives as one movement rather than five separate ones.
+					`whileInView` and not `animate`: on a long page the packs are near
+					the fold, and an entrance that has already finished by the time you
+					scroll to it is the same as no entrance. */}
+				<motion.div
+					className="mb-20"
+					initial={{ opacity: 0, y: 24 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true, amount: 0.15 }}
+					transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+				>
 					<PricingBento
 						currency={currency}
-						onSelect={(pkg) => openUsageSheet(pkg.credits, packagePrice(pkg, currency))}
+						onSelect={(pkg) => startCheckout(pkg.credits, packagePrice(pkg, currency))}
 						showFreeCredits={false}
 						onRequestFreeCredits={() => setIsRequestSheetOpen(true)}
 					/>
-				</div>
+				</motion.div>
 
 				{/* ── Frequently asked ──────────────────────────────────────────────
 					Two columns, and the left one is STICKY.
@@ -607,62 +700,6 @@ export default function PurchasePage() {
 				</SheetContent>
 			</Sheet>
 
-			{/* ── Usage Confirmation Sheet ── */}
-			<Sheet open={isUsageSheetOpen} onOpenChange={setIsUsageSheetOpen}>
-				<SheetContent className="w-full sm:max-w-md border-l border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-0">
-					<div className="p-8 border-b border-neutral-100 dark:border-neutral-800">
-						<SheetHeader className="p-0 text-left">
-							<SheetTitle className="text-xl font-bold">Confirm purchase</SheetTitle>
-							<SheetDescription className="text-neutral-500 dark:text-neutral-400 mt-1">
-								Verify allocation before executing transaction.
-							</SheetDescription>
-						</SheetHeader>
-					</div>
-
-					<div className="p-8 space-y-6">
-						{/* Summary pill */}
-						<div className="flex justify-between items-center px-4 py-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-							<span className="text-sm text-neutral-500 dark:text-neutral-400">Total Allocation</span>
-							<span className="text-lg font-bold font-mono text-neutral-900 dark:text-white tracking-tight">
-								{pendingCredits} credits
-							</span>
-						</div>
-
-						{/* Capacity estimates */}
-						<div className="space-y-2.5">
-							<Label className="text-xs text-neutral-600 dark:text-neutral-400 font-bold block">
-								Capacity Estimates
-							</Label>
-							{usageSummary.map((item) => (
-								<div
-									key={item.key}
-									className="flex items-center gap-3 p-3.5 rounded-xl border border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-950"
-								>
-									<span className="text-xl leading-none">{item.icon}</span>
-									<div className="flex-1 min-w-0">
-										<p className="text-sm font-bold text-neutral-900 dark:text-white">{item.title}</p>
-										<p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{formatCountRange(item.privateCount)} units</p>
-									</div>
-								</div>
-							))}
-						</div>
-
-						{/* Pay CTA */}
-						<div className="pt-2">
-							<Button
-								onClick={() => pendingCredits && pendingPrice && initiatePayment(pendingCredits, pendingPrice)}
-								disabled={isProcessing}
-								className="w-full h-12 text-sm font-bold bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
-							>
-								{isProcessing
-									? <InlineLoader size="sm" />
-									: `Pay ${currency === 'INR' ? '₹' : '$'}${pendingPrice?.toFixed(2)}`
-								}
-							</Button>
-						</div>
-					</div>
-				</SheetContent>
-			</Sheet>
 
 			{/* ── Processing Dialog ── */}
 			<Dialog open={isProcessingDialogOpen} onOpenChange={() => {}}>

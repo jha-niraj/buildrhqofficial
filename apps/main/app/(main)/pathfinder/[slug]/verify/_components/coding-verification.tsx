@@ -160,7 +160,7 @@ export function CodingVerification({ goalId, questions, status, score }: CodingV
                     <h3 className="font-semibold text-neutral-900 dark:text-white">Problems</h3>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400">{solvedProblems.size}/{questions.length} solved</p>
                 </div>
-                <ScrollArea className="flex-1">
+                <ScrollArea className="min-h-0 flex-1">
                     <div className="p-2 space-y-1">
                         {
                             questions.map((q, index) => {
@@ -204,13 +204,13 @@ export function CodingVerification({ goalId, questions, status, score }: CodingV
                         <TabsList className="bg-transparent border-0 p-0 h-auto">
                             <TabsTrigger
                                 value="problem"
-                                className="pb-3 px-4 rounded-none border-b-2 border-transparent data-[state=active]:border-neutral-900 data-[state=active]:bg-transparent bg-transparent"
+                                className="pb-3 px-4 rounded-none border-b-2 border-transparent bg-transparent"
                             >
                                 Problem
                             </TabsTrigger>
                             <TabsTrigger
                                 value="solution"
-                                className="pb-3 px-4 rounded-none border-b-2 border-transparent data-[state=active]:border-neutral-900 data-[state=active]:bg-transparent bg-transparent"
+                                className="pb-3 px-4 rounded-none border-b-2 border-transparent bg-transparent"
                             >
                                 Solution
                             </TabsTrigger>
@@ -219,7 +219,7 @@ export function CodingVerification({ goalId, questions, status, score }: CodingV
                     <div className="flex-1 flex overflow-hidden">
                         <TabsContent value="problem" className="flex-1 m-0 flex overflow-hidden">
                             <div className="w-1/2 border-r border-neutral-200 dark:border-neutral-800 flex flex-col overflow-hidden">
-                                <ScrollArea className="flex-1 p-4">
+                                <ScrollArea className="min-h-0 flex-1 p-4">
                                     <div className="space-y-4">
                                         <div>
                                             <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">
@@ -289,7 +289,7 @@ export function CodingVerification({ goalId, questions, status, score }: CodingV
                                                                     animate={{ opacity: 1, y: 0 }}
                                                                     className="p-3 rounded-lg bg-neutral-50 dark:bg-neutral-800/20 border border-neutral-200 dark:border-neutral-800"
                                                                 >
-                                                                    <span className="text-sm text-neutral-800 dark:text-neutral-700">
+                                                                    <span className="text-sm text-neutral-800 dark:text-neutral-200">
                                                                         Hint {i + 1}: {hint}
                                                                     </span>
                                                                 </motion.div>

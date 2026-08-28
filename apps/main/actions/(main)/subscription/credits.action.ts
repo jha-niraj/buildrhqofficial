@@ -150,7 +150,7 @@ export async function transferCredits(senderId: string, receiverId: string, amou
         })
     })
 
-    revalidatePath("/transactions")
+    revalidatePath("/credits")
     return result
 }
 

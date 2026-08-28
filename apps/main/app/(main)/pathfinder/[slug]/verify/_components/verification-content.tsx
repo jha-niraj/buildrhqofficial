@@ -215,7 +215,7 @@ export function VerificationContent({ goal, verification, aiPlan: aiPlanProp, mo
                         <TabsList className="bg-transparent border-0 p-0 h-auto gap-2">
                             <TabsTrigger
                                 value="quiz"
-                                className="pb-2 px-2 rounded-none border-b-2 border-transparent data-[state=active]:border-neutral-900 dark:data-[state=active]:border-white data-[state=active]:bg-transparent bg-transparent text-sm"
+                                className="pb-2 px-2 rounded-none border-b-2 border-transparent bg-transparent text-sm"
                             >
                                 <SectionTab
                                     icon={<Brain className="w-4 h-4" />}
@@ -226,7 +226,7 @@ export function VerificationContent({ goal, verification, aiPlan: aiPlanProp, mo
                             </TabsTrigger>
                             <TabsTrigger
                                 value="coding"
-                                className="pb-2 px-2 rounded-none border-b-2 border-transparent data-[state=active]:border-neutral-900 dark:data-[state=active]:border-white data-[state=active]:bg-transparent bg-transparent text-sm"
+                                className="pb-2 px-2 rounded-none border-b-2 border-transparent bg-transparent text-sm"
                             >
                                 <SectionTab
                                     icon={<Code className="w-4 h-4" />}
@@ -237,7 +237,7 @@ export function VerificationContent({ goal, verification, aiPlan: aiPlanProp, mo
                             </TabsTrigger>
                             <TabsTrigger
                                 value="mock"
-                                className="pb-2 px-2 rounded-none border-b-2 border-transparent data-[state=active]:border-neutral-900 dark:data-[state=active]:border-white data-[state=active]:bg-transparent bg-transparent text-sm"
+                                className="pb-2 px-2 rounded-none border-b-2 border-transparent bg-transparent text-sm"
                             >
                                 <SectionTab
                                     icon={<Mic className="w-4 h-4" />}
@@ -250,7 +250,7 @@ export function VerificationContent({ goal, verification, aiPlan: aiPlanProp, mo
                                 hasProject && (
                                     <TabsTrigger
                                         value="project"
-                                        className="pb-2 px-2 rounded-none border-b-2 border-transparent data-[state=active]:border-neutral-900 dark:data-[state=active]:border-white data-[state=active]:bg-transparent bg-transparent text-sm"
+                                        className="pb-2 px-2 rounded-none border-b-2 border-transparent bg-transparent text-sm"
                                     >
                                         <SectionTab
                                             icon={<Wrench className="w-4 h-4" />}

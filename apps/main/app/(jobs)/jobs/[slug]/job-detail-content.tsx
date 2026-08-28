@@ -643,7 +643,7 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                     </div>
                                 ) : (
                                     <div className="p-8 rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-center">
-                                        <FileText className="w-12 h-12 text-neutral-600 dark:text-neutral-700 mx-auto mb-4" />
+                                        <FileText className="w-12 h-12 text-neutral-600 dark:text-neutral-400 mx-auto mb-4" />
                                         <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">
                                             Interview Process Not Disclosed
                                         </h3>
@@ -801,7 +801,7 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                 >
                                     <div className="flex items-center gap-2 mb-2">
                                         <FileText className="w-5 h-5 text-neutral-800 dark:text-neutral-100" />
-                                        <h3 className="font-semibold text-neutral-900 dark:text-neutral-700">
+                                        <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">
                                             Take-Home Assignment
                                         </h3>
                                     </div>

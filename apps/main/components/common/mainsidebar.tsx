@@ -152,7 +152,7 @@ export default function Sidebar() {
                 // Referrals have worked since signup was written - the row is inserted, the
                 // referrer gets XP - but there was nowhere to find your own code, so nobody
                 // could use the feature deliberately. This is that place.
-                { label: "Referrals", href: "/transactions?tab=referrals", icon: Gift },
+                { label: "Referrals", href: "/credits?tab=referrals", icon: Gift },
                 { label: "Settings", href: "/settings", icon: Settings },
             ]}
             notifications={{

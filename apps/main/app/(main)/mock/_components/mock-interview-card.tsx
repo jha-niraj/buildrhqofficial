@@ -10,6 +10,8 @@ import {
 import {
     Clock, Users, Star, Sparkles, Brain, TrendingUp, Lock, Globe, Shield
 } from 'lucide-react'
+import { AnimatedIcon, type AnimatedIconName } from '@repo/ui/components/animated-icons'
+import { MOCK_CATEGORIES } from '../voice/_constants/mock-categories'
 
 interface MockInterviewCardProps {
     mock: MockData
@@ -49,17 +51,10 @@ const levelColors = {
     'EXPERT': 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-900/50',
 }
 
-const categoryIcons: Record<string, string> = {
-    'TECHNICAL': '💻',
-    'BEHAVIORAL': '🤝',
-    'HR': '👔',
-    'SYSTEM_DESIGN': '🏗️',
-    'LEADERSHIP': '👑',
-    'NEGOTIATION': '💰',
-    'CODING': '⌨️',
-    'CASE_STUDY': '📊',
-    'GENERAL': '📋',
-}
+// The THIRD copy of this map, now gone. MOCK_CATEGORIES is the source; a lookup
+// against it cannot drift the way three hand-maintained emoji tables did.
+const iconForCategory = (category?: string | null): AnimatedIconName =>
+    MOCK_CATEGORIES.find((c) => c.value === category)?.icon ?? 'learning'
 
 export function MockInterviewCard({ mock, onStart, variant = 'default', showAdminBadge }: MockInterviewCardProps) {
     const [, setIsHovered] = useState(false)
@@ -77,7 +72,7 @@ export function MockInterviewCard({ mock, onStart, variant = 'default', showAdmi
                             <div className="flex items-center gap-2 mb-2">
                                 {
                                     hasCategory && mock.category && (
-                                        <span className="text-xl">{categoryIcons[mock.category]}</span>
+                                        <AnimatedIcon name={iconForCategory(mock.category)} size={20} className="shrink-0 text-neutral-900 dark:text-neutral-100" />
                                     )
                                 }
                                 <Badge className={levelColors[mock.level as keyof typeof levelColors]}>
@@ -150,7 +145,7 @@ export function MockInterviewCard({ mock, onStart, variant = 'default', showAdmi
                             <div className="flex items-start gap-4">
                                 {
                                     hasCategory && mock.category && (
-                                        <div className="text-4xl pt-1">{categoryIcons[mock.category]}</div>
+                                        <AnimatedIcon name={iconForCategory(mock.category)} size={34} className="shrink-0 text-neutral-900 dark:text-neutral-100" />
                                     )
                                 }
                                 <div className="space-y-2">
@@ -248,7 +243,7 @@ export function MockInterviewCard({ mock, onStart, variant = 'default', showAdmi
                         <div className="flex items-center gap-2.5">
                             {
                                 hasCategory && mock.category && (
-                                    <span className="text-2xl">{categoryIcons[mock.category]}</span>
+                                    <AnimatedIcon name={iconForCategory(mock.category)} size={24} className="shrink-0 text-neutral-900 dark:text-neutral-100" />
                                 )
                             }
                             <Badge className={`${levelColors[mock.level as keyof typeof levelColors]} border text-xs font-medium px-2.5 py-0.5`}>

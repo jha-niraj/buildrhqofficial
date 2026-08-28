@@ -616,3 +616,74 @@ template for the rest.
 - `embeddings.action.ts` (6) - `portfolioProjects` is typed now; the remaining
   `chunks: any[]` need the chunk builders in `utils/knowme/` typed first.
 - The `data?: any` interfaces - blocked behind the refactor above.
+
+---
+
+## CLN-47: pre-manual-testing sweep (2026-08-28) - DONE
+
+A sweep for every defect class this product has actually shipped, run before
+Niraj's manual pass. Each scan is the grep that would have caught the original
+bug, so this section doubles as the regression check to re-run later.
+
+| # | Class | Found | Fixed |
+|---|-------|-------|-------|
+| 1 | Text colour: tiny type, all-caps, low contrast, dark-on-dark | 5 bare greys | 0 - all sit on always-dark surfaces, correct as written |
+| 2 | ScrollArea: `flex-1` with no `min-h-0`, `max-h` on the root | 16 | 16 |
+| 3 | Sticky headers clipped by an ancestor `overflow-hidden` | 2 candidates | 0 - a nested ScrollArea is the scrollport in both |
+| 4 | Emoji used as an icon | 1 stale category map | 1 |
+| 5 | Spinners, competing tab active styles, `catch (e: any)` | 0 | 0 |
+| 6 | Chart axes too narrow to hold their own ticks | 2 | 2 |
+| 7 | Route with a page and no matching `loading.tsx` | 0 | 0 |
+
+### Scan 2 was the one that mattered
+
+Thirteen ScrollAreas carried `flex-1` without `min-h-0`. That is the exact pair
+that stopped the transactions panel scrolling: a flex child's `min-height` is
+`auto`, so it refuses to shrink below its content and the ScrollArea grows past
+its parent instead of scrolling. Three more set `max-h` on the ScrollArea root,
+where the viewport is `h-full` against an auto-height parent and resolves to
+`auto` - content is clipped, not scrolled, and the overflow is unreachable with
+no scrollbar to say so. The bound belongs on the viewport:
+
+```
+className="[&_[data-radix-scroll-area-viewport]]:max-h-72 min-w-0"
+```
+
+One of the three was `components/studio/ui/ai-input-panel.tsx`, written in this
+same run - the pattern is easy to reintroduce, which is why the grep is recorded
+here rather than the fix alone.
+
+### Scan 4 found a fourth copy of one map
+
+`home/_components/mock-voice-preview.tsx` held a private copy of the mock
+category list carrying 7 of 10 categories. NEGOTIATION, CASE_STUDY and ALL fell
+through to no icon at all. Replaced with a lookup against the shared
+`MOCK_CATEGORIES` and a total fallback, so a new category can never again render
+as a blank.
+
+### Scan 6
+
+Two pathfinder Y axes at `width={25}`, which holds two digits. This is the bug
+that rendered `10000` as `0000` on the credits chart - a clipped axis shows a
+*wrong* number, not a smaller one. Both to 44, and their 10px ticks to 12px to
+meet the floor set for the rest of the product.
+
+### Verification
+
+`tsc --noEmit` clean across `apps/{main,worker,web}` and
+`packages/{ui,db,pricing}`. `check-nav`: 36/36 navigation paths resolve. No
+compile errors in the dev log. Route smoke test: `/purchase` 200 signed out,
+`/home` `/mock` `/pathfinder` `/credits` all 307 to sign-in - which is CR-10's
+deny-by-default rule doing its job.
+
+## CLN-48: `transactions-panel` has a dead standalone mode
+
+`app/(main)/credits/_components/transactions-panel.tsx` takes `embedded` and
+branches on it 26 times. CR-15 deleted `/transactions`, so the only caller is the
+credits History panel and it always passes `embedded` - every `embedded === false`
+path (the page entrance animations, the full-page header, the wider tab bar) is
+unreachable.
+
+Collapse the prop and delete the dead half. Not urgent, and not something to do
+in the same change as the route deletion: it touches the whole file, whereas the
+deletion touched one import.

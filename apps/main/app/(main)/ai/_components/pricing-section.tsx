@@ -68,8 +68,8 @@ export default function PricingSection() {
             </div>
             <Tabs defaultValue="flexi-pack" className="space-y-8">
                 <TabsList className="flex bg-transparent justify-center space-x-4 rounded-full p-2 shadow-md">
-                    <TabsTrigger value="flexi-pack" className="px-6 py-3 text-lg font-medium rounded-full data-[state=active]:bg-[#29584a] data-[state=active]:text-white transition-all">Flexi-Pack Plans</TabsTrigger>
-                    <TabsTrigger value="subscription" className="px-6 py-3 text-lg font-medium rounded-full data-[state=active]:bg-[#29584a] data-[state=active]:text-white transition-all">Subscription Plans</TabsTrigger>
+                    <TabsTrigger value="flexi-pack" className="px-6 py-3 text-lg font-medium rounded-full#29584a] data-[state=active]:text-white transition-all">Flexi-Pack Plans</TabsTrigger>
+                    <TabsTrigger value="subscription" className="px-6 py-3 text-lg font-medium rounded-full#29584a] data-[state=active]:text-white transition-all">Subscription Plans</TabsTrigger>
                 </TabsList>
                 <TabsContent value="flexi-pack">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

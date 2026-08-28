@@ -123,7 +123,7 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
 
     return (
         <div className="flex h-full min-h-0 w-full overflow-hidden">
-        <ScrollArea reflow className="h-full min-w-0 flex-1">
+        <ScrollArea reflow className="h-full min-w-0 min-h-0 flex-1">
             {/* Full width. This was `max-w-3xl mx-auto`, which centred a 768px column
                 inside a pane that is already the narrower half of a two-pane
                 layout - so the study plan sat in a thin ribbon with dead space on

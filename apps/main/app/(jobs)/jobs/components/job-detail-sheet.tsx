@@ -352,7 +352,7 @@ export function JobDetailSheet({ job }: JobDetailSheetProps) {
                         </div>
                     ) : (
                         <div className="p-6 rounded-2xl bg-neutral-50 dark:bg-neutral-900 text-center">
-                            <FileText className="w-10 h-10 text-neutral-600 dark:text-neutral-700 mx-auto mb-3" />
+                            <FileText className="w-10 h-10 text-neutral-600 dark:text-neutral-400 mx-auto mb-3" />
                             <h3 className="font-medium text-neutral-900 dark:text-white mb-1">
                                 Interview Process Not Disclosed
                             </h3>
@@ -370,7 +370,7 @@ export function JobDetailSheet({ job }: JobDetailSheetProps) {
                         <div className="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800/20 border border-neutral-200 dark:border-neutral-800">
                             <div className="flex items-center gap-2 mb-2">
                                 <FileText className="w-5 h-5 text-neutral-800 dark:text-neutral-100" />
-                                <h3 className="font-semibold text-neutral-900 dark:text-neutral-700">
+                                <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">
                                     Take-Home Assignment
                                 </h3>
                             </div>

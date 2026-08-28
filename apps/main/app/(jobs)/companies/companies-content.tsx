@@ -469,7 +469,7 @@ export function CompaniesContent({
                             animate={{ opacity: 1 }}
                             className="text-center py-16"
                         >
-                            <Building2 className="w-16 h-16 text-neutral-600 dark:text-neutral-700 mx-auto mb-4" />
+                            <Building2 className="w-16 h-16 text-neutral-600 dark:text-neutral-400 mx-auto mb-4" />
                             <h3 className="text-xl font-medium text-neutral-900 dark:text-white mb-2">
                                 No companies found
                             </h3>

@@ -231,13 +231,13 @@ export function EditProfileModal({
                         <TabsList className="w-full justify-start px-6 pt-2 bg-transparent border-b rounded-none h-auto gap-4 sticky top-0 bg-background z-10">
                             <TabsTrigger
                                 value="basic"
-                                className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none pb-3"
+                                className=" rounded-none pb-3"
                             >
                                 Basic Info
                             </TabsTrigger>
                             <TabsTrigger
                                 value="career"
-                                className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none pb-3"
+                                className=" rounded-none pb-3"
                             >
                                 Career Goals
                             </TabsTrigger>

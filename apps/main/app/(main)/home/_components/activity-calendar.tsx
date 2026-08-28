@@ -130,7 +130,14 @@ export default function ActivityCalendar({ data }: ActivityCalendarProps) {
 
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-    const boxSize = "w-3 h-3";
+    // The cell FILLS its column instead of being a fixed 12px square.
+    //
+    // At `w-3 h-3` the grid was 53 weeks x 16px = about 850px, so inside a
+    // 1500px card it stopped two thirds of the way across and left a large empty
+    // block - which read as broken rather than as spare room. `aspect-square`
+    // keeps the cells square whatever width they end up with, and `min-w-[7px]`
+    // stops them vanishing on a phone, where the container can still scroll.
+    const boxSize = "w-full aspect-square min-w-[7px] rounded-[2px]";
     const boxMinSize = "min-w-[12px]";
 
     return (
@@ -151,8 +158,8 @@ export default function ActivityCalendar({ data }: ActivityCalendarProps) {
                 </div>
                 <div className="p-4">
                     <TooltipProvider delayDuration={100}>
-                        <div className="overflow-x-auto pb-4 -mx-2">
-                            <div className="flex gap-1 mb-2 ml-8 text-xs text-muted-foreground min-w-max">
+                        <div className="overflow-x-auto pb-4">
+                            <div className="flex w-full min-w-[560px] gap-1 mb-2 ml-8 text-xs text-neutral-600 dark:text-neutral-400">
                                 {
                                     weeks.map((week, weekIndex) => {
                                         const firstValidDay = week.find((d) => d.xp !== -1);
@@ -162,28 +169,32 @@ export default function ActivityCalendar({ data }: ActivityCalendarProps) {
                                             weekIndex % 4 === 0
                                         ) {
                                             return (
-                                                <span key={weekIndex} className="w-5 inline-block">
+                                                <span key={weekIndex} className="min-w-0 flex-1 truncate">
                                                     {months[firstValidDay.date.getMonth()]}
                                                 </span>
                                             );
                                         }
-                                        return <span key={weekIndex} className="w-5 inline-block" />;
+                                        return <span key={weekIndex} className="min-w-0 flex-1" />;
                                     })
                                 }
                             </div>
-                            <div className="flex gap-1">
-                                <div className="flex flex-col gap-1 text-xs text-muted-foreground pr-2">
-                                    <span className="h-4"></span>
-                                    <span className="h-4 leading-4">Mon</span>
-                                    <span className="h-4"></span>
-                                    <span className="h-4 leading-4">Wed</span>
-                                    <span className="h-4"></span>
-                                    <span className="h-4 leading-4">Fri</span>
-                                    <span className="h-4"></span>
+                            <div className="flex w-full min-w-[560px] gap-1">
+                                <div className="flex shrink-0 flex-col gap-1 pr-2 text-xs text-neutral-600 dark:text-neutral-400">
+                                    {/* `flex-1`, not a fixed `h-4`. The cells are
+                                        `aspect-square` now, so their height follows the
+                                        column width - a fixed label height would drift out
+                                        of step with the rows at any width but one. */}
+                                    <span className="flex-1" />
+                                    <span className="flex flex-1 items-center">Mon</span>
+                                    <span className="flex-1" />
+                                    <span className="flex flex-1 items-center">Wed</span>
+                                    <span className="flex-1" />
+                                    <span className="flex flex-1 items-center">Fri</span>
+                                    <span className="flex-1" />
                                 </div>
                                 {
                                     weeks.map((week, weekIndex) => (
-                                        <div key={weekIndex} className="flex flex-col gap-1">
+                                        <div key={weekIndex} className="flex min-w-0 flex-1 flex-col gap-1">
                                             {week.map((day, dayIndex) => {
                                                 if (day.xp === -1) {
                                                     return (

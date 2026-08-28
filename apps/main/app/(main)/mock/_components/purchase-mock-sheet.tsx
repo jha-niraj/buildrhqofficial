@@ -17,6 +17,8 @@ import { createMockVoiceSession, getMockSessionInfo } from '@/actions/(main)/moc
 import Link from 'next/link'
 import { cn } from '@repo/ui/lib/utils'
 import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { AnimatedIcon, type AnimatedIconName } from '@repo/ui/components/animated-icons'
+import { MOCK_CATEGORIES } from '../voice/_constants/mock-categories'
 
 interface MockData {
     id: string
@@ -55,10 +57,11 @@ const levelColors: Record<string, string> = {
     EXPERT: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
 }
 
-const categoryIcons: Record<string, string> = {
-    TECHNICAL: '💻', BEHAVIORAL: '🤝', HR: '👔', SYSTEM_DESIGN: '🏗️',
-    LEADERSHIP: '👑', NEGOTIATION: '💰', CODING: '⌨️', CASE_STUDY: '📊', GENERAL: '📋',
-}
+// The emoji map that was here is gone. It keyed the SAME categories as
+// MOCK_CATEGORIES and had already drifted - it was missing `ALL` - which is the
+// whole argument against a second copy. Icons now come from MOCK_CATEGORIES.
+const iconForCategory = (category?: string | null): AnimatedIconName =>
+    MOCK_CATEGORIES.find((c) => c.value === category)?.icon ?? 'learning'
 
 export function PurchaseMockSheet({ isOpen, onClose, mock, userCredits }: PurchaseMockSheetProps) {
     const router = useRouter()
@@ -117,8 +120,8 @@ export function PurchaseMockSheet({ isOpen, onClose, mock, userCredits }: Purcha
                 {/* Header */}
                 <SheetHeader className="p-6 pb-4 border-b border-neutral-100 dark:border-neutral-800">
                     <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-xl flex-shrink-0">
-                            {mock.category ? categoryIcons[mock.category] ?? '📋' : '📋'}
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100">
+                            <AnimatedIcon name={iconForCategory(mock.category)} size={20} motion="always" />
                         </div>
                         <div className="flex items-center gap-2 flex-wrap">
                             <Badge className={cn('text-xs font-medium', levelColors[mock.level])}>

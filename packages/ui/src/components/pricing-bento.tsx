@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { cn } from '@repo/ui/lib/utils';
 import { Button } from '@repo/ui/components/ui/button';
 import { Badge } from '@repo/ui/components/ui/badge';
@@ -32,6 +33,23 @@ import {
  * Exactly one is needed; `onSelect` wins if both are passed.
  */
 
+// ── Entrance ────────────────────────────────────────────────────────────────
+// The cards used to appear fully formed, which on the marketing site meant the
+// whole price grid arrived in one blink. `whileInView` with `once` so it plays
+// on arrival and never again while the user scrolls back over it, and a stagger
+// so the row reads left to right instead of flashing as a block.
+//
+// `y: 16` and not more: this is a row of four, and a tall travel makes the
+// last card still climbing while the first is already still.
+const CARD_ENTER = {
+    hidden: { opacity: 0, y: 16 },
+    show: (i: number) => ({
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.4, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] as const },
+    }),
+};
+
 function FilledCheck({ className }: { className?: string }) {
     return (
         <div className={cn('rounded-full bg-neutral-900 p-0.5 text-white', className)}>
@@ -46,9 +64,15 @@ interface PricingCardProps {
     className?: string;
     onSelect?: (pkg: CreditPackage) => void;
     hrefFor?: (pkg: CreditPackage) => string;
+    /** Position in the row, used only to stagger the entrance. */
+    index?: number;
 }
 
-function PricingCard({ pkg, currency, className, onSelect, hrefFor }: PricingCardProps) {
+function PricingCard({ pkg, currency, className, onSelect, hrefFor, index = 0 }: PricingCardProps) {
+    // Honour the OS setting rather than animating regardless. `reduce` skips the
+    // entrance and the hover lift both - a card that jumps under the cursor is
+    // exactly the motion this setting exists to turn off.
+    const reduce = useReducedMotion();
     const amount = packagePrice(pkg, currency);
     const original = packageOriginalPrice(pkg, currency);
     const savings = packageSavings(pkg, currency);
@@ -63,10 +87,20 @@ function PricingCard({ pkg, currency, className, onSelect, hrefFor }: PricingCar
     const decimals = currency === 'USD' ? 2 : 0;
 
     return (
-        <div
+        <motion.div
+            custom={index}
+            variants={CARD_ENTER}
+            initial={reduce ? false : 'hidden'}
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+            whileHover={reduce ? undefined : { y: -4 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 26 }}
             className={cn(
                 'relative overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900',
-                'transition-all duration-300 hover:border-neutral-300 hover:shadow-xl dark:hover:border-neutral-700',
+                // Border and shadow stay on a CSS transition; only the lift is
+                // framer's. Handing colour to framer too would mean restating
+                // every dark: variant as a JS value.
+                'transition-colors duration-300 hover:border-neutral-300 hover:shadow-xl dark:hover:border-neutral-700',
                 'flex flex-col',
                 className,
             )}
@@ -143,7 +177,7 @@ function PricingCard({ pkg, currency, className, onSelect, hrefFor }: PricingCar
                     </li>
                 ))}
             </ul>
-        </div>
+        </motion.div>
     );
 }
 
@@ -189,9 +223,10 @@ export function PricingBento({
     // CTAs no longer lines up - which is the thing the eye actually scans.
     return (
         <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {creditPackages.map((pkg) => (
+            {creditPackages.map((pkg, i) => (
                 <PricingCard
                     key={pkg.slug}
+                    index={i}
                     pkg={pkg}
                     currency={currency}
                     className={
@@ -205,7 +240,12 @@ export function PricingBento({
             ))}
 
             {showFreeCredits && (
-                <div
+                <motion.div
+                    custom={creditPackages.length}
+                    variants={CARD_ENTER}
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={{ once: true, amount: 0.2 }}
                     className={cn(
                         'relative w-full overflow-hidden rounded-2xl border',
                         'border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/40',
@@ -247,7 +287,7 @@ export function PricingBento({
                             </Button>
                         )}
                     </div>
-                </div>
+                </motion.div>
             )}
         </div>
     );

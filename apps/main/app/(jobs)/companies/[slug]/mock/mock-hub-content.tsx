@@ -277,7 +277,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                             Select a role to practice mock interviews
                         </p>
                     </div>
-                    <ScrollArea className="max-h-80 lg:h-[calc(100dvh-320px)] lg:max-h-none">
+                    <ScrollArea className="[&_[data-radix-scroll-area-viewport]]:max-h-80 lg:h-[calc(100dvh-320px)] lg:max-h-none">
                         <div className="p-2 space-y-1">
                             {
                                 mockHub.jobs.map((job) => {

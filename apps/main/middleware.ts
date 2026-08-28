@@ -128,7 +128,7 @@ function redirectToSignIn(req: NextRequest): NextResponse {
  *
  * ── Why this list is the public one, and not a `protectedRoutes` list ───────
  * It used to be the other way round: a four-entry `protectedRoutes` array
- * (`/home`, `/profile`, `/settings`, `/transactions`) and a check of
+ * (`/home`, `/profile`, `/settings`, `/credits`) and a check of
  * `protectedRoutes.some(r => pathname.startsWith(r))`. Everything NOT in those
  * four was public - so Pathfinder, Projects, AI Tools, KnowMe and Jobs all
  * rendered the full application to a signed-out visitor, with the sidebar
@@ -180,6 +180,13 @@ const apiRoutes = [
 	'/api/health',
 	'/api/user',
 	'/api/webhooks',
+	// Razorpay posts here server to server with no session cookie. Without this
+	// line CR-10's deny-by-default rule redirects it to /signin, Razorpay sees a
+	// 307 instead of a 200, and every webhook retries and then gives up - which
+	// silently disables the only path that grants credits when the buyer closes
+	// the tab before verify runs. The route authenticates itself by HMAC on the
+	// raw body; a session would be meaningless here.
+	'/api/payments/webhook',
 ]
 
 const PRODUCTION_ORIGIN = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://www.shipithq.com'

@@ -99,7 +99,7 @@ export function MockVerification({
                 </div>
                 <div className="space-y-4">
                     <div className="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900/30 border border-neutral-200 dark:border-neutral-800 text-left">
-                        <h4 className="font-semibold text-neutral-900 dark:text-neutral-800 mb-2">Before you start:</h4>
+                        <h4 className="font-semibold text-neutral-900 dark:text-neutral-100 mb-2">Before you start:</h4>
                         <ul className="text-sm text-neutral-700 dark:text-neutral-100 space-y-1">
                             <li>• Make sure you&apos;re in a quiet environment</li>
                             <li>• Allow microphone access when prompted</li>

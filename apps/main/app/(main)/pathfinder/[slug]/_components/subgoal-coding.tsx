@@ -156,7 +156,7 @@ export function SubGoalCoding({ subGoal, onComplete }: SubGoalCodingProps) {
     if (showResult && feedback) {
         return (
             <div className="h-full flex flex-col">
-                <ScrollArea className="flex-1">
+                <ScrollArea className="min-h-0 flex-1">
                     <div className="space-y-4 p-1">
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}

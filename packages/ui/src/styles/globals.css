@@ -1196,3 +1196,34 @@ h1, h2, h3, h4, h5, h6,
         animation: none;
     }
 }
+
+
+/* ── Razorpay Checkout backdrop ──────────────────────────────────────────────
+   Checkout injects `.razorpay-container > .razorpay-backdrop` into OUR document
+   and then sets its background from `theme.backdrop_color`, via
+   `wt(e){ St.backdrop.style.background = e }`.
+
+   Passing that option is NOT enough, and this is worth writing down because the
+   option looks like it should work. checkout.js builds its theme as:
+
+       theme: { ...options.theme, ...(Fr() ? { backdrop_color: 'rgba(245,245,245,1)' } : {}) }
+
+   The override is spread AFTER ours, so on the checkout layout this account is
+   served our value is discarded and replaced with #F5F5F5. That near-white is
+   the flash behind the payment card when opening checkout from the dark app.
+
+   The backdrop element is same-origin - only the iframe inside it is not - so an
+   author rule marked `!important` beats the inline style checkout.js assigns.
+   This is the only lever there is; the option is kept in PurchaseClient as the
+   correct value for any layout that does honour it.
+
+   `.dark` is on <html> and the container is appended to <body>, so the dark
+   variant matches. Both are semi-transparent: the page behind stays legible as
+   context, which is the point of a backdrop rather than a blank screen. */
+.razorpay-backdrop {
+    background: rgba(38, 38, 38, 0.72) !important;
+}
+
+.dark .razorpay-backdrop {
+    background: rgba(10, 10, 10, 0.94) !important;
+}
