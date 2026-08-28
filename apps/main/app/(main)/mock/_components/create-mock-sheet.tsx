@@ -348,7 +348,7 @@ export function CreateMockSheet({
                                                         <span className={cn(
                                                             progressPercent >= item.threshold
                                                                 ? "text-neutral-900 dark:text-white"
-                                                                : "text-neutral-400"
+                                                                : "text-neutral-600 dark:text-neutral-400"
                                                         )}>
                                                             {item.label}
                                                         </span>

@@ -94,12 +94,12 @@ export default function PathfinderGoalsCard({ goals }: PathfinderGoalsCardProps)
                                                         <p className="text-sm font-medium truncate text-neutral-800 dark:text-neutral-200">{goal.title}</p>
                                                         <div className="flex items-center gap-2 mt-1">
                                                             <Progress value={goal.progressPercent} className="h-1 flex-1" />
-                                                            <span className="text-[10px] text-neutral-400 flex-shrink-0 w-6 text-right">
+                                                            <span className="text-xs text-neutral-600 dark:text-neutral-400 flex-shrink-0 w-6 text-right">
                                                                 {goal.progressPercent}%
                                                             </span>
                                                         </div>
                                                     </div>
-                                                    <CheckCircle2 className="h-4 w-4 text-neutral-300 flex-shrink-0" />
+                                                    <CheckCircle2 className="h-4 w-4 text-neutral-600 dark:text-neutral-400 flex-shrink-0" />
                                                 </div>
                                             </motion.div>
                                         )
@@ -107,7 +107,7 @@ export default function PathfinderGoalsCard({ goals }: PathfinderGoalsCardProps)
                                 }
                                 {
                                     activeGoals.length > 4 && (
-                                        <Link href="/pathfinder" className="w-full text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 py-1.5 transition-colors">
+                                        <Link href="/pathfinder" className="w-full text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-600 py-1.5 transition-colors">
                                             +{activeGoals.length - 4} more goals
                                         </Link>
                                     )

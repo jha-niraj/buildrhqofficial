@@ -246,7 +246,7 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neutral-400 opacity-75"></span>
                                         <span className="relative inline-flex rounded-full h-2 w-2 bg-neutral-500"></span>
                                     </span>
-                                    <span className="text-xs font-mono uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
+                                    <span className="text-xs font-mono text-neutral-700 dark:text-neutral-300">
                                         AI-Powered Portfolio
                                     </span>
                                 </div>
@@ -360,7 +360,7 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
                                         </div>
                                         <div className="flex-1 mx-4">
                                             <div className="bg-white dark:bg-neutral-800 rounded-lg px-4 py-1.5 text-sm text-neutral-500 dark:text-neutral-400 flex items-center gap-2 max-w-md mx-auto">
-                                                <Shield className="w-3 h-3 text-neutral-400" />
+                                                <Shield className="w-3 h-3 text-neutral-600 dark:text-neutral-400" />
                                                 shipithq.com/knowme/yourname
                                             </div>
                                         </div>
@@ -873,7 +873,7 @@ function PlatformsStep({
                     includePlatformData ? (
                         <ToggleRight className="w-7 h-7 text-neutral-900 dark:text-white" />
                     ) : (
-                        <ToggleLeft className="w-7 h-7 text-neutral-400" />
+                        <ToggleLeft className="w-7 h-7 text-neutral-600 dark:text-neutral-400" />
                     )
                 }
             </div>
@@ -1048,7 +1048,7 @@ function DataSourceOption({
                 enabled ? (
                     <ToggleRight className="w-7 h-7 text-neutral-900 dark:text-white" />
                 ) : (
-                    <ToggleLeft className="w-7 h-7 text-neutral-400" />
+                    <ToggleLeft className="w-7 h-7 text-neutral-600 dark:text-neutral-400" />
                 )
             }
         </div>

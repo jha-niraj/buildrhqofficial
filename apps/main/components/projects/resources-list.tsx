@@ -217,7 +217,7 @@ export default function ResourcesList({ projectId, currentUserId, isCreator }: R
             {
                 filteredResources.length === 0 ? (
                     <div className="text-center py-12">
-                        <FileText className="w-12 h-12 mx-auto text-neutral-400 mb-4" />
+                        <FileText className="w-12 h-12 mx-auto text-neutral-600 dark:text-neutral-400 mb-4" />
                         <p className="text-neutral-600 dark:text-neutral-400">
                             {
                                 selectedType === 'ALL'

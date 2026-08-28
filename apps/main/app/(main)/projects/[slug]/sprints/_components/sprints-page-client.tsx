@@ -594,7 +594,7 @@ export default function SprintsPageClient({
                                                         const requirements = prevSprint ? getSprintUnlockRequirements(prevSprint.id) : []
                                                         return (
                                                             <div className="absolute top-2 right-2 group/tooltip">
-                                                                <Lock className="w-4 h-4 text-neutral-400" />
+                                                                <Lock className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                                                                 {
                                                                     requirements.length > 0 && (
                                                                         <div className="absolute right-0 top-6 w-48 p-2 bg-neutral-900 dark:bg-neutral-800 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity z-50 pointer-events-none">
@@ -615,7 +615,7 @@ export default function SprintsPageClient({
                                                 }
                                                 <div className="flex items-center justify-between mb-1">
                                                     <span className={cn(
-                                                        "text-xs font-bold uppercase tracking-wider",
+                                                        "text-xs font-bold",
                                                         selectedSprintId === sprint.id && !selectedMockSprintId ? "text-neutral-800 dark:text-neutral-100" : "text-neutral-500"
                                                     )}>
                                                         Sprint {sprint.sprintNumber}
@@ -691,7 +691,7 @@ export default function SprintsPageClient({
                                                                 )}>
                                                                     Mock Interview
                                                                 </p>
-                                                                <p className="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">
+                                                                <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">
                                                                     Sprints 1-{sprint.sprintNumber}
                                                                 </p>
                                                             </div>
@@ -883,14 +883,14 @@ export default function SprintsPageClient({
                                                                 </h3>
                                                                 <div className="flex items-center gap-2 mt-1">
                                                                     <Badge variant="secondary" className={cn(
-                                                                        "text-[10px] font-medium uppercase",
+                                                                        "text-xs font-medium",
                                                                         difficultyColors[task.difficulty] || ''
                                                                     )}>
                                                                         {task.difficulty}
                                                                     </Badge>
                                                                     {
                                                                         task.assessmentType && task.assessmentType !== 'NONE' && (
-                                                                            <Badge variant="outline" className="text-[10px]">
+                                                                            <Badge variant="outline" className="text-xs">
                                                                                 {task.assessmentType === 'QUIZ' ? '📝 Quiz' : '💻 Code'}
                                                                             </Badge>
                                                                         )
@@ -903,7 +903,7 @@ export default function SprintsPageClient({
                                             })
                                         ) : (
                                             <div className="text-center py-16 bg-neutral-50 dark:bg-neutral-900/50 rounded-xl border border-dashed border-neutral-300 dark:border-neutral-700">
-                                                <LayoutList className="w-10 h-10 mx-auto text-neutral-300 mb-3" />
+                                                <LayoutList className="w-10 h-10 mx-auto text-neutral-600 dark:text-neutral-400 mb-3" />
                                                 <h3 className="text-sm font-medium text-neutral-900 dark:text-white">No tasks yet</h3>
                                                 <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-[200px] mx-auto mt-1">
                                                     Generate tasks with AI or add them manually.
@@ -1194,7 +1194,7 @@ export default function SprintsPageClient({
                                                                             variant="ghost"
                                                                             size="sm"
                                                                             onClick={handleCopyCommand}
-                                                                            className="text-neutral-400 hover:text-white"
+                                                                            className="text-neutral-600 dark:text-neutral-400 hover:text-white"
                                                                         >
                                                                             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                                                                         </Button>
@@ -1282,7 +1282,7 @@ export default function SprintsPageClient({
                                                     </div>
                                                 ) : (
                                                     <div className="flex flex-col items-center justify-center h-[50vh] text-neutral-500 dark:text-neutral-400">
-                                                        <FileText className="w-12 h-12 text-neutral-300 mb-4" />
+                                                        <FileText className="w-12 h-12 text-neutral-600 dark:text-neutral-400 mb-4" />
                                                         <p className="text-sm">Select a task to view details</p>
                                                     </div>
                                                 )
@@ -1413,7 +1413,7 @@ export default function SprintsPageClient({
                                                         </div>
                                                     ) : (
                                                         <div className="flex flex-col items-center justify-center h-[50vh] text-neutral-500 dark:text-neutral-400">
-                                                            <Brain className="w-12 h-12 text-neutral-300 mb-4" />
+                                                            <Brain className="w-12 h-12 text-neutral-600 dark:text-neutral-400 mb-4" />
                                                             <p className="text-sm">
                                                                 {
                                                                     selectedTask.assessmentType === 'NONE'
@@ -1425,7 +1425,7 @@ export default function SprintsPageClient({
                                                     )
                                                 ) : (
                                                     <div className="flex flex-col items-center justify-center h-[50vh] text-neutral-500 dark:text-neutral-400">
-                                                        <Brain className="w-12 h-12 text-neutral-300 mb-4" />
+                                                        <Brain className="w-12 h-12 text-neutral-600 dark:text-neutral-400 mb-4" />
                                                         <p className="text-sm">Select a task or mock interview to view assessments</p>
                                                     </div>
                                                 )

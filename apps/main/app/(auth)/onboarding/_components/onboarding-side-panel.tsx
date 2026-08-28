@@ -22,7 +22,7 @@ const item = {
 // exactly the flicker this avoids.
 const INK = "text-neutral-900 dark:text-white"
 const INK_DIM = "text-neutral-500 dark:text-white/55"
-const INK_FAINT = "text-neutral-400 dark:text-white/40"
+const INK_FAINT = "text-neutral-600 dark:text-neutral-400 dark:text-white/40"
 const HAIRLINE = "border-neutral-900/10 dark:border-white/10"
 const FILL_SOFT = "bg-neutral-900/5 dark:bg-white/10"
 const HOVER_SOFT = "hover:bg-neutral-900/[0.03] dark:hover:bg-white/5"
@@ -92,7 +92,7 @@ export function OnboardingSidePanel({ nav }: { nav: FlowNav }) {
 										} ${isCurrent ? FILL_SOFT : isReachable ? HOVER_SOFT : ""}`}
 									>
 										<span
-											className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold transition-colors ${
+											className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold transition-colors ${
 												isDone
 													? MARKER_DONE
 													: isCurrent

@@ -188,7 +188,7 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                                             className="w-full h-full object-cover"
                                         />
                                     ) : (
-                                        <Building2 className="w-6 h-6 text-neutral-400" />
+                                        <Building2 className="w-6 h-6 text-neutral-600 dark:text-neutral-400" />
                                     )
                                 }
                             </div>
@@ -247,7 +247,7 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                                 job.hasAssignment && (
                                     <>
                                         <div className="pt-4 pb-2">
-                                            <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider px-3">
+                                            <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 px-3">
                                                 Assignment
                                             </span>
                                         </div>
@@ -257,7 +257,7 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                                                         ? "bg-neutral-900 text-white dark:bg-white dark:text-black"
                                                         : isAssignmentUnlocked
                                                             ? "hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300"
-                                                            : "opacity-50 cursor-not-allowed text-neutral-400"
+                                                            : "opacity-50 cursor-not-allowed text-neutral-600 dark:text-neutral-400"
                                                     }`}
                                                 disabled={!isAssignmentUnlocked}
                                             >
@@ -280,7 +280,7 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                                 rounds.length > 0 && (
                                     <>
                                         <div className="pt-4 pb-2">
-                                            <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider px-3">
+                                            <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 px-3">
                                                 Interview Rounds
                                             </span>
                                         </div>
@@ -300,7 +300,7 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                                                                     ? "bg-neutral-900 text-white dark:bg-white dark:text-black"
                                                                     : isUnlocked
                                                                         ? "hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300"
-                                                                        : "opacity-50 cursor-not-allowed text-neutral-400"
+                                                                        : "opacity-50 cursor-not-allowed text-neutral-600 dark:text-neutral-400"
                                                                 }`}
                                                             disabled={!isUnlocked}
                                                         >
@@ -340,7 +340,7 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                                 rounds.some(r => r.hasMockInterview) && (
                                     <>
                                         <div className="pt-4 pb-2">
-                                            <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider px-3">
+                                            <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 px-3">
                                                 Practice
                                             </span>
                                         </div>
@@ -502,7 +502,7 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                                                     }`}>
                                                     <div className="flex items-center justify-between mb-2">
                                                         <div className="flex items-center gap-2">
-                                                            <Icon className="w-5 h-5 text-neutral-400" />
+                                                            <Icon className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
                                                             <h4 className="font-semibold text-neutral-900 dark:text-white">
                                                                 {round.title}
                                                             </h4>

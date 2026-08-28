@@ -130,7 +130,7 @@ export function PracticeDashboard({ stats, dailyChallenge }: PracticeDashboardPr
                     </h2>
                     {
                         stats.recentSessions.length === 0 ? (
-                            <p className="text-sm text-neutral-400">No sessions yet. Start practicing!</p>
+                            <p className="text-sm text-neutral-600 dark:text-neutral-400">No sessions yet. Start practicing!</p>
                         ) : (
                             <div className="space-y-2">
                                 {
@@ -163,10 +163,10 @@ function DailyChallengeCard({ challenge }: { challenge: DailyChallengeData }) {
                     </div>
                     <div>
                         <div className="flex items-center gap-2 mb-0.5">
-                            <span className="text-[10px] font-semibold text-neutral-800 dark:text-neutral-100 uppercase tracking-wider">
+                            <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-100">
                                 Daily Challenge
                             </span>
-                            <Badge variant="outline" className={cn("text-[10px] border", DIFFICULTY_COLORS[challenge.difficulty])}>
+                            <Badge variant="outline" className={cn("text-xs border", DIFFICULTY_COLORS[challenge.difficulty])}>
                                 {challenge.difficulty}
                             </Badge>
                         </div>
@@ -178,7 +178,7 @@ function DailyChallengeCard({ challenge }: { challenge: DailyChallengeData }) {
                         </p>
                     </div>
                 </div>
-                <ArrowRight className="h-4 w-4 text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all" />
+                <ArrowRight className="h-4 w-4 text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all" />
             </div>
         </Link>
     );
@@ -219,9 +219,9 @@ function EmptyDashboard({ dailyChallenge }: { dailyChallenge?: DailyChallengeDat
                                             {Object.keys(config.categories).length} topics
                                         </p>
                                     </div>
-                                    <ChevronRight className="h-4 w-4 text-neutral-400 ml-auto group-hover:translate-x-0.5 transition-transform" />
+                                    <ChevronRight className="h-4 w-4 text-neutral-600 dark:text-neutral-400 ml-auto group-hover:translate-x-0.5 transition-transform" />
                                 </div>
-                                <p className="text-xs text-neutral-400">
+                                <p className="text-xs text-neutral-600 dark:text-neutral-400">
                                     Start solving {config.label.toLowerCase()} problems to build your skills
                                 </p>
                             </Link>
@@ -247,13 +247,13 @@ function StatCard({
     return (
         <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4">
             <div className="flex items-center gap-2 mb-2">
-                <Icon className="h-4 w-4 text-neutral-400" />
+                <Icon className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
                 <span className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">{label}</span>
             </div>
             <p className="text-2xl font-bold text-neutral-900 dark:text-white">{value}</p>
             {
                 subtitle && (
-                    <p className="text-xs text-neutral-400 mt-0.5">{subtitle}</p>
+                    <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-0.5">{subtitle}</p>
                 )
             }
         </div>
@@ -276,7 +276,7 @@ function DifficultyBar({
         <div>
             <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-medium text-neutral-600 dark:text-neutral-300">{label}</span>
-                <span className="text-xs text-neutral-400">
+                <span className="text-xs text-neutral-600 dark:text-neutral-400">
                     {completed}/{total}
                 </span>
             </div>
@@ -307,11 +307,11 @@ function ModuleCard({ data }: { data: PracticeProgressData }) {
                 <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">
                     {config.label}
                 </p>
-                <p className="text-xs text-neutral-400">
+                <p className="text-xs text-neutral-600 dark:text-neutral-400">
                     {data.completed} solved · {data.totalXP} XP
                 </p>
             </div>
-            <ChevronRight className="h-3.5 w-3.5 text-neutral-300 group-hover:text-neutral-500 transition-colors" />
+            <ChevronRight className="h-3.5 w-3.5 text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-500 transition-colors" />
         </Link>
     );
 }
@@ -330,19 +330,19 @@ function RecentSessionRow({ session }: { session: PracticeRecentSession }) {
                     {session.problemTitle}
                 </p>
                 <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-[10px] text-neutral-400">{config.label}</span>
-                    <span className={cn("text-[10px] font-medium", DIFFICULTY_COLORS[session.difficulty])}>
+                    <span className="text-xs text-neutral-600 dark:text-neutral-400">{config.label}</span>
+                    <span className={cn("text-xs font-medium", DIFFICULTY_COLORS[session.difficulty])}>
                         {session.difficulty}
                     </span>
                 </div>
             </div>
             {
                 session.status === "COMPLETED" ? (
-                    <Badge variant="outline" className="text-[10px] border-neutral-200 text-neutral-800 dark:border-neutral-800 dark:text-neutral-100">
+                    <Badge variant="outline" className="text-xs border-neutral-200 text-neutral-800 dark:border-neutral-800 dark:text-neutral-100">
                         {session.bestScore}%
                     </Badge>
                 ) : (
-                    <Badge variant="outline" className="text-[10px] border-neutral-200 text-neutral-800 dark:border-neutral-800 dark:text-neutral-100">
+                    <Badge variant="outline" className="text-xs border-neutral-200 text-neutral-800 dark:border-neutral-800 dark:text-neutral-100">
                         In Progress
                     </Badge>
                 )

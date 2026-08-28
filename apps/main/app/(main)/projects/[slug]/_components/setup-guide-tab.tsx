@@ -42,7 +42,7 @@ export function SetupGuideTab({ setupGuide }: SetupGuideTabProps) {
     if (!setupGuide) {
         return (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-                <Settings className="w-12 h-12 text-neutral-300 dark:text-neutral-400 mb-4" />
+                <Settings className="w-12 h-12 text-neutral-600 dark:text-neutral-400 mb-4" />
                 <h3 className="text-lg font-semibold text-neutral-600 dark:text-neutral-400 mb-2">
                     No Setup Guide Available
                 </h3>
@@ -205,7 +205,7 @@ export function SetupGuideTab({ setupGuide }: SetupGuideTabProps) {
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() => handleCopyStep(step, idx)}
-                                                className="text-neutral-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                                className="text-neutral-600 dark:text-neutral-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
                                             >
                                                 {copiedStep === idx ? (
                                                     <Check className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />

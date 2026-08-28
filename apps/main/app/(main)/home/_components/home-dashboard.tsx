@@ -123,8 +123,8 @@ function TrendChart({ data, lines, height = "h-60", fill }: {
 			<ResponsiveContainer width="100%" height="100%">
 				<LineChart data={data} margin={{ top: 8, right: 12, left: -18, bottom: 0 }}>
 					<CartesianGrid stroke="currentColor" className="text-neutral-200 dark:text-neutral-800" strokeOpacity={0.6} vertical={false} />
-					<XAxis dataKey="month" tick={{ fontSize: 11, fill: "currentColor" }} className="text-neutral-400" axisLine={false} tickLine={false} />
-					<YAxis allowDecimals={false} width={34} tick={{ fontSize: 11, fill: "currentColor" }} className="text-neutral-400" axisLine={false} tickLine={false} />
+					<XAxis dataKey="month" tick={{ fontSize: 11, fill: "currentColor" }} className="text-neutral-600 dark:text-neutral-400" axisLine={false} tickLine={false} />
+					<YAxis allowDecimals={false} width={34} tick={{ fontSize: 11, fill: "currentColor" }} className="text-neutral-600 dark:text-neutral-400" axisLine={false} tickLine={false} />
 					<Tooltip
 						contentStyle={{
 							background: "var(--color-card)",
@@ -191,7 +191,7 @@ function ModuleRow({ title, icon: Icon, href, hrefLabel, stats, lines, data, rev
 				</div>
 				<Link
 					href={href}
-					className="cursor-pointer flex items-center gap-0.5 text-sm text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
+					className="cursor-pointer flex items-center gap-0.5 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
 				>
 					{hrefLabel ?? "Open"} <ArrowRight className="h-3 w-3" />
 				</Link>
@@ -210,7 +210,7 @@ function SectionHeader({ title, href, label = "Open" }: { title: string; href: s
 			<h2 className="text-base font-semibold tracking-tight text-neutral-900 dark:text-white">{title}</h2>
 			<Link
 				href={href}
-				className="flex cursor-pointer items-center gap-1 text-sm font-medium text-neutral-400 transition-colors hover:text-neutral-900 dark:hover:text-white"
+				className="flex cursor-pointer items-center gap-1 text-sm font-medium text-neutral-600 dark:text-neutral-400 transition-colors hover:text-neutral-900 dark:hover:text-white"
 			>
 				{label} <ArrowRight className="h-3 w-3" />
 			</Link>
@@ -278,7 +278,7 @@ export default function HomeDashboard({
 							href={s.href}
 							className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-sm font-semibold text-neutral-700 transition-colors hover:border-neutral-500 hover:text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-neutral-500 dark:hover:text-white"
 						>
-							<s.icon className="h-3 w-3 text-neutral-400 dark:text-neutral-400" />
+							<s.icon className="h-3 w-3 text-neutral-600 dark:text-neutral-400" />
 							{s.label}
 						</Link>
 					))}
@@ -422,8 +422,8 @@ export default function HomeDashboard({
 								<ResponsiveContainer width="100%" height="100%">
 									<BarChart data={mixChartData} margin={{ top: 4, right: 8, left: -24, bottom: 0 }} barSize={28}>
 										<CartesianGrid stroke="currentColor" className="text-neutral-200 dark:text-neutral-800" strokeOpacity={0.6} vertical={false} />
-										<XAxis dataKey="name" tick={{ fontSize: 10, fill: "currentColor" }} className="text-neutral-400" axisLine={false} tickLine={false} />
-										<YAxis allowDecimals={false} tick={{ fontSize: 10, fill: "currentColor" }} className="text-neutral-400" axisLine={false} tickLine={false} />
+										<XAxis dataKey="name" tick={{ fontSize: 10, fill: "currentColor" }} className="text-neutral-600 dark:text-neutral-400" axisLine={false} tickLine={false} />
+										<YAxis allowDecimals={false} tick={{ fontSize: 10, fill: "currentColor" }} className="text-neutral-600 dark:text-neutral-400" axisLine={false} tickLine={false} />
 										<Tooltip
 											contentStyle={{
 												background: "var(--color-card)",
@@ -451,7 +451,7 @@ export default function HomeDashboard({
 										/>
 										<span className="text-sm text-neutral-500 dark:text-neutral-400">
 											{titleCase(m.type)}
-											<span className="ml-1 font-mono text-neutral-400">({m.xp} XP)</span>
+											<span className="ml-1 font-mono text-neutral-600 dark:text-neutral-400">({m.xp} XP)</span>
 										</span>
 									</div>
 								))}
@@ -484,7 +484,7 @@ export default function HomeDashboard({
 											<span className="font-semibold text-neutral-900 dark:text-white">{activity.title}</span>
 											{activity.description ? ` - ${activity.description}` : null}
 										</p>
-										<span className="mt-0.5 block font-mono text-xs text-neutral-400">
+										<span className="mt-0.5 block font-mono text-xs text-neutral-600 dark:text-neutral-400">
 											{formatDate(activity.createdAt)}
 											{activity.xpEarned > 0 ? ` · +${activity.xpEarned} XP` : ""}
 										</span>
@@ -507,7 +507,7 @@ function EmptyBlock({ icon: Icon, title, action }: {
 	return (
 		<div className="flex flex-col items-center justify-center py-10">
 			<div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800">
-				<Icon className="h-5 w-5 text-neutral-400" />
+				<Icon className="h-5 w-5 text-neutral-600 dark:text-neutral-400" />
 			</div>
 			<p className="text-sm font-medium text-neutral-500 dark:text-neutral-300">{title}</p>
 			{action && (

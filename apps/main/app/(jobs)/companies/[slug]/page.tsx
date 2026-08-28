@@ -47,7 +47,7 @@ export default async function CompanyDetailPage({ params }: CompanyDetailPagePro
         <Suspense 
             fallback={
                 <div className="min-h-full flex items-center justify-center">
-                    <InlineLoader size="lg" className="text-neutral-400" />
+                    <InlineLoader size="lg" className="text-neutral-600 dark:text-neutral-400" />
                 </div>
             }
         >

@@ -337,7 +337,7 @@ export function StudioViewer({
 									index < steps.length - 1 && (
 										<div className="flex items-center gap-4 py-4">
 											<div className="flex-1 h-px bg-gradient-to-r from-transparent via-neutral-200 dark:via-neutral-800 to-transparent" />
-											<span className="text-xs text-neutral-400 dark:text-neutral-400">
+											<span className="text-xs text-neutral-600 dark:text-neutral-400">
 												Step {index + 1} of {steps.length}
 											</span>
 											<div className="flex-1 h-px bg-gradient-to-r from-transparent via-neutral-200 dark:via-neutral-800 to-transparent" />

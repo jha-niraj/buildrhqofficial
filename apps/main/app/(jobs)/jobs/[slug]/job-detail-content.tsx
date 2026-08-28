@@ -264,7 +264,7 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                             fill
                                         />
                                     ) : (
-                                        <Building2 className="w-10 h-10 text-neutral-400" />
+                                        <Building2 className="w-10 h-10 text-neutral-600 dark:text-neutral-400" />
                                     )
                                 }
                             </div>
@@ -643,7 +643,7 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                     </div>
                                 ) : (
                                     <div className="p-8 rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-center">
-                                        <FileText className="w-12 h-12 text-neutral-300 dark:text-neutral-700 mx-auto mb-4" />
+                                        <FileText className="w-12 h-12 text-neutral-600 dark:text-neutral-700 mx-auto mb-4" />
                                         <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">
                                             Interview Process Not Disclosed
                                         </h3>
@@ -728,7 +728,7 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                                             job.company.logoUrl ? (
                                                 <Image src={job.company.logoUrl} alt={job.company.name} fill className="object-cover" />
                                             ) : (
-                                                <Building2 className="w-6 h-6 text-neutral-400" />
+                                                <Building2 className="w-6 h-6 text-neutral-600 dark:text-neutral-400" />
                                             )
                                         }
                                     </div>

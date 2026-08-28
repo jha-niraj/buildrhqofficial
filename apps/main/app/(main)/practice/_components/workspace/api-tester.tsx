@@ -89,9 +89,9 @@ export function APITester({ testCases, onRunTest, code }: APITesterProps) {
         <div className="flex flex-col h-full">
             <div className="flex items-center justify-between px-4 py-2.5 border-b border-neutral-800">
                 <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-neutral-400">API Tests</span>
+                    <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">API Tests</span>
                     {totalRun > 0 && (
-                        <span className="text-[10px] text-neutral-500 dark:text-neutral-400">
+                        <span className="text-xs text-neutral-500 dark:text-neutral-400">
                             {passCount}/{totalRun} passed
                         </span>
                     )}
@@ -99,7 +99,7 @@ export function APITester({ testCases, onRunTest, code }: APITesterProps) {
                 <Button
                     size="sm"
                     variant="outline"
-                    className="h-7 text-[10px] border-neutral-700 hover:bg-neutral-800"
+                    className="h-7 text-xs border-neutral-700 hover:bg-neutral-800"
                     onClick={handleRunAll}
                     disabled={runningTest !== null}
                 >
@@ -131,13 +131,13 @@ export function APITester({ testCases, onRunTest, code }: APITesterProps) {
                                     )}
                                     <Badge
                                         className={cn(
-                                            "text-[9px] font-bold px-1.5 py-0 border-0",
+                                            "text-xs font-bold px-1.5 py-0 border-0",
                                             METHOD_STYLES[tc.method] ?? METHOD_STYLES.GET
                                         )}
                                     >
                                         {tc.method}
                                     </Badge>
-                                    <span className="text-xs text-neutral-300 font-mono truncate flex-1">
+                                    <span className="text-xs text-neutral-600 dark:text-neutral-400 font-mono truncate flex-1">
                                         {tc.path}
                                     </span>
                                     <Button
@@ -170,16 +170,16 @@ export function APITester({ testCases, onRunTest, code }: APITesterProps) {
                                             exit={{ height: 0, opacity: 0 }}
                                             className="overflow-hidden border-t border-neutral-800"
                                         >
-                                            <div className="px-3 py-2 space-y-1.5 text-[11px]">
-                                                <p className="text-neutral-400">{tc.description}</p>
+                                            <div className="px-3 py-2 space-y-1.5 text-xs">
+                                                <p className="text-neutral-600 dark:text-neutral-400">{tc.description}</p>
                                                 <p className="text-neutral-500 dark:text-neutral-400">
-                                                    Expected: <span className="text-neutral-300">{tc.expectedStatus}</span>
+                                                    Expected: <span className="text-neutral-600 dark:text-neutral-400">{tc.expectedStatus}</span>
                                                     {tc.expectedBodyContains && (
-                                                        <> containing <span className="text-neutral-300 font-mono">{tc.expectedBodyContains}</span></>
+                                                        <> containing <span className="text-neutral-600 dark:text-neutral-400 font-mono">{tc.expectedBodyContains}</span></>
                                                     )}
                                                 </p>
                                                 {tc.body && (
-                                                    <pre className="bg-neutral-900 rounded p-2 text-neutral-400 font-mono text-[10px] overflow-x-auto">
+                                                    <pre className="bg-neutral-900 rounded p-2 text-neutral-400 font-mono text-xs overflow-x-auto">
                                                         {JSON.stringify(tc.body, null, 2)}
                                                     </pre>
                                                 )}
@@ -191,7 +191,7 @@ export function APITester({ testCases, onRunTest, code }: APITesterProps) {
                                                             : "bg-red-900/20 border border-red-800/30"
                                                     )}>
                                                         <p className={cn(
-                                                            "text-[10px]",
+                                                            "text-xs",
                                                             result.passed ? "text-neutral-800 dark:text-neutral-200" : "text-red-400"
                                                         )}>
                                                             {result.message}

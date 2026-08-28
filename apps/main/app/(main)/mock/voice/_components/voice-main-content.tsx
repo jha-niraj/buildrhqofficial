@@ -234,7 +234,7 @@ export function VoiceMainContent({
                 view !== 'my-sessions' && (
                     <div className="flex flex-col md:flex-row gap-4 items-center justify-between pb-6 border-b border-neutral-200 dark:border-neutral-800">
                         <div className="relative w-full md:w-96">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                             <Input
                                 placeholder="Search interviews..."
                                 className="pl-10"
@@ -337,7 +337,7 @@ export function VoiceMainContent({
                         ) : (
                             <div className="text-center py-24 border-2 border-dashed border-neutral-200 dark:border-neutral-800 rounded-xl">
                                 <div className="mb-4 bg-neutral-100 dark:bg-neutral-900 p-4 rounded-full w-fit mx-auto">
-                                    <Search className="w-8 h-8 text-neutral-400" />
+                                    <Search className="w-8 h-8 text-neutral-600 dark:text-neutral-400" />
                                 </div>
                                 <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">
                                     No mocks found

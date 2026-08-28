@@ -135,7 +135,7 @@ export default function FeatureDiscovery({
             return (
                 <Badge
                     variant="outline"
-                    className="text-[10px] px-1.5 py-0 border-neutral-900/50 text-neutral-900 dark:text-neutral-100 bg-neutral-900/10"
+                    className="text-xs px-1.5 py-0 border-neutral-900/50 text-neutral-900 dark:text-neutral-100 bg-neutral-900/10"
                 >
                     Coming Soon
                 </Badge>
@@ -145,7 +145,7 @@ export default function FeatureDiscovery({
             return (
                 <Badge
                     variant="outline"
-                    className="text-[10px] px-1.5 py-0 border-muted-foreground/50 text-muted-foreground bg-muted/50"
+                    className="text-xs px-1.5 py-0 border-muted-foreground/50 text-muted-foreground bg-muted/50"
                 >
                     <Lock className="h-2.5 w-2.5 mr-0.5" />
                     Locked

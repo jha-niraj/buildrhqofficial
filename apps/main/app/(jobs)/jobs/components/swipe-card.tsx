@@ -155,7 +155,7 @@ export function SwipeCard({
                                     fill
                                 />
                             ) : (
-                                <Building2 className="w-8 h-8 text-neutral-400" />
+                                <Building2 className="w-8 h-8 text-neutral-600 dark:text-neutral-400" />
                             )}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -178,16 +178,16 @@ export function SwipeCard({
                     {/* Job Details */}
                     <div className="grid grid-cols-2 gap-3 mb-5">
                         <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-                            <MapPin className="w-4 h-4 text-neutral-400" />
+                            <MapPin className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                             <span>{job.location || locationTypeLabels[job.locationType]}</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-                            <Briefcase className="w-4 h-4 text-neutral-400" />
+                            <Briefcase className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                             <span>{employmentTypeLabels[job.employmentType]}</span>
                         </div>
                         {formatExperience(job.experienceMin, job.experienceMax) && (
                             <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-                                <Clock className="w-4 h-4 text-neutral-400" />
+                                <Clock className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                                 <span>{formatExperience(job.experienceMin, job.experienceMax)}</span>
                             </div>
                         )}
@@ -201,7 +201,7 @@ export function SwipeCard({
 
                     {/* Skills */}
                     <div className="mb-5">
-                        <p className="text-xs text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-2 font-medium">
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-2 font-medium">
                             Skills Match
                         </p>
                         <div className="flex flex-wrap gap-1.5">
@@ -231,13 +231,13 @@ export function SwipeCard({
                                     <span>{job.interviewProcess.rounds.length} rounds</span>
                                     {job.interviewProcess.estimatedDurationWeeks && (
                                         <>
-                                            <span className="text-neutral-300 dark:text-neutral-700">•</span>
+                                            <span className="text-neutral-600 dark:text-neutral-700">•</span>
                                             <span>~{job.interviewProcess.estimatedDurationWeeks}w</span>
                                         </>
                                     )}
                                     {job.interviewProcess.rounds.some(r => r.hasMockInterview) && (
                                         <>
-                                            <span className="text-neutral-300 dark:text-neutral-700">•</span>
+                                            <span className="text-neutral-600 dark:text-neutral-700">•</span>
                                             <Mic className="w-4 h-4" />
                                         </>
                                     )}

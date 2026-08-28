@@ -128,7 +128,7 @@ export function AssignmentContent({ application }: AssignmentContentProps) {
                                             className="w-full h-full object-cover"
                                         />
                                     ) : (
-                                        <Building2 className="w-5 h-5 text-neutral-400" />
+                                        <Building2 className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
                                     )
                                 }
                             </div>
@@ -287,7 +287,7 @@ export function AssignmentContent({ application }: AssignmentContentProps) {
                                                             <span className="text-sm text-neutral-800 dark:text-neutral-100 truncate flex-1">
                                                                 {resource}
                                                             </span>
-                                                            <ExternalLink className="w-4 h-4 text-neutral-400" />
+                                                            <ExternalLink className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                                                         </Link>
                                                     ))
                                                 }

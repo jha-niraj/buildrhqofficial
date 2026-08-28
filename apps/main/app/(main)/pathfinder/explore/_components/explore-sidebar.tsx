@@ -164,7 +164,7 @@ function ExploreGoalCard({
                         <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 line-clamp-1">
                             by {goal.user?.name || goal.user?.username || 'Unknown'}
                         </p>
-                        <div className="flex items-center gap-2 mt-2 text-[10px]">
+                        <div className="flex items-center gap-2 mt-2 text-xs">
                             <span className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400">
                                 <CheckCircle2 className="w-3 h-3" />
                                 {goal.completedSubGoals}/{goal.totalSubGoals} tasks

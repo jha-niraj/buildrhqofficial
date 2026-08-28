@@ -165,7 +165,7 @@ export default function Sidebar() {
             }}
             footerExtra={
                 <div className="flex items-center gap-1.5">
-                    <Link href="/purchase" className="flex flex-1 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-900 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors min-w-0">
+                    <Link href="/credits" className="flex flex-1 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-900 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors min-w-0">
                         <Zap className="h-3.5 w-3.5 text-neutral-900 dark:text-white shrink-0" />
                         <span className="truncate">{typeof credits === "number" ? `${credits.toLocaleString()} credits` : "Credits"}</span>
                     </Link>
@@ -195,7 +195,7 @@ export default function Sidebar() {
             footerExtraCollapsed={
                 <>
                     <Link
-                        href="/purchase"
+                        href="/credits"
                         title={typeof credits === "number" ? `${credits.toLocaleString()} credits` : "Credits"}
                         className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-600 transition-colors hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
                     >

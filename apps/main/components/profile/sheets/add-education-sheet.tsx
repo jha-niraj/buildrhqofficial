@@ -178,7 +178,7 @@ export function AddEducationSheet({ open, onOpenChange, onSuccess, editEducation
 
                     <div className="space-y-1.5">
                         <Label className="text-xs font-medium">Highlights / Activities</Label>
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400">Optional - one per line (GPA, awards, clubs, etc.)</p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">Optional - one per line (GPA, awards, clubs, etc.)</p>
                         <Textarea
                             placeholder={"CGPA: 9.2/10\nTech Fest Winner 2023\nStudent Council President"}
                             className="h-24 resize-none text-sm"

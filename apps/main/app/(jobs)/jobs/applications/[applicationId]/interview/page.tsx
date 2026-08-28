@@ -166,7 +166,7 @@ export default async function InterviewJourneyPage({ params }: InterviewJourneyP
         <Suspense
             fallback={
                 <div className="min-h-screen flex items-center justify-center">
-                    <InlineLoader size="lg" className="text-neutral-400" />
+                    <InlineLoader size="lg" className="text-neutral-600 dark:text-neutral-400" />
                 </div>
             }
         >

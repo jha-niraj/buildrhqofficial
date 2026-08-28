@@ -135,7 +135,7 @@ export function CountrySelector({ value, onChange, disabled, className }: Countr
                 >
                     <span className="text-base leading-none">{value.flag}</span>
                     <span className="font-mono text-neutral-700 dark:text-neutral-300">{value.dial}</span>
-                    <ChevronsUpDown className="h-3 w-3 text-neutral-400 flex-shrink-0" />
+                    <ChevronsUpDown className="h-3 w-3 text-neutral-600 dark:text-neutral-400 flex-shrink-0" />
                 </button>
             </PopoverTrigger>
             <PopoverContent className="w-72 p-0" align="start">
@@ -282,7 +282,7 @@ export function CountryPhoneInput({
                 placeholder={placeholder}
                 disabled={disabled}
                 className={cn(
-                    "flex h-11 flex-1 rounded-xl border border-neutral-200 bg-neutral-50 px-3 text-sm placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-400/20 dark:border-neutral-800 dark:bg-neutral-900 dark:placeholder:text-neutral-600 dark:focus:border-neutral-500 disabled:opacity-50",
+                    "flex h-11 flex-1 rounded-xl border border-neutral-200 bg-neutral-50 px-3 text-sm placeholder:text-neutral-600 dark:text-neutral-400 focus:border-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-400/20 dark:border-neutral-800 dark:bg-neutral-900 dark:placeholder:text-neutral-600 dark:focus:border-neutral-500 disabled:opacity-50",
                     inputClassName
                 )}
             />

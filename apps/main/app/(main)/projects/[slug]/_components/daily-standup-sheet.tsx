@@ -173,7 +173,7 @@ export default function DailyStandupSheet({
                 {
                     isChecking ? (
                         <div className="flex items-center justify-center py-12">
-                            <InlineLoader size="lg" className="text-neutral-400" />
+                            <InlineLoader size="lg" className="text-neutral-600 dark:text-neutral-400" />
                         </div>
                     ) : hasConfig && config ? (
                         <div className="space-y-6">

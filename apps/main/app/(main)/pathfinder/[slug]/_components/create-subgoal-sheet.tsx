@@ -186,7 +186,7 @@ export function CreateSubGoalSheet({
                                     <Sparkles className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                     Fetching videos & docs (Exa) + creating content (OpenAI)
                                 </p>
-                                <p className="text-xs text-neutral-400">
+                                <p className="text-xs text-neutral-600 dark:text-neutral-400">
                                     This usually takes 5-10 seconds
                                 </p>
                             </div>

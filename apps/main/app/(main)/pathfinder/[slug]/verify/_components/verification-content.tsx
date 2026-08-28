@@ -102,7 +102,7 @@ const statusIcons: Record<VerificationSectionStatus, React.ReactNode> = {
 }
 
 const statusColors: Record<VerificationSectionStatus, string> = {
-    LOCKED: 'text-neutral-400 bg-neutral-100 dark:bg-neutral-800',
+    LOCKED: 'text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800',
     PENDING: 'text-neutral-800 bg-neutral-100 dark:bg-neutral-800/30',
     IN_PROGRESS: 'text-neutral-800 bg-neutral-100 dark:bg-neutral-800/30',
     COMPLETED: 'text-neutral-800 bg-neutral-100 dark:bg-neutral-800/30',

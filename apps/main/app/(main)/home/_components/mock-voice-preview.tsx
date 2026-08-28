@@ -71,10 +71,10 @@ export default function MockVoicePreview({ sessions }: MockVoicePreviewProps) {
                                             <span className="flex-1 text-sm font-medium truncate text-neutral-800 dark:text-neutral-200">
                                                 {s.mock.title}
                                             </span>
-                                            <span className="text-[10px] text-neutral-400 flex-shrink-0">
+                                            <span className="text-xs text-neutral-600 dark:text-neutral-400 flex-shrink-0">
                                                 {formatDate(s.createdAt)}
                                             </span>
-                                            <Badge variant="outline" className={`text-[10px] px-1.5 py-0 border ${cfg.color} flex-shrink-0`}>
+                                            <Badge variant="outline" className={`text-xs px-1.5 py-0 border ${cfg.color} flex-shrink-0`}>
                                                 {isCompleted ? "Done" : "Active"}
                                             </Badge>
                                         </div>

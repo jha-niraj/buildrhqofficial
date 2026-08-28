@@ -72,7 +72,7 @@ export function ToolSteps({ steps }: { steps: ToolStep[] }) {
             {steps.map((s) => (
                 <div key={s.id} className="flex min-w-0 max-w-full items-center gap-1.5 text-[12px] font-medium">
                     {s.status === "running" ? (
-                        <InlineLoader size="sm" className="shrink-0 text-neutral-400" />
+                        <InlineLoader size="sm" className="shrink-0 text-neutral-600 dark:text-neutral-400" />
                     ) : s.status === "error" ? (
                         <X className="h-3 w-3 shrink-0 text-red-500" />
                     ) : (

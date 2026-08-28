@@ -27,7 +27,7 @@ export default async function JobsPage() {
     return (
         <Suspense fallback={
             <div className="flex items-center justify-center py-20">
-                <InlineLoader size="lg" className="text-neutral-400" />
+                <InlineLoader size="lg" className="text-neutral-600 dark:text-neutral-400" />
             </div>
         }>
             <SparkContent 

@@ -1460,7 +1460,7 @@ function FileStep({
 									<button
 										type="button"
 										onClick={() => remove(slot.id)}
-										className="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors shrink-0 cursor-pointer"
+										className="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-600 dark:text-neutral-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors shrink-0 cursor-pointer"
 										aria-label={`Remove ${slot.label}`}
 									>
 										<Trash2 className="w-4 h-4" />

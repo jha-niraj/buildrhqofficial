@@ -125,7 +125,7 @@ export function JobCard({
                                 fill
                             />
                         ) : (
-                            <Building2 className="w-5 h-5 text-neutral-400" />
+                            <Building2 className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
                         )}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -155,7 +155,7 @@ export function JobCard({
                             {job.matchScore}%
                         </Badge>
                     )}
-                    <ChevronRight className="w-4 h-4 text-neutral-400 shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-neutral-600 dark:text-neutral-400 shrink-0" />
                 </div>
             </motion.div>
         )
@@ -189,7 +189,7 @@ export function JobCard({
                             fill
                         />
                     ) : (
-                        <Building2 className="w-7 h-7 text-neutral-400" />
+                        <Building2 className="w-7 h-7 text-neutral-600 dark:text-neutral-400" />
                     )}
                 </div>
 
@@ -205,7 +205,7 @@ export function JobCard({
                                     <TooltipProvider>
                                         <Tooltip>
                                             <TooltipTrigger>
-                                                <Badge className="bg-neutral-100 text-neutral-700 dark:bg-neutral-800/30 dark:text-neutral-100 text-[10px] px-1.5 py-0">
+                                                <Badge className="bg-neutral-100 text-neutral-700 dark:bg-neutral-800/30 dark:text-neutral-100 text-xs px-1.5 py-0">
                                                     <UserCheck className="w-3 h-3 mr-0.5" />
                                                     Following
                                                 </Badge>
@@ -230,7 +230,7 @@ export function JobCard({
                                         <TooltipContent>
                                             <div className="text-sm">
                                                 <p className="font-medium">{matchBadge.label}</p>
-                                                <p className="text-neutral-400">Based on your skills</p>
+                                                <p className="text-neutral-600 dark:text-neutral-400">Based on your skills</p>
                                             </div>
                                         </TooltipContent>
                                     </Tooltip>
@@ -308,23 +308,23 @@ export function JobCard({
                                     <span>{job.interviewProcess.rounds.length} rounds</span>
                                     {job.interviewProcess.estimatedDurationWeeks && (
                                         <>
-                                            <span className="text-neutral-300 dark:text-neutral-700">•</span>
+                                            <span className="text-neutral-600 dark:text-neutral-700">•</span>
                                             <span>~{job.interviewProcess.estimatedDurationWeeks}w</span>
                                         </>
                                     )}
                                     {hasMockInterview && (
                                         <>
-                                            <span className="text-neutral-300 dark:text-neutral-700">•</span>
+                                            <span className="text-neutral-600 dark:text-neutral-700">•</span>
                                             <Mic className="w-4 h-4" />
                                             <span>Mock</span>
                                         </>
                                     )}
                                 </div>
                             ) : (
-                                <span className="text-sm text-neutral-400">Interview process not disclosed</span>
+                                <span className="text-sm text-neutral-600 dark:text-neutral-400">Interview process not disclosed</span>
                             )}
                             {job.company.hasTransparentProcess && (
-                                <Badge className="text-[10px] px-1.5 py-0 bg-neutral-100 text-neutral-700 dark:bg-neutral-800/30 dark:text-neutral-100">
+                                <Badge className="text-xs px-1.5 py-0 bg-neutral-100 text-neutral-700 dark:bg-neutral-800/30 dark:text-neutral-100">
                                     Transparent
                                 </Badge>
                             )}
@@ -353,13 +353,13 @@ export function JobCard({
                                         <TooltipContent>
                                             <div className="text-sm">
                                                 <p className="font-medium">Practice Mock Interview</p>
-                                                <p className="text-neutral-400">Prepare for this role with AI interviews</p>
+                                                <p className="text-neutral-600 dark:text-neutral-400">Prepare for this role with AI interviews</p>
                                             </div>
                                         </TooltipContent>
                                     </Tooltip>
                                 </TooltipProvider>
                             )}
-                            <div className="flex items-center gap-2 text-sm text-neutral-400">
+                            <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
                                 <Users className="w-4 h-4" />
                                 <span>{job.applicationsCount}</span>
                             </div>
@@ -367,7 +367,7 @@ export function JobCard({
                     </div>
                 </div>
 
-                <ChevronRight className="w-5 h-5 text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors shrink-0 mt-6" />
+                <ChevronRight className="w-5 h-5 text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-600 transition-colors shrink-0 mt-6" />
             </div>
 
             {/* Applied Banner */}

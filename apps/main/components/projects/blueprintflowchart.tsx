@@ -70,7 +70,7 @@ function TaskNode({ data }: { data: TaskNodeData }) {
                     </span>
                     {statusIcons[data.status]}
                 </div>
-                <Badge className={cn('text-[10px] px-1.5 py-0', difficultyColors[data.difficulty])}>
+                <Badge className={cn('text-xs px-1.5 py-0', difficultyColors[data.difficulty])}>
                     {data.difficulty}
                 </Badge>
             </div>
@@ -94,7 +94,7 @@ function TaskNode({ data }: { data: TaskNodeData }) {
                     <div className="flex flex-wrap gap-1 mt-2">
                         {
                             data.tags.slice(0, 3).map((tag, idx) => (
-                                <span key={idx} className="text-[10px] px-1.5 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded text-neutral-600 dark:text-neutral-400">
+                                <span key={idx} className="text-xs px-1.5 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded text-neutral-600 dark:text-neutral-400">
                                     {tag}
                                 </span>
                             ))
@@ -396,9 +396,9 @@ export default function BlueprintFlowchart({
                     </div>
                     {
                         isExpanded ? (
-                            <ChevronUp className="w-5 h-5 text-neutral-400" />
+                            <ChevronUp className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
                         ) : (
-                            <ChevronDown className="w-5 h-5 text-neutral-400" />
+                            <ChevronDown className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
                         )
                     }
                 </div>

@@ -77,7 +77,7 @@ export function PathfinderVideosTab({ aiResources }: PathfinderVideosTabProps) {
                                                         <span className="text-xs text-neutral-500 dark:text-neutral-400">{v.duration}</span>
                                                     )}
                                                 </div>
-                                                <ExternalLink className="w-4 h-4 text-neutral-400" />
+                                                <ExternalLink className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                                             </a>
                                         )}
                                         {videoId && v.description && (
@@ -121,12 +121,12 @@ export function PathfinderVideosTab({ aiResources }: PathfinderVideosTabProps) {
                                         </p>
                                         <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5">{d.url}</p>
                                         {d.type && (
-                                            <span className="inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400">
+                                            <span className="inline-block mt-1 px-1.5 py-0.5 rounded text-xs bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400">
                                                 {d.type}
                                             </span>
                                         )}
                                     </div>
-                                    <ExternalLink className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+                                    <ExternalLink className="w-4 h-4 text-neutral-600 dark:text-neutral-400 flex-shrink-0" />
                                 </a>
                             ))
                         )}

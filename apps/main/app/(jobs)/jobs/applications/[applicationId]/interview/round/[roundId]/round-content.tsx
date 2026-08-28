@@ -136,7 +136,7 @@ export function RoundContent({ application, round }: RoundContentProps) {
                                             className="w-full h-full object-cover"
                                         />
                                     ) : (
-                                        <Building2 className="w-5 h-5 text-neutral-400" />
+                                        <Building2 className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
                                     )
                                 }
                             </div>

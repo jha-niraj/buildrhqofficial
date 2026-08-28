@@ -1,12 +1,16 @@
 'use client'
 
+import { useCallback, useState } from 'react'
 import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts'
+import TransactionsClient from '@/app/(main)/transactions/_components/TransactionsClient'
 import { Button } from '@repo/ui/components/ui/button'
 import { ScrollArea } from '@repo/ui/components/ui/scroll-area'
 import { Badge } from '@repo/ui/components/ui/badge'
 import { AnimatedIcon } from '@repo/ui/components/animated-icons'
 import { cn } from '@repo/ui/lib/utils'
-import { Plus, Receipt, Gift } from 'lucide-react'
+import { Plus, Receipt, Gift, X } from 'lucide-react'
 import type { CreditsOverview } from '@/actions/(main)/credits/credits.action'
 
 /**
@@ -27,11 +31,53 @@ function money(amount: string, currency: string) {
     return Number.isFinite(n) ? `${symbol}${n.toFixed(2)}` : `${symbol}${amount}`
 }
 
+/** 10000 -> "10k". Long ticks are what clipped the axis in the first place. */
+function compactTick(v: number): string {
+    return v >= 1000 ? `${(v / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 })}k` : String(v)
+}
+
 function when(d: Date | string) {
     return new Date(d).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 export function CreditsClient({ data, error }: { data: CreditsOverview | null; error: string | null }) {
+    // ── History panel ──
+    //
+    // Same shape as the AI rail in app/(main)/layout.tsx, and the same lesson:
+    // the width is applied with NO transition while dragging. Animating it
+    // during a drag starts a new transition on every mousemove, so the panel
+    // chases the cursor and settles late, which reads as it moving on its own.
+    const [historyOpen, setHistoryOpen] = useState(false)
+    const [historyWidth, setHistoryWidth] = useState(520)
+    const [historyResizing, setHistoryResizing] = useState(false)
+
+    const clampHistory = (w: number) => Math.min(Math.max(w, 380), 900)
+
+    const startHistoryResize = useCallback((startX: number, startWidth: number) => {
+        setHistoryResizing(true)
+        // Docked RIGHT, so dragging left (smaller clientX) widens it.
+        const move = (clientX: number) => setHistoryWidth(clampHistory(startWidth + (startX - clientX)))
+        const onMouseMove = (e: MouseEvent) => { e.preventDefault(); move(e.clientX) }
+        const onTouchMove = (e: TouchEvent) => { const t = e.touches[0]; if (t) move(t.clientX) }
+        const stop = () => {
+            setHistoryResizing(false)
+            window.removeEventListener('mousemove', onMouseMove)
+            window.removeEventListener('mouseup', stop)
+            window.removeEventListener('touchmove', onTouchMove)
+            window.removeEventListener('touchend', stop)
+            document.body.style.cursor = ''
+            document.body.style.userSelect = ''
+        }
+        window.addEventListener('mousemove', onMouseMove)
+        window.addEventListener('mouseup', stop)
+        window.addEventListener('touchmove', onTouchMove, { passive: true })
+        window.addEventListener('touchend', stop)
+        // Without these the drag selects page text and the cursor flickers on
+        // every child it crosses.
+        document.body.style.cursor = 'col-resize'
+        document.body.style.userSelect = 'none'
+    }, [])
+
     if (error || !data) {
         return (
             <div className="flex h-dvh items-center justify-center p-8">
@@ -44,7 +90,7 @@ export function CreditsClient({ data, error }: { data: CreditsOverview | null; e
         )
     }
 
-    const { balance, totalSpent, totalAdded, purchases, ledger } = data
+    const { balance, totalSpent, totalAdded, purchases, usage, trend } = data
 
     return (
         <div className="flex h-dvh flex-col overflow-hidden">
@@ -59,6 +105,21 @@ export function CreditsClient({ data, error }: { data: CreditsOverview | null; e
                     <div className="flex items-center gap-2">
                         {/* Bounty lives on BOTH pages: it is an offer, and an offer
                             belongs next to the price as well as in the wallet. */}
+                        {/* History opens a docked PANEL, not an inline section.
+                            It was inlined and that was wrong: reviewing what you
+                            spent is something you do while looking at something
+                            else, and a panel can be opened and dismissed without
+                            losing your place on the page. */}
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setHistoryOpen((v) => !v)}
+                            aria-pressed={historyOpen}
+                            className="cursor-pointer gap-1.5"
+                        >
+                            <Receipt className="h-4 w-4" />
+                            History
+                        </Button>
                         <Link href="/purchase?bounty=1">
                             <Button variant="outline" size="sm" className="cursor-pointer gap-1.5">
                                 <Gift className="h-4 w-4" />
@@ -82,20 +143,206 @@ export function CreditsClient({ data, error }: { data: CreditsOverview | null; e
             </header>
 
             <ScrollArea reflow className="min-h-0 min-w-0 flex-1">
-                <div className="space-y-8 p-6">
+                <div className="space-y-10 p-6">
+                    {/* ── Usage by feature ──────────────────────────────────────
+                        Above purchases on purpose: "what did I spend it on" is
+                        the question this page exists to answer, and purchases are
+                        the shorter, rarer list. */}
                     <section>
-                        <h2 className="mb-3 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Purchases</h2>
-                        {purchases.length === 0 ? (
+                        <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Usage by feature</h2>
+                        <p className="mb-3 text-xs text-neutral-600 dark:text-neutral-400">
+                            Credits spent per feature, with refunds already netted off.
+                        </p>
+                        {usage.length === 0 ? (
                             <Empty
-                                icon="document"
-                                title="No purchases yet"
-                                body="Packs and custom top-ups appear here with their receipt."
+                                icon="empty-search"
+                                title="Nothing spent yet"
+                                body="Once you run a generation, what it cost shows up here."
                             />
                         ) : (
                             <div className="overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800">
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-sm">
-                                        <thead className="bg-neutral-50 text-left text-xs text-neutral-500 dark:bg-neutral-900/50 dark:text-neutral-400">
+                                        <thead className="bg-neutral-50 text-left text-xs text-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400">
+                                            <tr>
+                                                <th className="px-4 py-2.5 font-medium">Feature</th>
+                                                <th className="px-4 py-2.5 font-medium">Uses</th>
+                                                <th className="w-1/2 px-4 py-2.5 font-medium">Share of spend</th>
+                                                <th className="px-4 py-2.5 text-right font-medium">Credits</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {usage.map((u) => (
+                                                <tr key={u.feature} className="border-t border-neutral-200 dark:border-neutral-800">
+                                                    <td className="whitespace-nowrap px-4 py-3 font-medium text-neutral-900 dark:text-neutral-100">{u.feature}</td>
+                                                    <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">{u.uses}</td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+                                                                {/* A minimum width so a 0.4% row is still a
+                                                                    visible mark rather than an empty track
+                                                                    the eye reads as "no data". */}
+                                                                <div
+                                                                    className="h-full rounded-full bg-neutral-900 dark:bg-neutral-100"
+                                                                    style={{ width: `${Math.max(u.percent, u.credits > 0 ? 2 : 0)}%` }}
+                                                                />
+                                                            </div>
+                                                            <span className="w-12 shrink-0 text-right font-mono text-xs text-neutral-600 dark:text-neutral-400">
+                                                                {u.percent.toFixed(1)}%
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="whitespace-nowrap px-4 py-3 text-right font-mono text-neutral-900 dark:text-neutral-100">
+                                                        {u.credits.toLocaleString()}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+                    </section>
+
+                    {/* ── Spend trend ───────────────────────────────────────────
+                        Zero-filled in the action, so a quiet week draws a flat
+                        line along the axis rather than a slope between two
+                        distant spends. */}
+                    <section>
+                        <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+                            <div>
+                                <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Credits over time</h2>
+                                <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                                    What you spent and what you topped up, last 30 days.
+                                </p>
+                            </div>
+                            {/* A legend, because two unlabelled monochrome lines are a
+                                puzzle. Solid is money out, dashed is money in. */}
+                            <div className="flex items-center gap-4 text-xs text-neutral-600 dark:text-neutral-400">
+                                <span className="inline-flex items-center gap-1.5">
+                                    <span className="h-0.5 w-4 rounded bg-neutral-900 dark:bg-neutral-100" />
+                                    Spent <span className="text-neutral-500 dark:text-neutral-500">(left)</span>
+                                </span>
+                                <span className="inline-flex items-center gap-1.5">
+                                    <span className="h-0.5 w-4 rounded bg-neutral-400 dark:bg-neutral-500" style={{ backgroundImage: 'repeating-linear-gradient(90deg,currentColor 0 4px,transparent 4px 7px)' }} />
+                                    Added <span className="text-neutral-500 dark:text-neutral-500">(right)</span>
+                                </span>
+                            </div>
+                        </div>
+                        {/* recharts writes `fill`/`stroke` as real SVG attributes, so it
+                            cannot use `currentColor` or a Tailwind class. The two inks are
+                            declared here as CSS variables and flipped for dark mode, which
+                            keeps the chart monochrome in both themes without a JS theme read. */}
+                        <div className="rounded-xl border border-neutral-200 p-4 dark:border-neutral-800 [--credit-axis:#525252] [--credit-ink:#171717] dark:[--credit-axis:#a3a3a3] dark:[--credit-ink:#f5f5f5]">
+                            <div className="h-[26rem] w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={trend} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                                        <defs>
+                                            {/* `currentColor` is not available to recharts - it writes
+                                                `fill` as a real attribute - so the ramp is defined once
+                                                and the stroke colour comes from a CSS variable set on
+                                                the wrapper below. */}
+                                            <linearGradient id="creditSpend" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="0%" stopColor="var(--credit-ink)" stopOpacity={0.22} />
+                                                <stop offset="100%" stopColor="var(--credit-ink)" stopOpacity={0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                                        <XAxis
+                                            dataKey="date"
+                                            tickFormatter={(d: string) => new Date(d).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+                                            tick={{ fontSize: 12, fill: 'var(--credit-axis)' }}
+                                            axisLine={false}
+                                            tickLine={false}
+                                            minTickGap={28}
+                                        />
+                                        {/* `width={36}` clipped the label: a balance of 10,000
+                                            rendered as "0000", which is not a smaller number, it
+                                            is a WRONG one. Two fixes, because either alone is
+                                            fragile - a compact formatter so five digits become
+                                            "10k", and enough width that a long tick still fits. */}
+                                        {/* TWO axes, and this is the difference between a
+                                            readable chart and a flat line.
+                                            Spending is in single digits to tens of credits;
+                                            a top-up is thousands. On one shared linear axis
+                                            the 10,000 grant sets the scale and every spend
+                                            collapses onto the zero line - the screenshot that
+                                            prompted this showed exactly that.
+                                            Each series now gets an axis scaled to its own
+                                            data: spent on the left, added on the right. */}
+                                        <YAxis
+                                            yAxisId="spent"
+                                            tick={{ fontSize: 12, fill: 'var(--credit-axis)' }}
+                                            axisLine={false}
+                                            tickLine={false}
+                                            width={48}
+                                            allowDecimals={false}
+                                            tickFormatter={compactTick}
+                                        />
+                                        <YAxis
+                                            yAxisId="added"
+                                            orientation="right"
+                                            tick={{ fontSize: 12, fill: 'var(--credit-axis)' }}
+                                            axisLine={false}
+                                            tickLine={false}
+                                            width={48}
+                                            allowDecimals={false}
+                                            tickFormatter={compactTick}
+                                        />
+                                        <Tooltip
+                                            cursor={{ stroke: 'var(--credit-axis)', strokeDasharray: '3 3' }}
+                                            contentStyle={{
+                                                background: 'var(--popover)',
+                                                border: '1px solid var(--border)',
+                                                borderRadius: 10,
+                                                fontSize: 12,
+                                                color: 'var(--popover-foreground)',
+                                            }}
+                                            labelFormatter={(d) => new Date(String(d)).toLocaleDateString('en-US', { day: 'numeric', month: 'long' })}
+                                            formatter={(v, name) => [`${Number(v).toLocaleString()} credits`, String(name)] as [string, string]}
+                                        />
+                                        <Area
+                                            yAxisId="spent"
+                                            type="monotone"
+                                            dataKey="credits"
+                                            name="Spent"
+                                            stroke="var(--credit-ink)"
+                                            strokeWidth={2}
+                                            fill="url(#creditSpend)"
+                                        />
+                                        {/* Top-ups are spiky by nature - one purchase, then
+                                            nothing for weeks - so this is a line with no fill.
+                                            Filling it would put a solid block under a single
+                                            day and drown the spend curve underneath. */}
+                                        <Area
+                                            yAxisId="added"
+                                            type="monotone"
+                                            dataKey="added"
+                                            name="Added"
+                                            stroke="var(--credit-axis)"
+                                            strokeWidth={2}
+                                            strokeDasharray="4 3"
+                                            fill="none"
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Rendered only when there is something to render.
+                        An empty dashed box the width of the page saying "No
+                        purchases yet" took more room than the table would have and
+                        told the reader nothing they could act on - the Buy credits
+                        button is already in the header, and the trend above now
+                        answers "how often am I topping up". */}
+                    {purchases.length > 0 && (
+                        <section>
+                            <h2 className="mb-3 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Purchases</h2>
+                            <div className="overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-sm">
+                                        <thead className="bg-neutral-50 text-left text-xs text-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400">
                                             <tr>
                                                 <th className="px-4 py-2.5 font-medium">Date</th>
                                                 <th className="px-4 py-2.5 font-medium">Credits</th>
@@ -116,7 +363,7 @@ export function CreditsClient({ data, error }: { data: CreditsOverview | null; e
                                                         <Badge
                                                             variant="secondary"
                                                             className={cn(
-                                                                'text-[10px]',
+                                                                'text-xs',
                                                                 p.status === 'COMPLETED'
                                                                     ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
                                                                     : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300'
@@ -125,7 +372,7 @@ export function CreditsClient({ data, error }: { data: CreditsOverview | null; e
                                                             {p.status.toLowerCase()}
                                                         </Badge>
                                                     </td>
-                                                    <td className="px-4 py-3 font-mono text-[11px] text-neutral-500 dark:text-neutral-400">
+                                                    <td className="px-4 py-3 font-mono text-xs text-neutral-600 dark:text-neutral-400">
                                                         {p.paymentId ?? '-'}
                                                     </td>
                                                 </tr>
@@ -134,51 +381,82 @@ export function CreditsClient({ data, error }: { data: CreditsOverview | null; e
                                     </table>
                                 </div>
                             </div>
-                        )}
-                    </section>
-
-                    <section>
-                        <h2 className="mb-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">History</h2>
-                        <p className="mb-3 text-xs text-neutral-500 dark:text-neutral-400">
-                            Every credit added or spent, and what for.
-                        </p>
-                        {ledger.length === 0 ? (
-                            <Empty
-                                icon="empty-search"
-                                title="Nothing here yet"
-                                body="Spending and top-ups will show up as you use the product."
-                            />
-                        ) : (
-                            <div className="divide-y divide-neutral-200 overflow-hidden rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
-                                {ledger.map((row) => {
-                                    // Sign lives on the amount (`SPEND -3`), so the
-                                    // sign is read from the number and the number is
-                                    // printed absolute - otherwise it renders "--3".
-                                    const spent = row.amount < 0
-                                    return (
-                                        <div key={row.id} className="flex items-center gap-4 px-4 py-3">
-                                            <div className="min-w-0 flex-1">
-                                                <p className="truncate text-sm text-neutral-900 dark:text-neutral-100">{row.description}</p>
-                                                <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
-                                                    {row.type.toLowerCase()} · {when(row.createdAt)}
-                                                </p>
-                                            </div>
-                                            <span
-                                                className={cn(
-                                                    'shrink-0 font-mono text-sm',
-                                                    spent ? 'text-neutral-500 dark:text-neutral-400' : 'text-neutral-900 dark:text-neutral-100'
-                                                )}
-                                            >
-                                                {spent ? '-' : '+'}{Math.abs(row.amount).toLocaleString()}
-                                            </span>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        )}
-                    </section>
+                        </section>
+                    )}
                 </div>
             </ScrollArea>
+
+            {/* ── History panel ──
+                A real docked column, not a Sheet: a Sheet is modal, and the
+                point is to read what you spent WHILE looking at the balance and
+                purchases behind it. Fixed to the viewport's right edge and inset
+                by the shell's own gutter so it lines up with the page card. */}
+            <AnimatePresence initial={false}>
+                {historyOpen && (
+                    <motion.div
+                        key="history-panel"
+                        // `x` in percent so it starts exactly off-screen whatever
+                        // width it has been dragged to.
+                        initial={{ x: '100%', opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: '100%', opacity: 0 }}
+                        transition={{ type: 'spring', stiffness: 320, damping: 34 }}
+                        className="fixed right-3 top-3 bottom-3 z-40 flex overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl dark:border-neutral-800 dark:bg-neutral-950"
+                        style={{
+                            width: historyWidth,
+                            maxWidth: '92vw',
+                            transition: historyResizing ? 'none' : undefined,
+                        }}
+                    >
+                        {/* Drag handle, keyboard-operable too - a resize that only
+                            works with a mouse is not a control everyone can reach. */}
+                        <div
+                            role="separator"
+                            aria-orientation="vertical"
+                            aria-label="Resize history panel"
+                            aria-valuenow={historyWidth}
+                            aria-valuemin={380}
+                            aria-valuemax={900}
+                            tabIndex={0}
+                            onMouseDown={(e) => { e.preventDefault(); startHistoryResize(e.clientX, historyWidth) }}
+                            onTouchStart={(e) => { const t = e.touches[0]; if (t) startHistoryResize(t.clientX, historyWidth) }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'ArrowLeft') { e.preventDefault(); setHistoryWidth((w) => clampHistory(w + 24)) }
+                                if (e.key === 'ArrowRight') { e.preventDefault(); setHistoryWidth((w) => clampHistory(w - 24)) }
+                            }}
+                            className="group absolute left-0 top-0 z-10 h-full w-1.5 cursor-col-resize transition-colors hover:bg-neutral-900/40 focus:bg-neutral-900/40 focus:outline-none dark:hover:bg-white/30 dark:focus:bg-white/30"
+                        >
+                            <span className="absolute left-1/2 top-1/2 h-10 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-neutral-300 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-neutral-600" />
+                        </div>
+
+                        <div className="flex h-full w-full min-w-0 flex-col">
+                            <div className="flex shrink-0 items-center justify-between border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
+                                <span className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-900 dark:text-white">
+                                    <Receipt className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
+                                    Transaction history
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => setHistoryOpen(false)}
+                                    aria-label="Close history"
+                                    className="cursor-pointer rounded-lg p-1.5 text-neutral-600 transition-colors hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+                            </div>
+                            {/* NO ScrollArea here. `TransactionsClient embedded`
+                                now scrolls its own list so the title and the tab
+                                bar stay put; wrapping it again would give the
+                                panel two nested scrollbars and let the outer one
+                                carry the tabs off-screen anyway - which is the
+                                bug this was meant to fix. */}
+                            <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+                                <TransactionsClient embedded />
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     )
 }
@@ -194,10 +472,10 @@ function Stat({ label, value, emphasis }: { label: string; value: string; emphas
     )
 }
 
-function Empty({ icon, title, body }: { icon: 'document' | 'empty-search'; title: string; body: string }) {
+function Empty({ icon, title, body }: { icon: 'empty-search'; title: string; body: string }) {
     return (
         <div className="rounded-xl border border-dashed border-neutral-200 py-12 text-center dark:border-neutral-800">
-            <AnimatedIcon name={icon} size={36} motion="always" className="mx-auto mb-3 text-neutral-400 dark:text-neutral-500" />
+            <AnimatedIcon name={icon} size={36} motion="always" className="mx-auto mb-3 text-neutral-600 dark:text-neutral-500" />
             <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{title}</p>
             <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{body}</p>
         </div>

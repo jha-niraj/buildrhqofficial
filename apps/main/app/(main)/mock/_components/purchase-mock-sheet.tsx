@@ -143,17 +143,17 @@ export function PurchaseMockSheet({ isOpen, onClose, mock, userCredits }: Purcha
                         <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
                             <Clock className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                             <span className="text-lg font-bold">{mock.duration}</span>
-                            <span className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">min</span>
+                            <span className="text-xs text-neutral-500 dark:text-neutral-400 tracking-wide">min</span>
                         </div>
                         <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
                             <Brain className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                             <span className="text-lg font-bold">{mock.questionsCount ?? '-'}</span>
-                            <span className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">questions</span>
+                            <span className="text-xs text-neutral-500 dark:text-neutral-400 tracking-wide">questions</span>
                         </div>
                         <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
                             <Trophy className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                             <span className="text-lg font-bold">{mock.popularity ?? 0}</span>
-                            <span className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">sessions</span>
+                            <span className="text-xs text-neutral-500 dark:text-neutral-400 tracking-wide">sessions</span>
                         </div>
                     </div>
 
@@ -174,7 +174,7 @@ export function PurchaseMockSheet({ isOpen, onClose, mock, userCredits }: Purcha
                     {/* Session info */}
                     {isLoadingInfo ? (
                         <div className="flex justify-center py-3">
-                            <InlineLoader size="md" className="text-neutral-400" />
+                            <InlineLoader size="md" className="text-neutral-600 dark:text-neutral-400" />
                         </div>
                     ) : sessionInfo && (
                         <div className="space-y-3">

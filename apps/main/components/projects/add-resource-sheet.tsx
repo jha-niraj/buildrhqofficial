@@ -33,7 +33,7 @@ const RESOURCE_TYPES = [
     { value: 'DESIGN_MOCKUP', label: 'Design Mockup', icon: Palette, color: 'text-pink-600' },
     { value: 'DESIGN_INSPIRATION', label: 'Design Inspiration', icon: Sparkles, color: 'text-neutral-800' },
     { value: 'GITHUB_REPO', label: 'GitHub Repository', icon: Github, color: 'text-gray-600' },
-    { value: 'OTHER', label: 'Other', icon: FileText, color: 'text-neutral-600' },
+    { value: 'OTHER', label: 'Other', icon: FileText, color: 'text-neutral-600 dark:text-neutral-400' },
 ]
 
 interface AddResourceSheetProps {

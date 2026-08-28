@@ -77,7 +77,7 @@ export function SkillGapModal({ job, open, onClose }: SkillGapModalProps) {
                             {job.company.logoUrl ? (
                                 <Image src={job.company.logoUrl} alt={job.company.name} fill className="object-cover" />
                             ) : (
-                                <Building2 className="w-5 h-5 text-neutral-400" />
+                                <Building2 className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
                             )}
                         </div>
                         <div>
@@ -92,7 +92,7 @@ export function SkillGapModal({ job, open, onClose }: SkillGapModalProps) {
 
                 {loading ? (
                     <div className="py-12 flex items-center justify-center">
-                        <InlineLoader size="lg" className="text-neutral-400" />
+                        <InlineLoader size="lg" className="text-neutral-600 dark:text-neutral-400" />
                     </div>
                 ) : (
                     <div className="space-y-6 mt-4">
@@ -201,7 +201,7 @@ export function SkillGapModal({ job, open, onClose }: SkillGapModalProps) {
                                                             learn: <span className="text-neutral-800 dark:text-neutral-200">{rec.skill}</span> • ~{rec.estimatedHours}h
                                                         </div>
                                                     </div>
-                                                    <ArrowRight className="w-4 h-4 text-neutral-400 group-hover:text-neutral-800 transition-colors" />
+                                                    <ArrowRight className="w-4 h-4 text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 transition-colors" />
                                                 </Link>
                                             ))}
                                         </div>

@@ -130,14 +130,14 @@ export function CodeStep({ step, studioId }: CodeStepProps) {
 							<h3 className="font-semibold text-white">
 								{metadata.problemTitle || "Code Block"}
 							</h3>
-							<p className="text-sm text-neutral-400">
+							<p className="text-sm text-neutral-600 dark:text-neutral-400">
 								{metadata.language || "javascript"}
 							</p>
 						</div>
 					</div>
 					<div className="flex items-center gap-2">
 						{isSaving && (
-							<span className="text-xs text-neutral-400 flex items-center gap-1">
+							<span className="text-xs text-neutral-600 dark:text-neutral-400 flex items-center gap-1">
 								<Save className="h-3 w-3 animate-pulse" />
 								Saving...
 							</span>
@@ -151,7 +151,7 @@ export function CodeStep({ step, studioId }: CodeStepProps) {
 						<Button
 							size="sm"
 							variant="ghost"
-							className="text-neutral-400 hover:text-white"
+							className="text-neutral-600 dark:text-neutral-400 hover:text-white"
 							onClick={handleReset}
 						>
 							<RotateCcw className="h-4 w-4" />
@@ -203,7 +203,7 @@ export function CodeStep({ step, studioId }: CodeStepProps) {
 									Output
 								</span>
 							</div>
-							<pre className="px-4 py-3 text-sm text-neutral-300 font-mono whitespace-pre-wrap max-h-48 overflow-y-auto">
+							<pre className="px-4 py-3 text-sm text-neutral-600 dark:text-neutral-400 font-mono whitespace-pre-wrap max-h-48 overflow-y-auto">
 								{output}
 							</pre>
 						</motion.div>

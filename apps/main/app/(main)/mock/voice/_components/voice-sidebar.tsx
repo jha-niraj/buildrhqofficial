@@ -115,7 +115,7 @@ export function VoiceSidebar() {
                                     <span className="mr-2">{cat.icon}</span>
                                     {cat.label}
                                     {currentCategory === cat.value && (
-                                        <Badge className="ml-auto h-4 px-1 text-[10px]">active</Badge>
+                                        <Badge className="ml-auto h-4 px-1 text-xs">active</Badge>
                                     )}
                                 </DropdownMenuItem>
                             ))}

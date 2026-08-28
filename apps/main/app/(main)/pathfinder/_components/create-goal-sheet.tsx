@@ -387,7 +387,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                             "w-8 h-8 rounded-full mx-auto mb-1 flex items-center justify-center text-xs font-medium transition-all",
                                                             index < step ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900" :
                                                                 index === step ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900" :
-                                                                    "bg-neutral-200 dark:bg-neutral-700 text-neutral-400"
+                                                                    "bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400"
                                                         )}>
                                                             {index < step ? <Check className="w-4 h-4" /> : index + 1}
                                                         </div>
@@ -428,7 +428,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                         {
                                                             formData.title.trim() && (
                                                                 <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-100 dark:bg-neutral-800">
-                                                                    <LinkIcon className="w-3.5 h-3.5 text-neutral-400" />
+                                                                    <LinkIcon className="w-3.5 h-3.5 text-neutral-600 dark:text-neutral-400" />
                                                                     <span className="text-xs text-neutral-500 dark:text-neutral-400">URL:</span>
                                                                     <code className="text-xs text-neutral-700 dark:text-neutral-300 font-mono">
                                                                         /pathfinder/{slugPreview || '...'}
@@ -474,7 +474,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                                 size={22}
                                                                                 motion={formData.category === cat.value ? 'always' : 'hover'}
                                                                             />
-                                                                            <p className="w-full truncate text-[10px]">
+                                                                            <p className="w-full truncate text-xs">
                                                                                 {cat.label}
                                                                             </p>
                                                                         </button>
@@ -512,7 +512,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                                 <p className="text-xs font-medium text-neutral-900 dark:text-white">
                                                                                     {level.label}
                                                                                 </p>
-                                                                                <p className="text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5">
+                                                                                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
                                                                                     {level.desc}
                                                                                 </p>
                                                                             </button>
@@ -669,7 +669,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                     }
                                                                 </button>
                                                             </div>
-                                                            <p className="text-xs text-neutral-400 mt-1">
+                                                            <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
                                                                 You have <span className="font-medium">{credits ?? 0} credits</span>
                                                             </p>
                                                         </div>
@@ -823,7 +823,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                             variant="ghost"
                                             onClick={prevStep}
                                             disabled={step === 0}
-                                            className="text-neutral-600"
+                                            className="text-neutral-600 dark:text-neutral-400"
                                         >
                                             <ArrowLeft className="w-4 h-4 mr-1" />
                                             Back

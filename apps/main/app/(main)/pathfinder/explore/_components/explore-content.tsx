@@ -9,7 +9,7 @@ export function ExploreContent() {
         <div className="h-full flex items-center justify-center p-8">
             <div className="text-center max-w-md">
                 <div className="w-16 h-16 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mx-auto mb-6">
-                    <MousePointerClick className="w-8 h-8 text-neutral-400" />
+                    <MousePointerClick className="w-8 h-8 text-neutral-600 dark:text-neutral-400" />
                 </div>
                 <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">
                     Select a goal to preview
@@ -18,7 +18,7 @@ export function ExploreContent() {
                     Choose a public learning goal from the sidebar to see its study plan, topics, and structure.
                     Copy any goal to your own workspace.
                 </p>
-                <div className="flex items-center justify-center gap-4 text-xs text-neutral-400">
+                <div className="flex items-center justify-center gap-4 text-xs text-neutral-600 dark:text-neutral-400">
                     <span className="flex items-center gap-1.5">
                         <BookOpen className="w-3.5 h-3.5" />
                         Topics

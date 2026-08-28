@@ -150,7 +150,7 @@ export function JobDetailSheet({ job }: JobDetailSheetProps) {
                                     fill
                                 />
                             ) : (
-                                <Building2 className="w-8 h-8 text-neutral-400" />
+                                <Building2 className="w-8 h-8 text-neutral-600 dark:text-neutral-400" />
                             )
                         }
                     </div>
@@ -352,7 +352,7 @@ export function JobDetailSheet({ job }: JobDetailSheetProps) {
                         </div>
                     ) : (
                         <div className="p-6 rounded-2xl bg-neutral-50 dark:bg-neutral-900 text-center">
-                            <FileText className="w-10 h-10 text-neutral-300 dark:text-neutral-700 mx-auto mb-3" />
+                            <FileText className="w-10 h-10 text-neutral-600 dark:text-neutral-700 mx-auto mb-3" />
                             <h3 className="font-medium text-neutral-900 dark:text-white mb-1">
                                 Interview Process Not Disclosed
                             </h3>
@@ -396,7 +396,7 @@ export function JobDetailSheet({ job }: JobDetailSheetProps) {
                                         job.company.logoUrl ? (
                                             <Image src={job.company.logoUrl} alt={job.company.name} fill className="object-cover" />
                                         ) : (
-                                            <Building2 className="w-5 h-5 text-neutral-400" />
+                                            <Building2 className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
                                         )
                                     }
                                 </div>
@@ -411,7 +411,7 @@ export function JobDetailSheet({ job }: JobDetailSheetProps) {
                                     }
                                 </div>
                             </div>
-                            <ChevronRight className="w-5 h-5 text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors" />
+                            <ChevronRight className="w-5 h-5 text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-600 transition-colors" />
                         </div>
                     </Link>
                 </div>

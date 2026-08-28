@@ -235,7 +235,7 @@ export default function ProjectIdeasPage() {
                             {/* LEFT SIDEBAR - Categories */}
                             <aside className="w-64 lg:w-72 border-r border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 flex-shrink-0 hidden md:block overflow-y-auto sticky top-16 h-[calc(100vh-4rem)]">
                                 <div className="p-4">
-                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-400 mb-3 px-2">
+                                    <p className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 mb-3 px-2">
                                         Categories
                                     </p>
                                     {loadingCategories ? (
@@ -272,7 +272,7 @@ export default function ProjectIdeasPage() {
                                                         )}>
                                                             {cat.name}
                                                         </p>
-                                                        <p className="text-[10px] text-neutral-400 dark:text-neutral-400">
+                                                        <p className="text-xs text-neutral-600 dark:text-neutral-400">
                                                             {cat.technologies.length} technologies
                                                         </p>
                                                     </div>
@@ -280,7 +280,7 @@ export default function ProjectIdeasPage() {
                                                         "w-3.5 h-3.5 flex-shrink-0 transition-transform",
                                                         selectedCategory?.id === cat.id
                                                             ? "text-neutral-900 dark:text-white rotate-90"
-                                                            : "text-neutral-300 dark:text-neutral-400"
+                                                            : "text-neutral-600 dark:text-neutral-400"
                                                     )} />
                                                 </button>
                                             ))}
@@ -383,7 +383,7 @@ export default function ProjectIdeasPage() {
                                             <div className="flex items-center gap-2 mb-4">
                                                 <Crown className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                 <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">ShipItHQ Curated Projects</h3>
-                                                <Badge className="bg-gradient-to-r from-neutral-100 to-neutral-100 dark:from-neutral-800/30 dark:to-neutral-800/30 text-neutral-800 dark:text-neutral-100 text-[10px] border-0">
+                                                <Badge className="bg-gradient-to-r from-neutral-100 to-neutral-100 dark:from-neutral-800/30 dark:to-neutral-800/30 text-neutral-800 dark:text-neutral-100 text-xs border-0">
                                                     Ready to Start
                                                 </Badge>
                                             </div>
@@ -396,9 +396,9 @@ export default function ProjectIdeasPage() {
                                                 </div>
                                             ) : platformProjects.length === 0 ? (
                                                 <div className="text-center py-12 rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50">
-                                                    <Zap className="w-8 h-8 text-neutral-300 dark:text-neutral-700 mx-auto mb-3" />
+                                                    <Zap className="w-8 h-8 text-neutral-600 dark:text-neutral-700 mx-auto mb-3" />
                                                     <p className="text-sm text-neutral-500 dark:text-neutral-400">No curated projects for this selection yet.</p>
-                                                    <p className="text-xs text-neutral-400 mt-1">Try selecting a different technology or check back soon!</p>
+                                                    <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">Try selecting a different technology or check back soon!</p>
                                                 </div>
                                             ) : (
                                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -415,16 +415,16 @@ export default function ProjectIdeasPage() {
                                                                     <div className="absolute top-3 right-3">
                                                                         <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-neutral-50 to-neutral-50 dark:from-neutral-900/40 dark:to-neutral-900/40 border border-neutral-200 dark:border-neutral-800">
                                                                             <Crown className="w-3 h-3 text-neutral-900 dark:text-neutral-100" />
-                                                                            <span className="text-[10px] font-semibold text-neutral-700 dark:text-neutral-100">ShipItHQ</span>
+                                                                            <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-100">ShipItHQ</span>
                                                                         </div>
                                                                     </div>
 
                                                                     <div className="flex items-start gap-2 mb-3">
-                                                                        <Badge className={cn(getDifficultyColor(project.difficulty), "text-[10px]")}>
+                                                                        <Badge className={cn(getDifficultyColor(project.difficulty), "text-xs")}>
                                                                             {project.difficulty}
                                                                         </Badge>
                                                                         {project.guidedModeEnabled && (
-                                                                            <Badge className="bg-neutral-100 text-neutral-700 dark:bg-neutral-800/30 dark:text-neutral-100 text-[10px] border-0">
+                                                                            <Badge className="bg-neutral-100 text-neutral-700 dark:bg-neutral-800/30 dark:text-neutral-100 text-xs border-0">
                                                                                 <Sparkles className="w-2.5 h-2.5 mr-0.5" />
                                                                                 AI Guided
                                                                             </Badge>
@@ -442,19 +442,19 @@ export default function ProjectIdeasPage() {
                                                                     {/* Tech Tags */}
                                                                     <div className="flex flex-wrap gap-1 mb-3">
                                                                         {project.technologies.slice(0, 4).map(tech => (
-                                                                            <span key={tech} className="text-[10px] px-1.5 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
+                                                                            <span key={tech} className="text-xs px-1.5 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
                                                                                 {tech}
                                                                             </span>
                                                                         ))}
                                                                         {project.technologies.length > 4 && (
-                                                                            <span className="text-[10px] text-neutral-400">+{project.technologies.length - 4}</span>
+                                                                            <span className="text-xs text-neutral-600 dark:text-neutral-400">+{project.technologies.length - 4}</span>
                                                                         )}
                                                                     </div>
 
                                                                     {/* Recruiter Signal */}
                                                                     {project.recruiterSignal && (
                                                                         <div className="mb-3 p-2 rounded-lg bg-neutral-50/50 dark:bg-neutral-900/20 border border-neutral-100 dark:border-neutral-800/30">
-                                                                            <p className="text-[10px] text-neutral-800 dark:text-neutral-100 line-clamp-1">
+                                                                            <p className="text-xs text-neutral-800 dark:text-neutral-100 line-clamp-1">
                                                                                 📡 {project.recruiterSignal}
                                                                             </p>
                                                                         </div>
@@ -462,7 +462,7 @@ export default function ProjectIdeasPage() {
 
                                                                     {/* Stats row */}
                                                                     <div className="flex items-center justify-between">
-                                                                        <div className="flex items-center gap-3 text-[10px] text-neutral-400">
+                                                                        <div className="flex items-center gap-3 text-xs text-neutral-600 dark:text-neutral-400">
                                                                             <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{project.estimatedHours}h</span>
                                                                             <span className="flex items-center gap-1"><Users className="w-3 h-3" />{project._count.progress} enrolled</span>
                                                                             <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{project.totalViews}</span>
@@ -485,12 +485,12 @@ export default function ProjectIdeasPage() {
                                             <div className="flex items-center gap-2 mb-4">
                                                 <Users className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
                                                 <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Community Ideas</h3>
-                                                <Badge className="bg-neutral-100 dark:bg-neutral-800/30 text-neutral-700 dark:text-neutral-100 text-[10px] border-0">
+                                                <Badge className="bg-neutral-100 dark:bg-neutral-800/30 text-neutral-700 dark:text-neutral-100 text-xs border-0">
                                                     User Submitted
                                                 </Badge>
                                             </div>
                                             <div className="text-center py-8 rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800">
-                                                <Target className="w-6 h-6 text-neutral-300 dark:text-neutral-700 mx-auto mb-2" />
+                                                <Target className="w-6 h-6 text-neutral-600 dark:text-neutral-700 mx-auto mb-2" />
                                                 <p className="text-sm text-neutral-500 dark:text-neutral-400">No ideas for this technology yet.</p>
                                             </div>
                                         </div>
@@ -510,7 +510,7 @@ export default function ProjectIdeasPage() {
                     >
                         <div className="flex flex-col sm:flex-row gap-3 mb-6">
                             <div className="relative flex-1">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                                 <Input
                                     placeholder="Search problem statements..."
                                     value={problemSearch}
@@ -539,7 +539,7 @@ export default function ProjectIdeasPage() {
                             </div>
                         ) : problemStatements.length === 0 ? (
                             <div className="text-center py-16 border border-dashed border-neutral-200 dark:border-neutral-800 rounded-xl bg-neutral-50/50 dark:bg-neutral-900/50">
-                                <Target className="w-10 h-10 text-neutral-300 dark:text-neutral-700 mx-auto mb-3" />
+                                <Target className="w-10 h-10 text-neutral-600 dark:text-neutral-700 mx-auto mb-3" />
                                 <h3 className="text-base font-medium text-neutral-900 dark:text-white mb-1">No problem statements found</h3>
                                 <p className="text-sm text-neutral-500 dark:text-neutral-400">Nothing here yet - check back soon.</p>
                             </div>
@@ -555,7 +555,7 @@ export default function ProjectIdeasPage() {
                                     >
                                         <div className="flex items-center justify-between mb-3">
                                             <Badge className={getDifficultyColor(problem.difficulty)}>{problem.difficulty}</Badge>
-                                            <div className="flex items-center gap-2 text-xs text-neutral-400">
+                                            <div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
                                                 <span className="flex items-center gap-0.5"><Eye className="w-3 h-3" />{problem.views || 0}</span>
                                                 
                                                 {/* Reads the denormalised counter - no join per card. */}
@@ -569,7 +569,7 @@ export default function ProjectIdeasPage() {
                                             {problem.overview || problem.projectDescription}
                                         </p>
                                         {problem.coreRequirements?.slice(0, 2).map((req, i) => (
-                                            <div key={i} className="flex items-center gap-1 text-[10px] text-neutral-500 dark:text-neutral-400 mb-1">
+                                            <div key={i} className="flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400 mb-1">
                                                 <CheckCircle2 className="w-3 h-3 text-neutral-900 dark:text-neutral-100" />
                                                 <span className="truncate">{req}</span>
                                             </div>
@@ -599,7 +599,7 @@ export default function ProjectIdeasPage() {
                             <SheetHeader className="mb-6">
                                 <div className="flex items-center gap-3 mb-4">
                                     <Badge className={getDifficultyColor(selectedProblem.difficulty)}>{selectedProblem.difficulty}</Badge>
-                                    <div className="flex items-center gap-3 text-sm text-neutral-400">
+                                    <div className="flex items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400">
                                         <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" />{selectedProblem.views || 0}</span>
                                         
                                         <span className="flex items-center gap-1"><MessageSquare className="w-3.5 h-3.5" />{selectedProblem.commentCount || 0}</span>

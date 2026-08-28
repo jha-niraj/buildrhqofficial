@@ -67,7 +67,7 @@ export function ImageStep({ step }: ImageStepProps) {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <ImageIcon className="h-12 w-12 text-neutral-400 mb-4" />
+            <ImageIcon className="h-12 w-12 text-neutral-600 dark:text-neutral-400 mb-4" />
             <p className="text-neutral-600 dark:text-neutral-400">
               Image not available
             </p>

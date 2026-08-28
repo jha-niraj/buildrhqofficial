@@ -120,10 +120,10 @@ export function ResumePublicView({ user, embedded = false }: ResumePublicViewPro
                         )
                     }
                     <div className={embedded ? "flex-1 min-w-0" : "flex-1 min-w-0"}>
-                        <h1 className={embedded ? "text-xl font-bold" : "text-3xl font-bold uppercase tracking-wider"}>
+                        <h1 className={embedded ? "text-xl font-bold" : "text-3xl font-bold"}>
                             {user.name || "Anonymous"}
                         </h1>
-                        <p className="text-neutral-400 mt-1">
+                        <p className="text-neutral-600 dark:text-neutral-400 mt-1">
                             {user.occupation || "Developer"}
                         </p>
                         {
@@ -143,7 +143,7 @@ export function ResumePublicView({ user, embedded = false }: ResumePublicViewPro
                                                     href={link.url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="flex items-center gap-2 text-neutral-800 dark:text-neutral-200 hover:text-neutral-300 hover:underline text-sm"
+                                                    className="flex items-center gap-2 text-neutral-800 dark:text-neutral-200 hover:text-neutral-600 hover:underline text-sm"
                                                     title={link.platform}
                                                 >
                                                     <Icon className="w-4 h-4" />
@@ -161,7 +161,7 @@ export function ResumePublicView({ user, embedded = false }: ResumePublicViewPro
                 {
                     experiences.length > 0 && (
                         <section className={embedded ? "mt-6" : "mb-10"}>
-                            <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-4 border-b border-neutral-700 pb-2">
+                            <h2 className="text-xs font-bold text-neutral-500 dark:text-neutral-400 mb-4 border-b border-neutral-700 pb-2">
                                 Work Experience
                             </h2>
                             <div className="space-y-6">
@@ -185,7 +185,7 @@ export function ResumePublicView({ user, embedded = false }: ResumePublicViewPro
                                                     </p>
                                                 </div>
                                             </div>
-                                            <ul className="mt-2 space-y-1 text-neutral-300 text-sm list-disc list-inside">
+                                            <ul className="mt-2 space-y-1 text-neutral-600 dark:text-neutral-400 text-sm list-disc list-inside">
                                                 {
                                                     (exp.bulletPoints?.length ? exp.bulletPoints : exp.description ? [exp.description] : []).map((point, i) => (
                                                         <li key={i}><ReactMarkdown>{point}</ReactMarkdown></li>
@@ -203,7 +203,7 @@ export function ResumePublicView({ user, embedded = false }: ResumePublicViewPro
                 {
                     portfolioProjects.length > 0 && (
                         <section className={embedded ? "mt-6" : "mb-10"}>
-                            <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-4 border-b border-neutral-700 pb-2">
+                            <h2 className="text-xs font-bold text-neutral-500 dark:text-neutral-400 mb-4 border-b border-neutral-700 pb-2">
                                 Projects
                             </h2>
                             <div className="space-y-4">
@@ -216,7 +216,7 @@ export function ResumePublicView({ user, embedded = false }: ResumePublicViewPro
                                                 {proj.endDate ? formatDate(proj.endDate) : "Present"}
                                                 {proj.technologies?.length ? ` • ${proj.technologies.slice(0, 5).join(", ")}` : ""}
                                             </p>
-                                            <ul className="mt-1 space-y-1 text-neutral-300 text-sm list-disc list-inside">
+                                            <ul className="mt-1 space-y-1 text-neutral-600 dark:text-neutral-400 text-sm list-disc list-inside">
                                                 {
                                                     (proj.bulletPoints?.length ? proj.bulletPoints : proj.description ? [proj.description] : []).map((point, i) => (
                                                         <li key={i}><ReactMarkdown>{point}</ReactMarkdown></li>
@@ -234,7 +234,7 @@ export function ResumePublicView({ user, embedded = false }: ResumePublicViewPro
                 {
                     Object.keys(skillsByCategory).length > 0 && (
                         <section className={embedded ? "mt-6" : "mb-10"}>
-                            <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-4 border-b border-neutral-700 pb-2">
+                            <h2 className="text-xs font-bold text-neutral-500 dark:text-neutral-400 mb-4 border-b border-neutral-700 pb-2">
                                 Technical Skills
                             </h2>
                             <div className="space-y-3">
@@ -244,7 +244,7 @@ export function ResumePublicView({ user, embedded = false }: ResumePublicViewPro
                                             <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
                                                 {SKILL_CATEGORY_LABELS[cat] || cat}
                                             </p>
-                                            <p className="text-sm text-neutral-300">
+                                            <p className="text-sm text-neutral-600 dark:text-neutral-400">
                                                 {skillList.map((s) => s.name).join(", ")}
                                             </p>
                                         </div>
@@ -258,7 +258,7 @@ export function ResumePublicView({ user, embedded = false }: ResumePublicViewPro
                 {
                     educations.length > 0 && (
                         <section className={embedded ? "mt-6" : "mb-10"}>
-                            <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-4 border-b border-neutral-700 pb-2">
+                            <h2 className="text-xs font-bold text-neutral-500 dark:text-neutral-400 mb-4 border-b border-neutral-700 pb-2">
                                 Education
                             </h2>
                             <div className="space-y-3">
@@ -284,7 +284,7 @@ export function ResumePublicView({ user, embedded = false }: ResumePublicViewPro
                 {
                     certifications.length > 0 && (
                         <section className={embedded ? "mt-6" : ""}>
-                            <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-4 border-b border-neutral-700 pb-2">
+                            <h2 className="text-xs font-bold text-neutral-500 dark:text-neutral-400 mb-4 border-b border-neutral-700 pb-2">
                                 Certifications
                             </h2>
                             <div className="space-y-2">
@@ -295,7 +295,7 @@ export function ResumePublicView({ user, embedded = false }: ResumePublicViewPro
                                             href={cert.link}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="block text-sm text-neutral-800 dark:text-neutral-200 hover:text-neutral-300"
+                                            className="block text-sm text-neutral-800 dark:text-neutral-200 hover:text-neutral-600"
                                         >
                                             {cert.name} • {cert.issuer} ({formatDate(cert.issuedDate)})
                                         </Link>
@@ -311,7 +311,7 @@ export function ResumePublicView({ user, embedded = false }: ResumePublicViewPro
                         <div className="mt-16 pt-8 border-t border-neutral-800 text-center">
                             <Link
                                 href="/"
-                                className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-400"
+                                className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-600"
                             >
                                 Built with ShipItHQ
                             </Link>

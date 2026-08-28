@@ -213,7 +213,7 @@ export function VerificationPageClient({ goal: initialGoal, verification }: Veri
                         <>
                             <SheetHeader>
                                 <SheetTitle className="flex items-center gap-2">
-                                    <InlineLoader size="md" className="text-neutral-600" />
+                                    <InlineLoader size="md" className="text-neutral-600 dark:text-neutral-400" />
                                     Generating Verification Questions
                                 </SheetTitle>
                             </SheetHeader>
@@ -235,14 +235,14 @@ export function VerificationPageClient({ goal: initialGoal, verification }: Veri
                                             style={{ width: `${Math.max(5, progress)}%` }}
                                         />
                                     </div>
-                                    <p className="mt-2 text-center text-xs tabular-nums text-neutral-400">
+                                    <p className="mt-2 text-center text-xs tabular-nums text-neutral-600 dark:text-neutral-400">
                                         {progress}%
                                     </p>
                                 </div>
 
                                 {/* The main benefit of moving this to a worker, said plainly:
                                     the run no longer depends on this tab staying open. */}
-                                <p className="mt-5 max-w-sm text-center text-xs text-neutral-400 dark:text-neutral-400">
+                                <p className="mt-5 max-w-sm text-center text-xs text-neutral-600 dark:text-neutral-400">
                                     This runs on our servers - you can close this tab and come back.
                                     It usually takes 30&ndash;60 seconds.
                                 </p>
@@ -252,7 +252,7 @@ export function VerificationPageClient({ goal: initialGoal, verification }: Veri
                         <>
                             <SheetHeader>
                                 <SheetTitle className="flex items-center gap-2">
-                                    <Trophy className="w-5 h-5 text-neutral-600" />
+                                    <Trophy className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
                                     Verification Setup
                                 </SheetTitle>
                                 <SheetDescription>

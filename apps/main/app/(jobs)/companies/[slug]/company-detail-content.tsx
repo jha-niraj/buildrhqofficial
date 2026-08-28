@@ -150,7 +150,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                     fill
                                 />
                             ) : (
-                                <Building2 className="w-12 h-12 text-neutral-400" />
+                                <Building2 className="w-12 h-12 text-neutral-600 dark:text-neutral-400" />
                             )
                         }
                     </div>
@@ -440,7 +440,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                                                     className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-50 dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 text-sm font-medium text-neutral-900 dark:text-white transition-colors"
                                                                 >
                                                                     {job.title}
-                                                                    <ChevronRight className="w-3.5 h-3.5 text-neutral-400" />
+                                                                    <ChevronRight className="w-3.5 h-3.5 text-neutral-600 dark:text-neutral-400" />
                                                                 </Link>
                                                             ))
                                                         }
@@ -557,7 +557,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                                                 <span>{employmentTypeLabels[job.employmentType]}</span>
                                                             </div>
                                                         </div>
-                                                        <ChevronRight className="w-4 h-4 text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 shrink-0" />
+                                                        <ChevronRight className="w-4 h-4 text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-600 shrink-0" />
                                                     </div>
                                                 </Link>
                                             ))
@@ -576,7 +576,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
                                 ) : (
                                     <div className="text-center py-8">
                                         <div className="w-16 h-16 bg-gradient-to-br from-neutral-100 to-neutral-50 dark:from-neutral-800 dark:to-neutral-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                            <Briefcase className="w-8 h-8 text-neutral-400 dark:text-neutral-400" />
+                                            <Briefcase className="w-8 h-8 text-neutral-600 dark:text-neutral-400" />
                                         </div>
                                         <h4 className="font-medium text-neutral-900 dark:text-white mb-1">
                                             No open positions at the moment

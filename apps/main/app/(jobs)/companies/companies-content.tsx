@@ -192,7 +192,7 @@ export function CompaniesContent({
             {/* Search & Filters */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                     <Input
                         placeholder="Search companies by name or industry..."
                         value={searchQuery}
@@ -290,7 +290,7 @@ export function CompaniesContent({
                                             {company.logoUrl ? (
                                                 <Image src={company.logoUrl} alt={company.name} fill className="object-cover" />
                                             ) : (
-                                                <Building2 className="w-7 h-7 text-neutral-400" />
+                                                <Building2 className="w-7 h-7 text-neutral-600 dark:text-neutral-400" />
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0">
@@ -395,7 +395,7 @@ export function CompaniesContent({
                                                 {company.logoUrl ? (
                                                     <Image src={company.logoUrl} alt={company.name} fill className="object-cover" />
                                                 ) : (
-                                                    <Building2 className="w-6 h-6 text-neutral-400" />
+                                                    <Building2 className="w-6 h-6 text-neutral-600 dark:text-neutral-400" />
                                                 )}
                                             </div>
                                             <div className="flex-1 min-w-0">
@@ -469,7 +469,7 @@ export function CompaniesContent({
                             animate={{ opacity: 1 }}
                             className="text-center py-16"
                         >
-                            <Building2 className="w-16 h-16 text-neutral-300 dark:text-neutral-700 mx-auto mb-4" />
+                            <Building2 className="w-16 h-16 text-neutral-600 dark:text-neutral-700 mx-auto mb-4" />
                             <h3 className="text-xl font-medium text-neutral-900 dark:text-white mb-2">
                                 No companies found
                             </h3>

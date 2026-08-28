@@ -165,29 +165,29 @@ export function PracticeWorkspace({ problem, session, mode }: PracticeWorkspaceP
         <div className="h-dvh flex flex-col bg-neutral-950 text-white">
             <header className="h-12 border-b border-neutral-800 flex items-center justify-between px-4 flex-shrink-0 bg-neutral-950/90 backdrop-blur-sm">
                 <div className="flex items-center gap-3">
-                    <button onClick={handleBack} className="cursor-pointer text-neutral-400 hover:text-white transition-colors">
+                    <button onClick={handleBack} className="cursor-pointer text-neutral-600 dark:text-neutral-400 hover:text-white transition-colors">
                         <ArrowLeft className="h-4 w-4" />
                     </button>
                     <div className="h-4 w-px bg-neutral-700" />
                     <h1 className="text-sm font-medium truncate max-w-[300px]">{problem.title}</h1>
-                    <Badge variant="outline" className={cn("text-[10px] border-neutral-700", DIFFICULTY_COLORS[problem.difficulty])}>
+                    <Badge variant="outline" className={cn("text-xs border-neutral-700", DIFFICULTY_COLORS[problem.difficulty])}>
                         {problem.difficulty}
                     </Badge>
                     <Badge variant="outline" className={cn(
-                        "text-[10px] border-neutral-700",
+                        "text-xs border-neutral-700",
                         mode === "EXAM" ? "text-red-400 border-red-800" : "text-neutral-800 dark:text-neutral-200 border-neutral-800"
                     )}>
                         {mode === "EXAM" ? "🔒 Exam" : "💡 Assist"}
                     </Badge>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1.5 text-neutral-400 text-xs">
+                    <div className="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400 text-xs">
                         <Clock className="h-3.5 w-3.5" />
                         <span className="font-mono">{formatTime(store.elapsedSeconds)}</span>
                     </div>
                     {
                         store.isSaving && (
-                            <span className="text-[10px] text-neutral-500 dark:text-neutral-400 animate-pulse">Saving...</span>
+                            <span className="text-xs text-neutral-500 dark:text-neutral-400 animate-pulse">Saving...</span>
                         )
                     }
                     {
@@ -373,18 +373,18 @@ function ProblemPanel({
             <div className="p-6 space-y-5">
                 <div className="flex items-center gap-2">
                     <h2 className="text-lg font-bold">{problem.title}</h2>
-                    <Badge variant="outline" className={cn("text-[10px]", DIFFICULTY_COLORS[problem.difficulty])}>
+                    <Badge variant="outline" className={cn("text-xs", DIFFICULTY_COLORS[problem.difficulty])}>
                         {problem.difficulty}
                     </Badge>
                 </div>
                 <div className="prose prose-invert prose-sm max-w-none">
                     <MarkdownRenderer
                         content={problem.description}
-                        className="[&>*:first-child]:mt-0 [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-4 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-3 [&_p]:text-neutral-400 [&_p]:text-sm [&_p]:leading-relaxed [&_code]:text-xs [&_li]:text-sm [&_li]:text-neutral-400"
+                        className="[&>*:first-child]:mt-0 [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-4 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-3 [&_p]:text-neutral-600 dark:text-neutral-400 [&_p]:text-sm [&_p]:leading-relaxed [&_code]:text-xs [&_li]:text-sm [&_li]:text-neutral-600"
                     />
                 </div>
                 <div>
-                    <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">
+                    <h3 className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 mb-2">
                         Requirements
                     </h3>
                     <div className="space-y-1.5">
@@ -400,7 +400,7 @@ function ProblemPanel({
                                                 <div className="h-4 w-4 rounded-full border border-neutral-600 flex-shrink-0 mt-0.5" />
                                             )
                                         }
-                                        <span className={cn("text-sm", met ? "text-neutral-300" : "text-neutral-500 dark:text-neutral-400")}>
+                                        <span className={cn("text-sm", met ? "text-neutral-600" : "text-neutral-500 dark:text-neutral-400")}>
                                             {req}
                                         </span>
                                     </div>
@@ -417,7 +417,7 @@ function ProblemPanel({
                         <div className="flex flex-wrap gap-1.5 pt-2">
                             {
                                 problem.tags.map((tag) => (
-                                    <Badge key={tag} variant="outline" className="text-[10px] border-neutral-700 text-neutral-400">
+                                    <Badge key={tag} variant="outline" className="text-xs border-neutral-700 text-neutral-600 dark:text-neutral-400">
                                         {tag}
                                     </Badge>
                                 ))
@@ -434,7 +434,7 @@ function HintsSection({ hints }: { hints: string[] }) {
     const [revealed, setRevealed] = useState(0);
     return (
         <div>
-            <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">Hints</h3>
+            <h3 className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 mb-2">Hints</h3>
             <div className="space-y-2">
                 {
                     hints.slice(0, revealed).map((hint, i) => (
@@ -447,7 +447,7 @@ function HintsSection({ hints }: { hints: string[] }) {
                     revealed < hints.length && (
                         <button
                             onClick={() => setRevealed((r) => r + 1)}
-                            className="cursor-pointer text-xs text-neutral-800 dark:text-neutral-200 hover:text-neutral-300 transition-colors"
+                            className="cursor-pointer text-xs text-neutral-800 dark:text-neutral-200 hover:text-neutral-600 transition-colors"
                         >
                             Reveal hint {revealed + 1} of {hints.length}
                         </button>
@@ -468,7 +468,7 @@ function WebPreview({ code, css }: { code: string; css: string }) {
     return (
         <div className="h-full flex flex-col">
             <div className="h-8 bg-neutral-900 border-b border-neutral-800 flex items-center px-3">
-                <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-medium">Live Preview</span>
+                <span className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">Live Preview</span>
             </div>
             <iframe srcDoc={srcDoc} className="flex-1 bg-white" sandbox="allow-scripts" title="Live Preview" />
         </div>
@@ -488,10 +488,10 @@ function OutputPanel({
         <div className="h-[40%] border-t border-neutral-800 flex flex-col bg-neutral-950">
             <div className="h-8 flex items-center justify-between px-3 border-b border-neutral-800 flex-shrink-0">
                 <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-medium text-neutral-400 uppercase tracking-wider">Output</span>
+                    <span className="text-xs font-medium text-neutral-600 dark:text-neutral-400">Output</span>
                     {result && !isRunning && (
                         <span className={cn(
-                            "text-[10px] font-medium px-1.5 py-0.5 rounded",
+                            "text-xs font-medium px-1.5 py-0.5 rounded",
                             result.exitCode === 0
                                 ? "bg-neutral-900/50 text-neutral-800 dark:text-neutral-200"
                                 : "bg-red-900/50 text-red-400"
@@ -500,14 +500,14 @@ function OutputPanel({
                         </span>
                     )}
                     {result?.executionTimeMs != null && (
-                        <span className="text-[10px] text-neutral-600">{result.executionTimeMs}ms</span>
+                        <span className="text-xs text-neutral-600 dark:text-neutral-400">{result.executionTimeMs}ms</span>
                     )}
                 </div>
-                <button onClick={onClose} className="cursor-pointer text-neutral-600 hover:text-neutral-400 text-xs">✕</button>
+                <button onClick={onClose} className="cursor-pointer text-neutral-600 dark:text-neutral-400 hover:text-neutral-600 text-xs">✕</button>
             </div>
             <div className="flex-1 overflow-auto p-3 font-mono text-xs">
                 {isRunning ? (
-                    <div className="flex items-center gap-2 text-neutral-400">
+                    <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
                         <InlineLoader size="sm" />
                         <span>Running code...</span>
                     </div>
@@ -518,19 +518,19 @@ function OutputPanel({
                         )}
                         {result.stdout && (
                             <div>
-                                <div className="text-[10px] text-neutral-500 dark:text-neutral-400 mb-1">STDOUT</div>
+                                <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-1">STDOUT</div>
                                 <pre className="text-neutral-800 dark:text-neutral-200 whitespace-pre-wrap break-all">{result.stdout}</pre>
                             </div>
                         )}
                         {result.stderr && (
                             <div>
-                                <div className="text-[10px] text-neutral-500 dark:text-neutral-400 mb-1">STDERR</div>
+                                <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-1">STDERR</div>
                                 <pre className="text-red-400 whitespace-pre-wrap break-all">{result.stderr}</pre>
                             </div>
                         )}
                         {result.testResults && result.testResults.length > 0 && (
                             <div>
-                                <div className="text-[10px] text-neutral-500 dark:text-neutral-400 mb-2">
+                                <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-2">
                                     TEST CASES - {result.testResults.filter(t => t.passed).length}/{result.testResults.length} passed
                                 </div>
                                 <div className="space-y-1.5">
@@ -545,15 +545,15 @@ function OutputPanel({
                                                 <span className={tc.passed ? "text-neutral-800 dark:text-neutral-200" : "text-red-400"}>
                                                     {tc.passed ? "✓" : "✗"}
                                                 </span>
-                                                <span className="text-neutral-300 text-[10px]">
+                                                <span className="text-neutral-600 dark:text-neutral-400 text-xs">
                                                     {tc.description ?? `Test ${i + 1}`}
                                                 </span>
                                             </div>
                                             {!tc.passed && (
-                                                <div className="mt-1 grid grid-cols-3 gap-2 text-[10px]">
+                                                <div className="mt-1 grid grid-cols-3 gap-2 text-xs">
                                                     <div>
                                                         <span className="text-neutral-500 dark:text-neutral-400">Input: </span>
-                                                        <span className="text-neutral-300">{tc.input || "(none)"}</span>
+                                                        <span className="text-neutral-600 dark:text-neutral-400">{tc.input || "(none)"}</span>
                                                     </div>
                                                     <div>
                                                         <span className="text-neutral-500 dark:text-neutral-400">Expected: </span>
@@ -572,7 +572,7 @@ function OutputPanel({
                         )}
                     </div>
                 ) : (
-                    <span className="text-neutral-600">Run your code to see output here.</span>
+                    <span className="text-neutral-600 dark:text-neutral-400">Run your code to see output here.</span>
                 )}
             </div>
         </div>
@@ -809,10 +809,10 @@ function ChatPanel({
     return (
         <div className="h-full flex flex-col">
             <div className="h-10 border-b border-neutral-800 flex items-center justify-between px-4">
-                <span className="text-xs font-semibold text-neutral-400">AI Mentor</span>
+                <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">AI Mentor</span>
                 {
                     scribe.isConnected && (
-                        <span className="text-[10px] text-red-400 animate-pulse flex items-center gap-1">
+                        <span className="text-xs text-red-400 animate-pulse flex items-center gap-1">
                             <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
                             Listening...
                         </span>
@@ -877,7 +877,7 @@ function ChatPanel({
                             "h-9 w-9 flex-shrink-0 transition-colors",
                             scribe.isConnected
                                 ? "text-red-400 hover:text-red-300 bg-red-900/20"
-                                : "text-neutral-400 hover:text-white"
+                                : "text-neutral-600 dark:text-neutral-400 hover:text-white"
                         )}
                     >
                         {scribe.isConnected ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
@@ -887,7 +887,7 @@ function ChatPanel({
                         variant="ghost"
                         onClick={() => handleSend()}
                         disabled={!input.trim() || store.isChatLoading}
-                        className="h-9 w-9 text-neutral-400 hover:text-white flex-shrink-0"
+                        className="h-9 w-9 text-neutral-600 dark:text-neutral-400 hover:text-white flex-shrink-0"
                     >
                         <Send className="h-4 w-4" />
                     </Button>
@@ -932,7 +932,7 @@ function ChatBubble({
                         <button
                             onClick={onPlayTTS}
                             disabled={false}
-                            className="mt-1.5 flex items-center gap-1 text-[10px] text-neutral-500 dark:text-neutral-400 hover:text-neutral-300 transition-colors"
+                            className="mt-1.5 flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-600 transition-colors"
                         >
                             {
                                 isSpeaking ? (

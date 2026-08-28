@@ -90,13 +90,13 @@ function MilestoneTracker({ progressPercentage }: { progressPercentage: number, 
                                                     'w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300',
                                                     milestone.unlocked
                                                         ? 'bg-gradient-to-br from-neutral-900 to-neutral-800 border-neutral-800 text-white shadow-lg shadow-neutral-900/30'
-                                                        : 'bg-neutral-100 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 text-neutral-400'
+                                                        : 'bg-neutral-100 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400'
                                                 )}>
                                                     <Icon className="w-4 h-4" />
                                                 </div>
                                                 <span className={cn(
                                                     'mt-2 text-xs font-medium',
-                                                    milestone.unlocked ? 'text-neutral-800 dark:text-neutral-100' : 'text-neutral-400'
+                                                    milestone.unlocked ? 'text-neutral-800 dark:text-neutral-100' : 'text-neutral-600'
                                                 )}>
                                                     {milestone.label}
                                                 </span>
@@ -167,7 +167,7 @@ function QuickActions({
                             )}
                             disabled={progressPercentage < 50}
                         >
-                            <Brain className={cn("w-5 h-5", progressPercentage >= 50 ? "text-neutral-800 dark:text-neutral-200" : "text-neutral-400")} />
+                            <Brain className={cn("w-5 h-5", progressPercentage >= 50 ? "text-neutral-800 dark:text-neutral-200" : "text-neutral-600")} />
                             <span className="text-xs">{progressPercentage >= 50 ? 'Quiz' : '50% to unlock'}</span>
                         </Button>
                     </Link>
@@ -187,7 +187,7 @@ function QuickActions({
                             )}
                             disabled={progressPercentage < 75}
                         >
-                            <Sparkles className={cn("w-5 h-5", progressPercentage >= 75 ? "text-neutral-800 dark:text-neutral-200" : "text-neutral-400")} />
+                            <Sparkles className={cn("w-5 h-5", progressPercentage >= 75 ? "text-neutral-800 dark:text-neutral-200" : "text-neutral-600")} />
                             <span className="text-xs">{progressPercentage >= 75 ? 'Mock AI' : '75% to unlock'}</span>
                         </Button>
                     </Link>
@@ -718,13 +718,13 @@ export default function ProjectDetailsClient({
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                                                     {project.targetAudience && (
                                                         <div className="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-lg">
-                                                            <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1 uppercase tracking-wider">Target Audience</p>
+                                                            <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1">Target Audience</p>
                                                             <p className="text-sm text-neutral-700 dark:text-neutral-300">{project.targetAudience}</p>
                                                         </div>
                                                     )}
                                                     {project.problemSolution && (
                                                         <div className="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-lg">
-                                                            <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1 uppercase tracking-wider">Problem Solved</p>
+                                                            <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1">Problem Solved</p>
                                                             <p className="text-sm text-neutral-700 dark:text-neutral-300">{project.problemSolution}</p>
                                                         </div>
                                                     )}
@@ -753,7 +753,7 @@ export default function ProjectDetailsClient({
                                                                     <Badge
                                                                         variant="outline"
                                                                         className={cn(
-                                                                            "text-[10px] uppercase",
+                                                                            "text-xs",
                                                                             feature.priority === 'must-have' && "border-red-200 bg-red-50 text-red-700 dark:bg-red-900/20 dark:border-red-900 dark:text-red-400",
                                                                             feature.priority === 'should-have' && "border-neutral-200 bg-neutral-50 text-neutral-700 dark:bg-neutral-800/20 dark:border-neutral-800 dark:text-neutral-100",
                                                                             feature.priority === 'nice-to-have' && "border-neutral-200 bg-neutral-50 text-neutral-700 dark:bg-neutral-800/20 dark:border-neutral-800 dark:text-neutral-100"
@@ -766,7 +766,7 @@ export default function ProjectDetailsClient({
                                                                 <Badge
                                                                     variant="secondary"
                                                                     className={cn(
-                                                                        "text-[10px]",
+                                                                        "text-xs",
                                                                         feature.complexity === 'low' && "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
                                                                         feature.complexity === 'medium' && "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
                                                                         feature.complexity === 'high' && "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"

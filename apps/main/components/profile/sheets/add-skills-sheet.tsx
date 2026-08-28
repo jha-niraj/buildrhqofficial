@@ -105,7 +105,7 @@ export function AddSkillsSheet({ open, onOpenChange, onSuccess, existingSkills =
                 <div className="flex-1 px-6 py-5 space-y-5 overflow-y-auto">
                     {/* Add new skill */}
                     <div className="space-y-3 p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-                        <p className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">Add Skill</p>
+                        <p className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 tracking-wide">Add Skill</p>
                         <div className="space-y-2">
                             <Input
                                 placeholder="Skill name (e.g. React, Python, Docker)"
@@ -148,7 +148,7 @@ export function AddSkillsSheet({ open, onOpenChange, onSuccess, existingSkills =
                                 {pending.map(s => (
                                     <Badge key={s.name} className="gap-1.5 pr-1.5 bg-neutral-50 text-neutral-700 dark:bg-neutral-800/20 dark:text-neutral-100 border-neutral-200 dark:border-neutral-800/40">
                                         {s.name}
-                                        <span className="text-[10px] opacity-70">{s.level}</span>
+                                        <span className="text-xs opacity-70">{s.level}</span>
                                         <button onClick={() => removePending(s.name)} className="ml-0.5 hover:text-red-500">
                                             <X className="w-3 h-3" />
                                         </button>
@@ -170,13 +170,13 @@ export function AddSkillsSheet({ open, onOpenChange, onSuccess, existingSkills =
                                     >
                                         <div className="flex items-center gap-2">
                                             <span className="text-sm font-medium">{skill.name}</span>
-                                            <Badge variant="outline" className="text-[10px] capitalize">{skill.level}</Badge>
-                                            <Badge variant="outline" className="text-[10px]">{skill.category.replace(/_/g, ' ')}</Badge>
+                                            <Badge variant="outline" className="text-xs capitalize">{skill.level}</Badge>
+                                            <Badge variant="outline" className="text-xs">{skill.category.replace(/_/g, ' ')}</Badge>
                                         </div>
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="h-7 w-7 p-0 text-neutral-400 hover:text-red-500"
+                                            className="h-7 w-7 p-0 text-neutral-600 dark:text-neutral-400 hover:text-red-500"
                                             disabled={deletingId === skill.id}
                                             onClick={() => handleDelete(skill.id, skill.name)}
                                         >

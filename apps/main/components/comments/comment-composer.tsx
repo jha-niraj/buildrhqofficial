@@ -92,7 +92,7 @@ export function CommentComposer({
             <div className="flex items-center justify-between gap-2">
                 <span className={cn(
                     "text-xs",
-                    tooLong ? "text-red-500" : "text-neutral-400 dark:text-neutral-400",
+                    tooLong ? "text-red-500" : "text-neutral-600 dark:text-neutral-400",
                 )}>
                     {showCounter
                         ? `${trimmed.length} / ${COMMENT_MAX_LENGTH}`

@@ -236,7 +236,7 @@ export default function MockInterviewLandingPage() {
                                                     </div>
                                                     <div className="flex items-center justify-between pt-4 border-t border-neutral-200 dark:border-neutral-800">
                                                         <span className="text-sm text-neutral-600 dark:text-neutral-400">{type.badge}</span>
-                                                        <ArrowRight className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white group-hover:translate-x-1 transition-all" />
+                                                        <ArrowRight className="w-5 h-5 text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white group-hover:translate-x-1 transition-all" />
                                                     </div>
                                                 </CardContent>
                                             </Card>

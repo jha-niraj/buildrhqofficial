@@ -91,7 +91,7 @@ function JobsSidebarContent() {
                         </TooltipTrigger>
                         <TooltipContent side="right" className="bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 border-neutral-800">
                             <p>{item.name}</p>
-                            {item.comingSoon && <span className="text-xs text-neutral-400 ml-1">(Coming Soon)</span>}
+                            {item.comingSoon && <span className="text-xs text-neutral-600 dark:text-neutral-400 ml-1">(Coming Soon)</span>}
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
@@ -120,7 +120,7 @@ function JobsSidebarContent() {
                     {item.name}
                 </span>
                 {item.comingSoon && (
-                    <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400">
+                    <span className="ml-auto text-xs px-1.5 py-0.5 rounded-full bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400">
                         Soon
                     </span>
                 )}
@@ -180,7 +180,7 @@ function JobsSidebarContent() {
                 {/* Jobs Section */}
                 <div className="space-y-1 mb-6">
                     {!isCollapsed && (
-                        <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider px-3 mb-2">
+                        <p className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 px-3 mb-2">
                             Jobs
                         </p>
                     )}
@@ -190,7 +190,7 @@ function JobsSidebarContent() {
                 {/* Companies Section */}
                 <div className="space-y-1">
                     {!isCollapsed && (
-                        <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider px-3 mb-2">
+                        <p className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 px-3 mb-2">
                             Companies
                         </p>
                     )}

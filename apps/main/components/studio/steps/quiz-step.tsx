@@ -40,7 +40,7 @@ export function QuizStep({ step, quizData }: QuizStepProps) {
 				className="py-8"
 			>
 				<div className="flex flex-col items-center justify-center py-12 text-center">
-					<InlineLoader size="lg" className="text-neutral-400 mb-4" />
+					<InlineLoader size="lg" className="text-neutral-600 dark:text-neutral-400 mb-4" />
 					<p className="text-neutral-600 dark:text-neutral-400">
 						Loading quiz...
 					</p>

@@ -178,7 +178,7 @@ export function ProjectCard({ project, showProgress = false }: ProjectCardProps)
                             />
                         ) : (
                             <div className="w-6 h-6 rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center flex-shrink-0">
-                                <span className="text-[10px] font-mono font-bold text-neutral-600 dark:text-neutral-300">
+                                <span className="text-xs font-mono font-bold text-neutral-600 dark:text-neutral-300">
                                     {creatorInitial}
                                 </span>
                             </div>
@@ -221,7 +221,7 @@ export function ProjectCard({ project, showProgress = false }: ProjectCardProps)
                                 </Link>
                             </>
                         ) : (
-                            <Link href={`/projects/${project.slug}`} className="flex items-center gap-1 text-xs font-medium text-neutral-900 dark:text-white hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
+                            <Link href={`/projects/${project.slug}`} className="flex items-center gap-1 text-xs font-medium text-neutral-900 dark:text-white hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-600 transition-colors">
                                 View Project
                                 <ArrowRight className="w-3.5 h-3.5" />
                             </Link>

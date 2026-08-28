@@ -133,7 +133,7 @@ export default function GreetingHeader({ user }: GreetingHeaderProps) {
                                     >
                                         <div className="flex items-center justify-between gap-2">
                                             <div className="min-w-0">
-                                                <p className="text-[10px] sm:text-xs text-muted-foreground font-medium truncate">
+                                                <p className="text-xs sm:text-xs text-muted-foreground font-medium truncate">
                                                     {stat.label}
                                                 </p>
                                                 <p className="text-lg sm:text-2xl font-bold truncate tracking-tight">{stat.value}</p>

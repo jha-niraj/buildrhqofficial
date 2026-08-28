@@ -93,7 +93,7 @@ function PricingCard({ pkg, currency, className, onSelect, hrefFor }: PricingCar
                 />
                 <span className="pb-1 text-sm text-neutral-500 dark:text-neutral-400">/one-time</span>
                 {original !== undefined && savings !== null && (
-                    <span className="pb-1 text-sm text-neutral-400 line-through dark:text-neutral-500">
+                    <span className="pb-1 text-sm text-neutral-600 line-through dark:text-neutral-500">
                         {formatPrice(original, currency)}
                     </span>
                 )}

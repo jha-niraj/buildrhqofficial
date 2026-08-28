@@ -152,7 +152,7 @@ export function AddProblemSheet({ module, onProblemAdded }: AddProblemSheetProps
                             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-colors ${
                                 mode === "url"
                                     ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
-                                    : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                                    : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-600 dark:text-neutral-400"
                             }`}
                         >
                             <Link className="h-3.5 w-3.5" />
@@ -163,7 +163,7 @@ export function AddProblemSheet({ module, onProblemAdded }: AddProblemSheetProps
                             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-colors ${
                                 mode === "name"
                                     ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
-                                    : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                                    : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-600 dark:text-neutral-400"
                             }`}
                         >
                             <Type className="h-3.5 w-3.5" />
@@ -182,7 +182,7 @@ export function AddProblemSheet({ module, onProblemAdded }: AddProblemSheetProps
                                 onChange={(e) => setUrl(e.target.value)}
                                 disabled={generating}
                             />
-                            <p className="text-[11px] text-neutral-400">
+                            <p className="text-xs text-neutral-600 dark:text-neutral-400">
                                 Supports LeetCode, GreatFrontend, HackerRank, and more
                             </p>
                         </div>
@@ -313,7 +313,7 @@ export function AddProblemSheet({ module, onProblemAdded }: AddProblemSheetProps
                                         </h3>
                                         <Badge
                                             variant="outline"
-                                            className={`text-[10px] flex-shrink-0 ${DIFFICULTY_STYLES[preview.difficulty] ?? ""}`}
+                                            className={`text-xs flex-shrink-0 ${DIFFICULTY_STYLES[preview.difficulty] ?? ""}`}
                                         >
                                             {preview.difficulty}
                                         </Badge>
@@ -325,12 +325,12 @@ export function AddProblemSheet({ module, onProblemAdded }: AddProblemSheetProps
 
                                     <div className="flex flex-wrap items-center gap-1.5">
                                         {preview.category && (
-                                            <Badge variant="secondary" className="text-[10px]">
+                                            <Badge variant="secondary" className="text-xs">
                                                 {categories.find(([slug]) => slug === preview.category)?.[1]?.name ?? preview.category}
                                             </Badge>
                                         )}
                                         {preview.tags?.slice(0, 3).map((tag) => (
-                                            <Badge key={tag} variant="outline" className="text-[10px] text-neutral-400">
+                                            <Badge key={tag} variant="outline" className="text-xs text-neutral-600 dark:text-neutral-400">
                                                 {tag}
                                             </Badge>
                                         ))}
@@ -338,18 +338,18 @@ export function AddProblemSheet({ module, onProblemAdded }: AddProblemSheetProps
 
                                     {preview.requirements.length > 0 && (
                                         <div className="pt-1">
-                                            <p className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400 mb-1.5">
+                                            <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1.5">
                                                 {preview.requirements.length} requirement{preview.requirements.length !== 1 ? "s" : ""}
                                             </p>
                                             <ul className="space-y-1">
                                                 {preview.requirements.slice(0, 4).map((req, i) => (
-                                                    <li key={i} className="flex items-start gap-1.5 text-[11px] text-neutral-500 dark:text-neutral-400">
+                                                    <li key={i} className="flex items-start gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
                                                         <Check className="h-3 w-3 text-neutral-900 dark:text-neutral-100 mt-0.5 flex-shrink-0" />
                                                         <span className="line-clamp-1">{req}</span>
                                                     </li>
                                                 ))}
                                                 {preview.requirements.length > 4 && (
-                                                    <li className="text-[11px] text-neutral-400 pl-4.5">
+                                                    <li className="text-xs text-neutral-600 dark:text-neutral-400 pl-4.5">
                                                         +{preview.requirements.length - 4} more
                                                     </li>
                                                 )}

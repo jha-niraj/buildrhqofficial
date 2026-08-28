@@ -387,7 +387,7 @@ export function AIInputPanel({ studioId, onContentAdded, externalPrompt, onExter
 														{option.label}
 													</span>
 													{option.comingSoon && (
-														<span className="rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] text-neutral-700 dark:bg-neutral-700 dark:text-neutral-100">
+														<span className="rounded bg-neutral-200 px-1.5 py-0.5 text-xs text-neutral-700 dark:bg-neutral-700 dark:text-neutral-100">
 															Soon
 														</span>
 													)}

@@ -77,13 +77,13 @@ export function ChatHistoryDialog({
 
                 <div className="border-b border-neutral-200 px-5 py-3 dark:border-neutral-800">
                     <div className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-2.5 py-1.5 focus-within:border-neutral-900 dark:border-neutral-800 dark:bg-neutral-900 dark:focus-within:border-white">
-                        <Search className="h-3.5 w-3.5 shrink-0 text-neutral-400" />
+                        <Search className="h-3.5 w-3.5 shrink-0 text-neutral-600 dark:text-neutral-400" />
                         <input
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder="Search conversations"
                             autoFocus
-                            className="min-w-0 flex-1 bg-transparent text-sm text-neutral-900 outline-none placeholder:text-neutral-400 dark:text-white"
+                            className="min-w-0 flex-1 bg-transparent text-sm text-neutral-900 outline-none placeholder:text-neutral-600 dark:text-neutral-400 dark:text-white"
                         />
                     </div>
                 </div>
@@ -91,7 +91,7 @@ export function ChatHistoryDialog({
                 <ScrollArea className="max-h-[52dvh]">
                     <div className="p-2">
                         {filtered.length === 0 ? (
-                            <p className="px-3 py-8 text-center text-sm text-neutral-400">
+                            <p className="px-3 py-8 text-center text-sm text-neutral-600 dark:text-neutral-400">
                                 {sessions.length === 0 ? "No conversations yet" : "Nothing matches that"}
                             </p>
                         ) : (
@@ -114,7 +114,7 @@ export function ChatHistoryDialog({
                                             {s.title}
                                         </span>
                                         {s.updatedAt && (
-                                            <span className="block text-[11px] text-neutral-400">{formatWhen(s.updatedAt)}</span>
+                                            <span className="block text-xs text-neutral-600 dark:text-neutral-400">{formatWhen(s.updatedAt)}</span>
                                         )}
                                     </button>
                                     <button
@@ -123,7 +123,7 @@ export function ChatHistoryDialog({
                                         aria-label={`Delete "${s.title}"`}
                                         // Visible on focus as well as hover: a delete you
                                         // can only reach with a mouse is not reachable.
-                                        className="shrink-0 cursor-pointer rounded p-1 text-neutral-400 opacity-0 transition-opacity hover:text-red-500 focus:opacity-100 group-hover:opacity-100"
+                                        className="shrink-0 cursor-pointer rounded p-1 text-neutral-600 dark:text-neutral-400 opacity-0 transition-opacity hover:text-red-500 focus:opacity-100 group-hover:opacity-100"
                                     >
                                         <Trash2 className="h-3.5 w-3.5" />
                                     </button>

@@ -182,7 +182,7 @@ export function SparkContent({ initialJobs, pagination, isAuthenticated }: Spark
                         animate={{ opacity: 1 }}
                         className="flex flex-col items-center justify-center py-20"
                     >
-                        <InlineLoader size="lg" className="text-neutral-400 mb-4" />
+                        <InlineLoader size="lg" className="text-neutral-600 dark:text-neutral-400 mb-4" />
                         <p className="text-neutral-500 dark:text-neutral-400">Loading more jobs...</p>
                     </motion.div>
                 ) : (

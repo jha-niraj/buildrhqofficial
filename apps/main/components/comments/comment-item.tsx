@@ -74,7 +74,7 @@ export function CommentItem({
                     {comment.author.image && (
                         <AvatarImage src={comment.author.image} alt={comment.author.name ?? "User"} />
                     )}
-                    <AvatarFallback className="text-[10px] bg-neutral-100 dark:bg-neutral-800">
+                    <AvatarFallback className="text-xs bg-neutral-100 dark:bg-neutral-800">
                         {initials(comment.author.name)}
                     </AvatarFallback>
                 </Avatar>
@@ -84,11 +84,11 @@ export function CommentItem({
                         <span className="text-sm font-semibold text-neutral-900 dark:text-white truncate">
                             {comment.author.name ?? "Anonymous"}
                         </span>
-                        <span className="text-xs text-neutral-400 shrink-0">
+                        <span className="text-xs text-neutral-600 dark:text-neutral-400 shrink-0">
                             {timeAgo(comment.createdAt)}
                         </span>
                         {comment.isEdited && !comment.isDeleted && (
-                            <span className="text-xs text-neutral-400 shrink-0">· edited</span>
+                            <span className="text-xs text-neutral-600 dark:text-neutral-400 shrink-0">· edited</span>
                         )}
                         {comment.failed && (
                             <span className="text-xs text-red-500 shrink-0">· failed to post</span>
@@ -112,7 +112,7 @@ export function CommentItem({
                     ) : comment.isDeleted ? (
                         // Tombstone. The row survives so its replies keep their place in
                         // the thread; the server never sent us the original body.
-                        <p className="mt-0.5 text-sm italic text-neutral-400 dark:text-neutral-400">
+                        <p className="mt-0.5 text-sm italic text-neutral-600 dark:text-neutral-400">
                             This comment was deleted
                         </p>
                     ) : (
@@ -142,7 +142,7 @@ export function CommentItem({
                                             type="button"
                                             variant="ghost"
                                             size="sm"
-                                            className="h-7 w-7 p-0 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+                                            className="h-7 w-7 p-0 text-neutral-600 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
                                             aria-label="Comment actions"
                                         >
                                             {deleting

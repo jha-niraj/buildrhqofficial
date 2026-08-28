@@ -138,7 +138,7 @@ function Section({ title, icon: Icon, action, children }: {
                     <button
                         type="button"
                         onClick={action.onClick}
-                        className="inline-flex cursor-pointer items-center gap-1 text-sm font-medium text-neutral-400 transition-colors hover:text-neutral-900 dark:hover:text-white"
+                        className="inline-flex cursor-pointer items-center gap-1 text-sm font-medium text-neutral-600 dark:text-neutral-400 transition-colors hover:text-neutral-900 dark:hover:text-white"
                     >
                         <Plus className="h-3.5 w-3.5" /> {action.label}
                     </button>
@@ -293,7 +293,7 @@ export function ProfileView({
                                         unoptimized
                                     />
                                 ) : (
-                                    <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-neutral-400">
+                                    <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-neutral-600 dark:text-neutral-400">
                                         {(profile.name ?? "?").charAt(0).toUpperCase()}
                                     </div>
                                 )}
@@ -445,7 +445,7 @@ export function ProfileView({
                         ].map((stat) => (
                             <div key={stat.label} className="rounded-xl border border-neutral-100 px-3.5 py-2.5 dark:border-neutral-800">
                                 <div className="flex items-center gap-1.5">
-                                    <stat.icon className="h-3 w-3 text-neutral-400" />
+                                    <stat.icon className="h-3 w-3 text-neutral-600 dark:text-neutral-400" />
                                     <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{stat.label}</p>
                                 </div>
                                 <p className="mt-0.5 text-lg font-bold tabular-nums text-neutral-900 dark:text-white">
@@ -524,7 +524,7 @@ export function ProfileView({
                                                 {e.roleTitle}
                                             </p>
                                             <p className="text-sm text-neutral-600 dark:text-neutral-400">{e.companyName}</p>
-                                            <p className="mt-0.5 inline-flex items-center gap-1 font-mono text-xs text-neutral-400">
+                                            <p className="mt-0.5 inline-flex items-center gap-1 font-mono text-xs text-neutral-600 dark:text-neutral-400">
                                                 <Calendar className="h-3 w-3" />
                                                 {dateRange(e.startDate, e.endDate, e.isCurrentlyWorking)}
                                             </p>
@@ -560,7 +560,7 @@ export function ProfileView({
                                             {ed.degree && (
                                                 <p className="text-sm text-neutral-600 dark:text-neutral-400">{ed.degree}</p>
                                             )}
-                                            <p className="mt-0.5 inline-flex items-center gap-1 font-mono text-xs text-neutral-400">
+                                            <p className="mt-0.5 inline-flex items-center gap-1 font-mono text-xs text-neutral-600 dark:text-neutral-400">
                                                 <Calendar className="h-3 w-3" />
                                                 {dateRange(ed.startDate, ed.endDate)}
                                             </p>
@@ -712,7 +712,7 @@ export function ProfileView({
                                         className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm text-neutral-700 transition-colors hover:bg-neutral-50 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-white"
                                     >
                                         <span className="truncate">{l.platform}</span>
-                                        <ExternalLink className="h-3 w-3 shrink-0 text-neutral-400" />
+                                        <ExternalLink className="h-3 w-3 shrink-0 text-neutral-600 dark:text-neutral-400" />
                                     </a>
                                 ))}
                             </div>

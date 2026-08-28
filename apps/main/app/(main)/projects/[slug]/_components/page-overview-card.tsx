@@ -183,7 +183,7 @@ export function PageOverviewCard({ page, difficultyColors }: PageOverviewCardPro
                                                             <div className="flex flex-wrap gap-1">
                                                                 {
                                                                     comp.interactivity.map((action: string, aIdx: number) => (
-                                                                        <span key={aIdx} className="text-[10px] px-1.5 py-0.5 bg-neutral-100 dark:bg-neutral-800/30 text-neutral-700 dark:text-neutral-100 rounded">
+                                                                        <span key={aIdx} className="text-xs px-1.5 py-0.5 bg-neutral-100 dark:bg-neutral-800/30 text-neutral-700 dark:text-neutral-100 rounded">
                                                                             {action}
                                                                         </span>
                                                                     ))

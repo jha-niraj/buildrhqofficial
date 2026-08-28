@@ -20,6 +20,7 @@ import Link from "next/link"
 import { getMyReferrals } from "@/actions/(main)/user/referral.action"
 import { REFERRAL_XP, type ReferralSummary } from "@/lib/referrals"
 import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { cn } from '@repo/ui/lib/utils'
 
 interface CreditTransaction {
 	id: string
@@ -138,9 +139,15 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 	}
 
 	// One place decides the chrome, so the three return paths below cannot disagree about it.
+	//
+	// EMBEDDED is a column with a definite height, not a plain padded box. Inside
+	// the history panel the whole thing scrolled as one, so the title, the Refresh
+	// button and the tab bar all slid away and you could not switch tabs without
+	// scrolling back up. `h-full` + `min-h-0` lets the header and tabs stay put
+	// while only the list moves - see the ScrollArea on each TabsContent below.
 	const Shell = ({ children }: { children: React.ReactNode }) =>
 		embedded ? (
-			<div className="px-5 py-5">{children}</div>
+			<div className="flex h-full min-h-0 flex-col px-5 pt-5">{children}</div>
 		) : (
 			<div className="min-h-screen relative">
 				<div className="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
@@ -174,7 +181,7 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 				<div>
 					<div className="flex flex-col items-center justify-center py-32 text-center">
 						<div className="w-14 h-14 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl flex items-center justify-center mb-6">
-							<Receipt className="h-6 w-6 text-neutral-400" />
+							<Receipt className="h-6 w-6 text-neutral-600 dark:text-neutral-400" />
 						</div>
 						<h1 className="text-2xl font-bold text-neutral-900 dark:text-white mb-3">
 							Authentication Required
@@ -193,34 +200,51 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 
 	return (
 		<Shell>
-			<div>
+			{/* This wrapper HAS to be a flex column when embedded, and it was a bare
+				`<div>`. `Shell` is `flex flex-col`, so this div was its one flex item
+				and grew to the full height - but inside it there was no flex context,
+				so `Tabs`'s `flex-1` and `min-h-0` had nothing to act in and the list
+				never got a bounded height to scroll inside. One unstyled div, three
+				levels of correct flex classes doing nothing. */}
+			<div className={embedded ? 'flex min-h-0 flex-1 flex-col' : undefined}>
 				{/* Page Header */}
-				<div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
+				<div
+					className={cn(
+						'flex flex-col sm:flex-row sm:items-end justify-between gap-6',
+						// 48px of air under the header is right on a full page and far
+						// too much in a 520px panel, where it pushed the tabs a third of
+						// the way down.
+						embedded ? 'shrink-0 mb-4' : 'mb-12'
+					)}
+				>
 					<motion.div
 						initial={enter}
 						animate={{ opacity: 1, y: 0 }}
 					>
-						<Badge variant="outline" className="mb-4 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 px-3 py-1 rounded-full text-neutral-600 dark:text-neutral-400 text-xs">
-							<Receipt className="w-3 h-3 mr-1.5" />
-							Ledger
-						</Badge>
-						<h1 className="text-4xl font-bold tracking-tight text-neutral-900 dark:text-white mb-2">
+						<h1 className={cn(
+							'font-bold tracking-tight text-neutral-900 dark:text-white',
+							embedded ? 'text-lg mb-0.5' : 'text-4xl mb-2'
+						)}>
 							Transaction History
 						</h1>
-						<p className="text-neutral-500 dark:text-neutral-400 font-light">
+						<p className={cn(
+							'text-neutral-600 dark:text-neutral-400',
+							embedded ? 'text-xs' : 'font-light'
+						)}>
 							Track your credit purchases, spending, and transfers
 						</p>
 					</motion.div>
 					<motion.div
 						initial={enterFade}
 						animate={{ opacity: 1 }}
-						transition={{ delay: 0.15 }}
+						transition={embedded ? { duration: 0 } : { delay: 0.15 }}
 					>
 						<Button
 							onClick={fetchData}
 							disabled={refreshing}
 							variant="outline"
-							className="gap-2 border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900"
+							size={embedded ? 'sm' : 'default'}
+							className="cursor-pointer gap-2 border-neutral-200 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-900"
 						>
 							{refreshing ? <InlineLoader size="sm" /> : <RefreshCw className="h-4 w-4" />}
 							Refresh
@@ -233,18 +257,35 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 					Referrals entry links to. `defaultValue` rather than a controlled `value`:
 					the param picks the STARTING tab and then the user is free to switch, which
 					is the behaviour you want from a deep link. */}
-				<Tabs defaultValue={initialTab} className="space-y-6">
-					<TabsList className="w-full sm:w-auto grid grid-cols-2 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-1 rounded-lg gap-1">
+				<Tabs
+					defaultValue={initialTab}
+					className={embedded ? 'flex min-h-0 flex-1 flex-col gap-4' : 'space-y-6'}
+				>
+					<TabsList
+						className={cn(
+							'shrink-0 grid w-full grid-cols-2 gap-1 rounded-lg border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900',
+							// A panel is 520px wide and the tab bar is navigation, not
+							// content. Full-height triggers made it the biggest thing on
+							// screen after the title.
+							embedded ? 'h-9 p-0.5' : 'p-1 sm:w-auto'
+						)}
+					>
 						<TabsTrigger
 							value="transactions"
-							className="flex items-center gap-2 text-sm data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-neutral-900 dark:data-[state=active]:text-white data-[state=active]:shadow-sm rounded-md"
+							className={cn(
+								'flex items-center justify-center gap-2 rounded-md data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800 dark:data-[state=active]:text-white',
+								embedded ? 'h-8 text-xs' : 'text-sm'
+							)}
 						>
 							<CreditCard className="h-3.5 w-3.5" />
 							Credit Transactions
 						</TabsTrigger>
 						<TabsTrigger
 							value="referrals"
-							className="flex items-center gap-2 text-sm data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-neutral-900 dark:data-[state=active]:text-white data-[state=active]:shadow-sm rounded-md"
+							className={cn(
+								'flex items-center justify-center gap-2 rounded-md data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800 dark:data-[state=active]:text-white',
+								embedded ? 'h-8 text-xs' : 'text-sm'
+							)}
 						>
 							<Gift className="h-3.5 w-3.5" />
 							Referrals
@@ -252,22 +293,31 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 					</TabsList>
 
 					{/* Credit Transactions Tab */}
-					<TabsContent value="transactions">
-						<Card className="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-sm rounded-xl overflow-hidden">
-							<CardHeader className="border-b border-neutral-100 dark:border-neutral-800 px-6 py-4">
+					{/* The SCROLL REGION, in embedded mode. `min-h-0` is
+						load-bearing: a flex child defaults to `min-height: auto`,
+						which means it refuses to shrink below its content, so the
+						column grows instead of scrolling and the header slides away
+						again. On the standalone page there is no bounded height to
+						scroll inside, so it stays a plain block and the page scrolls. */}
+					<TabsContent
+						value="transactions"
+						className={embedded ? 'mt-0 flex min-h-0 flex-1 flex-col overflow-hidden' : undefined}
+					>
+						<Card className={cn("border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-sm rounded-xl overflow-hidden", embedded && "flex min-h-0 flex-1 flex-col")}>
+							<CardHeader className="shrink-0 border-b border-neutral-100 dark:border-neutral-800 px-6 py-4">
 								<CardTitle className="flex items-center gap-2 text-base font-semibold text-neutral-900 dark:text-white">
-									<CreditCard className="h-4 w-4 text-neutral-400" />
+									<CreditCard className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
 									Credit Transactions
 									<Badge variant="secondary" className="ml-auto bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-mono text-xs">
 										{transactions.length}
 									</Badge>
 								</CardTitle>
 							</CardHeader>
-							<CardContent className="p-0">
+							<CardContent className={cn("p-0", embedded && "min-h-0 flex-1 overflow-y-auto")}>
 								{transactions.length === 0 ? (
 									<div className="flex flex-col items-center justify-center py-20 text-center px-6">
 										<div className="w-14 h-14 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl flex items-center justify-center mb-5">
-											<Receipt className="h-6 w-6 text-neutral-400" />
+											<Receipt className="h-6 w-6 text-neutral-600 dark:text-neutral-400" />
 										</div>
 										<p className="text-neutral-900 dark:text-white font-medium mb-1">No transactions yet</p>
 										<p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6 max-w-xs">
@@ -282,9 +332,16 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 										{transactions.map((transaction, index) => (
 											<motion.div
 												key={transaction.id}
+												// No motion at all when embedded, and `initial={false}`
+												// alone was not enough: Radix unmounts the inactive tab,
+												// so switching back REMOUNTS these rows and the staggered
+												// `animate` replays from the top - six rows fading in one
+												// after another, which is the flashing on every tab switch.
+												// A zero duration leaves the values applied with nothing
+												// to play.
 												initial={embedded ? false : { opacity: 0, y: 10 }}
 												animate={{ opacity: 1, y: 0 }}
-												transition={{ delay: index * 0.05 }}
+												transition={embedded ? { duration: 0 } : { delay: index * 0.05 }}
 												className="flex items-center justify-between px-6 py-4 hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors"
 											>
 												<div className="flex items-center gap-4">
@@ -296,7 +353,7 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 															{transaction.description}
 														</p>
 														<div className="flex items-center gap-1.5 mt-0.5">
-															<Calendar className="h-3 w-3 text-neutral-400" />
+															<Calendar className="h-3 w-3 text-neutral-600 dark:text-neutral-400" />
 															<span className="text-xs text-neutral-500 dark:text-neutral-400 font-mono">
 																{formatDate(transaction.createdAt)}
 															</span>
@@ -309,12 +366,17 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 															? 'text-neutral-900 dark:text-white'
 															: 'text-neutral-500 dark:text-neutral-400'
 													}`}>
+														{/* `Math.abs`, because the SIGN IS ALREADY IN THE VALUE.
+															SPEND rows are stored negative (`-3`), and prefixing
+															another minus rendered "--3". The prefix is chosen from
+															`type` and the magnitude printed separately, so the two
+															can never contradict each other. */}
 														{transaction.type === 'PURCHASE' || transaction.type === 'BONUS' || transaction.type === 'REWARD' ? '+' : '-'}
-														{transaction.amount}
+														{Math.abs(transaction.amount).toLocaleString()}
 													</span>
 													<div className="flex items-center gap-2">
 														{transaction.currency !== 'NA' && (
-															<span className="text-xs text-neutral-400 font-mono">{transaction.currency}</span>
+															<span className="text-xs text-neutral-600 dark:text-neutral-400 font-mono">{transaction.currency}</span>
 														)}
 														<Badge className={`text-xs px-2 py-0 ${getTransactionColor(transaction.type)}`}>
 															{transaction.type}
@@ -338,22 +400,25 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 						long time (signup calls `processReferral`, which inserts the row, awards
 						the referrer 300 XP and bumps `referralCount`) and there was simply
 						nowhere to SEE it. The feature ran silently. */}
-					<TabsContent value="referrals">
-						<Card className="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-sm rounded-xl overflow-hidden">
-							<CardHeader className="border-b border-neutral-100 dark:border-neutral-800 px-6 py-4">
+					<TabsContent
+						value="referrals"
+						className={embedded ? 'mt-0 flex min-h-0 flex-1 flex-col overflow-hidden' : undefined}
+					>
+						<Card className={cn("border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-sm rounded-xl overflow-hidden", embedded && "flex min-h-0 flex-1 flex-col")}>
+							<CardHeader className="shrink-0 border-b border-neutral-100 dark:border-neutral-800 px-6 py-4">
 								<CardTitle className="flex items-center gap-2 text-base font-semibold text-neutral-900 dark:text-white">
-									<Gift className="h-4 w-4 text-neutral-400" />
+									<Gift className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
 									Referrals
 									<Badge variant="secondary" className="ml-auto bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-mono text-xs">
 										{referrals?.count ?? 0}
 									</Badge>
 								</CardTitle>
 							</CardHeader>
-							<CardContent className="p-6 space-y-6">
+							<CardContent className={cn("p-6 space-y-6", embedded && "min-h-0 flex-1 overflow-y-auto")}>
 								{/* The link, and one button to copy it. This is the whole point of
 									the tab - everything below is evidence that it worked. */}
 								<div>
-									<p className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-400 dark:text-neutral-500">
+									<p className="text-xs font-semibold text-neutral-600 dark:text-neutral-500">
 										Your referral link
 									</p>
 									<div className="mt-2 flex flex-wrap items-center gap-2">

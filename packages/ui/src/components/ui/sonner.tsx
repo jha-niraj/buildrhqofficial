@@ -61,7 +61,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
 					].join(" "),
 					title: "text-[13.5px] font-medium leading-5 text-neutral-900 dark:text-neutral-50",
 					description:
-						"!text-[13px] leading-5 !text-neutral-500 dark:!text-neutral-400 mt-0.5",
+						"!text-[13px] leading-5 !text-neutral-500 dark:!text-neutral-600 dark:text-neutral-400 mt-0.5",
 					icon: "shrink-0 mt-px",
 					content: "flex-1 min-w-0",
 					// Monochrome, matching the primary button used elsewhere.
@@ -70,13 +70,13 @@ const Toaster = ({ ...props }: ToasterProps) => {
 					cancelButton:
 						"!bg-transparent !text-neutral-500 hover:!text-neutral-900 dark:hover:!text-white !rounded-lg !px-2.5 !h-7 !text-xs !font-medium",
 					closeButton:
-						"!bg-transparent !border-0 !text-neutral-400 hover:!text-neutral-900 dark:!text-neutral-500 dark:hover:!text-white !transition-colors",
+						"!bg-transparent !border-0 !text-neutral-600 dark:text-neutral-400 hover:!text-neutral-900 dark:!text-neutral-500 dark:hover:!text-white !transition-colors",
 					// State is carried by the icon alone.
 					success: "[&_[data-icon]]:text-emerald-600 dark:[&_[data-icon]]:text-emerald-400",
 					error: "[&_[data-icon]]:text-rose-600 dark:[&_[data-icon]]:text-rose-400",
 					warning: "[&_[data-icon]]:text-neutral-900 dark:[&_[data-icon]]:text-neutral-100",
-					info: "[&_[data-icon]]:text-neutral-500 dark:[&_[data-icon]]:text-neutral-400",
-					loading: "[&_[data-icon]]:text-neutral-500 dark:[&_[data-icon]]:text-neutral-400",
+					info: "[&_[data-icon]]:text-neutral-500 dark:[&_[data-icon]]:text-neutral-600 dark:text-neutral-400",
+					loading: "[&_[data-icon]]:text-neutral-500 dark:[&_[data-icon]]:text-neutral-600 dark:text-neutral-400",
 				},
 			}}
 			{...props}

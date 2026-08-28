@@ -117,7 +117,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
                         )}
                         {quote && (
                             <p
-                                className="auth-copy-enter mt-6 border-l border-neutral-900/20 pl-4 text-sm italic leading-relaxed text-neutral-600"
+                                className="auth-copy-enter mt-6 border-l border-neutral-900/20 pl-4 text-sm italic leading-relaxed text-neutral-600 dark:text-neutral-400"
                                 style={{ ["--enter-delay" as string]: "140ms" }}
                             >
                                 {quote}
@@ -145,7 +145,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
                     </div>
 
                     <div className="relative z-10 flex shrink-0 items-center justify-between">
-                        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-neutral-600">
+                        <p className="font-mono text-xs text-neutral-600 dark:text-neutral-400">
                             Learn · Build · Get hired
                         </p>
                         <ThemeToggle />

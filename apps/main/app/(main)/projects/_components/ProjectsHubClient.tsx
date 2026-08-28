@@ -147,7 +147,7 @@ export default function ProjectsHomePage() {
 							>
 								<div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-full shadow-sm">
 									<Sparkles className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100" />
-									<span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 tracking-wide uppercase">
+									<span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 tracking-wide">
 										AI-Powered Project Generator
 									</span>
 								</div>
@@ -198,7 +198,7 @@ export default function ProjectsHomePage() {
 											My Projects
 										</Button>
 									</Link>
-									<span className="hidden sm:block text-neutral-300 dark:text-neutral-700 py-2">|</span>
+									<span className="hidden sm:block text-neutral-600 dark:text-neutral-700 py-2">|</span>
 									<Button
 										onClick={scrollToProjects}
 										variant="ghost"
@@ -237,7 +237,7 @@ export default function ProjectsHomePage() {
 											</div>
 											<div className="text-3xl font-bold text-neutral-900 dark:text-white mb-1 tracking-tight">
 												{stat.value}
-												<span className="text-neutral-400 dark:text-neutral-400 ml-0.5 text-2xl">{stat.suffix}</span>
+												<span className="text-neutral-600 dark:text-neutral-400 ml-0.5 text-2xl">{stat.suffix}</span>
 											</div>
 											<div className="text-sm text-neutral-500 dark:text-neutral-400 font-medium">
 												{stat.label}

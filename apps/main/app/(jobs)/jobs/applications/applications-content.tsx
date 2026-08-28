@@ -384,7 +384,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                                                     fill
                                                                 />
                                                             ) : (
-                                                                <Building2 className="w-7 h-7 text-neutral-400" />
+                                                                <Building2 className="w-7 h-7 text-neutral-600 dark:text-neutral-400" />
                                                             )
                                                         }
                                                     </div>
@@ -398,7 +398,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                                                 </h3>
                                                             </Link>
                                                             <Link href={`/companies/${application.job.company.slug}`}>
-                                                                <p className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors">
+                                                                <p className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-600 transition-colors">
                                                                     {application.job.company.name}
                                                                 </p>
                                                             </Link>
@@ -624,7 +624,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                                                         fill
                                                                     />
                                                                 ) : (
-                                                                    <Building2 className="w-6 h-6 text-neutral-400" />
+                                                                    <Building2 className="w-6 h-6 text-neutral-600 dark:text-neutral-400" />
                                                                 )
                                                             }
                                                         </div>
@@ -689,7 +689,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                             animate={{ opacity: 1 }}
                             className="text-center py-16"
                         >
-                            <FileText className="w-16 h-16 text-neutral-300 dark:text-neutral-700 mx-auto mb-4" />
+                            <FileText className="w-16 h-16 text-neutral-600 dark:text-neutral-700 mx-auto mb-4" />
                             <h3 className="text-xl font-medium text-neutral-900 dark:text-white mb-2">
                                 No applications found
                             </h3>
@@ -731,7 +731,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                                         fill
                                                     />
                                                 ) : (
-                                                    <Building2 className="w-7 h-7 text-neutral-400" />
+                                                    <Building2 className="w-7 h-7 text-neutral-600 dark:text-neutral-400" />
                                                 )
                                             }
                                         </div>

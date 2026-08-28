@@ -4,7 +4,7 @@ import {
     Home, FileText, Code2,
     Network, Globe, Server, Compass, Telescope, IdCard, BarChart3,
     Search, Bookmark, Bell, Building2, Send, Zap, Upload, History
-} from "lucide-react"
+, Wallet } from "lucide-react"
 
 export type LucideIcon = typeof LayoutDashboard
 
@@ -53,12 +53,6 @@ export interface NavigationConfig {
 // the complete set - there is no third link being withheld.
 export const mainNavigation: NavigationConfig = {
     primary: [
-        {
-            name: "Credits",
-            path: "credits",
-            icon: Zap,
-            status: "active"
-        },
         {
             name: "Home",
             path: "home",
@@ -156,6 +150,16 @@ export const mainNavigation: NavigationConfig = {
                 { name: 'Analytics', path: 'knowme/analytics', icon: BarChart3 },
                 { name: 'Settings', path: 'knowme/settings', icon: Server },
             ]
+        },
+        {
+            // Buying sits BELOW KnowMe, at the end. `Credits` near the top is the
+            // wallet - balance, purchases, history - and is the page somebody
+            // opens often. This is the checkout, which they open rarely, so it
+            // does not compete with the modules they actually work in.
+            name: "Purchase",
+            path: "purchase",
+            icon: Wallet,
+            status: "active"
         }
     ],
     secondary: []

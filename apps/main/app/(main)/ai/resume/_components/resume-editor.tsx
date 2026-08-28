@@ -195,7 +195,7 @@ function BulletsEditor({ value, onChange, placeholder }: {
         <div className="space-y-1.5">
             {rows.map((b, i) => (
                 <div key={i} className="group flex items-start gap-1.5">
-                    <span className="mt-2 shrink-0 text-neutral-400 dark:text-neutral-500" aria-hidden>&bull;</span>
+                    <span className="mt-2 shrink-0 text-neutral-600 dark:text-neutral-500" aria-hidden>&bull;</span>
                     <Textarea
                         // Auto-grows, so a long bullet is fully visible instead of being a
                         // one-line box you scroll inside.
@@ -216,14 +216,14 @@ function BulletsEditor({ value, onChange, placeholder }: {
                     <div className="flex shrink-0 flex-col opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
                         <Button
                             variant="ghost" size="sm" type="button"
-                            className="h-4 w-6 cursor-pointer p-0 text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                            className="h-4 w-6 cursor-pointer p-0 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                             aria-label="Move bullet up" disabled={i === 0} onClick={() => move(i, -1)}
                         >
                             <GripVertical className="h-3 w-3 rotate-90" />
                         </Button>
                         <Button
                             variant="ghost" size="sm" type="button"
-                            className="h-4 w-6 cursor-pointer p-0 text-neutral-400 hover:text-red-500"
+                            className="h-4 w-6 cursor-pointer p-0 text-neutral-600 dark:text-neutral-400 hover:text-red-500"
                             aria-label="Remove bullet" onClick={() => removeRow(i)}
                         >
                             <Trash2 className="h-3 w-3" />
@@ -296,7 +296,7 @@ function ExperienceSection({ items, onChange }: { items: ResumeExperienceEntry[]
                 <div key={e.id} className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4 space-y-3">
                     <div className="flex items-center justify-between">
                         <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Position {idx + 1}</span>
-                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-neutral-400 hover:text-red-500" onClick={() => remove(e.id)}><Trash2 className="w-3 h-3" /></Button>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-neutral-600 dark:text-neutral-400 hover:text-red-500" onClick={() => remove(e.id)}><Trash2 className="w-3 h-3" /></Button>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                         <Input className="h-8 text-sm" placeholder="Company" value={e.company} onChange={ev => update(e.id, { company: ev.target.value })} />
@@ -359,7 +359,7 @@ function ProjectsSection({ items, onChange }: { items: ResumeProjectEntry[]; onC
                 <div key={p.id} className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4 space-y-3">
                     <div className="flex items-center justify-between">
                         <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Project {idx + 1}</span>
-                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-neutral-400 hover:text-red-500" onClick={() => remove(p.id)}><Trash2 className="w-3 h-3" /></Button>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-neutral-600 dark:text-neutral-400 hover:text-red-500" onClick={() => remove(p.id)}><Trash2 className="w-3 h-3" /></Button>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                         <Input className="h-8 text-sm" placeholder="Project Name" value={p.name} onChange={e => update(p.id, { name: e.target.value })} />
@@ -403,7 +403,7 @@ function EducationSection({ items, onChange }: { items: ResumeEducationEntry[]; 
                 <div key={e.id} className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4 space-y-2">
                     <div className="flex items-center justify-between">
                         <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Education {idx + 1}</span>
-                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-neutral-400 hover:text-red-500" onClick={() => remove(e.id)}><Trash2 className="w-3 h-3" /></Button>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-neutral-600 dark:text-neutral-400 hover:text-red-500" onClick={() => remove(e.id)}><Trash2 className="w-3 h-3" /></Button>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                         <Input className="h-8 text-sm col-span-2" placeholder="Institution" value={e.institution} onChange={ev => update(e.id, { institution: ev.target.value })} />
@@ -444,7 +444,7 @@ function SkillsSection({ items, onChange }: { items: ResumeSkillGroup[]; onChang
                 <div key={i} className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4 space-y-2">
                     <div className="flex items-center gap-2">
                         <Input className="h-7 min-w-0 flex-1 text-xs" placeholder="Category (e.g. Languages, Frameworks)" value={g.category} onChange={e => update(i, { category: e.target.value })} />
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-neutral-400 hover:text-red-500" onClick={() => remove(i)}><Trash2 className="w-3 h-3" /></Button>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-neutral-600 dark:text-neutral-400 hover:text-red-500" onClick={() => remove(i)}><Trash2 className="w-3 h-3" /></Button>
                     </div>
                     <CommaListInput
                         className="h-7 text-xs"
@@ -662,7 +662,7 @@ function AIToolsPanel({ draftId, open, onClose, onContentUpdated }: {
                                             <div>
                                                 <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200 mb-1.5">Keywords added/emphasised</p>
                                                 <div className="flex flex-wrap gap-1">
-                                                    {tailorResult.keywordsAdded.map(k => <Badge key={k} className="text-[10px] bg-neutral-50 text-neutral-700 dark:bg-neutral-800/20 dark:text-neutral-100">{k}</Badge>)}
+                                                    {tailorResult.keywordsAdded.map(k => <Badge key={k} className="text-xs bg-neutral-50 text-neutral-700 dark:bg-neutral-800/20 dark:text-neutral-100">{k}</Badge>)}
                                                 </div>
                                             </div>
                                         )}
@@ -678,7 +678,7 @@ function AIToolsPanel({ draftId, open, onClose, onContentUpdated }: {
                                                 </ul>
                                             </div>
                                         )}
-                                        <p className="text-[10px] text-neutral-400">Changes are saved to this resume. Press Save in the editor to persist.</p>
+                                        <p className="text-xs text-neutral-600 dark:text-neutral-400">Changes are saved to this resume. Press Save in the editor to persist.</p>
                                     </div>
                                 )}
 
@@ -694,13 +694,13 @@ function AIToolsPanel({ draftId, open, onClose, onContentUpdated }: {
                                             <div>
                                                 <p className="text-xs font-medium text-red-600 mb-1.5">Missing keywords</p>
                                                 <div className="flex flex-wrap gap-1">
-                                                    {scoreResult.missing_keywords.map(k => <Badge key={k} className="text-[10px] bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400">{k}</Badge>)}
+                                                    {scoreResult.missing_keywords.map(k => <Badge key={k} className="text-xs bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400">{k}</Badge>)}
                                                 </div>
                                             </div>
                                         )}
                                         {scoreResult.suggestions.length > 0 && (
                                             <div>
-                                                <p className="text-xs font-medium text-neutral-600 mb-1.5">Suggestions</p>
+                                                <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1.5">Suggestions</p>
                                                 <ul className="space-y-1">
                                                     {scoreResult.suggestions.map((s, i) => <li key={i} className="text-xs text-neutral-600 dark:text-neutral-400">• {s}</li>)}
                                                 </ul>
@@ -713,7 +713,7 @@ function AIToolsPanel({ draftId, open, onClose, onContentUpdated }: {
                         <Input placeholder="e.g. Senior Frontend Engineer" value={jobTitle} onChange={e => setJobTitle(e.target.value)} />
                     </div>
                     <div className="space-y-1.5">
-                        <Label className="text-sm font-medium">Company <span className="text-neutral-400">(optional)</span></Label>
+                        <Label className="text-sm font-medium">Company <span className="text-neutral-600 dark:text-neutral-400">(optional)</span></Label>
                         <Input placeholder="e.g. Stripe" value={company} onChange={e => setCompany(e.target.value)} />
                     </div>
                     <div className="space-y-1.5">
@@ -732,7 +732,7 @@ function AIToolsPanel({ draftId, open, onClose, onContentUpdated }: {
                                 {loading === 'fetch' ? 'Reading…' : 'Fetch'}
                             </Button>
                         </div>
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400">Or paste the description below.</p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">Or paste the description below.</p>
                     </div>
                     <div className="space-y-1.5">
                         <Label className="text-sm font-medium">Job Description</Label>
@@ -807,14 +807,14 @@ function LivePreview({ content, templateSlug }: { content: ResumeDraftContent; t
      * actually read it.
      *
      * Four levels now, and they differ on more than one axis each:
-     *   section   small, uppercase, letterspaced, accent-coloured, ruled underneath
+     *   section   small,, letterspaced, accent-coloured, ruled underneath
      *   title     largest body weight, near-black
      *   meta      same size as body, light grey, right-aligned
      *   body      neutral grey
      */
     const Section = ({ children }: { children: React.ReactNode }) => (
         <p style={{
-            fontSize: 10, fontWeight: 700, color: accent, textTransform: 'uppercase',
+            fontSize: 10, fontWeight: 700, color: accent, textTransform: '',
             letterSpacing: 1.6, borderBottomWidth: 1, borderBottomColor: accent,
             paddingBottom: 3, marginBottom: 8, marginTop: 18,
         }}>{children}</p>

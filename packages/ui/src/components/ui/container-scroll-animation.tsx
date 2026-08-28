@@ -91,7 +91,7 @@ export const Card = ({
 			className="max-w-5xl -mt-12 mx-auto h-[30rem] md:h-[40rem] rounded-[30px]"
 		>
 			{/* Main card content */}
-			<div className="h-full w-full bg-[#222222] rounded-[30px]  shadow-lg ring-1 ring-white/5">
+			<div className="h-full w-full bg-[#222222] rounded-[30px] shadow-lg ring-1 ring-white/5">
 				{/* Content container */}
 				<div className="h-full w-full overflow-hidden rounded-2xl bg-zinc-900 md:rounded-2xl md:p-4">
 					{children}

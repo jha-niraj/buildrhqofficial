@@ -301,7 +301,7 @@ export default function CodeEditor({
                                             <SelectItem key={lang.value} value={lang.value} className="text-xs">
                                                 {lang.label}
                                                 {!EXECUTABLE_LANGUAGES.includes(lang.value as ExecutableLanguage) &&
-                                                    <span className="ml-1 text-neutral-400">(view only)</span>
+                                                    <span className="ml-1 text-neutral-600 dark:text-neutral-400">(view only)</span>
                                                 }
                                             </SelectItem>
                                         ))
@@ -453,7 +453,7 @@ export default function CodeEditor({
                     }}
                     loading={
                         <div className="flex items-center justify-center h-full bg-neutral-50 dark:bg-neutral-900">
-                            <InlineLoader size="md" className="text-neutral-400" />
+                            <InlineLoader size="md" className="text-neutral-600 dark:text-neutral-400" />
                         </div>
                     }
                 />

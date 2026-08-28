@@ -61,14 +61,14 @@ function StepIndicator({ current }: { current: number }) {
                         <div key={s.n} className="flex items-center">
                             <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${active ? "bg-neutral-900 text-white dark:bg-white dark:text-black" :
                                 done ? "text-neutral-500 dark:text-neutral-400" :
-                                    "text-neutral-400 dark:text-neutral-400"
+                                    "text-neutral-600 dark:text-neutral-400"
                                 }`}>
                                 <Icon className="w-3.5 h-3.5" />
                                 <span>{s.label}</span>
                             </div>
                             {
                                 i < steps.length - 1 && (
-                                    <ChevronRight className="w-3.5 h-3.5 text-neutral-300 dark:text-neutral-700 mx-1" />
+                                    <ChevronRight className="w-3.5 h-3.5 text-neutral-600 dark:text-neutral-700 mx-1" />
                                 )
                             }
                         </div>
@@ -315,7 +315,7 @@ export function CoverLetterClient({
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1.5">
                                 <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                                    Company Name <span className="text-neutral-400 font-normal">(optional)</span>
+                                    Company Name <span className="text-neutral-600 dark:text-neutral-400 font-normal">(optional)</span>
                                 </Label>
                                 <Input
                                     placeholder="E.g. Apple"
@@ -326,7 +326,7 @@ export function CoverLetterClient({
                             </div>
                             <div className="space-y-1.5">
                                 <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                                    Job Title Override <span className="text-neutral-400 font-normal">(optional)</span>
+                                    Job Title Override <span className="text-neutral-600 dark:text-neutral-400 font-normal">(optional)</span>
                                 </Label>
                                 <Input
                                     placeholder="E.g. Senior Frontend Engineer"
@@ -470,9 +470,9 @@ export function CoverLetterClient({
 
                 {history.length === 0 ? (
                     <div className="rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800 p-6 text-center">
-                        <FileText className="w-8 h-8 text-neutral-300 dark:text-neutral-400 mx-auto mb-2" />
+                        <FileText className="w-8 h-8 text-neutral-600 dark:text-neutral-400 mx-auto mb-2" />
                         <p className="text-xs text-neutral-500 dark:text-neutral-400">No letters generated yet.</p>
-                        <p className="text-xs text-neutral-400 mt-0.5">Complete Step 1 to get started.</p>
+                        <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-0.5">Complete Step 1 to get started.</p>
                     </div>
                 ) : (
                     <div className="space-y-2">
@@ -495,7 +495,7 @@ export function CoverLetterClient({
                                     <div className="overflow-hidden flex-1">
                                         <div className="flex items-center gap-1.5 mb-0.5">
                                             {h.isDraft && (
-                                                <Badge className="text-[9px] px-1 h-3.5 bg-neutral-50 text-neutral-800 border-neutral-200 dark:bg-neutral-800/20 dark:text-neutral-100 dark:border-neutral-800/40">
+                                                <Badge className="text-xs px-1 h-3.5 bg-neutral-50 text-neutral-800 border-neutral-200 dark:bg-neutral-800/20 dark:text-neutral-100 dark:border-neutral-800/40">
                                                     <PenLine className="w-2.5 h-2.5 mr-0.5" />
                                                     Draft
                                                 </Badge>
@@ -504,14 +504,14 @@ export function CoverLetterClient({
                                         <p className={`text-xs font-semibold truncate ${selectedId === h.id ? "text-white dark:text-black" : "text-neutral-800 dark:text-neutral-200"}`}>
                                             {h.jobTitle || "Untitled Role"}
                                         </p>
-                                        <p className={`text-[10px] truncate mt-0.5 ${selectedId === h.id ? "text-neutral-300 dark:text-neutral-400" : "text-neutral-500"}`}>
+                                        <p className={`text-xs truncate mt-0.5 ${selectedId === h.id ? "text-neutral-600 dark:text-neutral-400" : "text-neutral-500"}`}>
                                             {h.isDraft ? "Continue from step 2 →" : (h.companyName || "Unknown Company")}
                                         </p>
                                     </div>
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className={`h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${selectedId === h.id ? "hover:bg-white/20 text-neutral-300" : "text-neutral-400 hover:text-red-500"}`}
+                                        className={`h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${selectedId === h.id ? "hover:bg-white/20 text-neutral-600 dark:text-neutral-400" : "text-neutral-600 hover:text-red-500"}`}
                                         onClick={(e) => handleDelete(h.id, e)}
                                     >
                                         <Trash2 className="w-3 h-3" />
@@ -621,7 +621,7 @@ function VoiceButton({
                 )}
             </Button>
             {liveText && (
-                <p className="text-[10px] text-neutral-400 italic truncate max-w-xs">{liveText}</p>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400 italic truncate max-w-xs">{liveText}</p>
             )}
         </div>
     )

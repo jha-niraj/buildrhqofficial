@@ -123,7 +123,7 @@ function Section({ title, icon: Icon, action, children }: {
                     <button
                         type="button"
                         onClick={action.onClick}
-                        className="inline-flex cursor-pointer items-center gap-1 text-sm font-medium text-neutral-400 transition-colors hover:text-neutral-900"
+                        className="inline-flex cursor-pointer items-center gap-1 text-sm font-medium text-neutral-600 dark:text-neutral-400 transition-colors hover:text-neutral-900"
                     >
                         <Plus className="h-3.5 w-3.5" /> {action.label}
                     </button>

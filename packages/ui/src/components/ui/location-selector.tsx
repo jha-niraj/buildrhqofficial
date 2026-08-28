@@ -85,7 +85,7 @@ function ListPicker({
     return (
         <div className="flex flex-col gap-2">
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-600 dark:text-neutral-400" />
                 <input
                     autoFocus
                     value={search}
@@ -96,7 +96,7 @@ function ListPicker({
             </div>
             <div className="max-h-52 overflow-y-auto rounded-xl border border-neutral-200 dark:border-neutral-800 divide-y divide-neutral-100 dark:divide-neutral-800">
                 {filtered.length === 0 ? (
-                    <p className="px-4 py-3 text-sm text-neutral-400 text-center">No results</p>
+                    <p className="px-4 py-3 text-sm text-neutral-600 dark:text-neutral-400 text-center">No results</p>
                 ) : (
                     filtered.map((opt) => (
                         <button
@@ -134,7 +134,7 @@ function CountryPicker({ value, onChange }: { value: string; onChange: (code: st
     return (
         <div className="flex flex-col gap-2">
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-600 dark:text-neutral-400" />
                 <input
                     autoFocus
                     value={search}
@@ -220,9 +220,9 @@ export function LocationSelector({ value, onChange, className }: LocationSelecto
                 onClick={() => { setOpen((o) => !o); setStep('country'); }}
                 className="flex items-center gap-2 w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-4 py-2.5 text-sm text-left hover:border-neutral-300 dark:hover:border-neutral-600 transition-colors"
             >
-                <MapPin className="h-4 w-4 text-neutral-400 shrink-0" />
-                <span className={cn('flex-1 truncate', !value.country && 'text-neutral-400')}>{summary}</span>
-                <ChevronDown className={cn('h-4 w-4 text-neutral-400 shrink-0 transition-transform', open && 'rotate-180')} />
+                <MapPin className="h-4 w-4 text-neutral-600 dark:text-neutral-400 shrink-0" />
+                <span className={cn('flex-1 truncate', !value.country && 'text-neutral-600 dark:text-neutral-400')}>{summary}</span>
+                <ChevronDown className={cn('h-4 w-4 text-neutral-600 dark:text-neutral-400 shrink-0 transition-transform', open && 'rotate-180')} />
             </button>
 
             {open && (
@@ -232,7 +232,7 @@ export function LocationSelector({ value, onChange, className }: LocationSelecto
                         {(['country', ...(value.country === 'NP' ? ['province', 'district'] : value.country === 'IN' ? ['province'] : []), 'city'] as (typeof step)[])
                             .map((s, i) => (
                                 <span key={s} className="flex items-center gap-1">
-                                    {i > 0 && <span className="text-neutral-300">›</span>}
+                                    {i > 0 && <span className="text-neutral-600 dark:text-neutral-400">›</span>}
                                     <button
                                         type="button"
                                         onClick={() => setStep(s)}

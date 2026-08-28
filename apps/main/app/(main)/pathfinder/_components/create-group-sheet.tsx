@@ -169,7 +169,7 @@ export function CreateGroupSheet({ open, onOpenChange, onSuccess }: CreateGroupS
                                     <div className="text-sm font-medium text-neutral-900 dark:text-white">
                                         {name || 'Group Name'}
                                     </div>
-                                    <div className="text-[10px] text-neutral-400">Preview</div>
+                                    <div className="text-xs text-neutral-600 dark:text-neutral-400">Preview</div>
                                 </div>
                             </div>
                         </div>

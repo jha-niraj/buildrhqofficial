@@ -85,7 +85,7 @@ export function SDComponentLibrary({ onAddComponent }: SDComponentLibraryProps) 
         <div className="flex flex-col h-full border-r border-neutral-800 bg-neutral-950">
             <button
                 onClick={() => setIsOpen((o) => !o)}
-                className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-neutral-400 uppercase tracking-wider hover:text-neutral-200 transition-colors cursor-pointer"
+                className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-neutral-600 dark:text-neutral-400 hover:text-neutral-200 transition-colors cursor-pointer"
             >
                 Components
                 {isOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
@@ -106,7 +106,7 @@ export function SDComponentLibrary({ onAddComponent }: SDComponentLibraryProps) 
                                     <div key={cat.key}>
                                         <button
                                             onClick={() => toggle(cat.key)}
-                                            className="flex items-center gap-1.5 w-full px-1.5 py-1 text-[11px] font-medium text-neutral-500 dark:text-neutral-400 hover:text-neutral-300 transition-colors cursor-pointer"
+                                            className="flex items-center gap-1.5 w-full px-1.5 py-1 text-xs font-medium text-neutral-500 dark:text-neutral-400 hover:text-neutral-600 transition-colors cursor-pointer"
                                         >
                                             {expanded[cat.key] ? (
                                                 <ChevronDown className="h-3 w-3" />
@@ -140,7 +140,7 @@ export function SDComponentLibrary({ onAddComponent }: SDComponentLibraryProps) 
                                                                 className="h-auto py-1.5 px-2 flex flex-col items-center gap-0.5 text-neutral-400 hover:text-white hover:bg-neutral-800/80 rounded-md transition-colors"
                                                             >
                                                                 <span className="text-base leading-none">{comp.icon}</span>
-                                                                <span className="text-[10px] leading-tight text-center truncate w-full">
+                                                                <span className="text-xs leading-tight text-center truncate w-full">
                                                                     {comp.label}
                                                                 </span>
                                                             </Button>

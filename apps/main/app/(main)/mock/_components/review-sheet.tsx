@@ -134,7 +134,7 @@ export function ReviewSheet({ isOpen, onClose, sessionId, existingRating }: Revi
                                                         <Star
                                                             className={`w-10 h-10 transition-colors ${star <= (hoveredRating || rating)
                                                                 ? 'fill-neutral-800 dark:fill-neutral-200 text-neutral-800 dark:text-neutral-200'
-                                                                : 'text-neutral-300 dark:text-neutral-700'
+                                                                : 'text-neutral-600 dark:text-neutral-700'
                                                                 }`}
                                                         />
                                                     </motion.button>

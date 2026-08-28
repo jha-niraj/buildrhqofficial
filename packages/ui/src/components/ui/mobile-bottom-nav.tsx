@@ -120,12 +120,12 @@ export function MobileBottomNav({
                 <span className="relative flex h-5 w-5 items-center justify-center [&_svg]:h-5 [&_svg]:w-5">
                     {item.icon}
                     {!!item.badge && item.badge > 0 && (
-                        <span className="absolute -right-1.5 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
+                        <span className="absolute -right-1.5 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-xs font-bold text-white">
                             {item.badge > 9 ? "9+" : item.badge}
                         </span>
                     )}
                 </span>
-                <span className="w-full truncate text-center text-[11px] font-medium leading-none">
+                <span className="w-full truncate text-center text-xs font-medium leading-none">
                     {item.label}
                 </span>
             </LinkComp>
@@ -204,7 +204,7 @@ export function MobileBottomNav({
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </span>
-                    <span className="w-full truncate text-center text-[11px] font-medium leading-none">
+                    <span className="w-full truncate text-center text-xs font-medium leading-none">
                         {moreLabel}
                     </span>
                 </button>

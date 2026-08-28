@@ -105,7 +105,7 @@ function MessageBubble({ message, isStreaming }: { message: AIChatMessage; isStr
 									key={a.id}
 									className="inline-flex max-w-full items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
 								>
-									<FileText className="h-3 w-3 shrink-0 text-neutral-400" aria-hidden />
+									<FileText className="h-3 w-3 shrink-0 text-neutral-600 dark:text-neutral-400" aria-hidden />
 									<span className="min-w-0 truncate">{a.name}</span>
 								</span>
 							))}
@@ -164,7 +164,7 @@ function MessageBubble({ message, isStreaming }: { message: AIChatMessage; isStr
 						>
 							<FileText className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden />
 							<span className="min-w-0 truncate">{action.label}</span>
-							<ArrowRight className="h-3.5 w-3.5 shrink-0 text-neutral-400" aria-hidden />
+							<ArrowRight className="h-3.5 w-3.5 shrink-0 text-neutral-600 dark:text-neutral-400" aria-hidden />
 						</Link>
 					))}
 				</div>
@@ -174,7 +174,7 @@ function MessageBubble({ message, isStreaming }: { message: AIChatMessage; isStr
 				<button
 					type="button"
 					onClick={copy}
-					className="inline-flex w-fit cursor-pointer items-center gap-1 rounded-md px-1.5 py-0.5 text-xs text-neutral-400 opacity-0 transition-opacity hover:text-neutral-600 group-hover:opacity-100 dark:hover:text-neutral-200"
+					className="inline-flex w-fit cursor-pointer items-center gap-1 rounded-md px-1.5 py-0.5 text-xs text-neutral-600 dark:text-neutral-400 opacity-0 transition-opacity hover:text-neutral-600 group-hover:opacity-100 dark:hover:text-neutral-200"
 				>
 					{copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
 					{copied ? "Copied" : "Copy"}
@@ -559,17 +559,17 @@ export function AIPanel() {
 							return (
 								<span
 									key={`${tag.kind}:${tag.id}`}
-									className="inline-flex max-w-full items-center gap-1 rounded-full border border-neutral-200 bg-neutral-100 py-0.5 pl-2 pr-1 text-[11px] font-medium text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+									className="inline-flex max-w-full items-center gap-1 rounded-full border border-neutral-200 bg-neutral-100 py-0.5 pl-2 pr-1 text-xs font-medium text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
 								>
 									<span className="truncate">{tag.title}</span>
 									{isAuto ? (
-										<span className="shrink-0 text-neutral-400 dark:text-neutral-400">(this page)</span>
+										<span className="shrink-0 text-neutral-600 dark:text-neutral-400">(this page)</span>
 									) : (
 										<button
 											type="button"
 											onClick={() => removePinnedTag(tag.id)}
 											aria-label={`Remove ${tag.title} from context`}
-											className="shrink-0 cursor-pointer rounded-full p-0.5 text-neutral-400 transition-colors hover:bg-neutral-200 hover:text-neutral-700 dark:hover:bg-neutral-700 dark:hover:text-neutral-100"
+											className="shrink-0 cursor-pointer rounded-full p-0.5 text-neutral-600 dark:text-neutral-400 transition-colors hover:bg-neutral-200 hover:text-neutral-700 dark:hover:bg-neutral-700 dark:hover:text-neutral-100"
 										>
 											<X className="h-3 w-3" />
 										</button>
@@ -589,16 +589,16 @@ export function AIPanel() {
 								key={doc.id}
 								className="inline-flex max-w-full items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
 							>
-								<FileText className="h-3 w-3 shrink-0 text-neutral-400" aria-hidden />
+								<FileText className="h-3 w-3 shrink-0 text-neutral-600 dark:text-neutral-400" aria-hidden />
 								<span className="min-w-0 truncate">{doc.name}</span>
-								<span className="shrink-0 text-neutral-400">
+								<span className="shrink-0 text-neutral-600 dark:text-neutral-400">
 									{doc.truncated ? "part" : `${Math.round(doc.chars / 1000)}k`}
 								</span>
 								<button
 									type="button"
 									onClick={() => setPendingDocs((d) => d.filter((x) => x.id !== doc.id))}
 									aria-label={`Remove ${doc.name}`}
-									className="shrink-0 cursor-pointer rounded p-0.5 text-neutral-400 transition-colors hover:text-neutral-900 dark:hover:text-white"
+									className="shrink-0 cursor-pointer rounded p-0.5 text-neutral-600 dark:text-neutral-400 transition-colors hover:text-neutral-900 dark:hover:text-white"
 								>
 									<X className="h-3 w-3" />
 								</button>
@@ -660,7 +660,7 @@ export function AIPanel() {
 						rows={1}
 						placeholder="Ask anything…"
 						disabled={isStreaming}
-						className="max-h-40 min-h-[24px] w-full resize-none bg-transparent py-1 text-sm text-neutral-900 outline-none placeholder:text-neutral-400 disabled:opacity-60 dark:text-white [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+						className="max-h-40 min-h-[24px] w-full resize-none bg-transparent py-1 text-sm text-neutral-900 outline-none placeholder:text-neutral-600 dark:text-neutral-400 disabled:opacity-60 dark:text-white [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
 					/>
 					{isStreaming ? (
 						<button
@@ -683,7 +683,7 @@ export function AIPanel() {
 						</button>
 					)}
 				</div>
-				<p className="mt-1.5 px-1 text-center text-xs text-neutral-400">
+				<p className="mt-1.5 px-1 text-center text-xs text-neutral-600 dark:text-neutral-400">
 					Enter to send · Shift+Enter for a new line · attach or drop a document
 				</p>
 			</div>

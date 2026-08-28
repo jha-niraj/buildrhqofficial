@@ -224,7 +224,7 @@ Keep responses brief and natural.`,
     if (isChecking) {
         return (
             <div className="flex items-center justify-center py-16">
-                <InlineLoader size="lg" className="text-neutral-400" />
+                <InlineLoader size="lg" className="text-neutral-600 dark:text-neutral-400" />
             </div>
         )
     }
@@ -429,7 +429,7 @@ Keep responses brief and natural.`,
                                         {standup.status === 'SUBMITTED' ? (
                                             <CheckCircle2 className="w-4 h-4 text-neutral-800 dark:text-neutral-200" />
                                         ) : (
-                                            <Calendar className="w-4 h-4 text-neutral-400" />
+                                            <Calendar className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                                         )}
                                         <span className="text-sm text-neutral-700 dark:text-neutral-300">
                                             {new Date(standup.scheduledFor).toLocaleDateString('en-US', {

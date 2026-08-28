@@ -340,7 +340,7 @@ function SignInForm({ searchParams }: SignInFormProps) {
                                         type="button"
                                         onClick={() => void sendVerificationCode()}
                                         disabled={cooldown > 0}
-                                        className="font-medium text-neutral-900 dark:text-white hover:underline disabled:text-neutral-400 disabled:no-underline dark:disabled:text-neutral-600"
+                                        className="font-medium text-neutral-900 dark:text-white hover:underline disabled:text-neutral-600 dark:text-neutral-400 disabled:no-underline dark:disabled:text-neutral-600"
                                     >
                                         {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend code"}
                                     </button>
@@ -442,7 +442,7 @@ function SignInForm({ searchParams }: SignInFormProps) {
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowPassword(!showPassword)}
-                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-600 transition-colors"
                                                     disabled={isSubmitting}
                                                 >
                                                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -467,7 +467,7 @@ function SignInForm({ searchParams }: SignInFormProps) {
                                                 <span className="w-full border-t border-neutral-200 dark:border-neutral-700" />
                                             </div>
                                             <div className="relative flex justify-center text-xs">
-                                                <span className="bg-white px-2 text-neutral-400 dark:bg-neutral-900">or</span>
+                                                <span className="bg-white px-2 text-neutral-600 dark:text-neutral-400 dark:bg-neutral-900">or</span>
                                             </div>
                                         </div>
 
@@ -487,7 +487,7 @@ function SignInForm({ searchParams }: SignInFormProps) {
                                     <div className="absolute inset-0 flex items-center">
                                         <span className="w-full border-t border-neutral-200 dark:border-neutral-700" />
                                     </div>
-                                    <div className="relative flex justify-center text-xs uppercase">
+                                    <div className="relative flex justify-center text-xs">
                                         <span className="bg-white dark:bg-neutral-900 px-2 text-neutral-500 dark:text-neutral-400">Or continue with</span>
                                     </div>
                                 </div>

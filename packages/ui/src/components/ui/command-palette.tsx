@@ -37,7 +37,7 @@ interface CommandPaletteProps {
 }
 
 const Kbd = ({ children }: { children: React.ReactNode }) => (
-	<kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-border bg-muted px-1 font-sans text-[11px] font-medium text-muted-foreground">
+	<kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-border bg-muted px-1 font-sans text-xs font-medium text-muted-foreground">
 		{children}
 	</kbd>
 )
@@ -65,7 +65,7 @@ export function CommandPalette({
 			>
 				<DialogTitle className="sr-only">Search</DialogTitle>
 				<Command
-					className="[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground"
+					className="[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]: [&_[cmdk-group-heading]]: [&_[cmdk-group-heading]]:text-muted-foreground"
 					loop
 				>
 					<div className="flex items-center border-b px-3">
@@ -77,7 +77,7 @@ export function CommandPalette({
 						<button
 							type="button"
 							onClick={() => onOpenChange(false)}
-							className="ml-2 shrink-0 cursor-pointer rounded border border-border bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground hover:text-foreground"
+							className="ml-2 shrink-0 cursor-pointer rounded border border-border bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground hover:text-foreground"
 						>
 							Esc
 						</button>
@@ -189,7 +189,7 @@ export function SidebarSearchButton({
 			    onto two lines and the whole header jumped. Truncating means it clips and
 			    slides into view instead - no timing logic, nothing to keep in sync. */}
 			<span className="flex-1 truncate text-left">{placeholder}</span>
-			<kbd className="pointer-events-none hidden shrink-0 select-none items-center gap-0.5 rounded border border-border bg-background px-1.5 font-sans text-[11px] font-medium text-muted-foreground sm:inline-flex">
+			<kbd className="pointer-events-none hidden shrink-0 select-none items-center gap-0.5 rounded border border-border bg-background px-1.5 font-sans text-xs font-medium text-muted-foreground sm:inline-flex">
 				{isMac ? "⌘" : "Ctrl"}K
 			</kbd>
 		</button>

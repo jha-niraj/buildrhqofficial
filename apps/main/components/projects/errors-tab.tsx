@@ -122,7 +122,7 @@ function ErrorCard({
                             <h4 className="font-semibold text-neutral-900 dark:text-white line-clamp-1">
                                 {error.title}
                             </h4>
-                            <Badge className={cn('text-[10px] px-1.5 shrink-0 border', severityConfig[error.severity].color)}>
+                            <Badge className={cn('text-xs px-1.5 shrink-0 border', severityConfig[error.severity].color)}>
                                 {severityConfig[error.severity].label}
                             </Badge>
                         </div>
@@ -134,7 +134,7 @@ function ErrorCard({
                                 <div className="flex flex-wrap gap-1 mb-3">
                                     {
                                         error.tags.slice(0, 3).map((tag, idx) => (
-                                            <span key={idx} className="text-[10px] px-1.5 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded text-neutral-600 dark:text-neutral-400">
+                                            <span key={idx} className="text-xs px-1.5 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded text-neutral-600 dark:text-neutral-400">
                                                 {tag}
                                             </span>
                                         ))
@@ -567,11 +567,11 @@ export default function ErrorsTab({ projectId, isEnrolled, isCreator }: ErrorsTa
             {
                 loading ? (
                     <div className="flex items-center justify-center py-12">
-                        <InlineLoader size="lg" className="text-neutral-400" />
+                        <InlineLoader size="lg" className="text-neutral-600 dark:text-neutral-400" />
                     </div>
                 ) : errors.length === 0 ? (
                     <div className="text-center py-12">
-                        <AlertTriangle className="w-12 h-12 mx-auto mb-3 text-neutral-300 dark:text-neutral-700" />
+                        <AlertTriangle className="w-12 h-12 mx-auto mb-3 text-neutral-600 dark:text-neutral-700" />
                         <h4 className="font-medium text-neutral-700 dark:text-neutral-300 mb-1">No errors shared yet</h4>
                         <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
                             Be the first to help others by sharing common pitfalls

@@ -169,7 +169,7 @@ function Section({
                         className="group flex cursor-pointer flex-col items-center gap-2.5 rounded-xl border border-neutral-200 p-4 text-neutral-600 transition-colors hover:border-neutral-300 hover:text-neutral-900 dark:border-neutral-800 dark:text-neutral-400 dark:hover:border-neutral-700 dark:hover:text-neutral-100"
                     >
                         <AnimatedIcon name={name} size={size} motion={motion} />
-                        <span className="w-full truncate font-mono text-[11px]">{name}</span>
+                        <span className="w-full truncate font-mono text-xs">{name}</span>
                     </button>
                 ))}
             </div>

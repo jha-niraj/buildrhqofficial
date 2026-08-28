@@ -63,10 +63,10 @@ export default function ProjectsPreview({ projects }: ProjectsPreviewProps) {
                                             <span className="flex-1 text-sm font-medium truncate text-neutral-800 dark:text-neutral-200">
                                                 {p.project.title}
                                             </span>
-                                            <Badge variant="outline" className={`text-[10px] px-1.5 py-0 border ${cfg.color} capitalize flex-shrink-0`}>
+                                            <Badge variant="outline" className={`text-xs px-1.5 py-0 border ${cfg.color} capitalize flex-shrink-0`}>
                                                 {p.project.difficulty}
                                             </Badge>
-                                            <ArrowRight className="h-3 w-3 text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                                            <ArrowRight className="h-3 w-3 text-neutral-600 dark:text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                                         </div>
                                     </Link>
                                 </motion.div>

@@ -284,7 +284,7 @@ export function SubGoalCoding({ subGoal, onComplete }: SubGoalCodingProps) {
                                 {
                                     p.sampleInput && (
                                         <div className="p-2 rounded bg-neutral-100 dark:bg-neutral-900">
-                                            <div className="text-[10px] text-neutral-500 dark:text-neutral-400 mb-1">Sample Input</div>
+                                            <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Sample Input</div>
                                             <code className="text-xs text-neutral-700 dark:text-neutral-300">{p.sampleInput}</code>
                                         </div>
                                     )
@@ -292,7 +292,7 @@ export function SubGoalCoding({ subGoal, onComplete }: SubGoalCodingProps) {
                                 {
                                     p.sampleOutput && (
                                         <div className="p-2 rounded bg-neutral-100 dark:bg-neutral-900">
-                                            <div className="text-[10px] text-neutral-500 dark:text-neutral-400 mb-1">Expected Output</div>
+                                            <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Expected Output</div>
                                             <code className="text-xs text-neutral-700 dark:text-neutral-300">{p.sampleOutput}</code>
                                         </div>
                                     )

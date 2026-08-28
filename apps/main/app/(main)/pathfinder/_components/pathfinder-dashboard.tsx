@@ -105,17 +105,17 @@ function GoalCard({ goal, onAssign }: { goal: Goal; onAssign: () => void }) {
                                 {goal.title}
                             </h3>
                             <div className="flex items-center gap-2 mt-1">
-                                <Badge variant="secondary" className={cn("text-[10px] px-1.5 py-0 h-4 font-normal gap-1", status.bg, status.color)}>
+                                <Badge variant="secondary" className={cn("text-xs px-1.5 py-0 h-4 font-normal gap-1", status.bg, status.color)}>
                                     {status.icon}
                                     {status.label}
                                 </Badge>
-                                <span className="text-[10px] text-neutral-400 capitalize">
+                                <span className="text-xs text-neutral-600 dark:text-neutral-400 capitalize">
                                     {goal.level.toLowerCase()}
                                 </span>
                             </div>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3 text-[11px] text-neutral-500 dark:text-neutral-400 mb-3">
+                    <div className="flex items-center gap-3 text-xs text-neutral-500 dark:text-neutral-400 mb-3">
                         <div className="flex items-center gap-1">
                             <CheckCircle2 className="w-3 h-3 text-neutral-900 dark:text-neutral-100" />
                             <span>{goal.completedSubGoals}/{goal.totalSubGoals}</span>
@@ -135,11 +135,11 @@ function GoalCard({ goal, onAssign }: { goal: Goal; onAssign: () => void }) {
                             </div>
                         )}
                         {lastActivity && (
-                            <span className="text-neutral-400 ml-auto text-[10px]">{lastActivity}</span>
+                            <span className="text-neutral-600 dark:text-neutral-400 ml-auto text-xs">{lastActivity}</span>
                         )}
                     </div>
                     <div className="relative">
-                        <div className="flex items-center justify-between text-[10px] text-neutral-400 mb-1">
+                        <div className="flex items-center justify-between text-xs text-neutral-600 dark:text-neutral-400 mb-1">
                             <span>Progress</span>
                             <span>{progressPercent}%</span>
                         </div>
@@ -150,7 +150,7 @@ function GoalCard({ goal, onAssign }: { goal: Goal; onAssign: () => void }) {
             <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
-                        <Button variant="ghost" size="icon" className="h-6 w-6 text-neutral-400 hover:text-neutral-600">
+                        <Button variant="ghost" size="icon" className="h-6 w-6 text-neutral-600 dark:text-neutral-400 hover:text-neutral-600">
                             <MoreVertical className="w-3.5 h-3.5" />
                         </Button>
                     </DropdownMenuTrigger>
@@ -176,15 +176,15 @@ function GroupSection({ group, goals, onAssignGoal }: { group: Group; goals: Goa
                     <GroupIcon value={group.emoji} size={12} />
                 </div>
                 <span className="font-medium text-xs text-neutral-700 dark:text-neutral-300 flex-1 text-left">{group.name}</span>
-                <Badge variant="secondary" className="text-[10px] h-4 px-1.5 font-normal bg-neutral-100 dark:bg-neutral-800">{goals.length}</Badge>
-                <ChevronRight className={cn("w-3.5 h-3.5 text-neutral-400 transition-transform", isOpen && "rotate-90")} />
+                <Badge variant="secondary" className="text-xs h-4 px-1.5 font-normal bg-neutral-100 dark:bg-neutral-800">{goals.length}</Badge>
+                <ChevronRight className={cn("w-3.5 h-3.5 text-neutral-600 dark:text-neutral-400 transition-transform", isOpen && "rotate-90")} />
             </CollapsibleTrigger>
             <CollapsibleContent className="pt-2 space-y-2">
                 {goals.map((goal) => (
                     <GoalCard key={goal.id} goal={goal} onAssign={() => onAssignGoal(goal.id)} />
                 ))}
                 {goals.length === 0 && (
-                    <p className="text-xs text-neutral-400 py-3 text-center">No goals in this group</p>
+                    <p className="text-xs text-neutral-600 dark:text-neutral-400 py-3 text-center">No goals in this group</p>
                 )}
             </CollapsibleContent>
         </Collapsible>
@@ -226,7 +226,7 @@ function StatsSection({ goals }: { goals: Goal[] }) {
                 <div key={stat.label} className={cn("p-3 rounded-xl", stat.bg)}>
                     <div className="flex items-center gap-1.5 mb-1">
                         <div className={stat.color}>{stat.icon}</div>
-                        <span className="text-[10px] text-neutral-500 dark:text-neutral-400">{stat.label}</span>
+                        <span className="text-xs text-neutral-500 dark:text-neutral-400">{stat.label}</span>
                     </div>
                     <div className={cn("text-lg font-semibold", stat.color)}>{stat.value}</div>
                 </div>
@@ -283,10 +283,10 @@ function GoalTrendChart({ goals }: { goals: Goal[] }) {
 
     return (
         <div>
-            <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-3">Goals Over Time</h3>
+            <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-3">Goals Over Time</h3>
             <div className="bg-white dark:bg-neutral-900/50 rounded-xl border border-neutral-200/60 dark:border-neutral-800/60 p-3
-                [--chart-1:#171717] [--chart-axis:#737373] [--chart-cursor:#00000008]
-                dark:[--chart-1:#f5f5f5] dark:[--chart-axis:#a3a3a3] dark:[--chart-cursor:#ffffff0a]">
+ [--chart-1:#171717] [--chart-axis:#737373] [--chart-cursor:#00000008]
+ dark:[--chart-1:#f5f5f5] dark:[--chart-axis:#a3a3a3] dark:[--chart-cursor:#ffffff0a]">
                 <ResponsiveContainer width="100%" height={160}>
                     <LineChart data={data} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
@@ -301,7 +301,7 @@ function GoalTrendChart({ goals }: { goals: Goal[] }) {
                         <Line type="monotone" dataKey="total" stroke="var(--chart-1)" strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
                     </LineChart>
                 </ResponsiveContainer>
-                <p className="mt-2 text-center text-[10px] text-neutral-500 dark:text-neutral-400">
+                <p className="mt-2 text-center text-xs text-neutral-500 dark:text-neutral-400">
                     Last {DAYS} days &middot; {goals.length} {goals.length === 1 ? 'goal' : 'goals'} total
                 </p>
             </div>
@@ -324,7 +324,7 @@ function ActivityChart({ goals }: { goals: Goal[] }) {
 
     return (
         <div>
-            <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-3">Goal Activity</h3>
+            <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-3">Goal Activity</h3>
             {/* The chart palette lives here as CSS variables with `dark:`
                 counterparts, so every series, axis and cursor inverts with the
                 theme. Recharts takes colours as prop STRINGS, not classes, so a
@@ -335,8 +335,8 @@ function ActivityChart({ goals }: { goals: Goal[] }) {
                 series stay distinguishable in both themes: dark-to-light in light
                 mode, light-to-dark in dark mode. */}
             <div className="bg-white dark:bg-neutral-900/50 rounded-xl border border-neutral-200/60 dark:border-neutral-800/60 p-3
-                [--chart-1:#171717] [--chart-2:#737373] [--chart-3:#d4d4d4] [--chart-axis:#737373] [--chart-cursor:#00000008]
-                dark:[--chart-1:#f5f5f5] dark:[--chart-2:#a3a3a3] dark:[--chart-3:#525252] dark:[--chart-axis:#a3a3a3] dark:[--chart-cursor:#ffffff0a]">
+ [--chart-1:#171717] [--chart-2:#737373] [--chart-3:#d4d4d4] [--chart-axis:#737373] [--chart-cursor:#00000008]
+ dark:[--chart-1:#f5f5f5] dark:[--chart-2:#a3a3a3] dark:[--chart-3:#525252] dark:[--chart-axis:#a3a3a3] dark:[--chart-cursor:#ffffff0a]">
                 {/* `var(--border)`, NOT `hsl(var(--border))`.
                     `--border` in packages/ui/src/styles/globals.css is an `oklch()`
                     COLOUR, not a triple of HSL channels - so `hsl(var(--border))`
@@ -368,9 +368,9 @@ function ActivityChart({ goals }: { goals: Goal[] }) {
                     {/* Each swatch now matches the bar it labels. All three were
                         `bg-neutral-900` - identical to each other, so the legend
                         distinguished nothing, and nearly invisible on the dark card. */}
-                    <span className="flex items-center gap-1.5 text-[10px] text-neutral-500 dark:text-neutral-400"><span className="w-2 h-2 rounded-sm" style={{ background: 'var(--chart-1)' }} />Tasks</span>
-                    <span className="flex items-center gap-1.5 text-[10px] text-neutral-500 dark:text-neutral-400"><span className="w-2 h-2 rounded-sm" style={{ background: 'var(--chart-2)' }} />Quiz</span>
-                    <span className="flex items-center gap-1.5 text-[10px] text-neutral-500 dark:text-neutral-400"><span className="w-2 h-2 rounded-sm" style={{ background: 'var(--chart-3)' }} />Code</span>
+                    <span className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400"><span className="w-2 h-2 rounded-sm" style={{ background: 'var(--chart-1)' }} />Tasks</span>
+                    <span className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400"><span className="w-2 h-2 rounded-sm" style={{ background: 'var(--chart-2)' }} />Quiz</span>
+                    <span className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400"><span className="w-2 h-2 rounded-sm" style={{ background: 'var(--chart-3)' }} />Code</span>
                 </div>
             </div>
         </div>
@@ -394,7 +394,7 @@ function CategoryChart({ goals }: { goals: Goal[] }) {
 
     return (
         <div>
-            <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-3">By Category</h3>
+            <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-3">By Category</h3>
             <div className="bg-white dark:bg-neutral-900/50 rounded-xl border border-neutral-200/60 dark:border-neutral-800/60 p-3">
                 <div className="flex items-center gap-4">
                     <div className="w-[120px] h-[120px]">
@@ -438,7 +438,7 @@ function ProgressOverview({ goals }: { goals: Goal[] }) {
 
     return (
         <div>
-            <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-3">Active Progress</h3>
+            <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-3">Active Progress</h3>
             <div className="space-y-2.5">
                 {activeGoals.map((goal) => {
                     const pct = goal.totalSubGoals > 0 ? Math.round((goal.completedSubGoals / goal.totalSubGoals) * 100) : 0
@@ -453,7 +453,7 @@ function ProgressOverview({ goals }: { goals: Goal[] }) {
                                     <p className="text-xs font-medium text-neutral-700 dark:text-neutral-300 truncate">{goal.title}</p>
                                     <div className="flex items-center gap-2 mt-1">
                                         <Progress value={pct} className="h-1 flex-1" />
-                                        <span className="text-[10px] text-neutral-400 w-8 text-right">{pct}%</span>
+                                        <span className="text-xs text-neutral-600 dark:text-neutral-400 w-8 text-right">{pct}%</span>
                                     </div>
                                 </div>
                             </div>
@@ -475,7 +475,7 @@ function RecentActivity({ goals }: { goals: Goal[] }) {
 
     return (
         <div>
-            <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-3">Recent Activity</h3>
+            <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-3">Recent Activity</h3>
             <div className="space-y-1">
                 {recentGoals.map((goal) => {
                     const category = categoryConfig[goal.category]
@@ -487,13 +487,13 @@ function RecentActivity({ goals }: { goals: Goal[] }) {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-xs text-neutral-700 dark:text-neutral-300 truncate">{goal.title}</p>
-                                    <p className="text-[10px] text-neutral-400">
+                                    <p className="text-xs text-neutral-600 dark:text-neutral-400">
                                         {goal.lastActivityAt && new Date(goal.lastActivityAt).toLocaleDateString('en-US', {
                                             month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
                                         })}
                                     </p>
                                 </div>
-                                <ChevronRight className="w-3.5 h-3.5 text-neutral-400" />
+                                <ChevronRight className="w-3.5 h-3.5 text-neutral-600 dark:text-neutral-400" />
                             </div>
                         </Link>
                     )
@@ -513,9 +513,9 @@ function OverviewContent({ goals, groups: _groups }: { goals: Goal[]; groups: Gr
                     for a graphical object (this is a 48px icon, not body text)
                     and reads as a deliberately muted icon rather than a rendering
                     failure. Measured, not guessed, per CLAUDE.md. */}
-                <BarChart3 className="w-12 h-12 text-neutral-400 dark:text-neutral-500 mb-4" />
+                <BarChart3 className="w-12 h-12 text-neutral-600 dark:text-neutral-500 mb-4" />
                 <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-1">No stats yet</h3>
-                <p className="text-xs text-neutral-400">Create your first goal to see stats here</p>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400">Create your first goal to see stats here</p>
             </div>
         )
     }
@@ -536,7 +536,7 @@ export function EmptyState({ onCreateGoal }: { onCreateGoal: () => void }) {
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-12 text-center px-4">
             <div className="w-14 h-14 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-4">
-                <Target className="w-7 h-7 text-neutral-400" />
+                <Target className="w-7 h-7 text-neutral-600 dark:text-neutral-400" />
             </div>
             <h3 className="text-base font-medium text-neutral-900 dark:text-white mb-1">Start Your Learning Journey</h3>
             <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-xs mb-4">Create your first learning goal and track progress with AI-powered practice.</p>
@@ -631,9 +631,9 @@ export function PathfinderDashboard({ initialGoals, initialGroups }: PathfinderD
                     ))}
                     {groupedGoals.filter(g => g.goals.length === 0).length > 0 && (
                         <div className="mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-800/50">
-                            <p className="text-[10px] font-medium text-neutral-400 uppercase tracking-wider mb-2 px-2">Empty Groups</p>
+                            <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-2 px-2">Empty Groups</p>
                             {groupedGoals.filter(g => g.goals.length === 0).map(({ group }) => (
-                                <div key={group.id} className="flex items-center gap-2 px-2 py-1.5 text-xs text-neutral-400">
+                                <div key={group.id} className="flex items-center gap-2 px-2 py-1.5 text-xs text-neutral-600 dark:text-neutral-400">
                                     <span style={{ backgroundColor: `${group.color || '#525252'}20` }} className="flex h-4 w-4 items-center justify-center rounded text-neutral-700 dark:text-neutral-300">
                                         <GroupIcon value={group.emoji} size={10} />
                                     </span>
@@ -645,7 +645,7 @@ export function PathfinderDashboard({ initialGoals, initialGroups }: PathfinderD
                     {ungroupedGoals.length > 0 && (
                         <div className={cn(displayGroups.length > 0 && "mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-800/50")}>
                             {displayGroups.length > 0 && (
-                                <p className="text-[10px] font-medium text-neutral-400 uppercase tracking-wider mb-2 px-2">
+                                <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-2 px-2">
                                     Ungrouped ({ungroupedGoals.length})
                                 </p>
                             )}

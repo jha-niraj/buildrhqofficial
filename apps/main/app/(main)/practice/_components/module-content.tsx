@@ -26,7 +26,7 @@ const DIFFICULTY_COLORS = {
 const STATUS_ICON = {
     COMPLETED: <CheckCircle2 className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />,
     IN_PROGRESS: <Clock className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />,
-    NOT_STARTED: <Circle className="h-4 w-4 text-neutral-300 dark:text-neutral-400" />,
+    NOT_STARTED: <Circle className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />,
 };
 
 const MODULE_PATHS: Record<PracticeModule, string> = {
@@ -73,15 +73,15 @@ export function ModuleContent({
                 328px phone. See docs/responsiveness.md section 4. */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <div className="flex items-center gap-2 text-xs text-neutral-400 mb-1">
-                        <Link href="/practice" className="hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
+                    <div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                        <Link href="/practice" className="hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-600 transition-colors">
                             Practice
                         </Link>
                         <ChevronRight className="h-3 w-3" />
                         {
                             activeCategory ? (
                                 <>
-                                    <Link href={basePath} className="hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
+                                    <Link href={basePath} className="hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-600 transition-colors">
                                         {moduleLabel}
                                     </Link>
                                     <ChevronRight className="h-3 w-3" />
@@ -109,17 +109,17 @@ export function ModuleContent({
                         onProblemAdded={() => router.refresh()}
                     />
                     <div className="flex items-center gap-1.5">
-                        <Filter className="h-3.5 w-3.5 text-neutral-400 mr-1" />
+                        <Filter className="h-3.5 w-3.5 text-neutral-600 dark:text-neutral-400 mr-1" />
                         {
                             ["EASY", "MEDIUM", "HARD"].map((d) => (
                                 <button
                                     key={d}
                                     onClick={() => setDifficultyFilter(difficultyFilter === d ? null : d)}
                                     className={cn(
-                                        "px-2.5 py-1 rounded-md text-[11px] font-medium border transition-colors",
+                                        "px-2.5 py-1 rounded-md text-xs font-medium border transition-colors",
                                         difficultyFilter === d
                                             ? DIFFICULTY_COLORS[d as keyof typeof DIFFICULTY_COLORS]
-                                            : "text-neutral-400 border-neutral-200 dark:border-neutral-700 hover:border-neutral-400"
+                                            : "text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-neutral-700 hover:border-neutral-400"
                                     )}
                                 >
                                     {d}
@@ -138,7 +138,7 @@ export function ModuleContent({
                                 <Link href={`${basePath}?topic=${cat.slug}`} key={cat.slug} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 text-xs font-medium text-neutral-600 dark:text-neutral-400 hover:border-neutral-400 dark:hover:border-neutral-500 transition-colors">
                                     <span>{cat.icon}</span>
                                     <span>{cat.name}</span>
-                                    <span className="text-neutral-300 dark:text-neutral-400 ml-1">
+                                    <span className="text-neutral-600 dark:text-neutral-400 ml-1">
                                         {cat.completedCount}/{cat.problemCount}
                                     </span>
                                 </Link>
@@ -153,7 +153,7 @@ export function ModuleContent({
                     {
                         filteredProblems.length === 0 ? (
                             <div className="text-center py-16">
-                                <p className="text-sm text-neutral-400">No problems found.</p>
+                                <p className="text-sm text-neutral-600 dark:text-neutral-400">No problems found.</p>
                             </div>
                         ) : (
                             filteredProblems.map((problem) => (
@@ -175,7 +175,7 @@ export function ModuleContent({
                     </div>
                     {
                         leaderboard.length === 0 ? (
-                            <p className="text-xs text-neutral-400">Be the first to complete a problem!</p>
+                            <p className="text-xs text-neutral-600 dark:text-neutral-400">Be the first to complete a problem!</p>
                         ) : (
                             <div className="space-y-2">
                                 {
@@ -226,7 +226,7 @@ function ProblemRow({
                 <div className="flex items-center gap-2 mt-1">
                     {
                         problem.tags.slice(0, 3).map((tag) => (
-                            <span key={tag} className="text-[10px] text-neutral-400">
+                            <span key={tag} className="text-xs text-neutral-600 dark:text-neutral-400">
                                 {tag}
                             </span>
                         ))
@@ -236,7 +236,7 @@ function ProblemRow({
             <Badge
                 variant="outline"
                 className={cn(
-                    "text-[10px] font-medium border",
+                    "text-xs font-medium border",
                     DIFFICULTY_COLORS[problem.difficulty]
                 )}
             >
@@ -249,7 +249,7 @@ function ProblemRow({
                     </span>
                 )
             }
-            <ChevronRight className="h-4 w-4 text-neutral-300 group-hover:text-neutral-500 transition-colors" />
+            <ChevronRight className="h-4 w-4 text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-500 transition-colors" />
         </button>
     );
 }
@@ -284,7 +284,7 @@ function ModeSelectionDialog({
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                        className="p-1.5 rounded-lg text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
                     >
                         <X className="h-4 w-4" />
                     </button>
@@ -303,7 +303,7 @@ function ModeSelectionDialog({
                                     <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
                                         Assist Mode
                                     </h3>
-                                    <Badge className="text-[9px] bg-neutral-100 dark:bg-neutral-800/30 text-neutral-800 dark:text-neutral-100 border-0">
+                                    <Badge className="text-xs bg-neutral-100 dark:bg-neutral-800/30 text-neutral-800 dark:text-neutral-100 border-0">
                                         Recommended
                                     </Badge>
                                 </div>
@@ -311,7 +311,7 @@ function ModeSelectionDialog({
                                     Get AI mentoring with hints, guidance, and real-time chat.
                                     Perfect for learning new concepts.
                                 </p>
-                                <div className="flex items-center gap-3 mt-2 text-[10px] text-neutral-400">
+                                <div className="flex items-center gap-3 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
                                     <span className="flex items-center gap-1">
                                         <Brain className="h-3 w-3" /> AI Chat
                                     </span>
@@ -338,7 +338,7 @@ function ModeSelectionDialog({
                                     No AI help. Solve the problem on your own like a real interview.
                                     Higher XP rewards.
                                 </p>
-                                <div className="flex items-center gap-3 mt-2 text-[10px] text-neutral-400">
+                                <div className="flex items-center gap-3 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
                                     <span className="flex items-center gap-1">
                                         <Shield className="h-3 w-3" /> No AI Chat
                                     </span>
@@ -358,7 +358,7 @@ function ModeSelectionDialog({
 function LeaderboardRow({ entry }: { entry: PracticeLeaderboardEntry }) {
     const rankColors: Record<number, string> = {
         1: "text-neutral-900",
-        2: "text-neutral-400",
+        2: "text-neutral-600 dark:text-neutral-400",
         3: "text-neutral-700",
     };
 
@@ -367,7 +367,7 @@ function LeaderboardRow({ entry }: { entry: PracticeLeaderboardEntry }) {
             <span
                 className={cn(
                     "text-xs font-bold w-5 text-center",
-                    rankColors[entry.rank] ?? "text-neutral-400"
+                    rankColors[entry.rank] ?? "text-neutral-600 dark:text-neutral-400"
                 )}
             >
                 {entry.rank}
@@ -382,14 +382,14 @@ function LeaderboardRow({ entry }: { entry: PracticeLeaderboardEntry }) {
                     />
                 ) : (
                     <div className="h-6 w-6 rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center">
-                        <Users className="h-3 w-3 text-neutral-400" />
+                        <Users className="h-3 w-3 text-neutral-600 dark:text-neutral-400" />
                     </div>
                 )
             }
             <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300 flex-1 truncate">
                 {entry.userName ?? "Anonymous"}
             </span>
-            <span className="text-[10px] text-neutral-400 font-medium">
+            <span className="text-xs text-neutral-600 dark:text-neutral-400 font-medium">
                 {entry.totalXP} XP
             </span>
         </div>

@@ -164,7 +164,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                 </Button>
                 <div className="text-center py-16">
                     <div className="w-20 h-20 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mx-auto mb-6">
-                        <Lock className="w-10 h-10 text-neutral-400" />
+                        <Lock className="w-10 h-10 text-neutral-600 dark:text-neutral-400" />
                     </div>
                     <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">
                         No Mock Interviews Available
@@ -203,7 +203,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                                 company.logo ? (
                                     <Image src={company.logo} alt={company.name} fill className="object-cover" />
                                 ) : (
-                                    <Building2 className="w-7 h-7 text-neutral-400" />
+                                    <Building2 className="w-7 h-7 text-neutral-600 dark:text-neutral-400" />
                                 )
                             }
                         </div>
@@ -212,7 +212,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                                 {company.name} Mock Interview Hub
                                 {
                                     company.isVerified && (
-                                        <CheckCircle2 className="w-5 h-5 text-neutral-300" />
+                                        <CheckCircle2 className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
                                     )
                                 }
                             </h1>
@@ -314,7 +314,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                                                 {
                                                     mockCount > 0 && (
                                                         <Badge className={cn(
-                                                            "text-[10px] shrink-0",
+                                                            "text-xs shrink-0",
                                                             isSelected
                                                                 ? "bg-neutral-100 text-neutral-700 dark:bg-neutral-800/30 dark:text-neutral-100"
                                                                 : "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400"
@@ -326,7 +326,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                                             </div>
                                             {
                                                 job.interviewProcess && (
-                                                    <div className="flex items-center gap-1 mt-2 text-xs text-neutral-400">
+                                                    <div className="flex items-center gap-1 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
                                                         <CheckCircle2 className="w-3 h-3 text-neutral-900 dark:text-neutral-100" />
                                                         <span>{job.interviewProcess.rounds.length} interview rounds</span>
                                                     </div>
@@ -536,7 +536,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                                         ) : (
                                             <div className="text-center py-16">
                                                 <div className="w-16 h-16 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mx-auto mb-4">
-                                                    <Lock className="w-8 h-8 text-neutral-400" />
+                                                    <Lock className="w-8 h-8 text-neutral-600 dark:text-neutral-400" />
                                                 </div>
                                                 <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">
                                                     No Interview Process Configured
@@ -556,7 +556,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                                     className="text-center py-16"
                                 >
                                     <div className="w-16 h-16 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mx-auto mb-4">
-                                        <Briefcase className="w-8 h-8 text-neutral-400" />
+                                        <Briefcase className="w-8 h-8 text-neutral-600 dark:text-neutral-400" />
                                     </div>
                                     <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">
                                         Select a Job Role

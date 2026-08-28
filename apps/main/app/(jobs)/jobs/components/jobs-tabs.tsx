@@ -120,7 +120,7 @@ export function JobsTabs({ counts, isAuthenticated }: JobsTabsProps) {
                                 "relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all",
                                 isActive
                                     ? "text-neutral-900 dark:text-white"
-                                    : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                                    : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-600 dark:text-neutral-400"
                             )}>
                             {isActive && (
                                 <motion.div
@@ -136,7 +136,7 @@ export function JobsTabs({ counts, isAuthenticated }: JobsTabsProps) {
                                     <Badge 
                                         variant="secondary" 
                                         className={cn(
-                                            "text-[10px] px-1.5 py-0 min-w-[18px] h-[18px] flex items-center justify-center",
+                                            "text-xs px-1.5 py-0 min-w-[18px] h-[18px] flex items-center justify-center",
                                             isActive && "bg-neutral-200 dark:bg-neutral-700"
                                         )}
                                     >
@@ -161,12 +161,12 @@ export function JobsTabs({ counts, isAuthenticated }: JobsTabsProps) {
                                 <activeTabConfig.icon className={cn("w-4 h-4", activeTabConfig.color)} />
                                 <span className="font-medium">{activeTabConfig.label}</span>
                                 {counts[activeTabConfig.countKey] > 0 && (
-                                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                                    <Badge variant="secondary" className="text-xs px-1.5 py-0">
                                         {counts[activeTabConfig.countKey]}
                                     </Badge>
                                 )}
                             </span>
-                            <ChevronDown className="w-4 h-4 text-neutral-400" />
+                            <ChevronDown className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent 

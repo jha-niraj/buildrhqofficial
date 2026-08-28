@@ -101,7 +101,7 @@ export function PracticeSidebar({ activeModule, activeCategory }: PracticeSideba
                                     <span className="flex-1 text-left truncate">{config.label}</span>
                                     <ChevronRight
                                         className={cn(
-                                            "h-3.5 w-3.5 text-neutral-400 transition-transform duration-200",
+                                            "h-3.5 w-3.5 text-neutral-600 dark:text-neutral-400 transition-transform duration-200",
                                             isExpanded && "rotate-90"
                                         )}
                                     />

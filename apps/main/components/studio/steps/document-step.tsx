@@ -60,7 +60,7 @@ export function DocumentStep({ step }: DocumentStepProps) {
         className="py-8"
       >
         <div className="flex flex-col items-center justify-center py-20 text-center rounded-2xl bg-neutral-100 dark:bg-neutral-800">
-          <FileText className="h-12 w-12 text-neutral-400 mb-4" />
+          <FileText className="h-12 w-12 text-neutral-600 dark:text-neutral-400 mb-4" />
           <p className="text-neutral-600 dark:text-neutral-400">No documents available</p>
         </div>
       </motion.div>

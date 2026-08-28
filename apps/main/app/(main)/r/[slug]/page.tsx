@@ -43,7 +43,7 @@ export default async function PublicResumePage({ params }: { params: Promise<{ s
             {/* Action bar */}
             <div className="max-w-[700px] mx-auto flex items-center justify-between mb-4">
                 <Link href="/">
-                    <Button variant="ghost" size="sm" className="text-neutral-600">
+                    <Button variant="ghost" size="sm" className="text-neutral-600 dark:text-neutral-400">
                         <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
                         Back to ShipItHQ
                     </Button>
@@ -60,7 +60,7 @@ export default async function PublicResumePage({ params }: { params: Promise<{ s
             </div>
 
             {/* Resume paper */}
-            <div className="max-w-[700px] mx-auto bg-white shadow-xl rounded-lg p-10 text-[11px] leading-relaxed" style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#1a1a1a' }}>
+            <div className="max-w-[700px] mx-auto bg-white shadow-xl rounded-lg p-10 text-xs leading-relaxed" style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#1a1a1a' }}>
                 {/* Header */}
                 <div style={{ borderBottomWidth: 2, borderBottomColor: accent, paddingBottom: 10, marginBottom: 14 }}>
                     <h1 style={{ fontSize: 26, fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.5px' }}>{header.name}</h1>
@@ -155,7 +155,7 @@ export default async function PublicResumePage({ params }: { params: Promise<{ s
 function SectionHeader({ title, color }: { title: string; color: string }) {
     return (
         <p style={{
-            fontSize: 9, fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: 1.5,
+            fontSize: 9, fontWeight: 700, color, textTransform: '', letterSpacing: 1.5,
             borderBottomWidth: 0.5, borderBottomColor: '#e5e5e5', paddingBottom: 3, marginBottom: 8
         }}>
             {title}

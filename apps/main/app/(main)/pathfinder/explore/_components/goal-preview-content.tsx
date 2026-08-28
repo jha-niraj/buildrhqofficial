@@ -258,24 +258,24 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                                                 </p>
                                             )}
                                             <div className="flex items-center gap-1.5 mt-2.5">
-                                                <Badge variant="secondary" className="text-[10px] h-5 gap-1 bg-neutral-50 dark:bg-neutral-900/30 text-neutral-800 dark:text-neutral-100 border-0">
+                                                <Badge variant="secondary" className="text-xs h-5 gap-1 bg-neutral-50 dark:bg-neutral-900/30 text-neutral-800 dark:text-neutral-100 border-0">
                                                     <Brain className="w-2.5 h-2.5" />
                                                     Quiz
                                                 </Badge>
                                                 {sg.hasCoding && (
-                                                    <Badge variant="secondary" className="text-[10px] h-5 gap-1 bg-neutral-50 dark:bg-neutral-900/30 text-neutral-800 dark:text-neutral-100 border-0">
+                                                    <Badge variant="secondary" className="text-xs h-5 gap-1 bg-neutral-50 dark:bg-neutral-900/30 text-neutral-800 dark:text-neutral-100 border-0">
                                                         <Code2 className="w-2.5 h-2.5" />
                                                         Coding
                                                     </Badge>
                                                 )}
                                                 {sg.isAIGenerated && (
-                                                    <Badge variant="secondary" className="text-[10px] h-5 gap-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border-0">
+                                                    <Badge variant="secondary" className="text-xs h-5 gap-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border-0">
                                                         <Sparkles className="w-2.5 h-2.5" />
                                                         AI
                                                     </Badge>
                                                 )}
                                                 {sg.status === 'COMPLETED' && (
-                                                    <Badge variant="secondary" className="text-[10px] h-5 gap-1 bg-neutral-50 dark:bg-neutral-900/30 text-neutral-800 dark:text-neutral-100 border-0">
+                                                    <Badge variant="secondary" className="text-xs h-5 gap-1 bg-neutral-50 dark:bg-neutral-900/30 text-neutral-800 dark:text-neutral-100 border-0">
                                                         <CheckCircle2 className="w-2.5 h-2.5" />
                                                         Done
                                                     </Badge>
@@ -289,7 +289,7 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                                             "w-4 h-4 shrink-0 mt-1 transition-colors",
                                             selectedId === sg.id
                                                 ? "text-neutral-900 dark:text-neutral-100"
-                                                : "text-neutral-400 group-hover:text-neutral-600 dark:text-neutral-500 dark:group-hover:text-neutral-300"
+                                                : "text-neutral-600 group-hover:text-neutral-600 dark:text-neutral-500 dark:group-hover:text-neutral-600"
                                         )} />
                                     </div>
                                 </button>
@@ -300,7 +300,7 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
 
                 {goal.subGoals && goal.subGoals.length === 0 && (
                     <div className="py-12 text-center border border-dashed border-neutral-200 dark:border-neutral-800 rounded-xl">
-                        <AnimatedIcon name="empty-search" size={40} motion="always" className="mx-auto mb-3 text-neutral-400 dark:text-neutral-500" />
+                        <AnimatedIcon name="empty-search" size={40} motion="always" className="mx-auto mb-3 text-neutral-600 dark:text-neutral-500" />
                         <p className="text-sm text-neutral-500 dark:text-neutral-400">This goal has no topics yet.</p>
                     </div>
                 )}
@@ -311,7 +311,7 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
             <aside className="flex w-full max-w-[360px] shrink-0 flex-col border-l border-neutral-200 bg-neutral-50/60 dark:border-neutral-800 dark:bg-neutral-950">
                 <div className="flex shrink-0 items-start justify-between gap-3 border-b border-neutral-200 p-4 dark:border-neutral-800">
                     <div className="min-w-0">
-                        <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                        <p className="text-xs font-medium tracking-wide text-neutral-500 dark:text-neutral-400">
                             Topic {(goal.subGoals?.findIndex((sg) => sg.id === selected.id) ?? 0) + 1} of {goal.subGoals?.length ?? 0}
                         </p>
                         <h3 className="mt-1 text-sm font-semibold leading-snug text-neutral-900 dark:text-neutral-100">
@@ -332,7 +332,7 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                 <ScrollArea reflow className="min-h-0 min-w-0 flex-1">
                     <div className="space-y-5 p-4">
                         <div>
-                            <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                            <p className="mb-1.5 text-xs font-medium tracking-wide text-neutral-500 dark:text-neutral-400">
                                 Description
                             </p>
                             {selected.description ? (
@@ -347,7 +347,7 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                         </div>
 
                         <div>
-                            <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                            <p className="mb-2 text-xs font-medium tracking-wide text-neutral-500 dark:text-neutral-400">
                                 What is included
                             </p>
                             <ul className="space-y-1.5">

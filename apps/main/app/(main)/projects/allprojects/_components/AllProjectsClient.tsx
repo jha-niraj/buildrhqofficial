@@ -151,7 +151,7 @@ export default function AllProjectsPage() {
 						<div className="bg-white dark:bg-neutral-900 shadow-2xl p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 space-y-6">
 							<div className="flex flex-col md:flex-row gap-4">
 								<div className="relative flex-1">
-									<Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400 w-5 h-5" />
+									<Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-600 dark:text-neutral-400 w-5 h-5" />
 									<Input
 										placeholder="Search projects, technologies, or descriptions..."
 										value={searchTerm}
@@ -214,7 +214,7 @@ export default function AllProjectsPage() {
 												variant="ghost"
 												size="sm"
 												onClick={() => setSelectedTech([])}
-												className="text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 rounded-xl"
+												className="text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-600 rounded-xl"
 											>
 												Clear filters ({selectedTech.length})
 											</Button>

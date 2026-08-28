@@ -192,7 +192,7 @@ export function FlashcardStep({ step }: FlashcardStepProps) {
 									}`}
 							>
 								<div>
-									<p className="text-xs text-neutral-500 dark:text-neutral-400 mb-3 uppercase tracking-wider">
+									<p className="text-xs text-neutral-500 dark:text-neutral-400 mb-3">
 										{isFlipped ? "Answer" : "Question"}
 									</p>
 									<p className="text-lg font-medium text-neutral-900 dark:text-white">
@@ -200,7 +200,7 @@ export function FlashcardStep({ step }: FlashcardStepProps) {
 									</p>
 									{
 									!isFlipped && (
-										<p className="text-xs text-neutral-400 mt-4">Click to flip</p>
+										<p className="text-xs text-neutral-600 dark:text-neutral-400 mt-4">Click to flip</p>
 									)
 									}
 								</div>

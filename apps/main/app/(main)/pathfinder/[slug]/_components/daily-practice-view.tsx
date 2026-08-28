@@ -242,7 +242,7 @@ function SubGoalItem({
                     ) : (
                         <Circle className={cn(
                             "w-5 h-5 transition-colors",
-                            isSelected ? "text-neutral-800 dark:text-neutral-200" : "text-neutral-300"
+                            isSelected ? "text-neutral-800 dark:text-neutral-200" : "text-neutral-600"
                         )} />
                     )
                 }
@@ -250,7 +250,7 @@ function SubGoalItem({
             <div className="flex-1 min-w-0">
                 <p className={cn(
                     "text-sm font-medium",
-                    subGoal.status === 'COMPLETED' && "line-through text-neutral-400"
+                    subGoal.status === 'COMPLETED' && "line-through text-neutral-600 dark:text-neutral-400"
                 )}>
                     {subGoal.title}
                 </p>
@@ -265,7 +265,7 @@ function SubGoalItem({
                                         onGenerateContent()
                                     }
                                 }}
-                                className="inline-flex items-center gap-1 text-[10px] h-5 px-2 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-medium hover:opacity-90 transition-opacity"
+                                className="inline-flex items-center gap-1 text-xs h-5 px-2 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-medium hover:opacity-90 transition-opacity"
                                 disabled={isGenerating}
                             >
                                 {isGenerating ? <InlineLoader size="sm" /> : <Sparkles className="w-2.5 h-2.5" />}
@@ -275,14 +275,14 @@ function SubGoalItem({
                     }
                     {
                         subGoal.kind && subGoal.kind !== 'TOPIC' && (
-                            <Badge variant="secondary" className="h-4 px-1 text-[10px] bg-neutral-200 text-neutral-800 dark:bg-neutral-700 dark:text-neutral-100">
+                            <Badge variant="secondary" className="h-4 px-1 text-xs bg-neutral-200 text-neutral-800 dark:bg-neutral-700 dark:text-neutral-100">
                                 {subGoal.kind === 'TECHNICAL' ? 'Technical' : subGoal.kind === 'BEHAVIORAL' ? 'Behavioral' : 'Coding'}
                             </Badge>
                         )
                     }
                     {
                         subGoal.isAIGenerated && !needsContentGeneration && !hasContent && (
-                            <Badge variant="secondary" className="text-[10px] h-4 px-1">
+                            <Badge variant="secondary" className="text-xs h-4 px-1">
                                 <InlineLoader size="sm" className="mr-1" />
                                 Generating...
                             </Badge>
@@ -290,7 +290,7 @@ function SubGoalItem({
                     }
                     {
                         !subGoal.isAIGenerated && !hasContent && (
-                            <Badge variant="secondary" className="text-[10px] h-4 px-1">
+                            <Badge variant="secondary" className="text-xs h-4 px-1">
                                 <InlineLoader size="sm" className="mr-1" />
                                 Generating...
                             </Badge>
@@ -298,7 +298,7 @@ function SubGoalItem({
                     }
                     {
                         hasContent && subGoal.quizCompleted && (
-                            <Badge variant="secondary" className="text-[10px] h-4 px-1 bg-neutral-100 text-neutral-700">
+                            <Badge variant="secondary" className="text-xs h-4 px-1 bg-neutral-100 text-neutral-700">
                                 <Brain className="w-2 h-2 mr-1" />
                                 Quiz: {subGoal.quizScore}%
                             </Badge>
@@ -307,7 +307,7 @@ function SubGoalItem({
                     {
                         hasContent && subGoal.hasCoding && subGoal.codingCompleted && (
                             <Badge variant="secondary" className={cn(
-                                "text-[10px] h-4 px-1",
+                                "text-xs h-4 px-1",
                                 subGoal.codingPassed
                                     ? "bg-neutral-100 text-neutral-700"
                                     : "bg-red-100 text-red-700"
@@ -319,7 +319,7 @@ function SubGoalItem({
                     }
                     {
                         subGoal.isAIGenerated && (
-                            <Badge variant="secondary" className="text-[10px] h-4 px-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400">
+                            <Badge variant="secondary" className="text-xs h-4 px-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400">
                                 AI
                             </Badge>
                         )
@@ -328,7 +328,7 @@ function SubGoalItem({
             </div>
             <button
                 onClick={handleDelete}
-                className="opacity-0 group-hover:opacity-100 text-neutral-400 hover:text-red-500 transition-all"
+                className="opacity-0 group-hover:opacity-100 text-neutral-600 dark:text-neutral-400 hover:text-red-500 transition-all"
                 disabled={isDeleting}
             >
                 {
@@ -341,7 +341,7 @@ function SubGoalItem({
             </button>
             <ChevronRight className={cn(
                 "w-4 h-4 transition-colors",
-                isSelected ? "text-neutral-900 dark:text-neutral-100" : "text-neutral-300"
+                isSelected ? "text-neutral-900 dark:text-neutral-100" : "text-neutral-600"
             )} />
         </motion.div>
     )
@@ -358,15 +358,15 @@ function SessionStats({ session }: { session: DailySession | null }) {
         <div className="grid grid-cols-3 gap-2 p-3 border-b border-neutral-200 dark:border-neutral-800">
             <div className="text-center p-2 rounded-lg bg-neutral-50 dark:bg-neutral-900/30">
                 <div className="text-lg font-bold text-neutral-800 dark:text-neutral-200">{session.completedSubGoals}/{session.totalSubGoals}</div>
-                <div className="text-[10px] text-neutral-800 dark:text-neutral-200/70">Tasks</div>
+                <div className="text-xs text-neutral-800 dark:text-neutral-200/70">Tasks</div>
             </div>
             <div className="text-center p-2 rounded-lg bg-neutral-50 dark:bg-neutral-900/30">
                 <div className="text-lg font-bold text-neutral-800 dark:text-neutral-200">{quizPercent}%</div>
-                <div className="text-[10px] text-neutral-800 dark:text-neutral-200/70">Quiz Score</div>
+                <div className="text-xs text-neutral-800 dark:text-neutral-200/70">Quiz Score</div>
             </div>
             <div className="text-center p-2 rounded-lg bg-neutral-50 dark:bg-neutral-900/30">
                 <div className="text-lg font-bold text-neutral-800 dark:text-neutral-200">{session.solvedCodingProblems}/{session.totalCodingProblems}</div>
-                <div className="text-[10px] text-neutral-800 dark:text-neutral-200/70">Code</div>
+                <div className="text-xs text-neutral-800 dark:text-neutral-200/70">Code</div>
             </div>
         </div>
     )
@@ -591,7 +591,7 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
                                     )
                                     if (sessionsToShow.length === 0) {
                                         return (
-                                            <div className="text-center py-12 text-neutral-400">
+                                            <div className="text-center py-12 text-neutral-600 dark:text-neutral-400">
                                                 <AnimatedIcon name="empty-search" size={40} motion="always" className="mx-auto mb-3 opacity-60" />
                                                 <p className="text-sm">No tasks yet</p>
                                                 <p className="text-xs mt-1">Add your first learning task above</p>

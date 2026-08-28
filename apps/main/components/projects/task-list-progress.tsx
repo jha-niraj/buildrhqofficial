@@ -237,7 +237,7 @@ function TaskItemCard({
                                         isUpdating ? (
                                             <InlineLoader size="sm" className="text-neutral-900 dark:text-neutral-100" />
                                         ) : (
-                                            <Play className="w-3 h-3 text-neutral-400 group-hover:text-neutral-900 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            <Play className="w-3 h-3 text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 opacity-0 group-hover:opacity-100 transition-opacity" />
                                         )
                                     }
                                 </button>
@@ -269,12 +269,12 @@ function TaskItemCard({
                                     <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
                                         Task {index + 1}/{total}
                                     </span>
-                                    <Badge className={cn('text-[10px] px-1.5 py-0 border', difficultyColors[task.difficulty])}>
+                                    <Badge className={cn('text-xs px-1.5 py-0 border', difficultyColors[task.difficulty])}>
                                         {task.difficulty}
                                     </Badge>
                                     {
                                         task.status === 'IN_PROGRESS' && (
-                                            <Badge className="text-[10px] px-1.5 py-0 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 animate-pulse">
+                                            <Badge className="text-xs px-1.5 py-0 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 animate-pulse">
                                                 IN PROGRESS
                                             </Badge>
                                         )
@@ -295,9 +295,9 @@ function TaskItemCard({
                             >
                                 {
                                     isExpanded ? (
-                                        <ChevronDown className="w-5 h-5 text-neutral-400" />
+                                        <ChevronDown className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
                                     ) : (
-                                        <ChevronRight className="w-5 h-5 text-neutral-400" />
+                                        <ChevronRight className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
                                     )
                                 }
                             </button>
@@ -309,7 +309,7 @@ function TaskItemCard({
                                         task.tags.slice(0, 4).map((tag, idx) => (
                                             <span
                                                 key={idx}
-                                                className="text-[11px] px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded-full text-neutral-600 dark:text-neutral-400"
+                                                className="text-xs px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded-full text-neutral-600 dark:text-neutral-400"
                                             >
                                                 {tag}
                                             </span>
@@ -380,7 +380,7 @@ function TaskItemCard({
                                                                             key={idx}
                                                                             className="flex items-start gap-2 text-xs bg-white dark:bg-neutral-900 p-2 rounded-lg"
                                                                         >
-                                                                            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 flex items-center justify-center text-[10px] font-bold">
+                                                                            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 flex items-center justify-center text-xs font-bold">
                                                                                 {idx + 1}
                                                                             </span>
                                                                             <div>
@@ -388,7 +388,7 @@ function TaskItemCard({
                                                                                 <p className="text-neutral-600 dark:text-neutral-400">{sub.description}</p>
                                                                                 {
                                                                                     sub.command && (
-                                                                                        <code className="block mt-1 bg-neutral-900 text-neutral-800 dark:text-neutral-200 px-2 py-1 rounded text-[10px] font-mono">
+                                                                                        <code className="block mt-1 bg-neutral-900 text-neutral-800 dark:text-neutral-200 px-2 py-1 rounded text-xs font-mono">
                                                                                             {sub.command}
                                                                                         </code>
                                                                                     )
@@ -409,7 +409,7 @@ function TaskItemCard({
                                                                     <ul className="space-y-1">
                                                                         {
                                                                             [...taskDetail.commonErrors, ...taskDetail.errorsToWatchout].slice(0, 3).map((err, idx) => (
-                                                                                <li key={idx} className="text-[11px] text-neutral-800 dark:text-neutral-700 flex items-start gap-1">
+                                                                                <li key={idx} className="text-xs text-neutral-800 dark:text-neutral-700 flex items-start gap-1">
                                                                                     <span>⚠️</span>
                                                                                     <span>{err}</span>
                                                                                 </li>

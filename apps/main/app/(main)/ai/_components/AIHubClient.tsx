@@ -152,7 +152,7 @@ export default function AiToolsPage({ stats }: { stats: AiHubStats }) {
 
                             <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-neutral-950 md:text-6xl dark:text-white">
                                 Your resume, your letter, and your interview{" "}
-                                <span className="text-neutral-400 dark:text-neutral-400">
+                                <span className="text-neutral-600 dark:text-neutral-400">
                                     built from the same history.
                                 </span>
                             </h1>
@@ -230,7 +230,7 @@ export default function AiToolsPage({ stats }: { stats: AiHubStats }) {
                                 {/* Linked to the page it counts. A number the reader can go and
                                     check is a different kind of claim from one they cannot. */}
                                 <Link href={stat.href} className="group flex flex-col items-center text-center">
-                                    <div className="mb-3 text-neutral-400 transition-colors group-hover:text-neutral-900 dark:text-neutral-400 dark:group-hover:text-white">
+                                    <div className="mb-3 text-neutral-600 transition-colors group-hover:text-neutral-900 dark:text-neutral-400 dark:group-hover:text-white">
                                         <stat.icon className="h-6 w-6" />
                                     </div>
                                     <div className="text-3xl font-bold tracking-tight tabular-nums text-neutral-900 dark:text-white">
@@ -321,7 +321,7 @@ export default function AiToolsPage({ stats }: { stats: AiHubStats }) {
                                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-white dark:bg-white dark:text-neutral-900">
                                         {i + 1}
                                     </span>
-                                    <step.icon className="h-5 w-5 text-neutral-400 dark:text-neutral-400" />
+                                    <step.icon className="h-5 w-5 text-neutral-600 dark:text-neutral-400" />
                                 </div>
                                 <h3 className="mb-2 text-lg font-bold text-neutral-900 dark:text-white">
                                     {step.title}

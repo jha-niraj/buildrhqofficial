@@ -359,7 +359,7 @@ export default function PurchasePage() {
 									className={`cursor-pointer px-4 py-1.5 rounded-md text-xs font-bold font-mono transition-all ${
 										currency === c
 											? 'bg-white dark:bg-neutral-800 shadow-sm text-neutral-900 dark:text-white'
-											: 'text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300'
+											: 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-600'
 									}`}
 								>
 									{c}
@@ -371,7 +371,7 @@ export default function PurchasePage() {
 							they get a small field, not the loudest element on the page. */}
 						<div className="flex items-end gap-2">
 							<div className="space-y-1.5">
-								<Label htmlFor="custom-credits" className="text-[10px] font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+								<Label htmlFor="custom-credits" className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
 									Custom amount
 								</Label>
 								<div className="flex items-center gap-2">
@@ -465,13 +465,13 @@ export default function PurchasePage() {
 							default, and a stretched item cannot be sticky - it has
 							nowhere to travel. */}
 						<div className="lg:sticky lg:top-6 lg:self-start">
-							<p className="mb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-neutral-400 dark:text-neutral-500">
+							<p className="mb-3 font-mono text-xs text-neutral-600 dark:text-neutral-500">
 								FAQ
 							</p>
 							<h2 className="text-3xl font-semibold leading-tight tracking-tight text-neutral-900 dark:text-white">
 								Your questions,
 								<br />
-								<span className="text-neutral-400 dark:text-neutral-500">answered</span>
+								<span className="text-neutral-600 dark:text-neutral-500">answered</span>
 							</h2>
 							<p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
 								How credits work, what they cost, and what happens when they run out.
@@ -543,7 +543,7 @@ export default function PurchasePage() {
 					<div className="p-8 space-y-7">
 						{/* Reward size grid */}
 						<div>
-							<Label className="text-[10px] uppercase tracking-[0.18em] text-neutral-400 font-bold mb-3 block">
+							<Label className="text-xs text-neutral-600 dark:text-neutral-400 font-bold mb-3 block">
 								Reward Size
 							</Label>
 							<div className="grid grid-cols-4 gap-2">
@@ -565,7 +565,7 @@ export default function PurchasePage() {
 
 						{/* Proof of execution */}
 						<div className="space-y-3">
-							<Label className="text-[10px] uppercase tracking-[0.18em] text-neutral-400 font-bold block">
+							<Label className="text-xs text-neutral-600 dark:text-neutral-400 font-bold block">
 								Proof of Execution
 							</Label>
 							<Input
@@ -576,7 +576,7 @@ export default function PurchasePage() {
 							/>
 							<div className="flex items-center gap-3">
 								<div className="h-px bg-neutral-200 dark:bg-neutral-800 flex-1" />
-								<span className="text-[10px] text-neutral-400 font-medium">OR</span>
+								<span className="text-xs text-neutral-600 dark:text-neutral-400 font-medium">OR</span>
 								<div className="h-px bg-neutral-200 dark:bg-neutral-800 flex-1" />
 							</div>
 							<Input
@@ -589,7 +589,7 @@ export default function PurchasePage() {
 
 						{/* Warning note */}
 						<div className="flex gap-2.5 p-3.5 bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800">
-							<AlertTriangle className="w-4 h-4 text-neutral-400 flex-shrink-0 mt-px" />
+							<AlertTriangle className="w-4 h-4 text-neutral-600 dark:text-neutral-400 flex-shrink-0 mt-px" />
 							<p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
 								Post must be public and mention <span className="font-semibold text-neutral-700 dark:text-neutral-300">@shipithq</span> to pass verification.
 							</p>
@@ -630,7 +630,7 @@ export default function PurchasePage() {
 
 						{/* Capacity estimates */}
 						<div className="space-y-2.5">
-							<Label className="text-[10px] uppercase tracking-[0.18em] text-neutral-400 font-bold block">
+							<Label className="text-xs text-neutral-600 dark:text-neutral-400 font-bold block">
 								Capacity Estimates
 							</Label>
 							{usageSummary.map((item) => (

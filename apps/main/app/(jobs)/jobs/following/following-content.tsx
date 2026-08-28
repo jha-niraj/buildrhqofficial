@@ -244,7 +244,7 @@ function NoJobsState() {
             className="text-center py-16 px-4"
         >
             <div className="w-20 h-20 bg-gradient-to-br from-neutral-100 to-neutral-50 dark:from-neutral-800 dark:to-neutral-900 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                <Building2 className="w-10 h-10 text-neutral-400" />
+                <Building2 className="w-10 h-10 text-neutral-600 dark:text-neutral-400" />
             </div>
             <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-2">
                 No open positions right now

@@ -301,7 +301,7 @@ export function AppSidebar(props: AppSidebarProps) {
                             </button>
                         </PopoverTrigger>
                         <PopoverContent side="right" align="start" sideOffset={12} className="w-52 p-2 border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-lg rounded-xl">
-                            <p className="px-2 pb-1.5 pt-0.5 text-xs font-mono font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500 select-none">{item.name}</p>
+                            <p className="px-2 pb-1.5 pt-0.5 text-xs font-mono font-bold text-neutral-600 dark:text-neutral-500 select-none">{item.name}</p>
                             <div className="space-y-0.5">
                                 <Link href={href} onClick={() => setOpenPopoverId(null)} className={cn("flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors", pathname === basePath(item.path) ? "bg-black text-white dark:bg-white dark:text-black" : "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800")}>
                                     <Icon className="h-4 w-4 flex-shrink-0" /><span>Overview</span>
@@ -361,7 +361,7 @@ export function AppSidebar(props: AppSidebarProps) {
             >
                 <Icon className={cn("flex-shrink-0", depth > 0 ? "h-4 w-4" : "h-5 w-5")} />
                 {!collapsed && <span className="whitespace-nowrap overflow-hidden flex-1">{item.name}</span>}
-                {!collapsed && item.comingSoon && <span className="ml-auto shrink-0 rounded-full bg-neutral-200 dark:bg-neutral-800 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-neutral-500">Soon</span>}
+                {!collapsed && item.comingSoon && <span className="ml-auto shrink-0 rounded-full bg-neutral-200 dark:bg-neutral-800 px-1.5 py-0.5 text-xs font-bold text-neutral-500">Soon</span>}
                 {!collapsed && item.badge != null && !item.comingSoon && (
                     <span className={cn("ml-auto shrink-0 rounded-full px-1.5 py-0.5 text-xs font-semibold tabular-nums", isActive ? "bg-white/20 text-white dark:bg-black/20 dark:text-black" : "bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200")}>{item.badge}</span>
                 )}
@@ -424,15 +424,15 @@ export function AppSidebar(props: AppSidebarProps) {
                     {!collapsed && (
                         <div className="min-w-0">
                             <p className="truncate text-sm font-bold text-foreground dark:text-white leading-tight">{brand.name}</p>
-                            {/* Was `text-neutral-400 dark:text-neutral-500`, which measured
+                            {/* Was `text-neutral-600 dark:text-neutral-500`, which measured
                                 2.50:1 on white and 4.18:1 on neutral-950 - failing the 4.5:1
                                 body floor in BOTH themes, not just the dark one Niraj spotted.
                                 This pair is 4.74:1 and 7.85:1. */}
-                            {brand.subtitle && <p className="truncate text-[11px] font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-400">{brand.subtitle}</p>}
+                            {brand.subtitle && <p className="truncate text-xs font-mono text-neutral-500 dark:text-neutral-400">{brand.subtitle}</p>}
                         </div>
                     )}
                 </Link>
-                <button type="button" onClick={() => setIsCollapsed(!isCollapsed)} aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"} className="hidden h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200 lg:inline-flex">
+                <button type="button" onClick={() => setIsCollapsed(!isCollapsed)} aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"} className="hidden h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-neutral-600 dark:text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200 lg:inline-flex">
                     {isCollapsed ? <PanelLeftOpen className="h-[18px] w-[18px]" /> : <PanelLeftClose className="h-[18px] w-[18px]" />}
                 </button>
             </div>
@@ -475,8 +475,8 @@ export function AppSidebar(props: AppSidebarProps) {
                             <div className="pt-4 pb-1">
                                 {!collapsed ? (
                                     <button type="button" onClick={() => setSecondaryExpanded(v => !v)} className="flex w-full items-center justify-between rounded px-2 py-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer">
-                                        <p className="text-xs font-mono font-bold uppercase text-neutral-500 dark:text-neutral-400 tracking-widest">{secondaryLabel}</p>
-                                        <ChevronDown className={cn("h-3 w-3 text-neutral-400 dark:text-neutral-500 transition-transform duration-200", secondaryExpanded && "rotate-180")} />
+                                        <p className="text-xs font-mono font-bold text-neutral-500 dark:text-neutral-400">{secondaryLabel}</p>
+                                        <ChevronDown className={cn("h-3 w-3 text-neutral-600 dark:text-neutral-500 transition-transform duration-200", secondaryExpanded && "rotate-180")} />
                                     </button>
                                 ) : (
                                     <div className="h-px bg-neutral-200 dark:bg-neutral-800 mx-2" />
@@ -514,7 +514,7 @@ export function AppSidebar(props: AppSidebarProps) {
                                 <button type="button" onClick={() => { setNotifOpen(true); notifications.onOpen?.() }} className="relative flex h-8 w-8 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800 transition-colors cursor-pointer">
                                     <Bell className="h-4 w-4" />
                                     {notifications.unreadCount > 0 && (
-                                        <span className="absolute right-0.5 top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">{notifications.unreadCount > 9 ? "9+" : notifications.unreadCount}</span>
+                                        <span className="absolute right-0.5 top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">{notifications.unreadCount > 9 ? "9+" : notifications.unreadCount}</span>
                                     )}
                                 </button>
                             </TooltipTrigger>
@@ -544,7 +544,7 @@ export function AppSidebar(props: AppSidebarProps) {
                             </Tooltip>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <button type="button" onClick={onSignOut} aria-label="Sign out" className="flex h-8 w-8 items-center justify-center rounded-lg text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/20 dark:hover:text-red-400 transition-colors cursor-pointer"><LogOut className="h-4 w-4" /></button>
+                                    <button type="button" onClick={onSignOut} aria-label="Sign out" className="flex h-8 w-8 items-center justify-center rounded-lg text-neutral-600 dark:text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/20 dark:hover:text-red-400 transition-colors cursor-pointer"><LogOut className="h-4 w-4" /></button>
                                 </TooltipTrigger>
                                 <TooltipContent side="right" className="bg-neutral-900 dark:bg-white text-white dark:text-black border-neutral-800">Sign out</TooltipContent>
                             </Tooltip>
@@ -561,12 +561,12 @@ export function AppSidebar(props: AppSidebarProps) {
                                             <p className="text-sm font-bold truncate text-foreground dark:text-white">{user.name || "User"}</p>
                                             {user.role && <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate font-mono capitalize">{user.role}</p>}
                                         </div>
-                                        <ChevronDown className="h-4 w-4 shrink-0 text-neutral-400" />
+                                        <ChevronDown className="h-4 w-4 shrink-0 text-neutral-600 dark:text-neutral-400" />
                                     </button>
                                 </PopoverTrigger>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <button type="button" onClick={onSignOut} aria-label="Sign out" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/20 dark:hover:text-red-400 transition-colors cursor-pointer"><LogOut className="h-4 w-4" /></button>
+                                        <button type="button" onClick={onSignOut} aria-label="Sign out" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-neutral-600 dark:text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/20 dark:hover:text-red-400 transition-colors cursor-pointer"><LogOut className="h-4 w-4" /></button>
                                     </TooltipTrigger>
                                     <TooltipContent side="top" className="bg-neutral-900 dark:bg-white text-white dark:text-black border-neutral-800">Sign out</TooltipContent>
                                 </Tooltip>
@@ -599,7 +599,7 @@ export function AppSidebar(props: AppSidebarProps) {
                             </Link>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <button type="button" onClick={onSignOut} aria-label="Sign out" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/20 dark:hover:text-red-400 transition-colors cursor-pointer"><LogOut className="h-4 w-4" /></button>
+                                    <button type="button" onClick={onSignOut} aria-label="Sign out" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-neutral-600 dark:text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/20 dark:hover:text-red-400 transition-colors cursor-pointer"><LogOut className="h-4 w-4" /></button>
                                 </TooltipTrigger>
                                 <TooltipContent side="top" className="bg-neutral-900 dark:bg-white text-white dark:text-black border-neutral-800">Sign out</TooltipContent>
                             </Tooltip>
@@ -678,7 +678,7 @@ export function AppSidebar(props: AppSidebarProps) {
                                             notifTab === key ? "bg-white dark:bg-neutral-800 text-foreground dark:text-white shadow-sm" : "text-neutral-500 dark:text-neutral-400 hover:text-foreground dark:hover:text-white",
                                         )}>
                                             {label}
-                                            {cnt > 0 && <span className={cn("inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold tabular-nums", notifTab === key ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900" : "bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300")}>{cnt}</span>}
+                                            {cnt > 0 && <span className={cn("inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-xs font-bold tabular-nums", notifTab === key ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900" : "bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300")}>{cnt}</span>}
                                         </button>
                                     ))}
                                 </div>
@@ -699,9 +699,9 @@ export function AppSidebar(props: AppSidebarProps) {
                                             </button>
                                         </PopoverTrigger>
                                         <PopoverContent align="end" sideOffset={8} className="w-48 p-1.5 rounded-xl border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-lg">
-                                            <p className="px-2 pb-1 pt-0.5 text-[10px] font-mono font-bold uppercase tracking-widest text-neutral-400">Filter by module</p>
+                                            <p className="px-2 pb-1 pt-0.5 text-xs font-mono font-bold text-neutral-600 dark:text-neutral-400">Filter by module</p>
                                             <button type="button" onClick={() => { setNotifType("ALL"); setNotifFilterOpen(false) }} className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
-                                                <span className="flex items-center gap-2"><Inbox className="h-4 w-4 text-neutral-400" />All modules</span>
+                                                <span className="flex items-center gap-2"><Inbox className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />All modules</span>
                                                 {notifType === "ALL" && <Check className="h-4 w-4 text-neutral-900" />}
                                             </button>
                                             {(availableTypes.length ? availableTypes : NOTIF_TYPES).map(t => {
@@ -759,7 +759,7 @@ export function AppSidebar(props: AppSidebarProps) {
                                                         {!n.read && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-neutral-900" />}
                                                     </div>
                                                     {n.description && <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400 line-clamp-2">{n.description}</p>}
-                                                    <p className="mt-1.5 text-xs text-neutral-400 dark:text-neutral-500">{timeAgo(n.createdAt)}</p>
+                                                    <p className="mt-1.5 text-xs text-neutral-600 dark:text-neutral-500">{timeAgo(n.createdAt)}</p>
                                                 </div>
                                             </button>
                                         )

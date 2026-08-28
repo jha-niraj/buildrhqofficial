@@ -228,13 +228,13 @@ export function CommentThread({
 
             <div className="mt-3">
                 {loading ? (
-                    <div className="flex items-center justify-center py-8 text-neutral-400">
+                    <div className="flex items-center justify-center py-8 text-neutral-600 dark:text-neutral-400">
                         <InlineLoader size="sm" className="mr-2" />
                         <span className="text-sm">Loading comments…</span>
                     </div>
                 ) : nodes.length === 0 ? (
                     <div className="py-8 text-center">
-                        <MessageSquare className="h-6 w-6 text-neutral-300 dark:text-neutral-700 mx-auto mb-2" />
+                        <MessageSquare className="h-6 w-6 text-neutral-600 dark:text-neutral-700 mx-auto mb-2" />
                         <p className="text-sm text-neutral-500 dark:text-neutral-400">
                             No comments yet.{isLoggedIn ? " Be the first." : ""}
                         </p>

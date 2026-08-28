@@ -74,7 +74,7 @@ export function ProjectAssistantButtons({
                     <span className="hidden sm:inline">Resources</span>
                     {
                         resourcesCount > 0 && (
-                            <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold bg-neutral-800 text-white rounded-full px-1">
+                            <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center text-xs font-bold bg-neutral-800 text-white rounded-full px-1">
                                 {resourcesCount}
                             </span>
                         )
@@ -90,7 +90,7 @@ export function ProjectAssistantButtons({
                     <span className="hidden sm:inline">Errors</span>
                     {
                         errorsCount > 0 && (
-                            <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold bg-neutral-800 text-white rounded-full px-1">
+                            <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center text-xs font-bold bg-neutral-800 text-white rounded-full px-1">
                                 {errorsCount}
                             </span>
                         )

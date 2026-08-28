@@ -50,7 +50,7 @@ export default function PathfinderError({
                     where the message itself is deliberately withheld. Without it a bug
                     report cannot be matched to a log line. */}
                 {error.digest && (
-                    <p className="mt-3 font-mono text-[11px] text-neutral-400 dark:text-neutral-400">
+                    <p className="mt-3 font-mono text-xs text-neutral-600 dark:text-neutral-400">
                         Reference: {error.digest}
                     </p>
                 )}

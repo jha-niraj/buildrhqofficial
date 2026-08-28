@@ -64,7 +64,7 @@ function stageIndexFor(progress: number): number {
  */
 function FromProfile() {
     return (
-        <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+        <p className="text-xs text-neutral-500 dark:text-neutral-400">
             Filled in from your profile - edit it here and we will remember the change.
         </p>
     )
@@ -196,7 +196,7 @@ export function ImportClient({ links }: { links: ProfileLinks }) {
                     <Badge variant="outline" className="text-xs gap-1 text-neutral-700 dark:text-neutral-300">
                         <Github className="w-3 h-3" /> GitHub
                     </Badge>
-                    <Badge variant="outline" className="text-xs text-neutral-400">Optional: Twitter · Portfolio</Badge>
+                    <Badge variant="outline" className="text-xs text-neutral-600 dark:text-neutral-400">Optional: Twitter · Portfolio</Badge>
                 </div>
             </div>
 
@@ -223,7 +223,7 @@ export function ImportClient({ links }: { links: ProfileLinks }) {
                     </div>
                     <div className="space-y-2">
                         {STAGES.map((s, i) => (
-                            <div key={s.label} className={`flex items-center gap-2 text-xs transition-colors ${i <= stageIdx ? "text-neutral-700 dark:text-neutral-300" : "text-neutral-300 dark:text-neutral-400"}`}>
+                            <div key={s.label} className={`flex items-center gap-2 text-xs transition-colors ${i <= stageIdx ? "text-neutral-700 dark:text-neutral-300" : "text-neutral-600 dark:text-neutral-400"}`}>
                                 {i < stageIdx ? (
                                     <CheckCircle2 className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100 shrink-0" />
                                 ) : i === stageIdx ? (
@@ -241,7 +241,7 @@ export function ImportClient({ links }: { links: ProfileLinks }) {
                 <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 space-y-5">
                     {/* Required */}
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Required</p>
+                        <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Required</p>
 
                         <div className="space-y-1.5">
                             <Label className="text-sm font-medium flex items-center gap-1.5">
@@ -257,7 +257,7 @@ export function ImportClient({ links }: { links: ProfileLinks }) {
                             />
                             {prefilled.linkedin
                                 ? <FromProfile />
-                                : <p className="text-[11px] text-neutral-500 dark:text-neutral-400">Make sure your LinkedIn profile is set to public.</p>}
+                                : <p className="text-xs text-neutral-500 dark:text-neutral-400">Make sure your LinkedIn profile is set to public.</p>}
                         </div>
 
                         <div className="space-y-1.5">
@@ -285,7 +285,7 @@ export function ImportClient({ links }: { links: ProfileLinks }) {
 
                     {/* Optional */}
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Optional (improves accuracy)</p>
+                        <p className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Optional (improves accuracy)</p>
 
                         <div className="space-y-1.5">
                             <Label className="text-sm font-medium flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400">

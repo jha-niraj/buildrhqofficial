@@ -212,7 +212,7 @@ export function AddWorkExperienceSheet({ open, onOpenChange, onSuccess, editExpe
 
                     <div className="space-y-1.5">
                         <Label className="text-xs font-medium">Bullet Points</Label>
-                        <p className="text-[10px] text-neutral-500 dark:text-neutral-400">One per line. Use strong action verbs and metrics.</p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">One per line. Use strong action verbs and metrics.</p>
                         <Textarea
                             placeholder={"Built API reducing latency by 40%\nLed team of 5 engineers across 3 sprints"}
                             className="h-28 resize-none text-sm"

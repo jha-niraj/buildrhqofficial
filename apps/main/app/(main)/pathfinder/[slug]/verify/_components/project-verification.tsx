@@ -70,7 +70,7 @@ export function ProjectVerification({
             <div className="flex-1 flex items-center justify-center p-8">
                 <div className="text-center">
                     <div className="w-20 h-20 mx-auto rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-4">
-                        <Lock className="w-10 h-10 text-neutral-400" />
+                        <Lock className="w-10 h-10 text-neutral-600 dark:text-neutral-400" />
                     </div>
                     <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">Project Locked</h3>
                     <p className="text-neutral-500 dark:text-neutral-400">Complete the Mock Interview section first to unlock Project submission.</p>
@@ -259,7 +259,7 @@ export function ProjectVerification({
                         <div className="space-y-2">
                             <Label htmlFor="github">GitHub URL</Label>
                             <div className="flex items-center gap-2">
-                                <Github className="w-4 h-4 text-neutral-400" />
+                                <Github className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                                 <Input
                                     id="github"
                                     placeholder="https://github.com/username/repo"
@@ -271,7 +271,7 @@ export function ProjectVerification({
                         <div className="space-y-2">
                             <Label htmlFor="demo">Demo URL</Label>
                             <div className="flex items-center gap-2">
-                                <ExternalLink className="w-4 h-4 text-neutral-400" />
+                                <ExternalLink className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                                 <Input
                                     id="demo"
                                     placeholder="https://myproject.vercel.app"

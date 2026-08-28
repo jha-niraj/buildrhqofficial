@@ -92,7 +92,7 @@ export function MonthPicker({
                     aria-label={ariaLabel ?? placeholder}
                     className={cn(
                         "w-full cursor-pointer justify-start px-3 text-left font-normal",
-                        !selected && "text-neutral-400 dark:text-neutral-500",
+                        !selected && "text-neutral-600 dark:text-neutral-500",
                         className,
                     )}
                 >

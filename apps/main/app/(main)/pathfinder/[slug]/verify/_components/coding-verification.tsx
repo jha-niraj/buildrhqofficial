@@ -69,7 +69,7 @@ export function CodingVerification({ goalId, questions, status, score }: CodingV
             <div className="flex-1 flex items-center justify-center p-8">
                 <div className="text-center">
                     <div className="w-20 h-20 mx-auto rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-4">
-                        <Lock className="w-10 h-10 text-neutral-400" />
+                        <Lock className="w-10 h-10 text-neutral-600 dark:text-neutral-400" />
                     </div>
                     <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">Coding Locked</h3>
                     <p className="text-neutral-500 dark:text-neutral-400">Complete the Quiz section first to unlock Coding challenges.</p>
@@ -83,7 +83,7 @@ export function CodingVerification({ goalId, questions, status, score }: CodingV
         return (
             <div className="flex-1 flex items-center justify-center p-8">
                 <div className="text-center">
-                    <Code className="w-12 h-12 mx-auto text-neutral-400 mb-4" />
+                    <Code className="w-12 h-12 mx-auto text-neutral-600 dark:text-neutral-400 mb-4" />
                     <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">No Coding Questions</h3>
                     <p className="text-neutral-500 dark:text-neutral-400">This goal doesn&apos;t have any coding challenges.</p>
                 </div>
@@ -180,7 +180,7 @@ export function CodingVerification({ goalId, questions, status, score }: CodingV
                                             <div className="font-medium text-sm text-neutral-900 dark:text-white truncate">
                                                 {q.title}
                                             </div>
-                                            <Badge variant="secondary" className="capitalize mt-1 text-[10px]">
+                                            <Badge variant="secondary" className="capitalize mt-1 text-xs">
                                                 {q.difficulty.toLowerCase()}
                                             </Badge>
                                         </div>
@@ -188,7 +188,7 @@ export function CodingVerification({ goalId, questions, status, score }: CodingV
                                             isSolved ? (
                                                 <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100 flex-shrink-0" />
                                             ) : (
-                                                <ChevronRight className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+                                                <ChevronRight className="w-4 h-4 text-neutral-600 dark:text-neutral-400 flex-shrink-0" />
                                             )
                                         }
                                     </button>
