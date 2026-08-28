@@ -14,12 +14,13 @@ import {
 } from '@repo/ui/components/ui/select'
 import {
     Plus, Youtube, FileText, BookOpen, GraduationCap, MessageCircle,
-    Wrench, Palette, Sparkles, Github, Loader2
+    Wrench, Palette, Sparkles, Github
 } from 'lucide-react'
 import toast from '@repo/ui/components/ui/sonner'
 import { addProjectResource } from '@/actions/(main)/projects/resources.action'
 import { useRouter } from 'next/navigation'
 import { ResourceType } from '@repo/db'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 const RESOURCE_TYPES = [
     { value: 'YOUTUBE_VIDEO', label: 'YouTube Video', icon: Youtube, color: 'text-red-600' },
@@ -195,7 +196,7 @@ export default function AddResourceSheet({ projectId }: AddResourceSheetProps) {
                                 {
                                     loading ? (
                                         <>
-                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                            <InlineLoader size="sm" className="mr-2" />
                                             Adding...
                                         </>
                                     ) : (

@@ -5,6 +5,10 @@ import { cn } from '@repo/ui/lib/utils';
 import { Button } from '@repo/ui/components/ui/button';
 import { Badge } from '@repo/ui/components/ui/badge';
 import { CheckIcon, SparklesIcon, Zap, Gift, ArrowRight } from 'lucide-react';
+import { CountUp } from './ui/count-up';
+
+/** Symbols for the prefix, so CountUp animates only the digits. */
+const CURRENCY_SYMBOL: Record<Currency, string> = { INR: '\u20B9', USD: '$' };
 import {
     creditPackages,
     formatPrice,
@@ -45,10 +49,18 @@ interface PricingCardProps {
 }
 
 function PricingCard({ pkg, currency, className, onSelect, hrefFor }: PricingCardProps) {
-    const price = formatPrice(packagePrice(pkg, currency), currency);
+    const amount = packagePrice(pkg, currency);
     const original = packageOriginalPrice(pkg, currency);
     const savings = packageSavings(pkg, currency);
     const cta = `Get ${pkg.credits} Credits`;
+
+    // The symbol is split off the number so `CountUp` can animate the digits
+    // while the symbol stays put. `formatPrice` returns them joined, so the
+    // symbol is taken from the currency directly.
+    const symbol = CURRENCY_SYMBOL[currency];
+    // INR is whole rupees; USD carries cents. Counting a rupee price through
+    // two decimal places just makes it look uncertain.
+    const decimals = currency === 'USD' ? 2 : 0;
 
     return (
         <div
@@ -68,14 +80,17 @@ function PricingCard({ pkg, currency, className, onSelect, hrefFor }: PricingCar
                 </Badge>
                 <Badge variant="outline" className="ml-auto text-xs">
                     <Zap className="mr-1 size-3 text-neutral-900 dark:text-white" />
-                    {pkg.credits} Credits
+                    <CountUp value={pkg.credits} /> Credits
                 </Badge>
             </div>
 
             <div className="flex items-end gap-2 px-5 py-3">
-                <span className="font-mono text-4xl font-bold tracking-tight text-neutral-900 dark:text-white">
-                    {price}
-                </span>
+                <CountUp
+                    value={amount}
+                    prefix={symbol}
+                    decimals={decimals}
+                    className="font-mono text-4xl font-bold tracking-tight text-neutral-900 dark:text-white"
+                />
                 <span className="pb-1 text-sm text-neutral-500 dark:text-neutral-400">/one-time</span>
                 {original !== undefined && savings !== null && (
                     <span className="pb-1 text-sm text-neutral-400 line-through dark:text-neutral-500">
@@ -132,110 +147,20 @@ function PricingCard({ pkg, currency, className, onSelect, hrefFor }: PricingCar
     );
 }
 
-function FeaturedCard({ pkg, currency, onSelect, hrefFor }: PricingCardProps) {
-    const price = formatPrice(packagePrice(pkg, currency), currency);
-    const savings = packageSavings(pkg, currency);
-    const cta = `Get ${pkg.credits} Credits`;
-
-    return (
-        <div
-            className={cn(
-                'relative w-full overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 dark:border-neutral-200 dark:bg-white',
-                'lg:col-span-5',
-                'transition-all duration-300 hover:shadow-2xl',
-            )}
-        >
-            <div className="pointer-events-none absolute top-0 left-1/2 -mt-2 -ml-20 h-full w-full [mask-image:linear-gradient(white,transparent)]">
-                <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-white/2 [mask-image:radial-gradient(farthest-side_at_top,white,transparent)] dark:from-neutral-900/5 dark:to-neutral-900/2">
-                    <div
-                        aria-hidden="true"
-                        className={cn(
-                            'absolute inset-0 size-full mix-blend-overlay',
-                            'bg-[linear-gradient(to_right,rgba(255,255,255,0.1)_1px,transparent_1px)]',
-                            'bg-[size:24px]',
-                        )}
-                    />
-                </div>
-            </div>
-
-            <div className="flex items-center gap-3 p-5">
-                <Badge className="border-0 bg-white text-neutral-900 dark:bg-neutral-900 dark:text-white">
-                    {pkg.badge.toUpperCase()}
-                </Badge>
-                <Badge
-                    variant="outline"
-                    className="hidden border-white/20 text-white lg:flex dark:border-neutral-300 dark:text-neutral-900"
-                >
-                    <SparklesIcon className="me-1 size-3" /> Best Value
-                </Badge>
-                <div className="ml-auto flex items-center gap-2">
-                    <Badge
-                        variant="secondary"
-                        className="bg-white/10 text-white dark:bg-neutral-900/10 dark:text-neutral-900"
-                    >
-                        <Zap className="mr-1 size-3 text-white dark:text-neutral-900" />
-                        {pkg.credits} Credits
-                    </Badge>
-                </div>
-            </div>
-
-            <div className="flex flex-col p-5 lg:flex-row">
-                <div className="pb-4 lg:w-[35%]">
-                    <span className="font-mono text-5xl font-bold tracking-tight text-white dark:text-neutral-900">
-                        {price}
-                    </span>
-                    <span className="ml-2 text-sm text-neutral-400 dark:text-neutral-600">/one-time</span>
-                    {savings !== null && (
-                        <p className="mt-2 text-sm font-medium text-white dark:text-neutral-900">
-                            Save {savings}% vs regular
-                        </p>
-                    )}
-                </div>
-                <ul className="grid gap-3 text-sm text-neutral-300 lg:w-[65%] dark:text-neutral-700">
-                    {pkg.highlights.map((f) => (
-                        <li key={f} className="flex items-center gap-3">
-                            <div className="rounded-full bg-white p-0.5 text-neutral-900 dark:bg-neutral-900 dark:text-white">
-                                <CheckIcon className="size-3" strokeWidth={3} />
-                            </div>
-                            <span className="leading-relaxed">{f}</span>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-
-            <div className="p-5 pt-0">
-                {onSelect ? (
-                    <Button
-                        onClick={() => onSelect(pkg)}
-                        size="lg"
-                        className="cursor-pointer bg-white text-neutral-900 hover:bg-neutral-100 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
-                    >
-                        {cta}
-                        <ArrowRight className="ml-2 size-4" />
-                    </Button>
-                ) : (
-                    <Button
-                        asChild
-                        size="lg"
-                        className="cursor-pointer bg-white text-neutral-900 hover:bg-neutral-100 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
-                    >
-                        <a href={hrefFor?.(pkg) ?? '#'}>
-                            {cta}
-                            <ArrowRight className="ml-2 size-4" />
-                        </a>
-                    </Button>
-                )}
-            </div>
-        </div>
-    );
-}
-
 /**
- * Column spans for the non-featured cards, in order. The featured card takes 5
- * of the 8 columns, so the first sibling takes the remaining 3 and the rest
- * pair up. Cards past the end of this list fall back to half width.
+ * No column spans any more.
+ *
+ * This used to be a true bento: the popular pack took 5 of 8 columns as a wide
+ * `FeaturedCard`, and `CARD_SPANS` dealt the rest 3, 4, 4, 8. The result was
+ * five cards of four different widths, with the last one stretched across the
+ * full row - so the eye had to re-learn the layout at every step and the prices
+ * could not be compared down a column.
+ *
+ * Every card is now identical and the grid is uniform, which is what makes a
+ * price list readable: the only thing that varies between cards is the content
+ * being compared. The popular pack is marked with a ring and its badge rather
+ * than by being a different SIZE.
  */
-const CARD_SPANS = ['lg:col-span-3', 'lg:col-span-4', 'lg:col-span-4', 'lg:col-span-8'];
 
 export interface PricingBentoProps {
     currency?: Currency;
@@ -257,26 +182,23 @@ export function PricingBento({
     onRequestFreeCredits,
     freeCreditsHref = '/purchase',
 }: PricingBentoProps) {
-    const featured = creditPackages.find((p) => p.popular) ?? creditPackages[0];
-    const rest = creditPackages.filter((p) => p !== featured);
+    if (creditPackages.length === 0) return null;
 
-    if (!featured) return null;
-
+    // `items-stretch` so every card is the height of the tallest. Without it a
+    // pack with two highlights sits shorter than one with four, and the row of
+    // CTAs no longer lines up - which is the thing the eye actually scans.
     return (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-8">
-            <FeaturedCard
-                pkg={featured}
-                currency={currency}
-                onSelect={onSelect}
-                hrefFor={hrefFor}
-            />
-
-            {rest.map((pkg, i) => (
+        <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {creditPackages.map((pkg) => (
                 <PricingCard
                     key={pkg.slug}
                     pkg={pkg}
                     currency={currency}
-                    className={CARD_SPANS[i] ?? 'lg:col-span-4'}
+                    className={
+                        pkg.popular
+                            ? 'ring-1 ring-neutral-900 dark:ring-white'
+                            : undefined
+                    }
                     onSelect={onSelect}
                     hrefFor={hrefFor}
                 />
@@ -287,7 +209,7 @@ export function PricingBento({
                     className={cn(
                         'relative w-full overflow-hidden rounded-2xl border',
                         'border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/40',
-                        'lg:col-span-8',
+                        'md:col-span-2 xl:col-span-4',
                         'transition-all duration-300 hover:shadow-xl',
                     )}
                 >

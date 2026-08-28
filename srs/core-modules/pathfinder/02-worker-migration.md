@@ -461,3 +461,71 @@ rather than by clicking, because the browser tab the tooling drives keeps being
 backgrounded and Radix sheets will not mount without animation frames. The
 worker, the job, the token, the DB writes and the counters are all proven; the
 one untested link is the click that calls the server action.
+
+---
+
+# The rest of the migration: TRIAGED, and mostly not needed (2026-08-28)
+
+Niraj, 2026-08-28: *"we should only move the ones which is long like project
+generation or something that may take more than 30sec to complete, not all of
+them."*
+
+That is the right rule, and applying it to what is actually left changes the
+answer completely. **No remaining pathfinder LLM call needs to move.** PF-W3,
+PF-W5 and PF-W6 are all void, not deferred.
+
+## Why 30 seconds, and how to estimate it without a stopwatch
+
+The dominant cost of a chat completion is OUTPUT token generation, not the
+prompt. `gpt-4o-mini` streams roughly 80 to 150 tokens per second, so
+`max_tokens` is a usable upper bound on duration:
+
+| `max_tokens` | worst-case generation | verdict |
+|---|---|---|
+| 1,000 | 7 to 12s | inline is fine |
+| 2,000 | 15 to 25s | inline, with no headroom to spare |
+| 4,000 | 30 to 50s | **must be a job** |
+| unset | unbounded | **must be a job** |
+
+`max_tokens` unset is the one to watch. It reads as harmless and is the worst
+case in the table: the model will happily produce until it decides to stop, and
+nothing in the code caps it.
+
+## Every remaining call, measured
+
+| Call | Live? | Model / cap | Estimate | Verdict |
+|---|---|---|---|---|
+| `goals.action.ts:482` `generateAIStudyPlan` | dead, SUPERSEDED | - | - | already a job (PF-W4); delete the corpse |
+| `goals.action.ts:681` `generateQuizAndCoding` | **LIVE** via `generateContentForAISubGoal` | mini / 2,000 | 15-25s | **keep inline** |
+| `subgoals.action.ts:363` `generateAIContentForSubGoal` | dead, SUPERSEDED | - | - | already a job (PF-W2); delete the corpse |
+| `subgoals.action.ts:659` `submitSubGoalCoding` | **LIVE**, the coding grader | mini / 1,000, temp 0.3 | 8-12s | **keep inline** |
+| `subgoals.action.ts:780` `transcribeVoiceRecording` | **dead**, 0 callers | whisper | - | **PF-W3 is VOID** |
+| `resources.action.ts:191` `fetchOpenAIResources` | **dead**, 0 callers | mini / 4,000 | 30-50s | **PF-W5 is VOID** |
+| `studio-link.action.ts:242` `generateNotesContent` | **dead**, 0 callers | mini / **unset** | unbounded | **PF-W6 is VOID** |
+
+## The finding worth keeping
+
+The two calls that are LIVE are the two SHORT ones. The two that would have
+blown the 30-second budget - the 4,000-token resource generator and the
+uncapped notes generator - are both **dead code with zero callers**.
+
+So the remaining "worker migration backlog" was never a latency problem. It was
+a dead-code problem wearing a latency problem's clothes, and three tasks
+(PF-W3, PF-W5, PF-W6) were queued to carefully move code that nothing calls.
+
+Two things follow:
+
+1. **Check for callers BEFORE estimating cost.** Every one of those three tasks
+   was written from a `grep` for `openai.chat.completions.create`, which finds
+   text, not reachability.
+2. **`submitSubGoalCoding` stays inline, and that is a real decision, not an
+   omission.** It grades one submission at 1,000 tokens with temperature 0.3, so
+   it lands around ten seconds. Making it a job would cost the user a poll cycle
+   and a progress bar to save nothing, and would put a credit hold on an action
+   that currently has none.
+
+## What would change this
+
+If `generateQuizAndCoding` ever has its cap raised, or `submitSubGoalCoding`
+starts grading several problems in one call, they cross the line. The cap is the
+signal - watch `max_tokens`, not the prose.

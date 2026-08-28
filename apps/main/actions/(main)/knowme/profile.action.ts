@@ -58,11 +58,11 @@ export async function getMyKnowMeProfile(): Promise<
 					},
 				},
 				personalData: {
-					where: (pd: any, { eq }: any) => eq(pd.isActive, true),
-					orderBy: (pd: any, { desc }: any) => [desc(pd.createdAt)],
+					where: (pd, { eq }) => eq(pd.isActive, true),
+					orderBy: (pd, { desc }) => [desc(pd.createdAt)],
 				},
 				platformConnections: {
-					orderBy: (pc: any, { desc }: any) => [desc(pc.createdAt)],
+					orderBy: (pc, { desc }) => [desc(pc.createdAt)],
 				},
 				privacySettings: true,
 			},
@@ -96,7 +96,7 @@ export async function getMyKnowMeProfile(): Promise<
 				createdAt: profile.createdAt,
 				updatedAt: profile.updatedAt,
 				user: profile.user,
-				personalData: profile.personalData.map((pd: any) => ({
+				personalData: profile.personalData.map((pd) => ({
 					id: pd.id,
 					dataType: pd.dataType,
 					title: pd.title,
@@ -108,7 +108,7 @@ export async function getMyKnowMeProfile(): Promise<
 					createdAt: pd.createdAt,
 					updatedAt: pd.updatedAt,
 				})),
-				platformConnections: profile.platformConnections.map((pc: any) => ({
+				platformConnections: profile.platformConnections.map((pc) => ({
 					id: pc.id,
 					platform: pc.platform,
 					platformUsername: pc.platformUsername,

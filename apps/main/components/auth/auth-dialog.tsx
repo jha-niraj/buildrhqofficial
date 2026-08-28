@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import type { ReadonlyURLSearchParams } from "next/navigation"
 import { Label } from "@repo/ui/components/ui/label"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 export function AuthDialog() {
 	const { data: session } = useSession()
@@ -206,7 +207,7 @@ export function AuthDialog() {
 										{
 											submitting ? (
 												<div className="flex items-center gap-2">
-													<div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+													<InlineLoader size="sm" />
 													Signing in...
 												</div>
 											) : (

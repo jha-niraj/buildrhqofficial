@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import {
     MapPin, Clock, Building2, Mic, CheckCircle2, ChevronRight,
     Play, Heart, Share2, TrendingUp, Users, FileText, Phone,
-    Code, Layout, MessageSquare, Star, Loader2, LucideIcon
+    Code, Layout, MessageSquare, Star, LucideIcon
 } from "lucide-react"
 import { Button } from "@repo/ui/components/ui/button"
 import { Badge } from "@repo/ui/components/ui/badge"
@@ -14,6 +14,7 @@ import Link from "next/link"
 import { showInterest } from "@/actions/jobs"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface Job {
     id: string
@@ -187,7 +188,7 @@ export function JobDetailSheet({ job }: JobDetailSheetProps) {
                         {
                             isApplying ? (
                                 <>
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    <InlineLoader size="sm" className="mr-2" />
                                     Processing...
                                 </>
                             ) : (
@@ -424,7 +425,7 @@ export function JobDetailSheet({ job }: JobDetailSheetProps) {
                     {
                         isApplying ? (
                             <>
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                <InlineLoader size="sm" className="mr-2" />
                                 Processing...
                             </>
                         ) : (

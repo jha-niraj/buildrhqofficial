@@ -54,6 +54,12 @@ export interface NavigationConfig {
 export const mainNavigation: NavigationConfig = {
     primary: [
         {
+            name: "Credits",
+            path: "credits",
+            icon: Zap,
+            status: "active"
+        },
+        {
             name: "Home",
             path: "home",
             icon: Home,
@@ -111,9 +117,6 @@ export const mainNavigation: NavigationConfig = {
             status: "active",
             children: [
                 { name: 'Overview', path: 'ai', icon: LayoutDashboard },
-                { name: 'Job Interview', path: 'ai/interviewassistant', icon: Briefcase },
-                { name: 'My Generations', path: 'ai/interviewassistant/generations', icon: History },
-                { name: 'Public Generations', path: 'ai/interviewassistant/publicgenerations', icon: Globe },
                 { name: 'Resume', path: 'ai/resume', icon: FileText },
                 { name: 'Import Resume', path: 'ai/resume/import', icon: Upload },
                 { name: 'Cover Letter', path: 'ai/coverletter', icon: FileText },

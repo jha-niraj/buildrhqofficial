@@ -33,7 +33,7 @@ export async function getProblemsForModule(
             eq(practiceProblem.isActive, true),
             ...(category ? [eq(practiceProblem.category, category)] : [])
         ),
-        orderBy: (p: any, { asc }: any) => [asc(p.category), asc(p.sortOrder)],
+        orderBy: (p, { asc }) => [asc(p.category), asc(p.sortOrder)],
         columns: {
             id: true,
             slug: true,
@@ -53,10 +53,17 @@ export async function getProblemsForModule(
         } : undefined,
     });
 
-    return problems.map((p: any) => {
-        const userSession = p.sessions && Array.isArray(p.sessions) && p.sessions.length > 0
-            ? p.sessions[0]
-            : null;
+    // `with` above is conditional on `userId`, so Drizzle types the row WITHOUT
+    // `sessions` - it cannot know which branch ran. The runtime guard below was
+    // already correct; it was `: any` on the callback that let `p.sessions`
+    // compile at all. This narrows the type to match the guard instead, and the
+    // session shape is DERIVED from the table rather than hand-written, so it
+    // cannot drift from the columns actually selected.
+    type ProblemSession = Pick<typeof practiceUserSession.$inferSelect, 'status' | 'bestScore'>;
+
+    return problems.map((p) => {
+        const sessions = (p as typeof p & { sessions?: ProblemSession[] }).sessions;
+        const userSession = sessions && sessions.length > 0 ? sessions[0] : null;
         return {
             id: p.id,
             slug: p.slug,
@@ -543,7 +550,7 @@ export async function getLeaderboard(
 ): Promise<PracticeLeaderboardEntry[]> {
     const entries = await db.query.practiceLeaderboard.findMany({
         where: eq(practiceLeaderboard.module, module),
-        orderBy: (lb: any, { desc }: any) => [desc(lb.totalXP)],
+        orderBy: (lb, { desc }) => [desc(lb.totalXP)],
         limit,
         with: {
             user: {
@@ -552,7 +559,7 @@ export async function getLeaderboard(
         },
     });
 
-    return entries.map((e: any, i: number) => ({
+    return entries.map((e, i) => ({
         rank: i + 1,
         userId: e.userId,
         userName: e.user.name,
@@ -578,7 +585,7 @@ export async function getUserPracticeStats(): Promise<PracticeUserStats | null> 
         db.query.practiceModuleProgress.findMany({ where: eq(practiceModuleProgress.userId, userId) }),
         db.query.practiceUserSession.findMany({
             where: eq(practiceUserSession.userId, userId),
-            orderBy: (s: any, { desc }: any) => [desc(s.updatedAt)],
+            orderBy: (s, { desc }) => [desc(s.updatedAt)],
             limit: 10,
             with: {
                 problem: {
@@ -589,12 +596,12 @@ export async function getUserPracticeStats(): Promise<PracticeUserStats | null> 
         db.select({ count: sql<number>`count(*)` }).from(practiceProblem).where(eq(practiceProblem.isActive, true)),
     ]);
 
-    const totalSolved = modules.reduce((acc: number, m: any) => acc + m.completed, 0);
-    const totalXP = modules.reduce((acc: number, m: any) => acc + m.totalXP, 0);
-    const longestStreak = Math.max(0, ...modules.map((m: any) => m.longestStreak));
-    const currentStreak = Math.max(0, ...modules.map((m: any) => m.currentStreak));
+    const totalSolved = modules.reduce((acc, m) => acc + m.completed, 0);
+    const totalXP = modules.reduce((acc, m) => acc + m.totalXP, 0);
+    const longestStreak = Math.max(0, ...modules.map((m) => m.longestStreak));
+    const currentStreak = Math.max(0, ...modules.map((m) => m.currentStreak));
     const avgScore = modules.length > 0
-        ? Math.round(modules.reduce((acc: number, m: any) => acc + m.averageScore, 0) / modules.length)
+        ? Math.round(modules.reduce((acc, m) => acc + m.averageScore, 0) / modules.length)
         : 0;
 
     const [easyTotalArr, mediumTotalArr, hardTotalArr] = await Promise.all([
@@ -606,9 +613,9 @@ export async function getUserPracticeStats(): Promise<PracticeUserStats | null> 
     const easyTotal = Number(easyTotalArr[0]?.count ?? 0);
     const mediumTotal = Number(mediumTotalArr[0]?.count ?? 0);
     const hardTotal = Number(hardTotalArr[0]?.count ?? 0);
-    const easyCompleted = modules.reduce((acc: number, m: any) => acc + m.easyCompleted, 0);
-    const mediumCompleted = modules.reduce((acc: number, m: any) => acc + m.mediumCompleted, 0);
-    const hardCompleted = modules.reduce((acc: number, m: any) => acc + m.hardCompleted, 0);
+    const easyCompleted = modules.reduce((acc, m) => acc + m.easyCompleted, 0);
+    const mediumCompleted = modules.reduce((acc, m) => acc + m.mediumCompleted, 0);
+    const hardCompleted = modules.reduce((acc, m) => acc + m.hardCompleted, 0);
 
     const [dsaCountArr, sdCountArr, wfCountArr, wbCountArr] = await Promise.all([
         db.select({ count: sql<number>`count(*)` }).from(practiceProblem).where(and(eq(practiceProblem.module, "DSA"), eq(practiceProblem.isActive, true))),
@@ -625,7 +632,7 @@ export async function getUserPracticeStats(): Promise<PracticeUserStats | null> 
     };
 
     const moduleBreakdown: PracticeProgressData[] = (["DSA", "SYSTEM_DESIGN", "WEB_FRONTEND", "WEB_BACKEND"] as PracticeModule[]).map((mod) => {
-        const m = modules.find((mp: any) => mp.module === mod);
+        const m = modules.find((mp) => mp.module === mod);
         return {
             module: mod,
             totalProblems: moduleProblemCounts[mod] ?? 0,
@@ -642,7 +649,7 @@ export async function getUserPracticeStats(): Promise<PracticeUserStats | null> 
         };
     });
 
-    const recentSessions: PracticeRecentSession[] = sessions.map((s: any) => ({
+    const recentSessions: PracticeRecentSession[] = sessions.map((s) => ({
         problemTitle: s.problem.title,
         problemSlug: s.problem.slug,
         module: s.problem.module,

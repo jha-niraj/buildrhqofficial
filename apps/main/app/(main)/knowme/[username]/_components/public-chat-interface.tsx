@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Bot, Send, ArrowLeft, User, ThumbsUp, ThumbsDown, ExternalLink,
-    Sparkles, MessageSquare, Info, Loader2, Share2, Check
+    Sparkles, MessageSquare, Info, Share2, Check
 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Input } from "@repo/ui/components/ui/input";
@@ -21,6 +21,7 @@ import type {
 import {
     getOrCreateChatSession, sendChatMessage, submitMessageFeedback,
 } from "@/actions/(main)/knowme";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface PublicChatInterfaceProps {
     profile: KnowMeProfilePublic;
@@ -396,7 +397,7 @@ export default function PublicChatInterface({ profile }: PublicChatInterfaceProp
                             >
                                 {
                                     isLoading ? (
-                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        <InlineLoader size="sm" />
                                     ) : (
                                         <Send className="w-4 h-4" />
                                     )

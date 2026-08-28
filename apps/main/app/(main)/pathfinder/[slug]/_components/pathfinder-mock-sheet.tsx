@@ -6,12 +6,13 @@ import {
 } from '@repo/ui/components/ui/sheet'
 import { Button } from '@repo/ui/components/ui/button'
 import { Checkbox } from '@repo/ui/components/ui/checkbox'
-import { Loader2, Mic, Play } from 'lucide-react'
+import { Mic, Play } from 'lucide-react'
 import { createCustomMockVoice } from '@/actions/(main)/mockvoice/voice.action'
 import { createMockVoiceSession } from '@/actions/(main)/mockvoice/session.action'
 import { useRouter } from 'next/navigation'
 import toast from '@repo/ui/components/ui/sonner'
 import { getGoalSessions } from '@/actions/(main)/pathfinder/subgoals.action'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface SubGoal {
     id: string
@@ -143,7 +144,7 @@ export function PathfinderMockSheet({
                 <div className="mt-6 space-y-4">
                     {loading ? (
                         <div className="flex items-center justify-center py-12">
-                            <Loader2 className="w-8 h-8 animate-spin text-neutral-900 dark:text-neutral-100" />
+                            <InlineLoader size="lg" className="text-neutral-900 dark:text-neutral-100" />
                         </div>
                     ) : allSubGoals.length === 0 ? (
                         <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center py-8">
@@ -187,7 +188,7 @@ export function PathfinderMockSheet({
                         disabled={creating || selectedIds.size === 0}
                     >
                         {creating ? (
-                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                            <InlineLoader size="sm" className="mr-2" />
                         ) : (
                             <Play className="w-4 h-4 mr-2" />
                         )}

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Link, Type, Loader2, Sparkles, Check, AlertCircle } from "lucide-react";
+import { Plus, Link, Type, Sparkles, Check, AlertCircle } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Input } from "@repo/ui/components/ui/input";
 import { Label } from "@repo/ui/components/ui/label";
@@ -21,6 +21,7 @@ import {
 } from "@/actions/(main)/practice/generate-problem.action";
 import { MODULE_CONFIG } from "@/types/practice";
 import type { PracticeModule, PracticeDifficulty } from "@/types/practice";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface AddProblemSheetProps {
     module: PracticeModule;
@@ -249,7 +250,7 @@ export function AddProblemSheet({ module, onProblemAdded }: AddProblemSheetProps
                     >
                         {generating ? (
                             <>
-                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <InlineLoader size="sm" />
                                 Generating...
                             </>
                         ) : (
@@ -366,7 +367,7 @@ export function AddProblemSheet({ module, onProblemAdded }: AddProblemSheetProps
                                     >
                                         {saving ? (
                                             <>
-                                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                <InlineLoader size="sm" />
                                                 Saving...
                                             </>
                                         ) : (

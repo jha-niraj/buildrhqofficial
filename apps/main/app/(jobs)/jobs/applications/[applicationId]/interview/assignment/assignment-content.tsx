@@ -9,7 +9,7 @@ import ReactMarkdown from "react-markdown"
 import {
     ArrowLeft, Building2, CheckCircle2, Clock, Calendar,
     ClipboardList, FileText, ExternalLink, Send, AlertCircle,
-    Loader2, Download, Upload, Link as LinkIcon
+    Download, Upload, Link as LinkIcon
 } from "lucide-react"
 import { Button } from "@repo/ui/components/ui/button"
 import { Badge } from "@repo/ui/components/ui/badge"
@@ -21,6 +21,7 @@ import {
     DialogHeader, DialogTitle
 } from "@repo/ui/components/ui/dialog"
 import toast from "@repo/ui/components/ui/sonner"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 export interface AssignmentDetails {
     title: string
@@ -345,7 +346,7 @@ export function AssignmentContent({ application }: AssignmentContentProps) {
                                             >
                                                 {
                                                     isPending ? (
-                                                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                                        <InlineLoader size="md" className="mr-2" />
                                                     ) : (
                                                         <ClipboardList className="w-5 h-5 mr-2" />
                                                     )
@@ -408,7 +409,7 @@ export function AssignmentContent({ application }: AssignmentContentProps) {
                         >
                             {
                                 isPending ? (
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    <InlineLoader size="sm" className="mr-2" />
                                 ) : (
                                     <Send className="w-4 h-4 mr-2" />
                                 )

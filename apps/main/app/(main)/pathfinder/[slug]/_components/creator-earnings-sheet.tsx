@@ -11,13 +11,14 @@ import { Button } from '@repo/ui/components/ui/button'
 import { Input } from '@repo/ui/components/ui/input'
 import { Label } from '@repo/ui/components/ui/label'
 import {
-    Coins, DollarSign, Loader2
+    Coins, DollarSign
 } from 'lucide-react'
 import {
     setGoalCreditPrice, getGoalEarnings, getGoalPurchases
 } from '@/actions/(main)/pathfinder'
 import toast from '@repo/ui/components/ui/sonner'
 import Image from 'next/image'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface CreatorEarningsSheetProps {
     open: boolean
@@ -117,7 +118,7 @@ export function CreatorEarningsSheet({
                                     onChange={(e) => setPrice(e.target.value)}
                                 />
                                 <Button onClick={handleSavePrice} disabled={saving}>
-                                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
+                                    {saving ? <InlineLoader size="sm" /> : 'Save'}
                                 </Button>
                             </div>
                         </div>

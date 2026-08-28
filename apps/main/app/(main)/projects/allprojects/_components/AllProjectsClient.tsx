@@ -17,6 +17,11 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { getAllPublicProjects } from "@/actions/(main)/projects/project.action"
+
+/** One row exactly as `getAllPublicProjects` returns it. */
+type PublicProject = NonNullable<
+	Awaited<ReturnType<typeof getAllPublicProjects>>["data"]
+>["projects"][number]
 import { 
 	ProjectCard, ProjectCardSkeleton 
 } from "@/components/projects/project-card"
@@ -36,7 +41,14 @@ const TECHNOLOGY_OPTIONS = [
 ]
 
 export default function AllProjectsPage() {
-	const [projects, setProjects] = useState<ProjectV2Basic[]>([])
+	// DERIVED from the action's actual return type, not hand-written.
+	//
+	// This was `ProjectV2Basic[]`, which declares generationType, visibility,
+	// stacks, totalStarted and totalSubmissions - none of which the query
+	// selects, and none of which this component reads. So the state claimed five
+	// fields that were always `undefined`, and only an `any` in the action's
+	// return type stopped the compiler saying so.
+	const [projects, setProjects] = useState<PublicProject[]>([])
 	const [loading, setLoading] = useState(true)
 	const [searchTerm, setSearchTerm] = useState("")
 	const [difficulty, setDifficulty] = useState("ALL")
@@ -110,7 +122,7 @@ export default function AllProjectsPage() {
 	return (
 		<SmoothScroll>
 			<div>
-				<div className="max-w-7xl mx-auto px-4 py-12">
+				<div className="w-full px-4 py-12">
 					<motion.div
 						className="text-center mb-6"
 						initial={{ opacity: 0, y: 20 }}

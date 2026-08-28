@@ -55,6 +55,7 @@ import { SetupGuideTab } from './setup-guide-tab'
 
 
 import { TaskItem } from '@/components/projects/task-list-progress'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 function MilestoneTracker({ progressPercentage }: { progressPercentage: number, includeAssessment?: boolean }) {
     const milestones = [
@@ -511,7 +512,7 @@ export default function ProjectDetailsClient({
                                                     {
                                                         starting ? (
                                                             <>
-                                                                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                                                                <InlineLoader size="sm" className="mr-2" />
                                                                 Starting...
                                                             </>
                                                         ) : (
@@ -866,7 +867,7 @@ export default function ProjectDetailsClient({
                             {
                                 submitting ? (
                                     <>
-                                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                                        <InlineLoader size="sm" className="mr-2" />
                                         Submitting...
                                     </>
                                 ) : (

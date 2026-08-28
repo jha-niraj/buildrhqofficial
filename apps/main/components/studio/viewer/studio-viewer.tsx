@@ -14,12 +14,13 @@ import { ProjectStep } from "../steps/project-step";
 import { MockInterviewStep } from "../steps/mock-interview-step";
 import { FlashcardStep } from "../steps/flashcard-step";
 import {
-	Loader2, FileText, FileQuestion, StickyNote, Sparkles
+	FileText, FileQuestion, StickyNote, Sparkles
 } from "lucide-react";
 import type { StudioWithSteps, StudioStep, QuizMetadata } from "@/types/studios";
 import { getStudioWithSteps } from "@/actions/(main)/studios/studio.actions";
 import { getQuizById } from "@/actions/(main)/studios/ai-generation.actions";
 import { useStudioStore } from "@/app/store/studioStore";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface StudioViewerProps {
 	studio?: StudioWithSteps;
@@ -79,7 +80,7 @@ function PendingStepSkeleton({ type, prompt }: { type: string; prompt: string })
 								<span className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
 									{getLabel()}...
 								</span>
-								<Loader2 className="h-4 w-4 animate-spin text-neutral-900 dark:text-neutral-100" />
+								<InlineLoader size="sm" className="text-neutral-900 dark:text-neutral-100" />
 							</div>
 							<p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 line-clamp-1">
 								&quot;{prompt}&quot;
@@ -293,7 +294,7 @@ export function StudioViewer({
 	if (initialLoading) {
 		return (
 			<div className="flex items-center justify-center py-20">
-				<Loader2 className="h-8 w-8 animate-spin text-neutral-900 dark:text-neutral-100" />
+				<InlineLoader size="lg" className="text-neutral-900 dark:text-neutral-100" />
 			</div>
 		);
 	}

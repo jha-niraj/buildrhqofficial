@@ -37,6 +37,7 @@ import {
     PLATFORM_TEMPLATES
 } from '@/types/resume-draft'
 import { cn } from '@repo/ui/lib/utils'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 function nanoid() { return Math.random().toString(36).slice(2, 10) }
 
@@ -504,8 +505,16 @@ function AIToolsPanel({ draftId, open, onClose, onContentUpdated }: {
         setLoading('fetch')
         const res = await extractJobDescription(jobUrl.trim())
         setLoading(null)
-        if (!res.success || !res.description) {
-            toast.error(res.error ?? 'Could not read that posting - paste the description instead')
+        // Two checks, not one. `!res.success || !res.description` looks tidier but
+        // defeats the discriminated union: TypeScript cannot narrow to the failure
+        // branch through an `||` whose right side reads a success-only field, so
+        // `res.error` stops existing. Narrow first, then guard the content.
+        if (!res.success) {
+            toast.error(res.error)
+            return
+        }
+        if (!res.description) {
+            toast.error('Could not read that posting - paste the description instead')
             return
         }
         setJd(res.description)
@@ -1152,7 +1161,7 @@ export function ResumeEditor({ draft, content: initialContent, templates }: Prop
                         onClick={handleSyncProfile}
                         title="Fill blank fields from your ShipItHQ profile. Your own edits are kept."
                     >
-                        <RefreshCw className={cn("w-3 h-3 mr-1", syncing && "animate-spin")} />
+                        {syncing ? <InlineLoader size="sm" className="mr-1" /> : <RefreshCw className="w-3 h-3 mr-1" />}
                         {syncing ? 'Syncing…' : 'Sync Profile'}
                     </Button>
                     {/* A toggle now, not a one-way open. The panel is a docked column, so

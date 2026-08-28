@@ -15,7 +15,7 @@ import type { AgentState } from '@/components/main/orb'
 const Orb = dynamic(() => import('@/components/main/orb').then(m => ({ default: m.Orb })), { ssr: false })
 import {
     Mic, MicOff, Volume2, VolumeX, Phone, PhoneOff,
-    Loader2, CheckCircle2, AlertCircle
+    CheckCircle2, AlertCircle
 } from 'lucide-react'
 import toast from '@repo/ui/components/ui/sonner'
 import { awaitBackgroundJob } from '@/hooks/use-background-job'
@@ -26,6 +26,7 @@ import {
 import { 
     processConversationCompletion 
 } from '@/actions/(main)/mockvoice/conversation.action'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface SessionVariables {
     username: string
@@ -277,7 +278,7 @@ export default function MockInterviewPage({ params }: { params: Promise<{ sessio
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin" />
+                <InlineLoader size="lg" />
             </div>
         )
     }
@@ -457,7 +458,7 @@ export default function MockInterviewPage({ params }: { params: Promise<{ sessio
                         <DialogTitle className="flex items-center gap-2">
                             {processingStatus === 'processing' && (
                                 <>
-                                    <Loader2 className="w-5 h-5 animate-spin text-neutral-800 dark:text-neutral-200" />
+                                    <InlineLoader size="md" className="text-neutral-800 dark:text-neutral-200" />
                                     Processing Your Interview
                                 </>
                             )}
@@ -491,15 +492,15 @@ export default function MockInterviewPage({ params }: { params: Promise<{ sessio
                                     className="space-y-3"
                                 >
                                     <div className="flex items-center gap-3 text-sm">
-                                        <Loader2 className="w-4 h-4 animate-spin text-neutral-800 dark:text-neutral-200" />
+                                        <InlineLoader size="sm" className="text-neutral-800 dark:text-neutral-200" />
                                         <span>Retrieving conversation details...</span>
                                     </div>
                                     <div className="flex items-center gap-3 text-sm">
-                                        <Loader2 className="w-4 h-4 animate-spin text-neutral-800 dark:text-neutral-200" />
+                                        <InlineLoader size="sm" className="text-neutral-800 dark:text-neutral-200" />
                                         <span>Generating transcript...</span>
                                     </div>
                                     <div className="flex items-center gap-3 text-sm">
-                                        <Loader2 className="w-4 h-4 animate-spin text-neutral-800 dark:text-neutral-200" />
+                                        <InlineLoader size="sm" className="text-neutral-800 dark:text-neutral-200" />
                                         <span>Preparing your feedback...</span>
                                     </div>
                                 </motion.div>

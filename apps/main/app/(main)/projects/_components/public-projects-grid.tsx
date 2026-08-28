@@ -11,6 +11,8 @@ import {
 import { ProjectV2Basic } from '@/types/project'
 import ProjectGenerateSheet from '@/components/projects/project-generate-sheet'
 
+
+
 export function PublicProjectsGrid() {
     const [projects, setProjects] = useState<ProjectV2Basic[]>([])
     const [loading, setLoading] = useState(true)

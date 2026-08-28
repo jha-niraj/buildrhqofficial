@@ -45,6 +45,16 @@ direction ("improve X"); every line is checkable.
 8. **A failed operation costs nothing.** Verified by forcing a failure and
    observing the balance return to what it was, plus a refund row in the ledger.
 
+9. **A signed-out visitor can reach the pricing page and nothing else.**
+   `/purchase` is public so someone can see what things cost before signing up.
+   Every other in-app route sends them to `/signin` with a `callbackUrl` that
+   brings them back. Added 2026-08-28 - see CR-10 for what was actually true
+   before this line existed.
+
+10. **There is one page that answers "where did my credits go".** `/credits`
+    shows the balance, every purchase with its invoice, and the full ledger. A
+    user should never have to reconstruct their spending from a toast.
+
 ## Decisions
 
 Decided by Niraj on 2026-08-20 unless noted.

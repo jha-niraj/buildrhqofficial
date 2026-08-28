@@ -5,6 +5,7 @@ import { headers } from "next/headers"
 import { db, mockVoiceSession } from "@repo/db"
 import { and, eq } from "drizzle-orm"
 import { startBackgroundJob } from "@/actions/(main)/workers/jobs.action"
+import { fetchConversation, type ConversationDetails } from "@/utils/elevenlabs/conversations"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock interview post-processing.
@@ -18,57 +19,16 @@ import { startBackgroundJob } from "@/actions/(main)/workers/jobs.action"
 // Both are now background jobs. The client starts one and polls it.
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface ConversationDetails {
-    agent_id: string
-    conversation_id: string
-    status: 'initiated' | 'in-progress' | 'processing' | 'done' | 'failed'
-    transcript: Array<{
-        role: string
-        time_in_call_secs: number
-        message: string
-    }>
-    metadata: {
-        start_time_unix_secs: number
-        call_duration_secs: number
-    }
-    has_audio: boolean
-    analysis?: {
-        call_successful: string
-        transcript_summary: string
-        evaluation_criteria_results?: Record<string, unknown>
-    }
-}
 
 /**
  * One read of a conversation, for callers that want the current state rather
  * than to wait for it. The waiting lives in the worker.
  */
-export async function getConversationDetails(conversationId: string): Promise<{
-    success: boolean
-    data?: ConversationDetails
-    error?: string
-}> {
-    try {
-        const response = await fetch(
-            `https://api.elevenlabs.io/v1/convai/conversations/${conversationId}`,
-            {
-                method: 'GET',
-                headers: {
-                    'xi-api-key': process.env.ELEVENLABS_API_KEY!,
-                },
-                cache: 'no-store'
-            }
-        )
-
-        if (!response.ok) {
-            throw new Error(`Failed to fetch conversation: ${response.statusText}`)
-        }
-
-        return { success: true, data: (await response.json()) as ConversationDetails }
-    } catch (error) {
-        console.error('Error fetching conversation details:', error)
-        return { success: false, error: 'Failed to fetch conversation details' }
-    }
+export async function getConversationDetails(conversationId: string) {
+    // A thin wrapper so existing callers do not move. The fetch itself lives in
+    // utils/elevenlabs/conversations.ts, shared with the project mock flow -
+    // see plan/mock-consolidation/, MC-1.
+    return fetchConversation(conversationId)
 }
 
 /**

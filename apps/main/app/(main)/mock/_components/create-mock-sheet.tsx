@@ -16,7 +16,7 @@ import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@repo/ui/components/ui/select'
 import {
-    Sparkles, FileText, Globe, Lock, Loader2, CheckCircle, AlertCircle,
+    Sparkles, FileText, Globe, Lock, CheckCircle, AlertCircle,
     Brain, ArrowRight, ArrowLeft, BookOpen, Check
 } from 'lucide-react'
 import toast from '@repo/ui/components/ui/sonner'
@@ -27,6 +27,7 @@ import { MockCategory } from '@repo/db'
 import { useRouter } from 'next/navigation'
 import { cn } from '@repo/ui/lib/utils'
 import Link from 'next/link'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface CreateMockSheetProps {
     trigger?: React.ReactNode
@@ -339,7 +340,7 @@ export function CreateMockSheet({
                                                             progressPercent >= item.threshold + 20 ? (
                                                                 <Check className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
                                                             ) : progressPercent >= item.threshold ? (
-                                                                <Loader2 className="w-5 h-5 text-neutral-900 dark:text-neutral-100 animate-spin" />
+                                                                <InlineLoader size="md" className="text-neutral-900 dark:text-neutral-100" />
                                                             ) : (
                                                                 <div className="w-5 h-5 rounded-full border-2 border-neutral-300 dark:border-neutral-700" />
                                                             )

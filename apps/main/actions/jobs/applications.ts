@@ -363,7 +363,7 @@ export async function getMyApplications(status?: string) {
                             .map(a => (a.job as any).interviewProcessId)
                             .filter(Boolean) as string[]
                     ),
-                    with: { rounds: { orderBy: (r: any, { asc }: any) => [asc(r.roundNumber)] } },
+                    with: { rounds: { orderBy: (r, { asc }) => [asc(r.roundNumber)] } },
                 })
                 : [],
             appIds.length > 0
@@ -423,7 +423,7 @@ export async function getApplicationDetails(applicationId: string) {
                     with: { company: true },
                 },
                 activities: {
-                    orderBy: (t: any, { desc }: any) => [desc(t.createdAt)],
+                    orderBy: (t, { desc }) => [desc(t.createdAt)],
                 },
             },
         })
@@ -437,7 +437,7 @@ export async function getApplicationDetails(applicationId: string) {
             (application.job as any).interviewProcessId
                 ? db.query.interviewProcesses.findFirst({
                     where: eq(interviewProcesses.id, (application.job as any).interviewProcessId),
-                    with: { rounds: { orderBy: (r: any, { asc }: any) => [asc(r.roundNumber)] } },
+                    with: { rounds: { orderBy: (r, { asc }) => [asc(r.roundNumber)] } },
                 })
                 : null,
             db.query.interviewPrepProgress.findFirst({

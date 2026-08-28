@@ -18,6 +18,8 @@ import { QuizVerification } from './quiz-verification'
 import { CodingVerification } from './coding-verification'
 import { MockVerification } from './mock-verification'
 import { ProjectVerification } from './project-verification'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { AnimatedIcon } from "@repo/ui/components/animated-icons"
 
 interface AIPlan {
     quizQuestions?: {
@@ -94,7 +96,7 @@ interface VerificationContentProps {
 const statusIcons: Record<VerificationSectionStatus, React.ReactNode> = {
     LOCKED: <Lock className="w-4 h-4" />,
     PENDING: <div className="w-4 h-4 rounded-full border-2 border-current" />,
-    IN_PROGRESS: <div className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" />,
+    IN_PROGRESS: <InlineLoader size="sm" />,
     COMPLETED: <CheckCircle2 className="w-4 h-4" />,
     FAILED: <XCircle className="w-4 h-4" />,
 }
@@ -152,7 +154,7 @@ function CompletionScreen({ verification }: { verification: Verification }) {
                 <div className={`w-24 h-24 mx-auto rounded-full ${passed ? 'bg-neutral-900' : 'bg-red-500'} flex items-center justify-center mb-6`}>
                     {
                         passed ? (
-                            <Trophy className="w-12 h-12 text-white" />
+                            <AnimatedIcon name="trophy" size={48} motion="always" className="text-white" />
                         ) : (
                             <XCircle className="w-12 h-12 text-white" />
                         )

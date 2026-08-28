@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    PenLine, Plus, Loader2, X, ExternalLink,
+    PenLine, Plus, X, ExternalLink,
 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import Link from "next/link";
@@ -15,6 +15,7 @@ import {
 import toast from "@repo/ui/components/ui/sonner";
 import { useStudioStore } from "@/app/store/studioStore";
 import type { StudioWithSteps } from "@/types/studios";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface StudioPanelProps {
     /** Whether the panel is visible */
@@ -246,7 +247,7 @@ export function StudioPanel({
                                         {
                                             isCreatingStudio ? (
                                                 <>
-                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                    <InlineLoader size="sm" className="mr-2" />
                                                     Creating...
                                                 </>
                                             ) : (

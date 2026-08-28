@@ -6,9 +6,9 @@ Derived from `overview.md`.
 |---|---|---|---|
 | KM-1 | Deleting a profile deletes its vectors | 2 | done (2026-08-27) |
 | KM-2 | Put KnowMe back in the nav | - | done (2026-08-27) |
-| KM-3 | Verify the loop end to end with a real profile | 1 | not started - the next task when this is picked up |
-| KM-4 | Recruiter verification on the public chat | 3 | deferred (2026-08-27) |
-| KM-5 | The remaining platform handlers | 1 | deferred (2026-08-27) |
+| KM-3 | Verify the loop end to end with a real profile | 1 | BLOCKED on the Vectorize index (2026-08-28) |
+| KM-4 | Recruiter verification on the public chat | 3 | decided (2026-08-28) |
+| KM-5 | The remaining platform handlers | 1 | done (2026-08-28) |
 | KM-6 | One shared user-knowledge source | - | deferred (2026-08-27) |
 
 ---
@@ -71,6 +71,23 @@ API with a key.
 **Done when** a profile answers a real question from a signed-out browser, and
 the analytics page shows that question.
 
+**BLOCKED 2026-08-28, on infrastructure rather than code.** The vector store was
+migrated from Upstash to Cloudflare Vectorize, and the index does not exist yet.
+Locally there is no binding either (`next dev` is not a Worker), and the REST
+fallback's `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN` are unset, so
+`generateProfileEmbeddings` cannot write a single vector. Every step after
+"add personal data" is unreachable.
+
+Unblocks the moment these are run (they are also in `.env.example`):
+
+    npx wrangler vectorize create shipithq-knowme --dimensions=1024 --metric=cosine
+    npx wrangler vectorize create-metadata-index shipithq-knowme --property-name=profileId --type=string
+    npx wrangler vectorize create-metadata-index shipithq-knowme --property-name=sourceType --type=string
+
+The metadata index is not optional. Tenant isolation is a `profileId` filter, so
+without it every query returns empty rather than erroring - which would look
+exactly like "the loop does not work".
+
 ---
 
 ## KM-4 - Recruiter verification
@@ -78,10 +95,28 @@ the analytics page shows that question.
 **Status:** not started
 **Serves:** definition-of-done 3
 
-`chat.action.ts:83` is `// TODO: Check if user is a verified recruiter`. Today
+`chat.action.ts:83` was `// TODO: Check if user is a verified recruiter`. Today
 anyone can ask anything of any active profile. Decide whether that is the product
 (a public persona is public) or whether asking requires an identified caller -
 this is a product decision, not a bug, and it changes what the module IS.
+
+**DECIDED 2026-08-28, Niraj: a public persona is public.** Consistent with the
+earlier call to keep KnowMe as an ask-anything API surface rather than a gated
+one.
+
+What already protects it, and is enough:
+
+- `allowAnonymous` and `allowRegisteredUsers` on the owner's privacy settings,
+  both checked before a session opens.
+- A per-session rate limit, default 20 questions with a one-hour reset.
+
+Why the recruiter gate is not built: this product has **no recruiter identity** -
+no role, no verification flow, no way to become one. `RECRUITER` is therefore a
+viewer type nothing can produce, and a gate nobody can pass is not a gate.
+`know_me_privacy_settings.allow_recruiters` stays dormant for the same reason;
+it is not surfaced in the settings UI and is read by nothing, so it promises the
+user nothing. The TODO is replaced with the reasoning so the next reader does not
+"finish" it.
 
 ---
 
@@ -89,9 +124,26 @@ this is a product decision, not a bug, and it changes what the module IS.
 
 **Status:** not started
 
-`data.action.ts:484` is `// TODO: Add other platform handlers`. The settings
+`data.action.ts:484` was `// TODO: Add other platform handlers`. The settings
 screen offers to connect platforms; one is implemented. Either build the rest or
 stop offering them.
+
+**DONE 2026-08-28: stopped offering them.** The onboarding wizard advertised
+GitHub, LeetCode, StackOverflow and LinkedIn. Only GitHub has a handler; the
+other three hit a silent `break` in the sync switch, so connecting one reported
+success, wrote zero external data, and left the user unable to tell "synced,
+found nothing" from "never ran". The list now shows GitHub alone, and the switch
+has a `default` that THROWS with the platform name instead of falling through.
+
+**The reason LinkedIn was not simply implemented is worth recording.**
+`utils/truefolio/linkedin.ts` exports `fetchLinkedInData(username)`, has zero
+callers, and looks exactly like the missing handler. It returns **mock data** - a
+hardcoded fake profile, labelled as such in its own comment. Wiring it would have
+filled a real person's public, strangers-can-query-it persona with invented
+employment history, which is the defamation risk KM-3's own edge cases warn
+about. The real LinkedIn path in this repo is the Exa-backed scrape inside the
+`resume_import` worker job; that is what to reuse if LinkedIn is ever connected
+here.
 
 ---
 

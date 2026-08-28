@@ -10,6 +10,7 @@ import { eq, and } from "drizzle-orm"
 import {
     AssignmentContent, type Application as AssignmentApplication
 } from "./assignment-content"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface AssignmentPageProps {
     params: Promise<{
@@ -104,7 +105,7 @@ export default async function AssignmentPage({ params }: AssignmentPageProps) {
         <Suspense
             fallback={
                 <div className="min-h-screen flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                    <InlineLoader size="lg" className="text-neutral-400" />
                 </div>
             }
         >

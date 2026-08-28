@@ -5,6 +5,7 @@ import {
 } from "lucide-react"
 import { getJobBySlug } from "@/actions/jobs"
 import { JobDetailContent } from "./job-detail-content"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface JobDetailPageProps {
     params: Promise<{ slug: string }>
@@ -36,7 +37,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
         <Suspense 
             fallback={
                 <div className="min-h-full flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                    <InlineLoader size="lg" className="text-neutral-400" />
                 </div>
             }
         >

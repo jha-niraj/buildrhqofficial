@@ -3,7 +3,7 @@
 import { getSession } from "@repo/auth";
 import { headers } from "next/headers";
 import { db, projectV2Resources, projectsV2 } from "@repo/db";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, type SQL } from "drizzle-orm";
 import { revalidatePath } from "next/cache"
 
 /**
@@ -85,7 +85,7 @@ export async function getProjectResources(params: {
     type?: string
 }) {
     try {
-        const conditions: any[] = [eq(projectV2Resources.projectId, params.projectId)]
+        const conditions: SQL[] = [eq(projectV2Resources.projectId, params.projectId)]
 
         if (params.type) {
             conditions.push(eq(projectV2Resources.type, params.type as any))

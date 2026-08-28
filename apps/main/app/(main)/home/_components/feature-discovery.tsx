@@ -50,7 +50,7 @@ const features: Feature[] = [
         title: "Job Interview Assistant",
         description: "AI-powered interview preparation",
         icon: Briefcase,
-        href: "/ai/interviewassistant",
+        href: "/pathfinder",
         color: "text-neutral-900",
         bgColor: "bg-neutral-900/10",
         status: "available",

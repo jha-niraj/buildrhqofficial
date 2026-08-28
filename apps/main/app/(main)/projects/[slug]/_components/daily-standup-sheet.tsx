@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import {
-    Calendar, Clock, Loader2, CheckCircle2, AlertCircle, Trophy, X
+    Calendar, Clock, CheckCircle2, AlertCircle, Trophy, X
 } from 'lucide-react'
 import { Button } from '@repo/ui/components/ui/button'
 import {
@@ -15,6 +15,7 @@ import {
 } from '@/actions/(main)/projects/standup.action'
 import { Label } from '@repo/ui/components/ui/label'
 import { Slider } from '@repo/ui/components/ui/slider'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface DailyStandupSheetProps {
     isOpen: boolean
@@ -172,7 +173,7 @@ export default function DailyStandupSheet({
                 {
                     isChecking ? (
                         <div className="flex items-center justify-center py-12">
-                            <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                            <InlineLoader size="lg" className="text-neutral-400" />
                         </div>
                     ) : hasConfig && config ? (
                         <div className="space-y-6">
@@ -375,7 +376,7 @@ export default function DailyStandupSheet({
                                     {
                                         isCreating ? (
                                             <>
-                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                <InlineLoader size="sm" />
                                                 Setting up...
                                             </>
                                         ) : (

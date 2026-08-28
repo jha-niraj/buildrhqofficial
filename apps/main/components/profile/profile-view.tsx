@@ -4,7 +4,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Pencil, Share2, Settings, Plus, MapPin, Building2, Globe, GraduationCap, Briefcase, Sparkles, Zap, FolderKanban, Users, ExternalLink, Calendar, FileText, ArrowRight, UserPlus, UserCheck, Loader2, Upload, Eye, Trash2, Camera } from "lucide-react";
+import { Pencil, Share2, Settings, Plus, MapPin, Building2, Globe, GraduationCap, Briefcase, Sparkles, Zap, FolderKanban, Users, ExternalLink, Calendar, FileText, ArrowRight, UserPlus, UserCheck, Upload, Eye, Trash2, Camera } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { InlineLoader } from "@repo/ui/components/ui/inline-loader";
@@ -365,7 +365,7 @@ export function ProfileView({
                                             disabled={followPending}
                                         >
                                             {followPending ? (
-                                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                <InlineLoader size="sm" />
                                             ) : isFollowing ? (
                                                 <UserCheck className="h-3.5 w-3.5" />
                                             ) : (
@@ -643,7 +643,7 @@ export function ProfileView({
                                                 onClick={() => resumeInputRef.current?.click()}
                                             >
                                                 {resumeBusy
-                                                    ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                    ? <InlineLoader size="sm" />
                                                     : <Upload className="h-3.5 w-3.5" />}
                                                 Replace
                                             </Button>
@@ -680,7 +680,7 @@ export function ProfileView({
                                         )}
                                     >
                                         {resumeBusy
-                                            ? <Loader2 className="h-5 w-5 animate-spin text-neutral-500 dark:text-neutral-400" />
+                                            ? <InlineLoader size="md" className="text-neutral-500 dark:text-neutral-400" />
                                             : <Upload className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />}
                                         <span className="text-sm font-medium text-neutral-900 dark:text-white">
                                             {resumeBusy ? "Uploading…" : "Upload your resume"}

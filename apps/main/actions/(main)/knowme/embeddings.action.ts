@@ -10,6 +10,8 @@ import {
     users,
     knowMeCreditTransactions,
     skills,
+    portfolioProjects,
+    projectLinks,
 } from "@repo/db";
 import { eq, and, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -54,13 +56,13 @@ export async function generateProfileEmbeddings(): Promise<
 				with: {
 					user: true,
 					personalData: {
-						where: (pd: any, { eq }: any) => eq(pd.isActive, true),
+						where: (pd, { eq }) => eq(pd.isActive, true),
 					},
 					platformConnections: {
-						where: (pc: any, { eq }: any) => eq(pc.isConnected, true),
+						where: (pc, { eq }) => eq(pc.isConnected, true),
 					},
 					externalData: {
-						where: (ed: any, { eq }: any) => eq(ed.isActive, true),
+						where: (ed, { eq }) => eq(ed.isActive, true),
 					},
 				},
 			}),
@@ -243,7 +245,11 @@ async function processEmbeddings(profile: {
 		url: string | null;
 		techStack: string[];
 	}[];
-	portfolioProjects: any[];
+	// DERIVED from the schema, not `any[]`. As `any[]` the `links` lookups below
+	// were unchecked, so a renamed column would have failed silently at runtime.
+	portfolioProjects: (typeof portfolioProjects.$inferSelect & {
+		links?: (typeof projectLinks.$inferSelect)[];
+	})[];
 	platformProjects: any[];
 	examAttempts: any[];
 }): Promise<{
@@ -270,7 +276,7 @@ async function processEmbeddings(profile: {
 		email: profile.user.email,
 	});
 
-	bioChunks.forEach((chunk: any, index: number) => {
+	bioChunks.forEach((chunk, index) => {
 		allChunks.push({
 			id: generateVectorId(profile.id, "PROFILE", profile.id, index),
 			text: chunk.text,
@@ -291,7 +297,7 @@ async function processEmbeddings(profile: {
 					data.contentText,
 					{ title: data.title || undefined }
 				);
-				chunks.forEach((chunk: any, index: number) => {
+				chunks.forEach((chunk, index) => {
 					allChunks.push({
 						id: generateVectorId(profile.id, data.dataType as any, data.id, index),
 						text: chunk.text,
@@ -309,8 +315,8 @@ async function processEmbeddings(profile: {
 	if (profile.includeProjects && profile.portfolioProjects.length > 0) {
 		for (const project of profile.portfolioProjects) {
 			try {
-				const githubLink = project.links?.find((l: any) => l.linkType.toLowerCase() === 'github')?.url;
-				const liveLink = project.links?.find((l: any) => l.linkType.toLowerCase() === 'live demo')?.url;
+				const githubLink = project.links?.find((l) => l.linkType.toLowerCase() === 'github')?.url;
+				const liveLink = project.links?.find((l) => l.linkType.toLowerCase() === 'live demo')?.url;
 
 				const chunks = createProjectChunks(profile.id, project.id, {
 					title: project.projectName,
@@ -319,7 +325,7 @@ async function processEmbeddings(profile: {
 					url: githubLink || liveLink || undefined,
 				});
 
-				chunks.forEach((chunk: any, index: number) => {
+				chunks.forEach((chunk, index) => {
 					allChunks.push({
 						id: generateVectorId(profile.id, "PROJECT", `portfolio_${project.id}`, index),
 						text: chunk.text,
@@ -344,7 +350,7 @@ async function processEmbeddings(profile: {
 					url: `/projects/${project.slug}`,
 				});
 
-				chunks.forEach((chunk: any, index: number) => {
+				chunks.forEach((chunk, index) => {
 					allChunks.push({
 						id: generateVectorId(profile.id, "PROJECT", `platform_${project.id}`, index),
 						text: chunk.text,
@@ -370,7 +376,7 @@ async function processEmbeddings(profile: {
 					completedAt: attempt.completedAt || new Date(),
 				});
 
-				chunks.forEach((chunk: any, index: number) => {
+				chunks.forEach((chunk, index) => {
 					allChunks.push({
 						id: generateVectorId(profile.id, "ASSESSMENT", attempt.id, index),
 						text: chunk.text,
@@ -410,7 +416,7 @@ async function processEmbeddings(profile: {
 					});
 				}
 
-				chunks.forEach((chunk: any, index: number) => {
+				chunks.forEach((chunk, index) => {
 					allChunks.push({
 						id: generateVectorId(profile.id, data.dataType as any, data.id, index),
 						text: chunk.text,

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import {
     Building2, Target, CheckCircle2, AlertCircle, GraduationCap,
-    ArrowRight, ExternalLink, Loader2, Award
+    ArrowRight, ExternalLink, Award
 } from "lucide-react"
 import { Button } from "@repo/ui/components/ui/button"
 import { Badge } from "@repo/ui/components/ui/badge"
@@ -17,6 +17,7 @@ import {
     getShouldApplyScore, getSkillGapForJob,
     type FeedJobResult, type ShouldApplyScore, type SkillGapAnalysis
 } from "@/actions/jobs"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface SkillGapModalProps {
     job: FeedJobResult | null
@@ -91,7 +92,7 @@ export function SkillGapModal({ job, open, onClose }: SkillGapModalProps) {
 
                 {loading ? (
                     <div className="py-12 flex items-center justify-center">
-                        <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                        <InlineLoader size="lg" className="text-neutral-400" />
                     </div>
                 ) : (
                     <div className="space-y-6 mt-4">

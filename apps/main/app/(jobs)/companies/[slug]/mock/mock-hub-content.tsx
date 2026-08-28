@@ -187,7 +187,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
         <div className="min-h-screen flex flex-col">
             {/* Header */}
             <div className="bg-gradient-to-r from-neutral-800 via-neutral-800 to-neutral-800 text-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
                     <Button
                         variant="ghost"
                         size="sm"
@@ -249,7 +249,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
 
             {/* Score Threshold Notice */}
             <div className="bg-neutral-50 dark:bg-neutral-800/20 border-b border-neutral-200 dark:border-neutral-800">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+                <div className="w-full px-4 sm:px-6 lg:px-8 py-3">
                     <div className="flex items-center gap-2 text-sm text-neutral-800 dark:text-neutral-100">
                         <AlertCircle className="w-4 h-4 shrink-0" />
                         <span>
@@ -265,7 +265,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                 mocks below `lg` instead of squeezed beside them. The fixed width
                 stays `lg:`-scoped for the same reason. See
                 docs/responsiveness.md section 3. */}
-            <div className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full">
+            <div className="flex-1 flex flex-col lg:flex-row w-full">
                 {/* Sidebar - Job Roles */}
                 <div className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
                     <div className="p-4 border-b border-neutral-200 dark:border-neutral-800">

@@ -36,7 +36,7 @@ export async function getCompanyMockHub(companySlug: string) {
             ),
             with: {
                 rounds: {
-                    orderBy: (r: any, { asc }: any) => [asc(r.roundNumber)],
+                    orderBy: (r, { asc }) => [asc(r.roundNumber)],
                     columns: {
                         id: true,
                         roundNumber: true,
@@ -182,116 +182,5 @@ export async function getCompanyMockHub(companySlug: string) {
     } catch (error) {
         console.error("Error fetching company mock hub:", error)
         return { success: false, error: "Failed to fetch mock hub data" }
-    }
-}
-
-// Start a new mock session for a company round
-export async function startCompanyMockSession(companySlug: string, roundId: string, jobId?: string) {
-    try {
-        const session = await getSession(headers())
-        if (!session?.user?.id) {
-            return { success: false, error: "Please sign in to practice" }
-        }
-
-        const company = await db.query.companies.findFirst({
-            where: eq(companies.slug, companySlug),
-            columns: { id: true },
-        })
-
-        if (!company) {
-            return { success: false, error: "Company not found" }
-        }
-
-        // Verify round belongs to company and has mock enabled
-        const round = await db.query.interviewRounds.findFirst({
-            where: and(
-                eq(interviewRounds.id, roundId),
-                eq(interviewRounds.hasMockInterview, true)
-            ),
-            with: {
-                process: {
-                    columns: { companyId: true },
-                },
-            },
-        })
-
-        if (!round || round.process.companyId !== company.id) {
-            return { success: false, error: "Invalid round or mock not available" }
-        }
-
-        const [mockSession] = await db.insert(jobMockSessions).values({
-            userId: session.user.id,
-            companyId: company.id,
-            roundId,
-            jobId,
-            sessionType: "VOICE",
-            status: "SCHEDULED",
-        }).returning()
-
-        return { success: true, data: mockSession }
-    } catch (error) {
-        console.error("Error starting mock session:", error)
-        return { success: false, error: "Failed to start mock session" }
-    }
-}
-
-// Get user's mock history for a company
-export async function getUserCompanyMockHistory(companySlug: string) {
-    try {
-        const session = await getSession(headers())
-        if (!session?.user?.id) {
-            return { success: false, error: "Please sign in" }
-        }
-
-        const company = await db.query.companies.findFirst({
-            where: eq(companies.slug, companySlug),
-            columns: { id: true },
-        })
-
-        if (!company) {
-            return { success: false, error: "Company not found" }
-        }
-
-        const sessions = await db.query.jobMockSessions.findMany({
-            where: and(
-                eq(jobMockSessions.userId, session.user.id),
-                eq(jobMockSessions.companyId, company.id)
-            ),
-            with: {
-                round: {
-                    columns: {
-                        title: true,
-                        roundType: true,
-                        roundNumber: true,
-                    },
-                },
-            },
-            orderBy: desc(jobMockSessions.createdAt),
-            limit: 20,
-        })
-
-        // Load job info separately (jobMockSessions.jobId is a plain nullable text field)
-        const jobIds = sessions
-            .map(s => s.jobId)
-            .filter((id): id is string => !!id)
-
-        const jobRows = jobIds.length > 0
-            ? await db.query.jobs.findMany({
-                where: inArray(jobs.id, jobIds),
-                columns: { id: true, title: true, slug: true },
-            })
-            : []
-
-        const jobMap = new Map(jobRows.map(j => [j.id, j]))
-
-        const enrichedSessions = sessions.map(s => ({
-            ...s,
-            job: s.jobId ? (jobMap.get(s.jobId) ?? null) : null,
-        }))
-
-        return { success: true, data: enrichedSessions }
-    } catch (error) {
-        console.error("Error fetching mock history:", error)
-        return { success: false, error: "Failed to fetch mock history" }
     }
 }

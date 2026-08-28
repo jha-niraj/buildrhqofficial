@@ -21,19 +21,24 @@ import { users } from "./schema";
  * job written with a type string the poller does not recognise is a job nobody
  * can ever observe finishing - it just sits at `queued` forever.
  */
+// Every value here is a job the worker can actually RUN. That is the invariant,
+// and it did not hold: five types - project_assessment, project_mock,
+// resource_generation, task_details and voice_transcription - were declared here
+// with no Durable Object behind them and, as it turned out, no dispatch site
+// anywhere in the app either. Removed 2026-08-28.
+//
+// A declared-but-unbound type is not harmless. `startBackgroundJob` accepts it,
+// writes the row, holds the credits, and only then does `jobStub` fail to
+// resolve a binding - so the user pays for a job that can never run. Keep this
+// list and `JOB_BINDINGS` in apps/worker/src/env.ts in agreement.
 export const JOB_TYPES = [
     "project_generation",
     "project_quiz",
-    "project_assessment",
-    "project_mock",
     "sprint_generation",
-    "task_details",
     "standup_voice",
     "verification_generation",
     "subgoal_generation",
     "goal_creation",
-    "resource_generation",
-    "voice_transcription",
     // The two halves of a mock interview: waiting for ElevenLabs to produce the
     // transcript, then scoring it. Separate job types because they are separate
     // waits with separate failure modes - a transcript can arrive and the
@@ -59,6 +64,7 @@ export const JOB_TYPES = [
     "resume_ats_score",
     "cover_letter_questions",
     "resume_import",
+    "interview_prep_generation",
 ] as const;
 
 export type JobType = (typeof JOB_TYPES)[number];

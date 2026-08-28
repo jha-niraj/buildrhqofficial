@@ -2,7 +2,7 @@
 
 export default function AnalyticsSkeleton() {
     return (
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="w-full px-4 py-8">
             <div className="mb-8">
                 <div className="h-8 w-48 bg-slate-200 dark:bg-neutral-800 rounded-lg animate-pulse mb-2" />
                 <div className="h-4 w-64 bg-slate-200 dark:bg-neutral-800 rounded animate-pulse" />

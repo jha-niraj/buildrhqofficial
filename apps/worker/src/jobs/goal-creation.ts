@@ -78,17 +78,34 @@ export class GoalCreation extends JobDurableObject<GoalCreationInput> {
         today.setHours(0, 0, 0, 0)
         const todayStr = today.toISOString().split("T")[0] as string
 
-        let dailySession = await db.query.pathfinderDailySessions.findFirst({
-            where: and(eq(pathfinderDailySessions.goalId, goalId), eq(pathfinderDailySessions.date, todayStr)),
-        })
-        if (!dailySession) {
-            const [created] = await db
-                .insert(pathfinderDailySessions)
-                .values({ goalId, userId: job.userId, date: todayStr })
-                .returning()
-            if (!created) throw new Error("Could not open a session for this plan")
-            dailySession = created
-        }
+        // `onConflictDoNothing`, not read-then-write. See IP-10.
+        //
+        // The find-then-insert this replaces lost the race in a live run of the
+        // sibling job: `createPathfinderGoal` returns a slug, the user lands on
+        // the goal page, the page opens today's session - and this job is opening
+        // one at the same moment. Both see nothing, both insert, and the loser
+        // gets
+        //
+        //     duplicate key value violates unique constraint "idx_pfds_goal_id_date"
+        //
+        // which fails the whole plan after the credits are already held. The
+        // unique index is the authority, so let it arbitrate and read back
+        // whichever row won.
+        const [inserted] = await db
+            .insert(pathfinderDailySessions)
+            .values({ goalId, userId: job.userId, date: todayStr })
+            .onConflictDoNothing()
+            .returning()
+
+        const dailySession =
+            inserted ??
+            (await db.query.pathfinderDailySessions.findFirst({
+                where: and(
+                    eq(pathfinderDailySessions.goalId, goalId),
+                    eq(pathfinderDailySessions.date, todayStr),
+                ),
+            }))
+        if (!dailySession) throw new Error("Could not open a session for this plan")
 
         // All the sub-goals in ONE insert rather than a loop of N.
         //
@@ -99,7 +116,7 @@ export class GoalCreation extends JobDurableObject<GoalCreationInput> {
         await db.insert(pathfinderSubGoals).values(
             topics.map((t) => ({
                 goalId,
-                sessionId: dailySession!.id,
+                sessionId: dailySession.id,
                 title: t.title,
                 description: t.description,
                 source: "text" as const,

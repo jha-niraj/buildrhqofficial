@@ -3,12 +3,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    Play, Loader2, CheckCircle2, XCircle, ChevronDown, ChevronUp,
+    Play, CheckCircle2, XCircle, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { ScrollArea } from "@repo/ui/components/ui/scroll-area";
 import { cn } from "@repo/ui/lib/utils";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface TestCase {
     id: string;
@@ -150,7 +151,7 @@ export function APITester({ testCases, onRunTest, code }: APITesterProps) {
                                         disabled={isRunning}
                                     >
                                         {isRunning ? (
-                                            <Loader2 className="h-3 w-3 animate-spin" />
+                                            <InlineLoader size="sm" />
                                         ) : (
                                             <Play className="h-3 w-3" />
                                         )}

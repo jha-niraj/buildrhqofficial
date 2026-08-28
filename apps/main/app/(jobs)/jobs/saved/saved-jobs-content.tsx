@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
-    Bookmark, Loader2, ChevronDown, UserCheck,
+    Bookmark, ChevronDown, UserCheck,
     Sparkles
 } from "lucide-react"
 import { Button } from "@repo/ui/components/ui/button"
@@ -12,6 +12,7 @@ import { JobCard } from "../components/job-card"
 import { SkillGapModal } from "../components/skill-gap-modal"
 import { getSavedFeedJobs, toggleSaveJob, type FeedJobResult } from "@/actions/jobs"
 import { toast } from "@repo/ui/components/ui/sonner"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface SavedJobsContentProps {
     initialData: {
@@ -138,7 +139,7 @@ export function SavedJobsContent({ initialData, isAuthenticated }: SavedJobsCont
                         disabled={loading}
                     >
                         {loading ? (
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            <InlineLoader size="sm" className="mr-2" />
                         ) : (
                             <ChevronDown className="w-4 h-4 mr-2" />
                         )}

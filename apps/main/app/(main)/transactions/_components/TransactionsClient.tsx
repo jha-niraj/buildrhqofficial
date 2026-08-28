@@ -19,6 +19,7 @@ import { format } from "date-fns"
 import Link from "next/link"
 import { getMyReferrals } from "@/actions/(main)/user/referral.action"
 import { REFERRAL_XP, type ReferralSummary } from "@/lib/referrals"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface CreditTransaction {
 	id: string
@@ -221,7 +222,7 @@ export default function TransactionsPage({ embedded = false }: { embedded?: bool
 							variant="outline"
 							className="gap-2 border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900"
 						>
-							<RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+							{refreshing ? <InlineLoader size="sm" /> : <RefreshCw className="h-4 w-4" />}
 							Refresh
 						</Button>
 					</motion.div>

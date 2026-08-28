@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
-    LayoutList, Search, Filter, Loader2, ChevronDown,
+    LayoutList, Search, Filter, ChevronDown,
     Briefcase, Sparkles
 } from "lucide-react"
 import { Button } from "@repo/ui/components/ui/button"
@@ -16,6 +16,7 @@ import { JobCard } from "../components/job-card"
 import { SkillGapModal } from "../components/skill-gap-modal"
 import { getForYouFeedJobs, toggleSaveJob, type FeedJobResult } from "@/actions/jobs"
 import { toast } from "@repo/ui/components/ui/sonner"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface BrowseContentProps {
     initialData: {
@@ -167,7 +168,7 @@ export function BrowseContent({ initialData, isAuthenticated }: BrowseContentPro
                         disabled={loading}
                     >
                         {loading ? (
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            <InlineLoader size="sm" className="mr-2" />
                         ) : (
                             <ChevronDown className="w-4 h-4 mr-2" />
                         )}

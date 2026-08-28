@@ -3,13 +3,14 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import {
-	Code, Play, Loader2, RotateCcw, CheckCircle, XCircle, Save, Check
+	Code, Play, RotateCcw, CheckCircle, XCircle, Save, Check
 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import dynamic from "next/dynamic";
 import { saveStep } from "@/actions/(main)/studios/studio.actions";
 import toast from "@repo/ui/components/ui/sonner";
 import type { StudioStep, CodeMetadata } from "@/types/studios";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 const CodeEditor = dynamic(() => import("@/components/main/code-editor"), { ssr: false });
 
@@ -163,7 +164,7 @@ export function CodeStep({ step, studioId }: CodeStepProps) {
 						>
 							{
 								isRunning ? (
-									<Loader2 className="h-4 w-4 animate-spin" />
+									<InlineLoader size="sm" />
 								) : (
 									<Play className="h-4 w-4" />
 								)

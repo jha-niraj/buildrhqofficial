@@ -15,6 +15,7 @@ export { CoverLetterQuestions } from "./cover-letter-questions"
 export { ResumeImport } from "./resume-import"
 export { SubGoalGeneration } from "./subgoal-generation"
 export { GoalCreation } from "./goal-creation"
+export { InterviewPrepGeneration } from "./interview-prep-generation"
 
 /**
  * Resolve the Durable Object that owns a job type.

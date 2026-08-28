@@ -1,3 +1,4 @@
+import { elevenLabsKey } from "@/utils/elevenlabs/conversations"
 const ELEVENLABS_API = "https://api.elevenlabs.io/v1"
 
 export interface ElevenLabsTranscriptionResult {
@@ -34,9 +35,12 @@ export async function transcribeWithElevenLabs(
 	options: ElevenLabsTranscriptionOptions = {}
 ): Promise<ElevenLabsTranscriptionResult> {
 	try {
-		const apiKey = process.env.ELEVENLABS_AI_KEY
+		// Reads ELEVENLABS_API_KEY first, falling back to ELEVENLABS_AI_KEY. Only
+		// the former is ever set, so reading only the latter - as this did - meant
+		// transcription reported "not configured" permanently.
+		const apiKey = elevenLabsKey()
 		if (!apiKey) {
-			return { success: false, error: "ELEVENLABS_AI_KEY is not configured" }
+			return { success: false, error: "ELEVENLABS_API_KEY is not configured" }
 		}
 
 		const maxSize = 1024 * 1024 * 1024
@@ -137,7 +141,7 @@ export async function detailedTranscribeWithElevenLabs(
 }
 
 export function isElevenLabsConfigured(): boolean {
-	return !!process.env.ELEVENLABS_AI_KEY?.trim()
+	return !!elevenLabsKey()?.trim()
 }
 
 export function getElevenLabsInfo() {

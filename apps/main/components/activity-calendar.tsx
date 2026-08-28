@@ -17,6 +17,7 @@ import {
     DailyActivitySummary, getActivityCalendar, getDailyActivitySummary, getUserStreak,
     StreakInfo
 } from '@/actions/(main)/user/activity.action';
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface DayActivity {
     date: Date;
@@ -393,7 +394,7 @@ const ActivityCalendar: React.FC<ActivityCalendarProps> = ({ className = "" }) =
                                     {
                                         loadingDailySummary ? (
                                             <div className="flex items-center justify-center py-12">
-                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900"></div>
+                                                <InlineLoader size="lg" />
                                             </div>
                                         ) : selectedDay.hasActivity && dailySummary ? (
                                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

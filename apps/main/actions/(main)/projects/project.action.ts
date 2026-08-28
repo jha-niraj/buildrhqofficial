@@ -17,7 +17,7 @@ import {
     projectV2Submissions,
     withTransaction
 } from "@repo/db";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, type SQL } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { toErrorMessage } from "@/lib/errors"
 import { debitCredits, insufficientCreditsMessage } from '@/lib/credits/debit'
@@ -82,13 +82,13 @@ export async function getProjectBySlug(slug: string): Promise<ActionResponse> {
                     },
                 },
                 pages: {
-                    orderBy: (pages: any, { asc }: any) => [asc(pages.orderIndex)],
+                    orderBy: (pages, { asc }) => [asc(pages.orderIndex)],
                 },
                 sprints: {
-                    orderBy: (sprints: any, { asc }: any) => [asc(sprints.orderIndex)],
+                    orderBy: (sprints, { asc }) => [asc(sprints.orderIndex)],
                     with: {
                         tasks: {
-                            orderBy: (tasks: any, { asc }: any) => [asc(tasks.orderIndex)],
+                            orderBy: (tasks, { asc }) => [asc(tasks.orderIndex)],
                             with: {
                                 taskDetail: true,
                             },
@@ -98,7 +98,7 @@ export async function getProjectBySlug(slug: string): Promise<ActionResponse> {
                 quiz: {
                     with: {
                         questions: {
-                            orderBy: (questions: any, { asc }: any) => [asc(questions.orderIndex)],
+                            orderBy: (questions, { asc }) => [asc(questions.orderIndex)],
                             columns: {
                                 id: true,
                                 difficulty: true,
@@ -161,7 +161,7 @@ export async function startProject(projectId: string): Promise<ActionResponse> {
         }
 
         // Flatten tasks from all sprints
-        const allTasks = project.sprints.flatMap((sprint: any) => sprint.tasks);
+        const allTasks = project.sprints.flatMap((sprint) => sprint.tasks);
 
         // Create progress record
         const [progress] = await db.insert(userProjectV2Progress).values({
@@ -174,7 +174,7 @@ export async function startProject(projectId: string): Promise<ActionResponse> {
 
         // Create task statuses (all TO_DO initially)
         if (allTasks.length > 0) {
-            const taskStatuses = allTasks.map((task: any) => ({
+            const taskStatuses = allTasks.map((task) => ({
                 userId: user.id,
                 projectId,
                 taskId: task.id,
@@ -213,10 +213,10 @@ export async function getProjectTasks(slug: string): Promise<ActionResponse> {
             },
             with: {
                 sprints: {
-                    orderBy: (sprints: any, { asc }: any) => [asc(sprints.orderIndex)],
+                    orderBy: (sprints, { asc }) => [asc(sprints.orderIndex)],
                     with: {
                         tasks: {
-                            orderBy: (tasks: any, { asc }: any) => [asc(tasks.orderIndex)],
+                            orderBy: (tasks, { asc }) => [asc(tasks.orderIndex)],
                             with: {
                                 userStatuses: {
                                     where: eq(userTaskV2Statuses.userId, user.id),
@@ -243,8 +243,8 @@ export async function getProjectTasks(slug: string): Promise<ActionResponse> {
         }
 
         // Flatten tasks from all sprints and add status
-        const allTasksWithStatus = project.sprints.flatMap((sprint: any) =>
-            sprint.tasks.map((task: any) => ({
+        const allTasksWithStatus = project.sprints.flatMap((sprint) =>
+            sprint.tasks.map((task) => ({
                 id: task.id,
                 title: task.title,
                 description: task.description,
@@ -271,19 +271,19 @@ export async function getProjectTasks(slug: string): Promise<ActionResponse> {
 
         // Group by status for kanban
         const columns = {
-            todo: allTasksWithStatus.filter((t: any) => t.status === "TO_DO"),
-            inProgress: allTasksWithStatus.filter((t: any) => t.status === "IN_PROGRESS"),
-            completed: allTasksWithStatus.filter((t: any) => t.status === "COMPLETED"),
+            todo: allTasksWithStatus.filter((t) => t.status === "TO_DO"),
+            inProgress: allTasksWithStatus.filter((t) => t.status === "IN_PROGRESS"),
+            completed: allTasksWithStatus.filter((t) => t.status === "COMPLETED"),
         };
 
         // Also return sprint-organized structure
-        const sprintsWithTasks = project.sprints.map((sprint: any) => ({
+        const sprintsWithTasks = project.sprints.map((sprint) => ({
             id: sprint.id,
             sprintNumber: sprint.sprintNumber,
             name: sprint.name,
             goal: sprint.goal,
             duration: sprint.duration,
-            tasks: sprint.tasks.map((task: any) => ({
+            tasks: sprint.tasks.map((task) => ({
                 id: task.id,
                 title: task.title,
                 description: task.description,
@@ -302,7 +302,7 @@ export async function getProjectTasks(slug: string): Promise<ActionResponse> {
                 status: task.userStatuses[0]?.status || "TO_DO",
                 completedAt: task.userStatuses[0]?.completedAt,
             })),
-            completedTasks: sprint.tasks.filter((t: any) => t.userStatuses[0]?.status === "COMPLETED").length,
+            completedTasks: sprint.tasks.filter((t) => t.userStatuses[0]?.status === "COMPLETED").length,
             totalTasks: sprint.tasks.length,
         }));
 
@@ -401,7 +401,7 @@ export async function updateTaskStatus(
             },
         });
 
-        const totalTasks = project?.sprints.reduce((acc: number, sprint: any) => acc + sprint.tasks.length, 0) || 0;
+        const totalTasks = project?.sprints.reduce((acc, sprint) => acc + sprint.tasks.length, 0) || 0;
         const progressPercentage = totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0;
 
         // Update progress
@@ -469,7 +469,7 @@ export async function startQuiz(projectId: string): Promise<ActionResponse> {
             where: eq(projectV2Quizzes.projectId, projectId),
             with: {
                 questions: {
-                    orderBy: (questions: any, { asc }: any) => [asc(questions.orderIndex)],
+                    orderBy: (questions, { asc }) => [asc(questions.orderIndex)],
                     columns: {
                         id: true,
                         prompt: true,
@@ -581,7 +581,7 @@ export async function completeQuiz(attemptId: string): Promise<ActionResponse> {
             return { success: false, error: "Invalid attempt" };
         }
 
-        const correctAnswers = attempt.answers.filter((a: any) => a.isCorrect).length;
+        const correctAnswers = attempt.answers.filter((a) => a.isCorrect).length;
         const totalQuestions = attempt.totalQuestions;
         const score = Math.round((correctAnswers / totalQuestions) * 100);
 
@@ -674,11 +674,11 @@ export async function getUserProjects(page: number = 1, limit: number = 20): Pro
                     },
                     submissions: {
                         where: eq(projectV2Submissions.userId, user.id),
-                        orderBy: (submissions: any, { desc }: any) => [desc(submissions.createdAt)],
+                        orderBy: (submissions, { desc }) => [desc(submissions.createdAt)],
                         limit: 1,
                     },
                 },
-                orderBy: (projects: any, { desc }: any) => [desc(projects.createdAt)],
+                orderBy: (projects, { desc }) => [desc(projects.createdAt)],
                 offset: (page - 1) * limit,
                 limit,
             }),
@@ -759,7 +759,7 @@ export async function getPublicProjects(limit: number = 9): Promise<ActionRespon
                     },
                 },
             },
-            orderBy: (projects: any, { desc }: any) => [desc(projects.createdAt)],
+            orderBy: (projects, { desc }) => [desc(projects.createdAt)],
             limit,
         });
 
@@ -776,7 +776,17 @@ export async function getAllPublicProjects(options?: {
     technologies?: string[];
     search?: string;
     sortBy?: 'popular' | 'recent' | 'rating';
-}): Promise<ActionResponse> {
+    // NO `: Promise<ActionResponse>` here, deliberately.
+    //
+    // `ActionResponse` declares `data?: any`, so annotating with it threw away
+    // the precise shape this function actually returns and made every caller's
+    // `result.data.projects` an `any` array. Letting TypeScript infer the return
+    // gives callers the real row type for free.
+    //
+    // The other 15 functions in this file are still annotated and still leak
+    // `any` the same way. Converting `ActionResponse` to a generic is the proper
+    // fix and is tracked separately - see plan/cleanup/candidates.md, CLN-46.
+}) {
     try {
         const {
             page = 1,
@@ -789,7 +799,7 @@ export async function getAllPublicProjects(options?: {
 
         const skip = (page - 1) * limit;
 
-        const conditions: any[] = [eq(projectsV2.visibility, 'PUBLIC')];
+        const conditions: SQL[] = [eq(projectsV2.visibility, 'PUBLIC')];
 
         if (difficulty && difficulty !== 'ALL') {
             conditions.push(eq(projectsV2.difficulty, difficulty as "BEGINNER" | "INTERMEDIATE" | "ADVANCED"));
@@ -807,11 +817,11 @@ export async function getAllPublicProjects(options?: {
 
         const whereClause = conditions.length > 1 ? and(...conditions) : conditions[0];
 
-        const orderByMap: any = {
-            popular: (p: any, { desc }: any) => [desc(p.totalViews)],
-            rating: (p: any, { desc }: any) => [desc(p.totalSubmissions)],
-            recent: (p: any, { desc }: any) => [desc(p.createdAt)],
-        };
+        // Inlined at the query below rather than routed through a lookup table.
+        // The table was `const orderByMap: any`, and that single annotation made
+        // all three callbacks implicitly `any`, so `p.totalViews` and friends
+        // were never checked against the actual columns. Drizzle types the
+        // callback when it is passed directly.
 
         const [projects, totalArr] = await Promise.all([
             db.query.projectsV2.findMany({
@@ -838,7 +848,10 @@ export async function getAllPublicProjects(options?: {
                         },
                     },
                 },
-                orderBy: orderByMap[sortBy] || orderByMap.recent,
+                orderBy: (p, { desc }) =>
+                    sortBy === 'popular' ? [desc(p.totalViews)]
+                        : sortBy === 'rating' ? [desc(p.totalSubmissions)]
+                            : [desc(p.createdAt)],
                 offset: skip,
                 limit,
             }),
@@ -889,12 +902,12 @@ export async function getRecentSubmissions(limit: number = 9): Promise<ActionRes
                     },
                 },
             },
-            orderBy: (submissions: any, { desc }: any) => [desc(submissions.createdAt)],
+            orderBy: (submissions, { desc }) => [desc(submissions.createdAt)],
             limit,
         });
 
         // Filter only PUBLIC project submissions
-        const publicSubmissions = submissions.filter((s: any) => s.project?.visibility === 'PUBLIC');
+        const publicSubmissions = submissions.filter((s) => s.project?.visibility === 'PUBLIC');
 
         return { success: true, data: publicSubmissions };
     } catch (error: unknown) {
@@ -925,16 +938,21 @@ export async function searchSimilarProjects({
 
         const result = await getAllPublicProjects({ limit: 100 });
 
-        if (!result.success || !result.data) {
+        // Narrow on `success` ALONE. `!result.success || !result.data` reads as
+        // the same check but defeats the discriminated union - TypeScript cannot
+        // narrow through an `||` whose right side reads a success-only field, so
+        // `result.data` stayed loose and every `project` below was implicitly
+        // `any`. Same trap as the cover-letter extractor hit in IP-4.
+        if (!result.success) {
             return {
                 success: false,
                 error: "Failed to fetch projects",
             };
         }
 
-        const projects = result.data.projects || [];
+        const projects = result.data?.projects ?? [];
 
-        const scoredProjects = projects.map((project: any) => {
+        const scoredProjects = projects.map((project) => {
             let score = 0;
 
             const titleWords = title.toLowerCase().split(' ');
@@ -978,10 +996,10 @@ export async function searchSimilarProjects({
         });
 
         const similarProjects = scoredProjects
-            .filter((project: any) => project.similarityScore > 0)
-            .sort((a: any, b: any) => b.similarityScore - a.similarityScore)
+            .filter((project) => project.similarityScore > 0)
+            .sort((a, b) => b.similarityScore - a.similarityScore)
             .slice(0, limit)
-            .map((project: any) => ({
+            .map((project) => ({
                 id: project.id,
                 slug: project.slug,
                 title: project.title,
@@ -1024,7 +1042,7 @@ export async function enrollInProject(projectId: string): Promise<ActionResponse
                 sprints: {
                     with: {
                         tasks: {
-                            orderBy: (tasks: any, { asc }: any) => [asc(tasks.orderIndex)],
+                            orderBy: (tasks, { asc }) => [asc(tasks.orderIndex)],
                         },
                     },
                 },
@@ -1063,7 +1081,7 @@ export async function enrollInProject(projectId: string): Promise<ActionResponse
             };
         }
 
-        const allTasks = project.sprints.flatMap((s: any) => s.tasks);
+        const allTasks = project.sprints.flatMap((s) => s.tasks);
 
         const result = await withTransaction(async (tx) => {
             // 1. Deduct credits.
@@ -1097,7 +1115,7 @@ export async function enrollInProject(projectId: string): Promise<ActionResponse
 
             // 4. Create task progress for all tasks
             if (allTasks.length > 0) {
-                const taskStatuses = allTasks.map((task: any) => ({
+                const taskStatuses = allTasks.map((task) => ({
                     userId: user.id,
                     projectId,
                     taskId: task.id,

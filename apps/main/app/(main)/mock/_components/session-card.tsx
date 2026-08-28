@@ -10,6 +10,7 @@ import {
     Card, CardContent, CardDescription, CardFooter, CardHeader,
     CardTitle
 } from '@repo/ui/components/ui/card'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface SessionData {
     id: string
@@ -100,7 +101,7 @@ export function SessionCard({ session, userCredits, onRetake, retakingId }: Sess
                             >
                                 {
                                     retakingId === session.id ? (
-                                        <span className="flex items-center"><Clock className="w-4 h-4 mr-2 animate-spin" /> Retaking...</span>
+                                        <span className="flex items-center"><InlineLoader size="sm" className="mr-2" /> Retaking...</span>
                                     ) : (
                                         <>
                                             <Play className="w-4 h-4 mr-2" />

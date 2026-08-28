@@ -382,3 +382,68 @@ Re-stated here as findings rather than absences, so nobody re-runs them:
   in the files read, but this was not scanned exhaustively the way the height and
   overflow categories were. It is the one section of the doc this pass did not
   give a systematic sweep.
+
+---
+
+## RSP-7 - The no-spinners and full-width sweeps (2026-08-28)
+
+- [x] **Status:** done, verified 2026-08-28
+
+**Why.** Two standing rules in `CLAUDE.md` were being broken at scale rather than
+occasionally, which makes them not rules:
+
+- **No spinners.** 151 `animate-spin` occurrences across 91 files.
+- **Pages take the width they are given.** 70 `max-w-7xl` occurrences across 41
+  files, almost all of them `mx-auto max-w-7xl px-6` page containers centring a
+  1280px column inside a card that is already bounded by the shell.
+
+### Spinners: 151 to 1
+
+136 of the 151 were the single shape `<Loader2 className="... animate-spin" />`
+with a plain string className - no `cn()` expressions anywhere - which is what
+made an automated pass safe. Mapped by width: `w-3`/`w-4` to `sm`, `w-5`/`w-6` to
+`md`, `w-8`+ to `lg`, keeping margin and colour classes (`InlineLoader` renders
+`currentColor`, so `text-neutral-400` still lands).
+
+The remaining 15 were hand-written and needed judgement:
+
+- **8 hand-rolled CSS rings** (`rounded-full border-t-transparent animate-spin`)
+  became `InlineLoader`.
+- **4 `RefreshCw` buttons** were SWAPPED, not restyled:
+  `{syncing ? <InlineLoader size="sm" /> : <RefreshCw />}`. Spinning the refresh
+  icon and replacing it are different: the icon has to still be a refresh
+  affordance at rest.
+- **1 spinning `Clock`** on "Retaking..." - a clock going round is not a loader,
+  it is a broken clock.
+- **1 decorative ring** in `project-generate-sheet.tsx`, deleted outright. That
+  panel already had a `Progress` bar with a percentage, a phase label AND a
+  per-step `InlineLoader`; the ring was a fourth, worse progress affordance
+  stacked on three good ones.
+
+**One deliberate survivor.** `resetpassword.tsx:228` still spins a `RefreshCw`,
+and it carries a comment saying why: it is the resend COOLDOWN, where the motion
+tells the user the timer is running rather than stuck. It is not a loading
+indicator, so the rule does not apply. Left alone.
+
+### Width: 64 occurrences across 38 files
+
+`max-w-7xl`, `mx-auto` and `container` stripped from page containers,
+`w-full` ensured. **One exclusion:** `auth-shell.tsx` keeps its `max-w-7xl` -
+that is a bounded CARD with `xl:rounded-3xl` and a ring, deliberately capped so
+the sign-in form does not stretch across a wide monitor. The filter skipped
+anything carrying `rounded-3xl`, `ring-1` or `shadow-2xl` for that reason. The
+five other surviving matches are comments describing past changes, not classes.
+
+Skeleton and page containers were re-checked afterwards and agree on width, which
+is the point of the rule in `CLAUDE.md`: a skeleton that does not match the page
+is worse than no skeleton, because the page visibly reflows.
+
+**Done when / verified.** `apps/main` typechecks at 0 errors; 13 routes smoke
+tested (all 200, `/home` 307 to auth); `grep` for `animate-spin` returns the one
+documented exception; the live DOM on `/pathfinder` reports **0** elements
+carrying `animate-spin`.
+
+**Not verified:** the rendered widths were not measured in the browser. The Brave
+window will not hold foreground long enough to lay out, and every `getBoundingClientRect`
+returns 0 while `visibilityState` is `hidden`. The change is a class swap
+confirmed by grep and typecheck, which is not the same as seen.

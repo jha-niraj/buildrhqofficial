@@ -50,8 +50,8 @@ export async function getPersonalData(): Promise<
       where: eq(knowMeProfiles.userId, session.user.id),
       with: {
         personalData: {
-          where: (pd: any, { eq }: any) => eq(pd.isActive, true),
-          orderBy: (pd: any, { desc }: any) => [desc(pd.createdAt)],
+          where: (pd, { eq }) => eq(pd.isActive, true),
+          orderBy: (pd, { desc }) => [desc(pd.createdAt)],
         },
       },
     });
@@ -62,7 +62,7 @@ export async function getPersonalData(): Promise<
 
     return {
       success: true,
-      data: profile.personalData.map((pd: any) => ({
+      data: profile.personalData.map((pd) => ({
         id: pd.id,
         dataType: pd.dataType,
         title: pd.title,
@@ -256,7 +256,7 @@ export async function getPlatformConnections(): Promise<
       where: eq(knowMeProfiles.userId, session.user.id),
       with: {
         platformConnections: {
-          orderBy: (pc: any, { desc }: any) => [desc(pc.createdAt)],
+          orderBy: (pc, { desc }) => [desc(pc.createdAt)],
         },
       },
     });
@@ -267,7 +267,7 @@ export async function getPlatformConnections(): Promise<
 
     return {
       success: true,
-      data: profile.platformConnections.map((pc: any) => ({
+      data: profile.platformConnections.map((pc) => ({
         id: pc.id,
         platform: pc.platform,
         platformUsername: pc.platformUsername,
@@ -481,12 +481,26 @@ export async function syncPlatformData(
           }
           break;
 
-        // TODO: Add other platform handlers
-        case "LEETCODE":
-        case "STACKOVERFLOW":
-        case "LINKEDIN":
-          // These would use their respective scraping utilities
-          break;
+        // Everything except GITHUB has no handler, and it now FAILS rather than
+        // falling through to `break`.
+        //
+        // The silent break was the bug: the connection was created, marked
+        // synced, and produced zero external data - so the settings screen said
+        // "connected" about a platform that had contributed nothing to the
+        // profile, and the user had no way to tell.
+        //
+        // On LINKEDIN specifically, do NOT reach for
+        // `utils/truefolio/linkedin.ts`. Despite its name and signature,
+        // `fetchLinkedInData` returns MOCK DATA - a hardcoded fake profile. It
+        // has no callers, and wiring it here would fill a real person's public,
+        // strangers-can-query-it persona with invented employment history. The
+        // real LinkedIn path in this repo is the Exa-backed scrape in the
+        // `resume_import` worker job; that is what to reuse if LinkedIn is ever
+        // connected here.
+        default:
+          throw new Error(
+            `${connection.platform} cannot be synced yet - only GitHub is connected to a real data source.`,
+          );
       }
 
       // Save external data
@@ -571,7 +585,7 @@ export async function syncAllPlatforms(): Promise<KnowMeActionResponse<void>> {
       where: eq(knowMeProfiles.userId, session.user.id),
       with: {
         platformConnections: {
-          where: (pc: any, { eq }: any) => eq(pc.isConnected, true),
+          where: (pc, { eq }) => eq(pc.isConnected, true),
         },
       },
     });

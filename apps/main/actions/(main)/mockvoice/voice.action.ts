@@ -3,7 +3,7 @@
 import { getSession } from "@repo/auth"
 import { headers } from "next/headers"
 import { db, users, mockInterviewVoice, mockVoiceSession, creditTransactions } from "@repo/db"
-import { eq, and, or, ilike, desc, count, avg } from "drizzle-orm"
+import { eq, and, or, ilike, desc, count, avg, type SQL } from "drizzle-orm"
 import { revalidatePath } from 'next/cache'
 import { openai } from '@/lib/openai-client'
 
@@ -30,7 +30,7 @@ interface CreateCustomMockInput {
 
 export async function getAdminMocksByCategory(category?: string, limit: number = 6) {
     try {
-        const conditions: any[] = [
+        const conditions: (SQL | undefined)[] = [
             eq(mockInterviewVoice.byAdmin, true),
             eq(mockInterviewVoice.isPublic, true),
         ]
@@ -407,7 +407,7 @@ export async function getCreatedVoiceMocks(category?: string, limit: number = 50
             return { success: false, error: 'You must be logged in', mocks: [] }
         }
 
-        const conditions: any[] = [eq(mockInterviewVoice.createdById, session.user.id)]
+        const conditions: (SQL | undefined)[] = [eq(mockInterviewVoice.createdById, session.user.id)]
         if (category) {
             conditions.push(eq(mockInterviewVoice.category, category as any))
         }
@@ -455,7 +455,7 @@ export async function getPublicVoiceMocks(params?: {
         const limit = params?.limit || 20
         const offset = (page - 1) * limit
 
-        const conditions: any[] = [eq(mockInterviewVoice.isPublic, true)]
+        const conditions: (SQL | undefined)[] = [eq(mockInterviewVoice.isPublic, true)]
 
         if (!params?.includeAdmin) {
             conditions.push(eq(mockInterviewVoice.byAdmin, false))
@@ -521,7 +521,7 @@ export async function getAllPublicMocks(params?: {
         const limit = params?.limit || 20
         const offset = (page - 1) * limit
 
-        const conditions: any[] = [eq(mockInterviewVoice.isPublic, true)]
+        const conditions: (SQL | undefined)[] = [eq(mockInterviewVoice.isPublic, true)]
 
         if (params?.level && params.level !== 'ALL') {
             conditions.push(eq(mockInterviewVoice.level, params.level as any))

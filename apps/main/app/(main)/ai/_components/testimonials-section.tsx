@@ -64,7 +64,7 @@ export function TestimonialSection() {
 
     return (
         <section className="py-24 bg-gray-50 dark:bg-gray-800 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4">
+            <div className="w-full px-4">
                 <motion.h2
                     className="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-800 dark:text-white"
                     initial={{ opacity: 0, y: -20 }}

@@ -10,12 +10,13 @@ import { Badge } from '@repo/ui/components/ui/badge'
 import { Separator } from '@repo/ui/components/ui/separator'
 import {
     Sparkles, Clock, Brain, CheckCircle, Play, AlertCircle,
-    Trophy, Target, Loader2, RotateCcw, Mic
+    Trophy, Target, RotateCcw, Mic
 } from 'lucide-react'
 import toast from '@repo/ui/components/ui/sonner'
 import { createMockVoiceSession, getMockSessionInfo } from '@/actions/(main)/mockvoice/session.action'
 import Link from 'next/link'
 import { cn } from '@repo/ui/lib/utils'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface MockData {
     id: string
@@ -173,7 +174,7 @@ export function PurchaseMockSheet({ isOpen, onClose, mock, userCredits }: Purcha
                     {/* Session info */}
                     {isLoadingInfo ? (
                         <div className="flex justify-center py-3">
-                            <Loader2 className="w-5 h-5 animate-spin text-neutral-400" />
+                            <InlineLoader size="md" className="text-neutral-400" />
                         </div>
                     ) : sessionInfo && (
                         <div className="space-y-3">
@@ -249,7 +250,7 @@ export function PurchaseMockSheet({ isOpen, onClose, mock, userCredits }: Purcha
                     >
                         {isStarting ? (
                             <>
-                                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                <InlineLoader size="md" className="mr-2" />
                                 Starting…
                             </>
                         ) : (

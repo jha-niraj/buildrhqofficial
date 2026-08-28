@@ -15,6 +15,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { EmptyState } from '../../_components/pathfinder-dashboard'
 import { usePathfinderStore, type PathfinderGoal, type PathfinderGroup } from '@/app/store/pathfinderStore'
 import { CreateGoalSheet } from '../../_components/create-goal-sheet'
+import { AnimatedIcon } from "@repo/ui/components/animated-icons"
 
 interface GoalUser {
     id: string
@@ -142,10 +143,10 @@ function ExploreGoalCard({
             >
                 <div className="flex gap-3">
                     <div className={cn(
-                        "w-10 h-10 rounded-lg flex items-center justify-center text-lg shrink-0",
+                        "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-neutral-900 dark:text-neutral-100",
                         category?.bg ?? "bg-neutral-200 dark:bg-neutral-700"
                     )}>
-                        {category?.emoji ?? "🎯"}
+                        <AnimatedIcon name={category?.icon ?? "target"} size={20} />
                     </div>
                     <div className="flex-1 min-w-0">
                         <h3 className={cn(

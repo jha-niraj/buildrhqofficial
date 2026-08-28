@@ -2,12 +2,16 @@
 
 import { getSession } from "@repo/auth";
 import { headers } from "next/headers";
+import { elevenLabsKey } from "@/utils/elevenlabs/conversations";
 
 const ELEVENLABS_API = "https://api.elevenlabs.io/v1";
 
 function getApiKey(): string {
-    const key = process.env.ELEVENLABS_AI_KEY;
-    if (!key) throw new Error("ELEVENLABS_AI_KEY is not configured");
+    // `elevenLabsKey()` reads ELEVENLABS_API_KEY first and falls back to
+    // ELEVENLABS_AI_KEY. This function used to read only the latter, which is
+    // set nowhere, so it threw on every call and this whole voice path was dead.
+    const key = elevenLabsKey();
+    if (!key) throw new Error("ELEVENLABS_API_KEY is not configured");
     return key;
 }
 

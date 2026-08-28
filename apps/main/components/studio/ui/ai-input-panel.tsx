@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import {
 	FileText, FileQuestion, Code, Image as ImageIcon, Video, FileCode, 
-	Rocket, Mic, StickyNote, Layers, Send, Loader2, ChevronDown, 
+	Rocket, Mic, StickyNote, Layers, Send, ChevronDown, 
 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Textarea } from "@repo/ui/components/ui/textarea";
@@ -22,6 +22,7 @@ import { saveStep } from "@/actions/(main)/studios/studio.actions";
 import toast from "@repo/ui/components/ui/sonner";
 import type { StudioStepType, StudioStep } from "@/types/studios";
 import { useStudioStore } from "@/app/store/studioStore";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface AIInputPanelProps {
 	studioId: string;
@@ -441,7 +442,7 @@ export function AIInputPanel({ studioId, onContentAdded, externalPrompt, onExter
 					className="h-9 w-9 shrink-0 cursor-pointer rounded-lg bg-gradient-to-r from-neutral-800 to-pink-600 hover:from-neutral-700 hover:to-pink-700"
 				>
 					{isGenerating ? (
-						<Loader2 className="h-4 w-4 animate-spin" />
+						<InlineLoader size="sm" />
 					) : (
 						<Send className="h-4 w-4" />
 					)}

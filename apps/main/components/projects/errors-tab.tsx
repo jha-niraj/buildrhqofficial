@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
     AlertTriangle, ThumbsUp, AlertCircle, Plus, ChevronDown, Code2,
-    CheckCircle2, Loader2, Bug, Shield, Zap, Database, Globe, Settings,
+    CheckCircle2, Bug, Shield, Zap, Database, Globe, Settings,
     Layers
 } from 'lucide-react'
 import { Badge } from '@repo/ui/components/ui/badge'
@@ -30,6 +30,7 @@ import {
     getProjectErrors, createProjectError,
     getProjectErrorStats
 } from '@/actions/(main)/projects/project-errors.action'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 // ============================================================================
 // Types
@@ -418,7 +419,7 @@ function SubmitErrorSheet({
                             {
                                 loading ? (
                                     <>
-                                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                        <InlineLoader size="sm" className="mr-2" />
                                         Submitting...
                                     </>
                                 ) : (
@@ -566,7 +567,7 @@ export default function ErrorsTab({ projectId, isEnrolled, isCreator }: ErrorsTa
             {
                 loading ? (
                     <div className="flex items-center justify-center py-12">
-                        <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                        <InlineLoader size="lg" className="text-neutral-400" />
                     </div>
                 ) : errors.length === 0 ? (
                     <div className="text-center py-12">

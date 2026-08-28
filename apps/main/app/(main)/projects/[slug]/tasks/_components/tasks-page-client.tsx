@@ -3,8 +3,7 @@
 import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import {
-    ArrowLeft, Target, CheckCircle2, Info, Sparkles, AlertCircle, Loader2,
-    Play, ChevronRight, ChevronDown, RotateCcw, Zap
+    ArrowLeft, Target, CheckCircle2, Info, Sparkles, AlertCircle, Play, ChevronRight, ChevronDown, RotateCcw, Zap
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@repo/ui/components/ui/button'
@@ -23,6 +22,7 @@ import { updateTaskStatus } from '@/actions/(main)/projects/project.action'
 import {
     checkTaskDetailExists, generateTaskDetail, getTaskDetail
 } from '@/actions/(main)/projects/task-details.action'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 // ============================================================================
 // Types
@@ -232,7 +232,7 @@ function TaskItem({
                                 >
                                     {
                                         isUpdating ? (
-                                            <Loader2 className="w-4 h-4 animate-spin text-neutral-900 dark:text-neutral-100" />
+                                            <InlineLoader size="sm" className="text-neutral-900 dark:text-neutral-100" />
                                         ) : (
                                             <Play className="w-3 h-3 text-neutral-400 group-hover:text-neutral-900 opacity-0 group-hover:opacity-100 transition-opacity" />
                                         )
@@ -246,7 +246,7 @@ function TaskItem({
                                 >
                                     {
                                         isUpdating ? (
-                                            <Loader2 className="w-6 h-6 animate-spin text-neutral-900 dark:text-neutral-100" />
+                                            <InlineLoader size="md" className="text-neutral-900 dark:text-neutral-100" />
                                         ) : task.status === 'COMPLETED' ? (
                                             <CheckCircle2 className="w-6 h-6 text-neutral-900 dark:text-neutral-100 fill-neutral-900" />
                                         ) : (
@@ -369,7 +369,7 @@ function TaskItem({
                                         {
                                             isCheckingDetail && (
                                                 <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400">
-                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    <InlineLoader size="sm" />
                                                     Loading...
                                                 </div>
                                             )
@@ -528,7 +528,7 @@ function TaskItem({
                                             disabled={isUpdating}
                                             className="flex-1 bg-neutral-800 hover:bg-neutral-700"
                                         >
-                                            {isUpdating ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Play className="w-4 h-4 mr-2" />}
+                                            {isUpdating ? <InlineLoader size="sm" className="mr-2" /> : <Play className="w-4 h-4 mr-2" />}
                                             Start Task
                                         </Button>
                                     )
@@ -541,7 +541,7 @@ function TaskItem({
                                                 disabled={isUpdating}
                                                 className="flex-1 bg-neutral-800 hover:bg-neutral-700"
                                             >
-                                                {isUpdating ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
+                                                {isUpdating ? <InlineLoader size="sm" className="mr-2" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
                                                 Mark Complete
                                             </Button>
                                             <Button
@@ -570,7 +570,7 @@ function TaskItem({
                                             variant="outline"
                                             className="flex-1"
                                         >
-                                            {isUpdating ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RotateCcw className="w-4 h-4 mr-2" />}
+                                            {isUpdating ? <InlineLoader size="sm" className="mr-2" /> : <RotateCcw className="w-4 h-4 mr-2" />}
                                             Reopen Task
                                         </Button>
                                     )
@@ -626,7 +626,7 @@ function TaskItem({
                             {
                                 isGeneratingDetail ? (
                                     <>
-                                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                        <InlineLoader size="sm" className="mr-2" />
                                         Generating...
                                     </>
                                 ) : (

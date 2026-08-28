@@ -6,9 +6,10 @@ import {
 } from "@repo/ui/components/ui/sheet";
 import {
     Activity, FolderKanban, BookOpen, Code2, MessageSquare, Trophy,
-    Users, Zap, Loader2
+    Users, Zap
 } from "lucide-react";
 import { getActivitiesByDate } from "@/actions/(main)/home/home.action";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface ActivityItem {
     id: string;
@@ -129,7 +130,7 @@ export default function ActivityDaySheet({
                     {
                         isLoading ? (
                             <div className="flex items-center justify-center py-12">
-                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                <InlineLoader size="lg" className="text-muted-foreground" />
                             </div>
                         ) : activities.length === 0 ? (
                             <div className="text-center py-12 space-y-2">

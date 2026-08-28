@@ -28,6 +28,7 @@ import { useRouter } from "next/navigation"
 import { withdrawApplication } from "@/actions/jobs"
 import toast from "@repo/ui/components/ui/sonner"
 import Image from "next/image"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface Application {
     id: string
@@ -943,7 +944,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                         >
                             {
                                 isPending ? (
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    <InlineLoader size="sm" className="mr-2" />
                                 ) : (
                                     <Trash2 className="w-4 h-4 mr-2" />
                                 )

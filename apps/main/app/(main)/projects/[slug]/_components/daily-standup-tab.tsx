@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import {
-    Calendar, Clock, Loader2, CheckCircle2, AlertCircle, Trophy, Play,
+    Calendar, Clock, CheckCircle2, AlertCircle, Trophy, Play,
     Mic
 } from 'lucide-react'
 import { Button } from '@repo/ui/components/ui/button'
@@ -15,6 +15,7 @@ import {
 import { cn } from '@repo/ui/lib/utils'
 import { Slider } from '@repo/ui/components/ui/slider'
 import { Voice, VoiceConfig } from '@/components/main/voice'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface DailyStandupTabProps {
     projectId: string
@@ -223,7 +224,7 @@ Keep responses brief and natural.`,
     if (isChecking) {
         return (
             <div className="flex items-center justify-center py-16">
-                <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                <InlineLoader size="lg" className="text-neutral-400" />
             </div>
         )
     }
@@ -599,7 +600,7 @@ Keep responses brief and natural.`,
             >
                 {isCreating ? (
                     <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <InlineLoader size="sm" />
                         Setting up...
                     </>
                 ) : (

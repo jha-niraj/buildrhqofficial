@@ -12,7 +12,7 @@ import {
     Tabs, TabsContent, TabsList, TabsTrigger
 } from "@repo/ui/components/ui/tabs";
 import {
-    User, Camera, MapPin, Globe, Loader2, Check, Sparkles,
+    User, Camera, MapPin, Globe, Check, Sparkles,
     Building, Target, X, Plus
 } from "lucide-react";
 import toast from "@repo/ui/components/ui/sonner";
@@ -30,6 +30,7 @@ import {
     Popover, PopoverContent, PopoverTrigger
 } from "@repo/ui/components/ui/popover";
 import { Badge } from "@repo/ui/components/ui/badge";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface EditProfileModalProps {
     isOpen: boolean;
@@ -509,7 +510,7 @@ export function EditProfileModal({
                         {
                             isSubmitting ? (
                                 <>
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    <InlineLoader size="sm" className="mr-2" />
                                     Saving...
                                 </>
                             ) : (

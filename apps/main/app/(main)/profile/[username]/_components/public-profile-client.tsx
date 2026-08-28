@@ -23,12 +23,25 @@ import { toggleFollow } from "@/actions/(main)/social/follow.action";
 // developer's own view of themselves.
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * The server query result, DERIVED from the action that produces it.
+ *
+ * This was `user: any` with a comment calling it "deliberately loose". It was
+ * not narrowed anywhere - `any` propagated straight into the mapping below, so
+ * `p.projectName`, `p.technologies` and every other field access went unchecked,
+ * and a renamed column would have surfaced as `undefined` in the rendered
+ * profile rather than as a build error.
+ *
+ * Deriving it from `getProfileByUsername` costs nothing and cannot drift.
+ */
+// An inline `import type`, so nothing is emitted: this is a client component and
+// must not pull a server-action module into its bundle just to borrow a type.
+type ProfileUser = NonNullable<
+    Awaited<ReturnType<typeof import("@/actions/(main)/user/profile.action").getProfileByUsername>>["user"]
+>;
+
 interface PublicProfileClientProps {
-    // The server query result. Deliberately loose here and narrowed immediately
-    // below - the alternative is threading `any` into the shared view, where
-    // every field would silently become optional.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    user: any;
+    user: ProfileUser;
     isOwnProfile: boolean;
     isFollowing: boolean;
 }
@@ -86,8 +99,7 @@ export function PublicProfileClient({
         skills: user.skills ?? [],
         experiences: user.experiences ?? [],
         educations: user.educations ?? [],
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        projects: (user.portfolioProjects ?? []).map((p: any) => ({
+        projects: (user.portfolioProjects ?? []).map((p) => ({
             id: p.id,
             projectName: p.projectName,
             description: p.description,
@@ -102,7 +114,12 @@ export function PublicProfileClient({
         level: user.currentLevel ?? 1,
         projectsCount: user.portfolioProjects?.length ?? 0,
         skillsCount: user.skills?.length ?? 0,
-        followersCount: user._count?.followers ?? 0,
+        // `user.followersCount`, not `user._count?.followers`. `_count` is a
+        // Prisma idiom and this repo uses Drizzle, so that property has never
+        // existed - the optional chain swallowed it and every profile in the
+        // product rendered "0 followers". `getProfileByUsername` computes a real
+        // `followersCount`; it just was not being read.
+        followersCount: user.followersCount ?? 0,
     };
 
     return (

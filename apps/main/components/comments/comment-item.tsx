@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import {
-    MessageSquare, Pencil, Trash2, Loader2, MoreHorizontal,
+    MessageSquare, Pencil, Trash2, MoreHorizontal,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/ui/avatar"
 import { Button } from "@repo/ui/components/ui/button"
@@ -13,6 +13,7 @@ import { cn } from "@repo/ui/lib/utils"
 import { CommentComposer } from "./comment-composer"
 import { COMMENT_MAX_INDENT_DEPTH } from "@/types/comments"
 import type { OptimisticCommentNode } from "@/types/comments"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface CommentItemProps {
     comment: OptimisticCommentNode
@@ -145,7 +146,7 @@ export function CommentItem({
                                             aria-label="Comment actions"
                                         >
                                             {deleting
-                                                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                ? <InlineLoader size="sm" />
                                                 : <MoreHorizontal className="h-3.5 w-3.5" />}
                                         </Button>
                                     </DropdownMenuTrigger>

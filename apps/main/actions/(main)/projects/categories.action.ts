@@ -7,7 +7,7 @@ import {
     projectsV2,
     projectIdeas,
 } from "@repo/db";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, type SQL } from "drizzle-orm";
 
 export async function getProjectCategories() {
     try {
@@ -16,10 +16,10 @@ export async function getProjectCategories() {
             with: {
                 technologies: {
                     where: eq(projectTechnologies.isActive, true),
-                    orderBy: (techs: any, { asc }: any) => [asc(techs.orderIndex)],
+                    orderBy: (techs, { asc }) => [asc(techs.orderIndex)],
                 },
             },
-            orderBy: (cats: any, { asc }: any) => [asc(cats.orderIndex)],
+            orderBy: (cats, { asc }) => [asc(cats.orderIndex)],
         });
         return { success: true as const, data: categories }
     } catch (error) {
@@ -42,7 +42,7 @@ export async function getProjectTechnologies(categorySlug?: string) {
                     columns: { name: true, slug: true, icon: true, color: true }
                 }
             },
-            orderBy: (techs: any, { asc }: any) => [asc(techs.orderIndex)],
+            orderBy: (techs, { asc }) => [asc(techs.orderIndex)],
         });
         return { success: true as const, data: technologies }
     } catch (error) {
@@ -59,7 +59,7 @@ export async function getPlatformProjects(options?: {
     offset?: number
 }) {
     try {
-        const conditions: any[] = [
+        const conditions: SQL[] = [
             eq(projectsV2.isPlatformSeeded, true),
             eq(projectsV2.visibility, 'PUBLIC'),
         ];
@@ -84,7 +84,7 @@ export async function getPlatformProjects(options?: {
                 with: {
                     creator: { columns: { name: true, username: true, image: true } },
                 },
-                orderBy: (p: any, { desc }: any) => [desc(p.totalStarted)],
+                orderBy: (p, { desc }) => [desc(p.totalStarted)],
                 limit: options?.limit || 20,
                 offset: options?.offset || 0,
             }),
@@ -106,7 +106,7 @@ export async function getCategoryWithIdeas(categorySlug: string) {
             with: {
                 technologies: {
                     where: eq(projectTechnologies.isActive, true),
-                    orderBy: (techs: any, { asc }: any) => [asc(techs.orderIndex)],
+                    orderBy: (techs, { asc }) => [asc(techs.orderIndex)],
                 },
             },
         });
@@ -115,7 +115,7 @@ export async function getCategoryWithIdeas(categorySlug: string) {
             return { success: false as const, error: 'Category not found' }
         }
 
-        const techNames = category.technologies.map((t: any) => t.name);
+        const techNames = category.technologies.map((t) => t.name);
 
         const [platformProjects, ideas] = await Promise.all([
             db.query.projectsV2.findMany({
@@ -133,14 +133,20 @@ export async function getCategoryWithIdeas(categorySlug: string) {
                 with: {
                     creator: { columns: { name: true, username: true, image: true } },
                 },
-                orderBy: (p: any, { desc }: any) => [desc(p.totalStarted)],
+                orderBy: (p, { desc }) => [desc(p.totalStarted)],
             }),
             db.query.projectIdeas.findMany({
                 where: and(
                     eq(projectIdeas.status, 'APPROVED'),
                     sql`(${projectIdeas.categories} @> ARRAY[${categorySlug}]::text[] OR ${projectIdeas.technologies} && ARRAY[${sql.join(techNames.map((t: string) => sql`${t}`), sql`, `)}]::text[])`
                 ),
-                orderBy: (ideas: any, { desc }: any) => [desc(ideas.upvotes)],
+                // `buildCount`, not `upvotes`. There is no `upvotes` column on
+                // `project_idea` - it lives on a different table in schema.ts - so
+                // this ordered by `undefined` and the grid came back in arbitrary
+                // order. The `: any` on the callback is what hid it.
+                // `buildCount` is the denormalised popularity counter this grid
+                // was built for.
+                orderBy: (ideas, { desc }) => [desc(ideas.buildCount)],
                 limit: 20,
             }),
         ]);

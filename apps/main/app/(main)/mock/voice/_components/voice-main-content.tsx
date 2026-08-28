@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useCallback, useTransition } from 'react'
 import {
-    LayoutGrid, List, Search, Loader2, FolderOpen, Brain,
+    LayoutGrid, List, Search, FolderOpen, Brain,
     Target, Users
 } from 'lucide-react'
 import { Button } from '@repo/ui/components/ui/button'
@@ -24,6 +24,7 @@ import { createMockVoiceSession } from '@/actions/(main)/mockvoice/session.actio
 import { MOCK_LEVELS } from '../_constants/mock-categories'
 import { toast } from '@repo/ui/components/ui/sonner'
 import { cn } from '@repo/ui/lib/utils'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface MockData {
     id: string
@@ -205,7 +206,7 @@ export function VoiceMainContent({
     const header = getHeaderContent()
 
     return (
-        <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8">
+        <div className="w-full p-6 md:p-8 space-y-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg">
@@ -289,7 +290,7 @@ export function VoiceMainContent({
                 {
                     isPending && (
                         <div className="absolute inset-0 bg-white/50 dark:bg-neutral-950/50 z-10 flex items-center justify-center backdrop-blur-sm">
-                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                            <InlineLoader size="lg" className="text-primary" />
                         </div>
                     )
                 }

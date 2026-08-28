@@ -160,7 +160,7 @@ export async function syncProfileToResumeDraft(draftId?: string): Promise<
             const { projectV2Submissions } = await import('@repo/db')
             const subs = await db.query.projectV2Submissions.findMany({
                 where: eq((projectV2Submissions as any).userId, userId),
-                orderBy: (s: any, { desc }: any) => [desc(s.createdAt)],
+                orderBy: (s, { desc }) => [desc(s.createdAt)],
                 with: {
                     project: {
                         columns: {
@@ -263,7 +263,7 @@ export async function syncProfileToResumeDraft(draftId?: string): Promise<
         })
 
         // ── 7. Map ShipItHQ platform project submissions ──────────────────────
-        const platformProjectsMapped: ResumeProjectEntry[] = projectSubmissions.map((sub: any) => ({
+        const platformProjectsMapped: ResumeProjectEntry[] = projectSubmissions.map((sub) => ({
             id: shortId(),
             name: sub.project.title,
             description: sub.project.shortDescription ?? 'Built on ShipItHQ',

@@ -5,7 +5,7 @@ import { Skeleton } from "@repo/ui/components/ui/skeleton";
 
 export default function KnowMeDashboardSkeleton() {
     return (
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="w-full px-4 py-8">
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

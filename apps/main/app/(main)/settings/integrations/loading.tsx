@@ -3,7 +3,7 @@ import { Shimmer, ShimmerStyles } from "@repo/ui/components/skeleton-kit";
 
 export default function Loading() {
     return (
-        <div className="mx-auto max-w-7xl px-6 py-8">
+        <div className="w-full px-6 py-8">
             <ShimmerStyles />
 
             <div className="mx-auto max-w-4xl">

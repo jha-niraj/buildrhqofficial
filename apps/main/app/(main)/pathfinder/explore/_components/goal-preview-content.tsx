@@ -7,7 +7,7 @@ import { Button } from '@repo/ui/components/ui/button'
 import { Badge } from '@repo/ui/components/ui/badge'
 import { Progress } from '@repo/ui/components/ui/progress'
 import {
-    Copy, Loader2, Code2, Brain, CheckCircle2, User, BookOpen,
+    Copy, Code2, Brain, CheckCircle2, User, BookOpen,
     ChevronRight, Sparkles, X, FileQuestion
 } from 'lucide-react'
 import { copyPathfinderGoal } from '@/actions/(main)/pathfinder'
@@ -16,6 +16,8 @@ import { useSidebar } from '@/components/common/sidebarprovider'
 import { PATHFINDER_CATEGORIES } from '@/types/pathfinder'
 import { cn } from '@repo/ui/lib/utils'
 import toast from '@repo/ui/components/ui/sonner'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { AnimatedIcon } from "@repo/ui/components/animated-icons"
 
 interface SubGoal {
     id: string
@@ -130,11 +132,14 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                 {/* Hero Section */}
                 <div className="mb-8">
                     <div className="flex items-start gap-4 mb-4">
+                        {/* `motion="always"`: one hero icon on a page it owns, so
+                            it animates on arrival rather than waiting for a hover
+                            the user has no reason to try. */}
                         <div className={cn(
-                            "w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shrink-0",
+                            "flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-neutral-900 dark:text-neutral-100",
                             category?.bg ?? "bg-neutral-100 dark:bg-neutral-800/30"
                         )}>
-                            {category?.emoji ?? "🎯"}
+                            <AnimatedIcon name={category?.icon ?? "target"} size={30} motion="always" />
                         </div>
                         <div className="flex-1 min-w-0">
                             <h1 className="text-2xl font-bold text-neutral-900 dark:text-white mb-1">
@@ -202,7 +207,7 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                             className="gap-2"
                         >
                             {copying ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <InlineLoader size="sm" />
                             ) : (
                                 <Copy className="w-4 h-4" />
                             )}
@@ -295,7 +300,7 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
 
                 {goal.subGoals && goal.subGoals.length === 0 && (
                     <div className="py-12 text-center border border-dashed border-neutral-200 dark:border-neutral-800 rounded-xl">
-                        <BookOpen className="w-10 h-10 text-neutral-300 mx-auto mb-3" />
+                        <AnimatedIcon name="empty-search" size={40} motion="always" className="mx-auto mb-3 text-neutral-400 dark:text-neutral-500" />
                         <p className="text-sm text-neutral-500 dark:text-neutral-400">This goal has no topics yet.</p>
                     </div>
                 )}

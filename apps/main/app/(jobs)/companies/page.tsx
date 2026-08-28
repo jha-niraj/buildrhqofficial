@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import { Loader2 } from "lucide-react"
 import { browseCompanies, getFeaturedCompanies, getFollowedCompanyIds } from "@/actions/companies"
 import { CompaniesContent } from "./companies-content"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 export const dynamic = "force-dynamic"
 
@@ -30,7 +31,7 @@ export default async function CompaniesPage() {
         <Suspense 
             fallback={
                 <div className="min-h-full flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                    <InlineLoader size="lg" className="text-neutral-400" />
                 </div>
             }
         >

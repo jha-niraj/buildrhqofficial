@@ -269,7 +269,7 @@ async function getRecentVisitors(
         },
       },
       messages: {
-        where: (m: any, { eq }: any) => eq(m.role, "user"),
+        where: (m, { eq }) => eq(m.role, "user"),
         columns: { content: true },
       },
     },
@@ -286,7 +286,7 @@ async function getRecentVisitors(
 
     // Extract topics from questions
     const topics = session.messages
-      .flatMap((m: any) => extractTopicsFromQuestion(m.content))
+      .flatMap((m) => extractTopicsFromQuestion(m.content))
       .filter((t: string, i: number, arr: string[]) => arr.indexOf(t) === i)
       .slice(0, 5);
 

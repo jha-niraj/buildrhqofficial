@@ -185,7 +185,7 @@ export async function getDailyActivitySummary(date: Date): Promise<DailyActivity
             totalTimeSpent: dailyActivity.totalTimeSpent,
             activitiesCount: dailyActivity.activitiesCount,
             isStreakDay: dailyActivity.isStreakDay,
-            activities: dailyActivity.activities.map((activity: any) => ({
+            activities: dailyActivity.activities.map((activity) => ({
                 id: activity.id,
                 activityType: activity.activityType,
                 title: activity.title,
@@ -233,7 +233,7 @@ export async function getActivityCalendar(startDate: Date, endDate: Date) {
             orderBy: (dailyActivities, { asc }) => [asc(dailyActivities.date)],
         });
 
-        const calendarData = activities.map((activity: any) => ({
+        const calendarData = activities.map((activity) => ({
             date: new Date(activity.date),
             hasActivity: activity.hasActivity,
             totalXpEarned: activity.totalXpEarned,
@@ -285,7 +285,7 @@ export async function getUserStreak(): Promise<{ success: boolean; data?: Streak
             };
         }
 
-        const dates = activities.map((a: any) => {
+        const dates = activities.map((a) => {
             const d = new Date(a.date);
             return new Date(d.getFullYear(), d.getMonth(), d.getDate());
         });

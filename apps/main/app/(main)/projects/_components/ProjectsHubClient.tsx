@@ -132,7 +132,7 @@ export default function ProjectsHomePage() {
 			<div>
 				<section className="relative py-20">
 					<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_center,_var(--tw-gradient-stops))] from-neutral-100/50 via-white to-white dark:from-neutral-900/50 dark:via-neutral-950 dark:to-neutral-950 -z-10" />
-					<div className="max-w-7xl mx-auto px-6">
+					<div className="w-full px-6">
 						<motion.div
 							className="text-center space-y-4 max-w-4xl mx-auto"
 							initial={{ opacity: 0, y: 20 }}
@@ -212,7 +212,7 @@ export default function ProjectsHomePage() {
 					</div>
 				</section>
 				<section className="bg-white dark:bg-neutral-950">
-					<div className="max-w-7xl mx-auto px-6">
+					<div className="w-full px-6">
 						<motion.div
 							className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8"
 							initial={{ opacity: 0, y: 30 }}
@@ -250,7 +250,7 @@ export default function ProjectsHomePage() {
 					</div>
 				</section>
 				<section id="public-projects-section" className="py-24 bg-neutral-50 dark:bg-neutral-900/50">
-					<div className="max-w-7xl mx-auto px-6">
+					<div className="w-full px-6">
 						<motion.div
 							className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4"
 							initial={{ opacity: 0, y: 30 }}
@@ -281,7 +281,7 @@ export default function ProjectsHomePage() {
 					</div>
 				</section>
 				<section className="py-24 bg-white dark:bg-neutral-950">
-					<div className="max-w-7xl mx-auto px-6">
+					<div className="w-full px-6">
 						<motion.div
 							className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4"
 							initial={{ opacity: 0, y: 30 }}
@@ -312,7 +312,7 @@ export default function ProjectsHomePage() {
 					</div>
 				</section>
 				<section className="py-24 bg-white dark:bg-neutral-950">
-					<div className="max-w-7xl mx-auto px-6">
+					<div className="w-full px-6">
 						<motion.div
 							className="text-center space-y-4 mb-16"
 							initial={{ opacity: 0, y: 30 }}
@@ -376,7 +376,7 @@ export default function ProjectsHomePage() {
 					</div>
 				</section>
 				<section className="py-24 bg-neutral-50 dark:bg-neutral-900/50">
-					<div className="max-w-7xl mx-auto px-6">
+					<div className="w-full px-6">
 						<motion.div
 							className="text-center space-y-4 mb-16"
 							initial={{ opacity: 0, y: 30 }}

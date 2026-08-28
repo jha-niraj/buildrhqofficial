@@ -395,7 +395,7 @@ export async function updateUsername(newUsername: string) {
         }).where(eq(users.id, userId)).returning();
 
         return { success: true, message: "Username updated successfully", updatedUsername: updatedUser?.username };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Update error:", error);
         return { success: false, message: "Failed to update username" };
     }

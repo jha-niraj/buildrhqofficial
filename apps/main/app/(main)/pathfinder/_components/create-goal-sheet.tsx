@@ -12,7 +12,7 @@ import { Badge } from '@repo/ui/components/ui/badge'
 import { Progress } from '@repo/ui/components/ui/progress'
 import {
     Target, CheckCircle, Sparkles, ArrowRight, ArrowLeft, Brain, Check,
-    Link as LinkIcon, FolderPlus, Loader2, Wand2
+    Link as LinkIcon, FolderPlus, Wand2
 } from 'lucide-react'
 import { Switch } from '@repo/ui/components/ui/switch'
 import toast from '@repo/ui/components/ui/sonner'
@@ -25,6 +25,10 @@ import { PathfinderCategory, PathfinderLevel } from '@repo/db'
 import { cn } from '@repo/ui/lib/utils'
 import type { PathfinderGoal, PathfinderGroup } from '@/types/pathfinder'
 import { GOAL_DURATION_OPTIONS } from '@/types/pathfinder'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { AnimatedIcon } from "@repo/ui/components/animated-icons"
+import { PATHFINDER_CATEGORIES } from "@/types/pathfinder"
+import { GroupIcon, GROUP_ICONS, DEFAULT_GROUP_ICON } from './group-icon'
 
 type Group = PathfinderGroup
 
@@ -36,17 +40,21 @@ interface CreateGoalSheetProps {
     onGroupCreated?: (group: Group) => void
 }
 
-const categories: { value: PathfinderCategory; label: string; emoji: string }[] = [
-    { value: 'DSA', label: 'DSA', emoji: '🧮' },
-    { value: 'WEB_DEVELOPMENT', label: 'Web Dev', emoji: '🌐' },
-    { value: 'FRONTEND', label: 'Frontend', emoji: '🎨' },
-    { value: 'BACKEND', label: 'Backend', emoji: '⚙️' },
-    { value: 'DEVOPS', label: 'DevOps', emoji: '🚀' },
-    { value: 'AI_ML', label: 'AI/ML', emoji: '🤖' },
-    { value: 'DATABASE', label: 'Database', emoji: '🗄️' },
-    { value: 'SYSTEM_DESIGN', label: 'System Design', emoji: '🏗️' },
-    { value: 'MOBILE', label: 'Mobile', emoji: '📱' },
-    { value: 'OTHER', label: 'Other', emoji: '📚' },
+// Labels only. The ICON comes from PATHFINDER_CATEGORIES so this grid and every
+// other category surface stay in step - this list previously carried its own
+// emoji, which is how it ended up missing INTERVIEW_PREP entirely.
+const categories: { value: PathfinderCategory; label: string }[] = [
+    { value: 'DSA', label: 'DSA' },
+    { value: 'WEB_DEVELOPMENT', label: 'Web Dev' },
+    { value: 'FRONTEND', label: 'Frontend' },
+    { value: 'BACKEND', label: 'Backend' },
+    { value: 'DEVOPS', label: 'DevOps' },
+    { value: 'AI_ML', label: 'AI/ML' },
+    { value: 'DATABASE', label: 'Database' },
+    { value: 'SYSTEM_DESIGN', label: 'System Design' },
+    { value: 'MOBILE', label: 'Mobile' },
+    { value: 'INTERVIEW_PREP', label: 'Interview Prep' },
+    { value: 'OTHER', label: 'Other' },
 ]
 
 const levels: { value: PathfinderLevel; label: string; desc: string }[] = [
@@ -65,8 +73,12 @@ const focusOptions: { id: string; label: string }[] = [
     { id: 'patterns', label: 'Design Patterns' },
 ]
 
-const defaultEmojis = ['📁', '🎯', '💻', '📚', '🔥', '⭐', '🚀', '💡']
-const defaultColors = ['#525252', '#059669', '#dc2626', '#404040', '#737373', '#db2777', '#525252', '#404040']
+// Icons come from GROUP_ICONS in ./group-icon so this inline picker and the
+// full Create Group sheet offer the same set.
+// Deduped. This listed '#525252' and '#404040' TWICE, which React reported as
+// "Encountered two children with the same key" and which the user saw as the
+// same swatch offered twice in a row.
+const defaultColors = ['#525252', '#737373', '#404040', '#a3a3a3', '#059669', '#dc2626', '#db2777', '#171717']
 
 function generateSlug(title: string): string {
     return title
@@ -98,7 +110,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
     // Group creation state
     const [showNewGroup, setShowNewGroup] = useState(false)
     const [newGroupName, setNewGroupName] = useState('')
-    const [newGroupEmoji, setNewGroupEmoji] = useState('📁')
+    const [newGroupEmoji, setNewGroupEmoji] = useState<string>(DEFAULT_GROUP_ICON)
     const [newGroupColor, setNewGroupColor] = useState('#525252')
     const [creatingGroup, setCreatingGroup] = useState(false)
     const [localGroups, setLocalGroups] = useState<Group[]>(groups)
@@ -135,22 +147,46 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
         })
         setShowNewGroup(false)
         setNewGroupName('')
-        setNewGroupEmoji('📁')
+        setNewGroupEmoji(DEFAULT_GROUP_ICON)
         setNewGroupColor('#525252')
     }
+
+    /**
+     * A PRIVATE goal costs credits; a public one is free. Checked here so the
+     * button is dead before the click, not after.
+     *
+     * The old flow let the user finish the wizard, press Create, and only then
+     * meet "Insufficient credits" from the server - after the sheet had closed
+     * over three steps of input. The server check stays (it is the real one, and
+     * a client can lie), but the user should never reach it.
+     */
+    const privateGoalCost = PATHFINDER_CREDITS.privateGoalCreation
+    const needsCredits = !formData.isPublic
+    const creditShortfall = needsCredits ? Math.max(0, privateGoalCost - (credits ?? 0)) : 0
+    const cannotAfford = creditShortfall > 0
 
     const canProceed = () => {
         switch (step) {
             case 0: return formData.title.trim().length >= 3
             case 1: return formData.category !== '' && Boolean(formData.level)
-            case 2: return true
+            // The last step is where visibility is chosen, so it is the only one
+            // that can be blocked by credits.
+            case 2: return !cannotAfford
             default: return false
         }
     }
 
     const nextStep = () => {
         if (!canProceed()) {
-            toast.error('Please complete this step')
+            // A disabled button cannot fire this, but the guard stays for the
+            // keyboard and programmatic paths - and it names the real reason
+            // rather than "complete this step", which would be a lie when the
+            // step IS complete and the wallet is not.
+            toast.error(
+                cannotAfford
+                    ? `A private goal costs ${privateGoalCost} credits. You need ${creditShortfall} more, or make it public - that is free.`
+                    : 'Please complete this step'
+            )
             return
         }
         if (step < steps.length - 1) {
@@ -315,7 +351,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                 progressPercent === 100 ? (
                                                     <CheckCircle className="w-8 h-8 text-neutral-900 dark:text-neutral-100" />
                                                 ) : (
-                                                    <Brain className="w-8 h-8 text-neutral-400" />
+                                                    <AnimatedIcon name="sparkle" size={32} motion="always" className="text-neutral-500 dark:text-neutral-400" />
                                                 )
                                             }
                                         </div>
@@ -424,14 +460,21 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                             key={cat.value}
                                                                             onClick={() => setFormData({ ...formData, category: cat.value })}
                                                                             className={cn(
-                                                                                "p-2 rounded-lg border text-center transition-all",
+                                                                                "group flex cursor-pointer flex-col items-center gap-1 rounded-lg border p-2.5 text-center transition-all",
                                                                                 formData.category === cat.value
-                                                                                    ? "border-neutral-900 dark:border-white bg-neutral-100 dark:bg-neutral-800"
-                                                                                    : "border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600"
+                                                                                    ? "border-neutral-900 bg-neutral-100 text-neutral-900 dark:border-white dark:bg-neutral-800 dark:text-neutral-100"
+                                                                                    : "border-neutral-200 text-neutral-500 hover:border-neutral-300 hover:text-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:hover:border-neutral-600 dark:hover:text-neutral-100"
                                                                             )}
                                                                         >
-                                                                            <span className="text-lg">{cat.emoji}</span>
-                                                                            <p className="text-[10px] text-neutral-600 dark:text-neutral-400 mt-0.5 truncate">
+                                                                            {/* `currentColor`, so the icon darkens with the label on
+                                                                                hover and goes full-contrast when selected. The emoji
+                                                                                this replaced could do neither. */}
+                                                                            <AnimatedIcon
+                                                                                name={PATHFINDER_CATEGORIES[cat.value].icon}
+                                                                                size={22}
+                                                                                motion={formData.category === cat.value ? 'always' : 'hover'}
+                                                                            />
+                                                                            <p className="w-full truncate text-[10px]">
                                                                                 {cat.label}
                                                                             </p>
                                                                         </button>
@@ -669,7 +712,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                                     className="w-8 h-8 rounded-lg flex items-center justify-center text-sm"
                                                                                     style={{ backgroundColor: `${group.color || '#525252'}20` }}
                                                                                 >
-                                                                                    {group.emoji || '📁'}
+                                                                                    <GroupIcon value={group.emoji} size={16} />
                                                                                 </div>
                                                                                 <div className="flex-1">
                                                                                     <p className="text-sm font-medium text-neutral-900 dark:text-white">{group.name}</p>
@@ -705,18 +748,21 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                         <Label className="text-xs text-neutral-500 dark:text-neutral-400">Icon</Label>
                                                                         <div className="flex gap-1.5">
                                                                             {
-                                                                                defaultEmojis.map((emoji) => (
+                                                                                GROUP_ICONS.slice(0, 8).map((iconName) => (
                                                                                     <button
-                                                                                        key={emoji}
-                                                                                        onClick={() => setNewGroupEmoji(emoji)}
+                                                                                        key={iconName}
+                                                                                        type="button"
+                                                                                        aria-label={iconName}
+                                                                                        aria-pressed={newGroupEmoji === iconName}
+                                                                                        onClick={() => setNewGroupEmoji(iconName)}
                                                                                         className={cn(
-                                                                                            "w-8 h-8 rounded flex items-center justify-center text-sm transition-all",
-                                                                                            newGroupEmoji === emoji
-                                                                                                ? "bg-neutral-200 dark:bg-neutral-700 ring-2 ring-neutral-400"
-                                                                                                : "bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                                                                                            "flex h-8 w-8 cursor-pointer items-center justify-center rounded transition-all",
+                                                                                            newGroupEmoji === iconName
+                                                                                                ? "bg-neutral-200 text-neutral-900 ring-2 ring-neutral-400 dark:bg-neutral-700 dark:text-neutral-100"
+                                                                                                : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-100"
                                                                                         )}
                                                                                     >
-                                                                                        {emoji}
+                                                                                        <GroupIcon value={iconName} size={16} motion={newGroupEmoji === iconName ? 'always' : 'hover'} />
                                                                                     </button>
                                                                                 ))
                                                                             }
@@ -757,7 +803,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                                                         >
                                                                             {
                                                                                 creatingGroup ? (
-                                                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                                                    <InlineLoader size="sm" />
                                                                                 ) : (
                                                                                     'Create Group'
                                                                                 )
@@ -785,12 +831,19 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                                         <Button
                                             onClick={nextStep}
                                             disabled={!canProceed()}
+                                            className="cursor-pointer disabled:cursor-not-allowed"
+                                            // A disabled button with no explanation is a dead end. The
+                                            // title says why on hover, and the line under the footer
+                                            // says it without hovering.
+                                            title={cannotAfford ? `Need ${creditShortfall} more credits, or make the goal public` : undefined}
                                         >
                                             {
                                                 step === steps.length - 1 ? (
                                                     <>
                                                         {formData.generateAIPlan ? <Wand2 className="w-4 h-4 mr-1" /> : <Sparkles className="w-4 h-4 mr-1" />}
-                                                        {formData.generateAIPlan ? 'Create Goal + AI Plan' : 'Create Goal'}
+                                                        {cannotAfford
+                                                            ? `Need ${creditShortfall} more credits`
+                                                            : formData.generateAIPlan ? 'Create Goal + AI Plan' : 'Create Goal'}
                                                     </>
                                                 ) : (
                                                     <>

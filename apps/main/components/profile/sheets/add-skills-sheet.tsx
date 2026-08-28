@@ -10,10 +10,11 @@ import { Badge } from '@repo/ui/components/ui/badge'
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@repo/ui/components/ui/select'
-import { Loader2, Plus, Trash2, Code2, X } from 'lucide-react'
+import { Plus, Trash2, Code2, X } from 'lucide-react'
 import toast from '@repo/ui/components/ui/sonner'
 import { updateUserSkills, deleteSkill } from '@/actions/(main)/user/user.action'
 import type { UserSkill } from '@/types/user'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 const CATEGORIES = [
     'LANGUAGES', 'FRAMEWORKS_LIBRARIES', 'TOOLS_DATABASES',
@@ -180,7 +181,7 @@ export function AddSkillsSheet({ open, onOpenChange, onSuccess, existingSkills =
                                             onClick={() => handleDelete(skill.id, skill.name)}
                                         >
                                             {deletingId === skill.id
-                                                ? <Loader2 className="w-3 h-3 animate-spin" />
+                                                ? <InlineLoader size="sm" />
                                                 : <Trash2 className="w-3 h-3" />
                                             }
                                         </Button>

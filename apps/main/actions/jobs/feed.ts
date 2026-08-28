@@ -253,7 +253,7 @@ async function loadInterviewProcesses(jobRows: any[]) {
                     roundType: true,
                     hasMockInterview: true,
                 },
-                orderBy: (r: any, { asc }: any) => [asc(r.roundNumber)],
+                orderBy: (r, { asc }) => [asc(r.roundNumber)],
             },
         },
     })

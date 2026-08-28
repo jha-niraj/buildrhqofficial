@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
     ChevronLeft, Plus, CheckCircle2, Clock, LayoutList, Sparkles, 
-    Loader2, Book, Users, AlertTriangle, Brain, Lock, MonitorPlay, 
+    Book, Users, AlertTriangle, Brain, Lock, MonitorPlay, 
     FileText, Target, Code2, Lightbulb, ChevronDown, Terminal, Copy, 
     Check, Mic
 } from 'lucide-react'
@@ -46,6 +46,7 @@ import {
     getCodeChallengeInstructions, submitCodeForValidation,
     getTaskAssessmentStatus, getSprintCompletionStatus,
 } from '@/actions/(main)/projects/projectassessments.action'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface TaskLearn {
     title: string
@@ -802,7 +803,7 @@ export default function SprintsPageClient({
                                                 disabled={isSubmittingTask}
                                                 className="bg-black text-white dark:bg-white dark:text-black"
                                             >
-                                                {isSubmittingTask ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Add Task'}
+                                                {isSubmittingTask ? <InlineLoader size="sm" /> : 'Add Task'}
                                             </Button>
                                         </DialogFooter>
                                     </DialogContent>
@@ -1304,7 +1305,7 @@ export default function SprintsPageClient({
                                                 ) : selectedTask ? (
                                                     isLoadingAssessment ? (
                                                         <div className="flex flex-col items-center justify-center h-[50vh]">
-                                                            <Loader2 className="w-8 h-8 animate-spin text-neutral-800 dark:text-neutral-200 mb-4" />
+                                                            <InlineLoader size="lg" className="text-neutral-800 dark:text-neutral-200 mb-4" />
                                                             <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading assessment...</p>
                                                         </div>
                                                     ) : selectedTask.assessmentType === 'QUIZ' && quizQuestions.length > 0 ? (
@@ -1403,7 +1404,7 @@ export default function SprintsPageClient({
                                                                 >
                                                                     {
                                                                         isLoadingAssessment ? (
-                                                                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                                                            <InlineLoader size="sm" className="mr-2" />
                                                                         ) : null
                                                                     }
                                                                     Submit Code

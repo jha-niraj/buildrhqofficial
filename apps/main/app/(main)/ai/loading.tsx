@@ -18,7 +18,7 @@ export default function Loading() {
 
             {/* Hero - copy left, fanned template artwork right on lg+. */}
             <section className="relative border-b border-neutral-100 pt-12 pb-16 lg:pt-20 lg:pb-24 dark:border-neutral-800">
-                <div className="mx-auto max-w-7xl px-6">
+                <div className="w-full px-6">
                     <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_22rem]">
                         <div className="space-y-7">
                             <Shimmer className="h-8 w-64 rounded-full" />
@@ -47,7 +47,7 @@ export default function Loading() {
 
             {/* Stat band - four centred tiles: icon, value, label. */}
             <section className="border-b border-neutral-100 bg-white py-12 dark:border-neutral-800 dark:bg-neutral-950">
-                <div className="mx-auto max-w-7xl px-6">
+                <div className="w-full px-6">
                     <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-12">
                         {Array.from({ length: 4 }).map((_, i) => (
                             <div key={i} className="flex flex-col items-center text-center">
@@ -62,7 +62,7 @@ export default function Loading() {
 
             {/* The tools - heading, then three cards. */}
             <section className="bg-neutral-50/50 py-20 dark:bg-neutral-950">
-                <div className="mx-auto max-w-7xl px-6">
+                <div className="w-full px-6">
                     <div className="max-w-2xl space-y-4">
                         <Shimmer className="h-9 w-40" />
                         <Shimmer className="h-6 w-3/4" delay={0.05} />
@@ -94,7 +94,7 @@ export default function Loading() {
 
             {/* How a run goes - heading, then three numbered steps. */}
             <section className="border-t border-neutral-100 bg-white py-20 dark:border-neutral-800 dark:bg-neutral-950">
-                <div className="mx-auto max-w-7xl px-6">
+                <div className="w-full px-6">
                     <div className="max-w-2xl space-y-4">
                         <Shimmer className="h-9 w-72" />
                         <Shimmer className="h-6 w-2/3" delay={0.05} />
@@ -124,7 +124,7 @@ export default function Loading() {
 
             {/* Prices - the table on the left, the balance card on the right. */}
             <section className="border-t border-neutral-100 bg-neutral-50/50 py-20 dark:border-neutral-800 dark:bg-neutral-950">
-                <div className="mx-auto max-w-7xl px-6">
+                <div className="w-full px-6">
                     <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
                         <div>
                             <Shimmer className="mb-4 h-9 w-64" />

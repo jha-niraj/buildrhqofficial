@@ -7,7 +7,7 @@ import {
     Card, CardContent, CardHeader, CardTitle, CardDescription 
 } from '@repo/ui/components/ui/card'
 import { 
-    Loader2, CheckCircle2, MonitorPlay, Sparkles, BookOpen 
+    CheckCircle2, MonitorPlay, Sparkles, BookOpen 
 } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import { toast } from '@repo/ui/components/ui/sonner'
@@ -18,6 +18,7 @@ import {
     prepareSprintMockKnowledge, getSprintMockStatus,
     saveSprintMockResult
 } from '@/actions/(main)/projects/projectassessments.action'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 
 // ============================================
@@ -377,7 +378,7 @@ export default function SprintMockInterview({
                 >
                     {isLoading ? (
                         <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            <InlineLoader size="sm" className="mr-2" />
                             Preparing...
                         </>
                     ) : (

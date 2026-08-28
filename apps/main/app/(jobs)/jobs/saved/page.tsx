@@ -4,6 +4,7 @@ import { getSession } from "@repo/auth"
 import { headers } from "next/headers"
 import { getSavedFeedJobs } from "@/actions/jobs"
 import { SavedJobsContent } from "./saved-jobs-content"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 export const dynamic = "force-dynamic"
 
@@ -24,7 +25,7 @@ export default async function SavedJobsPage() {
         <Suspense 
             fallback={
                 <div className="flex items-center justify-center py-20">
-                    <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                    <InlineLoader size="lg" className="text-neutral-400" />
                 </div>
             }
         >

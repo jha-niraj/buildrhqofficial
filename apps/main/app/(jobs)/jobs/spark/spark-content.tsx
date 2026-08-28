@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
-    Sparkles, LayoutList, Loader2, PartyPopper,
+    Sparkles, LayoutList, PartyPopper,
     Building2, RefreshCw, ArrowRight
 } from "lucide-react"
 import { Button } from "@repo/ui/components/ui/button"
@@ -16,6 +16,7 @@ import { SkillGapModal } from "../components/skill-gap-modal"
 import { recordSwipeAction, getSparkJobs } from "@/actions/jobs/tabs"
 import { toggleSaveJob, type FeedJobResult } from "@/actions/jobs"
 import { toast } from "@repo/ui/components/ui/sonner"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface SparkContentProps {
     initialJobs: FeedJobResult[]
@@ -181,7 +182,7 @@ export function SparkContent({ initialJobs, pagination, isAuthenticated }: Spark
                         animate={{ opacity: 1 }}
                         className="flex flex-col items-center justify-center py-20"
                     >
-                        <Loader2 className="w-10 h-10 animate-spin text-neutral-400 mb-4" />
+                        <InlineLoader size="lg" className="text-neutral-400 mb-4" />
                         <p className="text-neutral-500 dark:text-neutral-400">Loading more jobs...</p>
                     </motion.div>
                 ) : (

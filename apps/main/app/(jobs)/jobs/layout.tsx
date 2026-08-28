@@ -4,6 +4,7 @@ import { getSession } from "@repo/auth"
 import { headers } from "next/headers"
 import { getJobsTabCounts } from "@/actions/jobs/tabs"
 import { JobsTabsWrapper } from "./components/jobs-tabs-wrapper"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 export default async function JobsLayout({
     children
@@ -52,7 +53,7 @@ export default async function JobsLayout({
             {/* Page Content */}
             <Suspense fallback={
                 <div className="flex items-center justify-center py-20">
-                    <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                    <InlineLoader size="lg" className="text-neutral-400" />
                 </div>
             }>
                 {children}

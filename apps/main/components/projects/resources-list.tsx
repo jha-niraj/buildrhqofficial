@@ -21,6 +21,7 @@ import { ResourceType } from '@repo/db'
 import toast from '@repo/ui/components/ui/sonner'
 import { formatDistanceToNow } from 'date-fns'
 import AddResourceSheet from './add-resource-sheet'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 const RESOURCE_TYPES = [
     { value: 'ALL', label: 'All Resources', icon: FileText },
@@ -166,7 +167,7 @@ export default function ResourcesList({ projectId, currentUserId, isCreator }: R
     if (loading) {
         return (
             <div className="flex items-center justify-center py-12">
-                <div className="w-8 h-8 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                <InlineLoader size="lg" />
             </div>
         )
     }

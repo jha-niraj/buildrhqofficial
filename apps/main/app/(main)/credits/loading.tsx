@@ -1,0 +1,32 @@
+// Matched to credits-client: header with three stat cards, then a purchases
+// table and a history list. A skeleton that does not match is worse than none,
+// because the page visibly reflows when the real thing lands.
+export default function Loading() {
+    return (
+        <div className="flex h-dvh flex-col overflow-hidden">
+            <div className="shrink-0 border-b border-neutral-200 px-6 py-5 dark:border-neutral-800">
+                <div className="h-6 w-28 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
+                <div className="mt-2 h-4 w-96 max-w-full animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
+                <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                    {[0, 1, 2].map((i) => (
+                        <div key={i} className="h-[74px] animate-pulse rounded-xl bg-neutral-200 dark:bg-neutral-800" />
+                    ))}
+                </div>
+            </div>
+            <div className="space-y-8 p-6">
+                <div>
+                    <div className="h-4 w-24 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
+                    <div className="mt-3 h-40 animate-pulse rounded-xl bg-neutral-200 dark:bg-neutral-800" />
+                </div>
+                <div>
+                    <div className="h-4 w-20 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
+                    <div className="mt-3 space-y-px overflow-hidden rounded-xl">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="h-16 animate-pulse bg-neutral-200 dark:bg-neutral-800" />
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
-import { MessageSquare, Loader2, LogIn } from "lucide-react"
+import { MessageSquare, LogIn } from "lucide-react"
 import { useSession } from "@repo/auth/client"
 import { Button } from "@repo/ui/components/ui/button"
 import toast from "@repo/ui/components/ui/sonner"
@@ -15,6 +15,7 @@ import type {
 } from "@/types/comments"
 import { CommentComposer } from "./comment-composer"
 import { CommentItem } from "./comment-item"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface CommentThreadProps {
     entityType: CommentEntityType
@@ -228,7 +229,7 @@ export function CommentThread({
             <div className="mt-3">
                 {loading ? (
                     <div className="flex items-center justify-center py-8 text-neutral-400">
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        <InlineLoader size="sm" className="mr-2" />
                         <span className="text-sm">Loading comments…</span>
                     </div>
                 ) : nodes.length === 0 ? (

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
-    ArrowLeft, Clock, Send, Loader2, CheckCircle2, AlertCircle, Play,
+    ArrowLeft, Clock, Send, CheckCircle2, AlertCircle, Play,
     Mic, MicOff, Volume2, Square,
 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
@@ -39,6 +39,7 @@ import toast from "@repo/ui/components/ui/sonner";
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import { SDComponentLibrary } from "./sd-component-library";
 import { APITester } from "./api-tester";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 const ExcalidrawCanvas = dynamic(
     () => import("./excalidraw-canvas"),
@@ -232,7 +233,7 @@ export function PracticeWorkspace({ problem, session, mode }: PracticeWorkspaceP
                                     }
                                 }}
                             >
-                                {isRunning ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Play className="h-3.5 w-3.5 mr-1" />}
+                                {isRunning ? <InlineLoader size="sm" className="mr-1" /> : <Play className="h-3.5 w-3.5 mr-1" />}
                                 {isRunning ? "Running..." : "Run"}
                             </Button>
                         )
@@ -507,7 +508,7 @@ function OutputPanel({
             <div className="flex-1 overflow-auto p-3 font-mono text-xs">
                 {isRunning ? (
                     <div className="flex items-center gap-2 text-neutral-400">
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        <InlineLoader size="sm" />
                         <span>Running code...</span>
                     </div>
                 ) : result ? (
@@ -841,7 +842,7 @@ function ChatPanel({
                 {
                     store.isChatLoading && (
                         <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            <InlineLoader size="sm" />
                             <span className="text-xs">Thinking...</span>
                         </div>
                     )
@@ -1021,7 +1022,7 @@ function SubmitButton({
             {
                 store.isAssessing ? (
                     <>
-                        <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                        <InlineLoader size="sm" className="mr-1.5" />
                         Assessing...
                     </>
                 ) : (

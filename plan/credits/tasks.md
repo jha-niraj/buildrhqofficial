@@ -309,3 +309,288 @@ and a route to buy.
 Either the referrer should be paid in credits or the activity row is misleading.
 Deferred: it is a decision about referral economics, not a bug. Raised
 2026-08-20.
+
+---
+
+## CR-10 - Signed-out visitors are inside the app
+
+- [x] **Status:** done, verified 2026-08-28
+- **Serves:** definition-of-done 9
+
+**Why.** A signed out user sees the full application: sidebar, Pathfinder,
+Projects, AI Tools, KnowMe, Jobs. The sidebar says "Sign In" and "0 credits"
+while the page behind it renders as though they were a member.
+
+`middleware.ts:203` is the whole bug:
+
+```ts
+const isProtected = protectedRoutes.some(r => pathname.startsWith(r))
+```
+
+`protectedRoutes` has **four** entries - `/home`, `/profile`, `/settings`,
+`/transactions`. Everything else is public by omission rather than by decision.
+There IS a list of intended public routes directly above it, `_publicRoutes`,
+but the underscore says it all: nothing reads it. It is documentation of an
+intent the code never implemented.
+
+**This is a deny-by-default problem, not a missing-entry problem.** Adding
+`/pathfinder` to the list fixes today's screenshot and leaves the next module to
+ship exposed. The default has to flip.
+
+**Files.** `apps/main/middleware.ts`
+
+**Steps.**
+1. Replace `protectedRoutes` with `PUBLIC_ROUTES` and invert the check:
+   everything under the matcher requires a session unless it is public.
+2. Public set: `/signin`, `/register`, `/forgotpassword`, `/resetpassword`,
+   `/error`, and `/purchase`.
+3. Keep the existing `callbackUrl` behaviour so the visitor returns to where
+   they were headed after signing in.
+
+**Edge cases.**
+- **`/purchase` must stay public** and is the only in-app page that is. Someone
+  has to be able to see what credits cost before they sign up. Its History and
+  Bounty actions are NOT public - they move to `/credits` in CR-11.
+- **Exact match versus prefix.** `/signin` must not open `/signin-anything`.
+  Match the route exactly, or by prefix only where a subtree is genuinely public.
+- The onboarding gate below must keep running for signed-in users. Flipping the
+  default must not return early past it.
+- `/` already redirects for signed-in users; signed-out it must reach the
+  marketing site rather than bounce to `/signin`.
+- The matcher already excludes `api/auth`, `api/webhooks`, `_next/*` and files
+  with extensions. Do not widen it.
+
+**Done when.** Signed out, `/pathfinder` `/projects` `/ai` `/knowme` `/jobs`
+`/home` each redirect to `/signin?callbackUrl=...`; `/purchase` returns 200; and
+signing in from that redirect lands back on the original path.
+
+**Verified 2026-08-28**, with a cookie-less client:
+
+    /pathfinder    307 -> /signin?callbackUrl=%2Fpathfinder
+    /projects      307 -> /signin?callbackUrl=%2Fprojects
+    /ai            307 -> /signin?callbackUrl=%2Fai
+    /knowme        307 -> /signin?callbackUrl=%2Fknowme
+    /jobs/browse   307 -> /signin?callbackUrl=%2Fjobs%2Fbrowse
+    /home          307 -> /signin?callbackUrl=%2Fhome
+    /transactions  307 -> /signin?callbackUrl=%2Ftransactions
+    /purchase      200
+    /signin        200
+
+`_publicRoutes` is deleted. It listed twenty-three paths that were meant to be
+public and was never read by anything - the underscore was the only honest thing
+about it.
+
+---
+
+## CR-11 - A credits page
+
+- [x] **Status:** done, verified 2026-08-28
+- **Serves:** definition-of-done 10
+- **Blocked by:** CR-10 (it is a protected route)
+
+**Why.** Definition-of-done 2 says every credit has a ledger row explaining
+where it came from. Nothing SHOWS the user those rows. The balance is a number in
+the sidebar, purchases are an email receipt, and the ledger is invisible - so
+"where did my credits go" has no answer in the product.
+
+`/transactions` exists and lists transactions, but it is reached from a History
+button on the pricing page, which is the wrong home: pricing is for people who
+have not paid yet.
+
+**Files.**
+- `apps/main/app/(main)/credits/page.tsx`, `loading.tsx`, `_components/` (new)
+- `apps/main/lib/navigation.ts`
+- `apps/main/app/(main)/purchase/_components/PurchaseClient.tsx`
+
+**Steps.**
+1. `/credits` with: the current balance, purchases (amount, credits, status,
+   receipt), and the full ledger from `credit_transaction`.
+2. Move the **History** button off `/purchase` and onto `/credits`.
+3. Move **Bounty Program** onto `/credits` as well, and KEEP it on `/purchase` -
+   Niraj, 2026-08-28: it is an offer, and the pricing page is where an offer
+   belongs.
+4. Add to navigation.
+
+**Edge cases.**
+- **A zero-row ledger is the common case today**, not an error. The empty state
+  has to read as "no purchases yet", never as a spinner or a blank panel.
+- `payments.amount` is `decimal(10,2)` and arrives from the driver as a STRING.
+  Formatting it as a number without parsing prints `12.00` as `12`.
+- Both `INR` and `USD` exist in `payments.currency`. Format per row, not per page.
+- A `PENDING` payment is not a purchase yet. Show the status rather than counting
+  it in a total.
+
+**Done when.** `/credits` shows the balance, at least one purchase row with its
+status and currency, and ledger rows; `/purchase` no longer has a History button
+and still has Bounty; `pnpm check-nav` passes.
+
+**Verified 2026-08-28.** `/credits` is gated (307 to `/signin?callbackUrl=%2Fcredits`
+signed out), `/purchase` has no History button and keeps Bounty, and `check-nav`
+passes at 36 paths. The History side panel and its drag-to-resize handling - 121
+lines - went with it; `PurchaseClient` dropped from 852 to ~640 lines.
+
+**Real data caught a bug the schema comment did not.** The action assumed SPEND
+rows stored positive amounts with the sign implied by `type`. They do not: the
+ledger holds `SPEND -3` and `SPEND -5`. Summing by type made `totalSpent`
+negative, and the row would have rendered `--3`. Totals now split on the SIGN of
+the amount rather than on `type`, which is also the more robust rule - a new
+transaction type cannot break the arithmetic by not being spelled "SPEND".
+
+---
+
+## CR-12 - One FAQ list, shared
+
+- [x] **Status:** done, verified 2026-08-28
+
+**Why.** `/purchase` has no FAQ at all. `apps/web` has nine good ones in
+`app/(home)/pricing/_components/pricing-faqs.ts`. Copying them into `apps/main`
+would make a second copy that drifts - the exact failure that produced three
+mock-interview implementations and three copies of the pathfinder category union.
+
+**Files.**
+- `packages/pricing/src/faqs.ts` (new)
+- `apps/web/app/(home)/pricing/_components/pricing-faqs.ts`
+- `apps/main` purchase page
+
+**Steps.** Move the list into `@repo/pricing`, which `apps/main` already depends
+on, and re-export from the web location so that page does not change. Extend to
+around fourteen questions, covering what the current nine miss: refunds,
+invoices, expiry, minimum purchase, what happens at zero.
+
+**Edge cases.**
+- `@repo/pricing` is imported by server and client code in three apps. Keep the
+  file free of React and of anything Node-only.
+- The web page feeds these into `faqSchema()` for rich results. The shape
+  (`{ q, a }`) must not change or the structured data silently stops emitting.
+
+**Done when.** Both apps render from the same array, `apps/web` and `apps/main`
+typecheck, and the web page's FAQ JSON-LD still contains every question.
+
+**Verified 2026-08-28.** Fifteen questions (was eight) in
+`packages/pricing/src/faqs.ts`; `apps/web`, `apps/main` and `packages/pricing`
+all typecheck at zero errors.
+
+**Exposed as a SUBPATH export, `@repo/pricing/faqs`, and that detail is
+load-bearing.** Re-exporting it from `index.ts` needed a relative import, and the
+two toolchains disagree about how to write one: `tsc` under `moduleResolution:
+node16` demands `./faqs.js`, and Next's bundler cannot resolve that because the
+file is `.ts`. Satisfying tsc produced a clean typecheck and a **500 on
+/purchase** - `Module not found: Can't resolve './faqs.js'`. A subpath export
+means nothing imports it relatively and both tools are happy.
+
+---
+
+## CR-13 - Redesign the purchase page
+
+- [x] **Status:** done, verified 2026-08-28
+- **Blocked by:** CR-12
+
+**Why.** Niraj, 2026-08-28: the page is "very bad". The specific problems, from
+the screenshot:
+
+- The custom-amount control is the loudest thing on the page: a full-width panel
+  with the number set in roughly 72px type, above the packs it should be
+  secondary to. Most people want a pack.
+- Four trust badges (AES-256, <100ms, No Expiration, Refund Policy) sit above the
+  fold, ahead of any price.
+- No FAQ, so every question a buyer has goes unanswered on the page where they
+  decide.
+
+**The reference** is the ElevenLabs pricing page Niraj shared: a quiet row of
+plan cards, each with its price and what it includes, and a long plain FAQ
+accordion underneath. No hero, no badges, no gradients.
+
+**Files.** `apps/main/app/(main)/purchase/_components/PurchaseClient.tsx` (852
+lines today), `loading.tsx`
+
+**Steps.**
+1. Packs first, as a row of cards.
+2. Custom amount becomes a compact control in the top right, not a hero panel.
+3. FAQ accordion from CR-12 underneath.
+4. Trust badges drop to a single quiet line near the button, or go.
+5. Keep the currency toggle and the Bounty Program sheet.
+
+**Edge cases.**
+- **The skeleton must be rebuilt with the page.** `loading.tsx` is hand-matched
+  to the current layout; leaving it produces exactly the reflow the rule in
+  CLAUDE.md exists to prevent.
+- Monochrome. The reference page is colourful; the palette here is not.
+- The page is PUBLIC (CR-10). It must render for a signed-out visitor with no
+  balance, and its buy action must send them to sign-in rather than failing.
+- Razorpay checkout is loaded by the layout `<Script>`. Do not move the buy
+  handler into a component that unmounts before the callback returns.
+
+**Done when.** Packs are the first thing below the title, the custom control is
+in the top right, the FAQ renders every question from `@repo/pricing`, the
+skeleton matches, and a signed-out visitor can read the whole page.
+
+**Verified 2026-08-28** by fetching `/purchase` with no cookies (200, 126KB) and
+grepping the HTML:
+
+    Frequently asked questions              present
+    How does ShipItHQ pricing work          present
+    What happens when I run out of credits  present
+    Where can I see what I have spent       present
+    Custom amount                           present
+    Bounty Program                          present
+    AES-256 Encryption                      absent   (trust badges removed)
+    >History<                               absent   (moved to /credits)
+
+`loading.tsx` was rewritten alongside it. It described the old hero-panel layout,
+and leaving it would have produced exactly the reflow the rule in CLAUDE.md
+exists to prevent - the skeleton drawing one page and the real thing replacing it
+with another.
+
+**Amended 2026-08-28 after review, two further changes.**
+
+**1. The pack grid was a bento and should not have been.** `PricingBento` gave
+the popular pack a wide `FeaturedCard` at `lg:col-span-5` and dealt the rest
+3, 4, 4, 8 - five cards at four different widths, the last stretched across the
+whole row. The eye had to re-learn the layout at every step and prices could not
+be compared down a column. Every card is now identical in a uniform
+`md:2 / xl:4` grid with `items-stretch`, and the popular pack is marked by a ring
+and its badge rather than by being a different SIZE. `FeaturedCard` (97 lines) is
+deleted - nothing rendered it any more.
+
+This is SHARED: the marketing pricing page and the landing page render the same
+component, and both get the same layout. `packages/ui`, `apps/web` and
+`apps/main` all typecheck.
+
+**2. The FAQ was fifteen full-width rounded pills**, which read as fifteen
+buttons rather than one list. It is now two columns: a STICKY left rail carrying
+the section title and its CTAs, and the questions scrolling against it on the
+right, separated by rules rather than boxed one per card.
+
+`lg:self-start` on the sticky rail is load-bearing and easy to miss - a grid item
+stretches to the row height by default, and a stretched item has nowhere to
+travel, so `sticky` silently does nothing.
+
+**Amended again 2026-08-28. The sticky rail still did not stick**, and
+`lg:self-start` was not the reason.
+
+`PurchaseClient`'s ROOT carried `overflow-hidden`. An ancestor with
+`overflow: hidden` becomes the containing block that `position: sticky` measures
+against, and since that element does not scroll, the rail had nowhere to travel.
+The class looked harmless, sat three hundred lines from the thing it broke, and
+`position: sticky` computed correctly the whole time - which is what makes this
+failure mode so hard to see. It was there to clip a grid background that is
+`absolute inset-0` and therefore bounded by the root anyway.
+
+Verified by walking the ancestor chain from the rail to the scrollport in the
+live DOM: every level now reports `overflow: visible` with no transform.
+
+Three other things went in with it:
+- **`max-w-7xl` on the page.** At full width the pack cards stretched into a
+  shape no price card wants, and the FAQ line length ran past comfortable
+  reading.
+- **The FAQ rows were pills because of the SHARED component**, not this page.
+  `AccordionItem` in packages/ui defaults to
+  `rounded-2xl bg-neutral-100 dark:bg-neutral-900`. Overridden here to a plain
+  row with a rule and real padding (`px-4 py-5`).
+- **Prices and credit counts now count up** when the currency toggles, via a new
+  `@repo/ui/components/ui/count-up`. Flipping INR to USD replaced every number
+  instantly, which reads as a glitch rather than as a change the user made. The
+  currency SYMBOL is split off the digits so only the number animates, INR counts
+  in whole rupees and USD to two places, and `prefers-reduced-motion` sets the
+  final value immediately - a price someone cannot pin down is worse than no
+  animation.

@@ -10,7 +10,7 @@ import {
 } from '@repo/ui/components/ui/tabs'
 import {
     Code2, Play, CheckCircle2, XCircle, Lightbulb, ChevronDown,
-    ChevronUp, Loader2, RefreshCcw
+    ChevronUp, RefreshCcw
 } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import CodeEditor from '@/components/main/code-editor'
@@ -18,6 +18,7 @@ import { submitSubGoalCoding } from '@/actions/(main)/pathfinder/subgoals.action
 import {
     Collapsible, CollapsibleContent, CollapsibleTrigger
 } from '@repo/ui/components/ui/collapsible'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface CodingProblem {
     id?: string
@@ -351,7 +352,7 @@ export function SubGoalCoding({ subGoal, onComplete }: SubGoalCodingProps) {
                     {
                         isSubmitting ? (
                             <>
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                <InlineLoader size="sm" className="mr-2" />
                                 Evaluating...
                             </>
                         ) : (

@@ -499,6 +499,83 @@
     }
 }
 
+/* ── Animated icon primitives ────────────────────────────────────────────────
+   Extends the `sh-art-*` vocabulary above rather than starting a second one.
+   Same reasoning applies: CSS, not a motion library, because these render inside
+   server components and in grids of ten or more at once.
+
+   Used by `@repo/ui/components/animated-icons`. Every icon is built from these
+   five motions plus the ones above, so the whole set reads as one family instead
+   of ten unrelated animations.
+
+   `sh-art-draw` needs `stroke-dasharray` set on the element - the value differs
+   per path length, so it is inline in the component rather than guessed here. */
+
+@keyframes sh-art-draw {
+    0%       { stroke-dashoffset: var(--sh-draw-len, 100); }
+    35%, 65% { stroke-dashoffset: 0; }
+    100%     { stroke-dashoffset: calc(var(--sh-draw-len, 100) * -1); }
+}
+@keyframes sh-art-orbit  { to { transform: rotate(360deg); } }
+@keyframes sh-art-sweep  {
+    0%       { transform: translateX(-140%); }
+    60%, 100% { transform: translateX(140%); }
+}
+@keyframes sh-art-twinkle {
+    0%, 100% { opacity: 0.25; transform: scale(0.7); }
+    50%      { opacity: 1;    transform: scale(1); }
+}
+@keyframes sh-art-trace {
+    0%   { opacity: 0; }
+    10%, 45% { opacity: 1; }
+    55%, 100% { opacity: 0; }
+}
+
+.sh-art-draw {
+    stroke-dasharray: var(--sh-draw-len, 100);
+    animation: sh-art-draw 3.4s ease-in-out infinite;
+}
+.sh-art-orbit   { animation: sh-art-orbit 9s linear infinite; transform-origin: center; transform-box: fill-box; }
+.sh-art-sweep   { animation: sh-art-sweep 3.2s ease-in-out infinite; }
+.sh-art-twinkle { animation: sh-art-twinkle 2.2s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+.sh-art-trace   { animation: sh-art-trace 3s ease-in-out infinite; }
+
+/* Stagger. Applied alongside a motion class so a row of nodes fires in sequence
+   instead of in unison, which is the difference between "alive" and "blinking". */
+.sh-art-d1 { animation-delay: 0.12s; }
+.sh-art-d2 { animation-delay: 0.24s; }
+.sh-art-d3 { animation-delay: 0.36s; }
+.sh-art-d4 { animation-delay: 0.48s; }
+.sh-art-d5 { animation-delay: 0.60s; }
+
+/* Hover-only variant. A grid of ten always-moving icons competes with the page;
+   `data-motion="hover"` parks them until the card is hovered or focused. */
+[data-motion="hover"] :is(.sh-art-flow, .sh-art-pulse, .sh-art-rise, .sh-art-scan,
+    .sh-art-tick, .sh-art-caret, .sh-art-drift, .sh-art-draw, .sh-art-orbit,
+    .sh-art-sweep, .sh-art-twinkle, .sh-art-trace),
+[data-motion="hover"] .sh-art-wave > path {
+    animation-play-state: paused;
+}
+[data-motion="hover"]:is(:hover, :focus-visible, .group:hover *) :is(.sh-art-flow, .sh-art-pulse,
+    .sh-art-rise, .sh-art-scan, .sh-art-tick, .sh-art-caret, .sh-art-drift, .sh-art-draw,
+    .sh-art-orbit, .sh-art-sweep, .sh-art-twinkle, .sh-art-trace),
+[data-motion="hover"]:is(:hover, :focus-visible) .sh-art-wave > path {
+    animation-play-state: running;
+}
+.group:hover [data-motion="hover"] :is(.sh-art-flow, .sh-art-pulse, .sh-art-rise,
+    .sh-art-scan, .sh-art-tick, .sh-art-caret, .sh-art-drift, .sh-art-draw,
+    .sh-art-orbit, .sh-art-sweep, .sh-art-twinkle, .sh-art-trace),
+.group:hover [data-motion="hover"] .sh-art-wave > path {
+    animation-play-state: running;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sh-art-draw, .sh-art-orbit, .sh-art-sweep, .sh-art-twinkle, .sh-art-trace {
+        animation: none;
+        stroke-dashoffset: 0;
+    }
+}
+
 /* -- Thin scrollbar, matching the ScrollArea thumb ------------------------------
    For scroll containers that CANNOT be a Radix ScrollArea.
 

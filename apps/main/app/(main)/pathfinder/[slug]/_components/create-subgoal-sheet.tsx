@@ -8,7 +8,7 @@ import {
 import { Input } from '@repo/ui/components/ui/input'
 import { Button } from '@repo/ui/components/ui/button'
 import {
-    Loader2, Sparkles, Target
+    Sparkles, Target
 } from 'lucide-react'
 import { createSubGoal } from '@/actions/(main)/pathfinder/subgoals.action'
 import { awaitBackgroundJob } from '@/hooks/use-background-job'
@@ -16,6 +16,7 @@ import toast from '@repo/ui/components/ui/sonner'
 import type { GoalUsageSummary } from '@/app/store/pathfinderStore'
 import { usePathfinderStore } from '@/app/store/pathfinderStore'
 import { PATHFINDER_CREDITS } from '@/lib/constants/pricing'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface CreateSubGoalSheetProps {
     open: boolean
@@ -176,7 +177,7 @@ export function CreateSubGoalSheet({
                         ) : (
                             <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-8 text-center">
                                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-neutral-100 dark:bg-neutral-800/30 flex items-center justify-center">
-                                    <Loader2 className="w-8 h-8 text-neutral-900 dark:text-neutral-100 animate-spin" />
+                                    <InlineLoader size="lg" className="text-neutral-900 dark:text-neutral-100" />
                                 </div>
                                 <h3 className="font-semibold text-neutral-900 dark:text-white mb-1">
                                     Generating Content

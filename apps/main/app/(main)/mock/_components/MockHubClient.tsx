@@ -109,7 +109,7 @@ export default function MockInterviewLandingPage() {
     return (
         // <SmoothScroll>
             <main>
-                <div className="max-w-7xl mx-auto px-4 pt-6 pb-4 sm:px-6 lg:px-8">
+                <div className="w-full px-4 pt-6 pb-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -178,7 +178,7 @@ export default function MockInterviewLandingPage() {
                     </div>
                 </div>
                 <section id="interview-types" className="py-20">
-                    <div className="max-w-7xl mx-auto px-6">
+                    <div className="w-full px-6">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -248,7 +248,7 @@ export default function MockInterviewLandingPage() {
                     </div>
                 </section>
                 <section className="py-20 bg-neutral-50 dark:bg-neutral-900/50 border-y border-neutral-200 dark:border-neutral-800">
-                    <div className="max-w-7xl mx-auto px-6">
+                    <div className="w-full px-6">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}

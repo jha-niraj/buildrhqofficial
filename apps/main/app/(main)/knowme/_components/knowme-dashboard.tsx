@@ -21,6 +21,7 @@ import {
     sendChatMessage, getOrCreateChatSession, triggerManualUpdate
 } from "@/actions/(main)/knowme";
 import { formatRelativeDate } from "@/utils/knowme";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface KnowMeDashboardProps {
     profile: KnowMeProfileFull;
@@ -128,7 +129,7 @@ export default function KnowMeDashboard({ profile }: KnowMeDashboardProps) {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="w-full px-4 py-8">
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -309,7 +310,7 @@ export default function KnowMeDashboard({ profile }: KnowMeDashboardProps) {
                             disabled={isUpdating}
                             className="gap-2"
                         >
-                            <RefreshCw className={cn("w-4 h-4", isUpdating && "animate-spin")} />
+                            {isUpdating ? <InlineLoader size="sm" /> : <RefreshCw className="w-4 h-4" />}
                             {isUpdating ? "Updating..." : "Update Knowledge Base"}
                         </Button>
                         <Link href={profileUrl} target="_blank">

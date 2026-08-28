@@ -3,12 +3,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-	FileQuestion, RotateCcw, Trophy, Loader2
+	FileQuestion, RotateCcw, Trophy
 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { cn } from "@repo/ui/lib/utils";
 import Quiz, { type QuizQuestion, type QuizResult } from "@/components/main/quiz";
 import type { StudioStep, QuizMetadata } from "@/types/studios";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface QuizStepProps {
 	step: StudioStep;
@@ -39,7 +40,7 @@ export function QuizStep({ step, quizData }: QuizStepProps) {
 				className="py-8"
 			>
 				<div className="flex flex-col items-center justify-center py-12 text-center">
-					<Loader2 className="h-12 w-12 text-neutral-400 animate-spin mb-4" />
+					<InlineLoader size="lg" className="text-neutral-400 mb-4" />
 					<p className="text-neutral-600 dark:text-neutral-400">
 						Loading quiz...
 					</p>

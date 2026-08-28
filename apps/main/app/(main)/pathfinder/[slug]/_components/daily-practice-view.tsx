@@ -6,7 +6,7 @@ import { Button } from '@repo/ui/components/ui/button'
 import { ScrollArea } from '@repo/ui/components/ui/scroll-area'
 import { Badge } from '@repo/ui/components/ui/badge'
 import {
-    Target, Plus, CheckCircle2, Circle, Loader2, ArrowLeft, Code2,
+    Target, Plus, CheckCircle2, Circle, ArrowLeft, Code2,
     Brain, Trophy, Trash2, ChevronRight, Calendar, Sparkles, Coins,
     NotebookPen, Mic
 } from 'lucide-react'
@@ -31,6 +31,8 @@ import { PathfinderUsageWidget } from './pathfinder-usage-widget'
 import { CreatorEarningsSheet } from './creator-earnings-sheet'
 import { PathfinderMockSheet } from './pathfinder-mock-sheet'
 import toast from '@repo/ui/components/ui/sonner'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { AnimatedIcon } from "@repo/ui/components/animated-icons"
 
 function PathfinderMockButton({ goalId, goalTitle }: { goalId: string; goalTitle: string }) {
     const [sheetOpen, setSheetOpen] = useState(false)
@@ -67,6 +69,13 @@ interface SubGoal {
     codingCompleted: boolean
     codingPassed: boolean
     order: number
+    /**
+     * What kind of thing this sub-goal is. `TOPIC` for everything created before
+     * interview prep existed, and for every ordinary study goal - which is why
+     * the badge below renders only when it is NOT `TOPIC`. A `TOPIC` chip would
+     * appear on every sub-goal in the product and say nothing.
+     */
+    kind?: 'TOPIC' | 'TECHNICAL' | 'BEHAVIORAL' | 'CODING'
     isAIGenerated?: boolean
     isContentLoaded?: boolean
     studioId?: string | null
@@ -259,15 +268,22 @@ function SubGoalItem({
                                 className="inline-flex items-center gap-1 text-[10px] h-5 px-2 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-medium hover:opacity-90 transition-opacity"
                                 disabled={isGenerating}
                             >
-                                {isGenerating ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Sparkles className="w-2.5 h-2.5" />}
+                                {isGenerating ? <InlineLoader size="sm" /> : <Sparkles className="w-2.5 h-2.5" />}
                                 {isGenerating ? 'Generating...' : 'Generate Content'}
                             </button>
                         )
                     }
                     {
+                        subGoal.kind && subGoal.kind !== 'TOPIC' && (
+                            <Badge variant="secondary" className="h-4 px-1 text-[10px] bg-neutral-200 text-neutral-800 dark:bg-neutral-700 dark:text-neutral-100">
+                                {subGoal.kind === 'TECHNICAL' ? 'Technical' : subGoal.kind === 'BEHAVIORAL' ? 'Behavioral' : 'Coding'}
+                            </Badge>
+                        )
+                    }
+                    {
                         subGoal.isAIGenerated && !needsContentGeneration && !hasContent && (
                             <Badge variant="secondary" className="text-[10px] h-4 px-1">
-                                <Loader2 className="w-2 h-2 mr-1 animate-spin" />
+                                <InlineLoader size="sm" className="mr-1" />
                                 Generating...
                             </Badge>
                         )
@@ -275,7 +291,7 @@ function SubGoalItem({
                     {
                         !subGoal.isAIGenerated && !hasContent && (
                             <Badge variant="secondary" className="text-[10px] h-4 px-1">
-                                <Loader2 className="w-2 h-2 mr-1 animate-spin" />
+                                <InlineLoader size="sm" className="mr-1" />
                                 Generating...
                             </Badge>
                         )
@@ -317,7 +333,7 @@ function SubGoalItem({
             >
                 {
                     isDeleting ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <InlineLoader size="sm" />
                     ) : (
                         <Trash2 className="w-4 h-4" />
                     )
@@ -576,7 +592,7 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
                                     if (sessionsToShow.length === 0) {
                                         return (
                                             <div className="text-center py-12 text-neutral-400">
-                                                <Target className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                                                <AnimatedIcon name="empty-search" size={40} motion="always" className="mx-auto mb-3 opacity-60" />
                                                 <p className="text-sm">No tasks yet</p>
                                                 <p className="text-xs mt-1">Add your first learning task above</p>
                                             </div>
@@ -731,7 +747,7 @@ export function DailyPracticeView({ goal, initialSession, allSessions: initialAl
                     <div className="flex min-h-0 flex-1 items-center justify-center p-8">
                         <div className="text-center">
                             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
-                                <Target className="w-8 h-8 text-neutral-400 dark:text-neutral-500" />
+                                <AnimatedIcon name="target" size={32} motion="always" className="text-neutral-500 dark:text-neutral-400" />
                             </div>
                             <h3 className="font-semibold text-neutral-700 dark:text-neutral-200 mb-1">
                                 Select a Task

@@ -470,6 +470,16 @@ export const projectV2QuizAnswers = pgTable(
     ],
 );
 
+/**
+ * See `mock_voice_session` in ./mock.ts - there are TWO mock-session tables on
+ * purpose, and plan/mock-consolidation/overview.md argues why.
+ *
+ * Short version: the ElevenLabs session lifecycle is shared between them (via
+ * utils/elevenlabs/conversations.ts), but this table is about the user's OWN
+ * project - projectId, sprintId, and scores for work they actually did - while
+ * `mock_voice_session` is about a priced, publicly listed, rated scenario.
+ * Merging them leaves half the columns null for half the rows.
+ */
 export const projectV2MockSessions = pgTable(
     "project_v2_mock_session",
     {

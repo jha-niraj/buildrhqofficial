@@ -1,11 +1,12 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Loader2, Send, X } from "lucide-react"
+import { Send, X } from "lucide-react"
 import { Button } from "@repo/ui/components/ui/button"
 import { Textarea } from "@repo/ui/components/ui/textarea"
 import { cn } from "@repo/ui/lib/utils"
 import { COMMENT_MIN_LENGTH, COMMENT_MAX_LENGTH } from "@/types/comments"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface CommentComposerProps {
     onSubmit: (body: string) => Promise<void>
@@ -112,7 +113,7 @@ export function CommentComposer({
                         className="bg-neutral-900 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 text-white dark:text-neutral-900"
                     >
                         {submitting ? (
-                            <><Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />Posting…</>
+                            <><InlineLoader size="sm" className="mr-1" />Posting…</>
                         ) : (
                             <><Send className="h-3.5 w-3.5 mr-1" />{submitLabel}</>
                         )}

@@ -11,7 +11,7 @@ export default function Loading() {
 
             {/* Hero - centred badge, headline, sub, CTA row, trust pills. */}
             <section className="relative py-20">
-                <div className="mx-auto max-w-7xl px-6">
+                <div className="w-full px-6">
                     <div className="mx-auto max-w-4xl space-y-4 text-center">
                         <div className="flex justify-center">
                             <Shimmer className="h-9 w-52 rounded-full" />
@@ -40,7 +40,7 @@ export default function Loading() {
 
             {/* Stat band - 2-up on mobile, 4-up from md. */}
             <section className="bg-white dark:bg-neutral-950">
-                <div className="mx-auto max-w-7xl px-6">
+                <div className="w-full px-6">
                     <div className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:gap-8">
                         {[0, 1, 2, 3].map((i) => (
                             <div key={i} className="rounded-xl p-6 text-center">
@@ -55,7 +55,7 @@ export default function Loading() {
 
             {/* Public projects - header row + a 3-up card grid. */}
             <section className="bg-neutral-50 py-24 dark:bg-neutral-900/50">
-                <div className="mx-auto max-w-7xl px-6">
+                <div className="w-full px-6">
                     <div className="mb-12 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
                         <div className="space-y-3">
                             <Shimmer className="h-9 w-44 rounded-full" />
@@ -91,7 +91,7 @@ export default function Loading() {
 
             {/* Two-up feature section. */}
             <section className="bg-white py-24 dark:bg-neutral-950">
-                <div className="mx-auto max-w-7xl px-6">
+                <div className="w-full px-6">
                     <div className="mb-12 space-y-3 text-center">
                         <Shimmer className="mx-auto h-8 w-72" />
                         <Shimmer className="mx-auto h-4 w-96" delay={0.05} />
@@ -112,7 +112,7 @@ export default function Loading() {
 
             {/* Four-up section. */}
             <section className="bg-neutral-50 py-24 dark:bg-neutral-900/50">
-                <div className="mx-auto max-w-7xl px-6">
+                <div className="w-full px-6">
                     <div className="mb-12 space-y-3 text-center">
                         <Shimmer className="mx-auto h-8 w-64" />
                         <Shimmer className="mx-auto h-4 w-80" delay={0.05} />

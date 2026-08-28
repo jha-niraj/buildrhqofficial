@@ -68,6 +68,29 @@ export const mockInterviewVoice = pgTable(
     ],
 );
 
+/**
+ * TWO mock-session tables exist, and that is a DECISION, not an accident.
+ *
+ * This one and `project_v2_mock_session` in ./projects.ts are deliberately
+ * separate. Before merging them, read plan/mock-consolidation/overview.md.
+ *
+ * What they SHARE is the ElevenLabs session lifecycle - userId, agentId,
+ * conversationId, duration, transcript, status, startedAt, completedAt - and
+ * that half IS shared, through utils/elevenlabs/conversations.ts. One transport,
+ * one place.
+ *
+ * What they do NOT share is what the interview is ABOUT.
+ *   this table          : mockId, variables, creditsUsed, userRating, hasIssues
+ *                         - an interview against a SCENARIO somebody authored,
+ *                           which is priced, listed publicly and rated.
+ *   project_v2_mock_session : projectId, sprintId, technicalScore,
+ *                         communicationScore, strengths[], improvements[]
+ *                         - an interview about the user's OWN project, scored on
+ *                           work they actually did.
+ *
+ * Merging them makes half the columns null for half the rows: one table, two
+ * entities. Share the transport, not the interpretation.
+ */
 export const mockVoiceSession = pgTable(
     "mock_voice_session",
     {

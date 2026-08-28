@@ -18,11 +18,11 @@ import {
     Tooltip, TooltipContent, TooltipProvider, TooltipTrigger
 } from "@repo/ui/components/ui/tooltip";
 import {
-    Timer, ChevronLeft, ChevronRight, AlertCircle, Flag, AlertTriangle, Loader2,
-    Clock, Lightbulb, CheckCircle, XCircle, SkipForward, RotateCcw
+    Timer, ChevronLeft, ChevronRight, AlertCircle, Flag, AlertTriangle, Clock, Lightbulb, CheckCircle, XCircle, SkipForward, RotateCcw
 } from "lucide-react";
 import { cn } from "@repo/ui/lib/utils";
 import CodeEditor from "./code-editor";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 // ==================== TYPES ====================
 
@@ -457,7 +457,7 @@ export default function Quiz({
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <InlineLoader size="lg" />
             </div>
         );
     }
@@ -799,7 +799,7 @@ export default function Quiz({
                                     >
                                         {isSubmitting ? (
                                             <>
-                                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                                <InlineLoader size="sm" className="mr-2" />
                                                 Submitting...
                                             </>
                                         ) : (
@@ -818,7 +818,7 @@ export default function Quiz({
                                     >
                                         {isSubmitting ? (
                                             <>
-                                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                                <InlineLoader size="sm" className="mr-2" />
                                                 Submitting...
                                             </>
                                         ) : (

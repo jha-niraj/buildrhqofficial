@@ -41,11 +41,11 @@ export async function getNotifications(page = 1, limit = 20) {
                 hasMore: notificationList.length === limit,
             },
         }
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Failed to fetch notifications:", error)
         return {
             success: false,
-            error: error.message || "Failed to fetch notifications",
+            error: error instanceof Error ? error.message : "Failed to fetch notifications",
         }
     }
 }
@@ -61,8 +61,8 @@ export async function markAsRead(notificationId: string) {
 
         revalidatePath('/')
         return { success: true }
-    } catch (error: any) {
-        return { success: false, error: error.message }
+    } catch (error: unknown) {
+        return { success: false, error: error instanceof Error ? error.message : "Something went wrong" }
     }
 }
 
@@ -77,7 +77,7 @@ export async function markAllAsRead() {
 
         revalidatePath('/')
         return { success: true }
-    } catch (error: any) {
-        return { success: false, error: error.message }
+    } catch (error: unknown) {
+        return { success: false, error: error instanceof Error ? error.message : "Something went wrong" }
     }
 }

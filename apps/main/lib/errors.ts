@@ -1,7 +1,7 @@
 /**
  * Narrowing helpers for `catch (error: unknown)`.
  *
- * `catch (error: any)` is banned by CLAUDE.md, and not only on style grounds:
+ * `catch (error: unknown)` is banned by CLAUDE.md, and not only on style grounds:
  * with `any`, `error.message` type-checks even when the thrown value is a
  * string, a `Response`, or `undefined`. That is how a handler ends up rendering
  * "undefined" to the user instead of failing loudly - the type system was asked

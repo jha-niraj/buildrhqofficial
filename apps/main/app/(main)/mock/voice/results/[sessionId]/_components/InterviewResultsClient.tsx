@@ -12,13 +12,14 @@ import { Badge } from '@repo/ui/components/ui/badge'
 import { Progress } from '@repo/ui/components/ui/progress'
 import {
     ArrowLeft, Share2, CheckCircle, AlertTriangle,
-    TrendingUp, Target, MessageSquare, Loader2, Trophy, Star
+    TrendingUp, Target, MessageSquare, Trophy, Star
 } from 'lucide-react'
 import toast from '@repo/ui/components/ui/sonner'
 import { getSessionDetails } from '@/actions/(main)/mockvoice/session.action'
 import { generateAIFeedback } from '@/actions/(main)/mockvoice/conversation.action'
 import { awaitBackgroundJob } from '@/hooks/use-background-job'
 import { ReviewSheet } from '../../../../_components/review-sheet'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface SessionData {
     id: string
@@ -124,7 +125,7 @@ export default function ResultsPage({
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
-                    <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-neutral-800 dark:text-neutral-200" />
+                    <InlineLoader size="lg" className="mx-auto mb-4 text-neutral-800 dark:text-neutral-200" />
                     <p className="text-neutral-600 dark:text-neutral-400">Loading your results...</p>
                 </div>
             </div>
@@ -208,7 +209,7 @@ export default function ResultsPage({
                             {
                                 isGeneratingFeedback ? (
                                     <div className="flex items-center gap-2">
-                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        <InlineLoader size="sm" />
                                         <span className="text-sm">Calculating...</span>
                                     </div>
                                 ) : (
@@ -254,7 +255,7 @@ export default function ResultsPage({
                         <Card className="mb-8">
                             <CardContent className="py-12">
                                 <div className="text-center">
-                                    <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-neutral-800 dark:text-neutral-200" />
+                                    <InlineLoader size="lg" className="mx-auto mb-4 text-neutral-800 dark:text-neutral-200" />
                                     <h3 className="text-xl font-semibold mb-2">Generating AI Feedback</h3>
                                     <p className="text-neutral-600 dark:text-neutral-400">
                                         Our AI is analyzing your performance. This may take a moment...

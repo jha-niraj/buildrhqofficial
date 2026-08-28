@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { getCompanyBySlug } from "@/actions/companies"
 import { getCompanyMockHub } from "@/actions/companies/mock"
 import { CompanyMockHubContent } from "./mock-hub-content"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 export const metadata = {
     title: "Mock Interview Hub | ShipItHQ",
@@ -41,7 +42,7 @@ export default async function CompanyMockHubPage({ params }: Props) {
         <Suspense 
             fallback={
                 <div className="min-h-full flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                    <InlineLoader size="lg" className="text-neutral-400" />
                 </div>
             }
         >

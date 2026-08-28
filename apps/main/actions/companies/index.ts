@@ -9,7 +9,7 @@ import {
     jobs,
     interviewProcesses,
 } from "@repo/db"
-import { eq, and, or, ilike, inArray, desc, asc, count } from "drizzle-orm"
+import { eq, and, or, ilike, inArray, desc, asc, count, type SQL } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 
 export interface CompanyFilters {
@@ -39,7 +39,7 @@ export async function browseCompanies(filters: CompanyFilters = {}, page = 1, li
     try {
         const skip = (page - 1) * limit
 
-        const conditions: any[] = []
+        const conditions: (SQL | undefined)[] = []
 
         if (filters.search) {
             conditions.push(

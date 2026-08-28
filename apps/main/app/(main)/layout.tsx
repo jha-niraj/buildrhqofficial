@@ -311,7 +311,6 @@ const Layout = ({ children }: LayoutProps) => {
     // A stale path here fails silently, so it is worth checking against the
     // filesystem when adding one.
     const fullScreenPaths = [
-        '/ai/interviewassistant/[slug]/codingquestions',
         '/practice/dsa/[slug]',
         '/practice/system-design/[slug]',
         '/practice/web-frontend/[slug]',

@@ -8,7 +8,7 @@ import {
 } from '@repo/ui/components/ui/sheet'
 import {
     Target, ArrowLeft, Brain, Code, Mic, Wrench, Trophy,
-    Sparkles, Loader2, Coins, ArrowRight
+    Sparkles, Coins, ArrowRight
 } from 'lucide-react'
 import Link from 'next/link'
 import { VerificationContent } from './verification-content'
@@ -21,6 +21,8 @@ import {
 import type { VerificationAIPlan } from '@/types/pathfinder'
 import toast from '@repo/ui/components/ui/sonner'
 import { useRouter } from 'next/navigation'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { AnimatedIcon } from "@repo/ui/components/animated-icons"
 
 interface Goal {
     id: string
@@ -164,7 +166,7 @@ export function VerificationPageClient({ goal: initialGoal, verification }: Veri
                         className="max-w-lg text-center"
                     >
                         <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-neutral-100 dark:bg-neutral-800/30 flex items-center justify-center">
-                            <Trophy className="w-10 h-10 text-neutral-900 dark:text-neutral-100" />
+                            <AnimatedIcon name="trophy" size={40} motion="always" className="text-neutral-900 dark:text-neutral-100" />
                         </div>
                         <h2 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">
                             Ready to Verify Your Knowledge?
@@ -211,7 +213,7 @@ export function VerificationPageClient({ goal: initialGoal, verification }: Veri
                         <>
                             <SheetHeader>
                                 <SheetTitle className="flex items-center gap-2">
-                                    <Loader2 className="w-5 h-5 animate-spin text-neutral-600" />
+                                    <InlineLoader size="md" className="text-neutral-600" />
                                     Generating Verification Questions
                                 </SheetTitle>
                             </SheetHeader>

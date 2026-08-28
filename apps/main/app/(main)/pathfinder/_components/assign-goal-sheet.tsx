@@ -6,11 +6,13 @@ import {
     Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle
 } from '@repo/ui/components/ui/sheet'
 import {
-    Check, FolderOpen, Loader2, X
+    Check, FolderOpen, X
 } from 'lucide-react'
 import { assignGoalToGroup } from '@/actions/(main)/pathfinder'
 import { cn } from '@repo/ui/lib/utils'
 import toast from '@repo/ui/components/ui/sonner'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { GroupIcon } from './group-icon'
 
 interface Group {
     id: string
@@ -115,10 +117,10 @@ export function AssignGoalSheet({ open, onOpenChange, goalId, groups, onAssign }
                                             )}
                                         >
                                             <div
-                                                className="w-9 h-9 rounded-lg flex items-center justify-center text-base"
+                                                className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-900 dark:text-neutral-100"
                                                 style={{ backgroundColor: `${group.color || '#525252'}20` }}
                                             >
-                                                {group.emoji || '📁'}
+                                                <GroupIcon value={group.emoji} size={18} />
                                             </div>
                                             <div className="flex-1">
                                                 <div className="text-sm font-medium text-neutral-900 dark:text-white">
@@ -155,7 +157,7 @@ export function AssignGoalSheet({ open, onOpenChange, goalId, groups, onAssign }
                             >
                                 {
                                     isLoading ? (
-                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        <InlineLoader size="sm" />
                                     ) : (
                                         <>
                                             <Check className="w-4 h-4 mr-1.5" />

@@ -33,7 +33,7 @@ async function readQuiz(projectId: string): Promise<Quiz | null> {
         where: eq(projectV2Quizzes.projectId, projectId),
         with: {
             questions: {
-                orderBy: (questions: any, { asc }: any) => [asc(questions.orderIndex)]
+                orderBy: (questions, { asc }) => [asc(questions.orderIndex)]
             }
         }
     });
@@ -42,7 +42,7 @@ async function readQuiz(projectId: string): Promise<Quiz | null> {
     return {
         id: quiz.id,
         totalQuestions: quiz.totalQuestions,
-        questions: quiz.questions.map((q: any) => ({
+        questions: quiz.questions.map((q) => ({
             id: q.id,
             difficulty: q.difficulty,
             prompt: q.prompt,
@@ -239,7 +239,7 @@ export async function submitQuizAttempt(
                 score: attempt!.score,
                 correctAnswers: attempt!.correctAnswers,
                 totalQuestions: attempt!.totalQuestions,
-                answers: attemptWithAnswers?.answers.map((a: any) => ({
+                answers: attemptWithAnswers?.answers.map((a) => ({
                     questionId: a.questionId,
                     selectedAnswer: a.selectedAnswer,
                     isCorrect: a.isCorrect,
@@ -279,7 +279,7 @@ export async function getQuizAttempts(projectSlug: string) {
                 eq(projectV2QuizAttempts.userId, session.user.id),
                 eq(projectV2QuizAttempts.projectId, project.id)
             ),
-            orderBy: (attempts: any, { desc }: any) => [desc(attempts.createdAt)],
+            orderBy: (attempts, { desc }) => [desc(attempts.createdAt)],
             limit: 10,
             columns: {
                 id: true,

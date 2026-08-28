@@ -29,6 +29,10 @@ export const pathfinderCategoryEnum = pgEnum("pathfinder_category", [
     "DATABASE",
     "SYSTEM_DESIGN",
     "MOBILE",
+    // Goals generated FROM a job description - see plan/interview-prep/. A
+    // category rather than a boolean flag, so these filter, sort and render
+    // through the machinery every other category already uses.
+    "INTERVIEW_PREP",
     "OTHER",
 ]);
 
@@ -63,6 +67,24 @@ export const verificationSectionStatusEnum = pgEnum("verification_section_status
     "IN_PROGRESS",
     "COMPLETED",
     "FAILED",
+]);
+
+/**
+ * What KIND of thing a sub-goal is.
+ *
+ * `TOPIC` is the default and is what every sub-goal was before interview prep
+ * existed: a subject to study. The other three arrive from a job description and
+ * are questions to answer.
+ *
+ * A column rather than a naming convention on `title`, because a convention
+ * cannot be filtered or counted. Not called `type`: this table already has
+ * `source`, and `type` beside `source` reads as though one describes the other.
+ */
+export const pathfinderSubGoalKindEnum = pgEnum("pathfinder_sub_goal_kind", [
+    "TOPIC",
+    "TECHNICAL",
+    "BEHAVIORAL",
+    "CODING",
 ]);
 
 export const subGoalStatusEnum = pgEnum("sub_goal_status", [
@@ -122,6 +144,13 @@ export const pathfinderGoals = pgTable(
         forkedFromId: text("forked_from_id"),
         creditPrice: integer("credit_price"),
         overview: text("overview"),
+        // Provenance for INTERVIEW_PREP goals. Without these the job description
+        // that produced the questions is lost the moment generation finishes, so
+        // the goal can never be regenerated or explained. Null for every other
+        // category.
+        sourceJobDescription: text("source_job_description"),
+        sourceCompanyUrl: text("source_company_url"),
+        sourceCompanyInfo: jsonb("source_company_info"),
         estimatedDays: integer("estimated_days"),
         estimatedHours: integer("estimated_hours"),
         learningObjectives: text("learning_objectives").array().notNull().default([]),
@@ -199,6 +228,10 @@ export const pathfinderSubGoals = pgTable(
         title: text("title").notNull(),
         description: text("description"),
         source: text("source").notNull().default("text"),
+        // Defaults to TOPIC so every sub-goal that predates interview prep keeps
+        // its meaning. notNull on purpose: a nullable kind would put a null
+        // branch in every read site forever.
+        kind: pathfinderSubGoalKindEnum("kind").notNull().default("TOPIC"),
         voiceTranscript: text("voice_transcript"),
         status: subGoalStatusEnum("status").notNull().default("PENDING"),
         order: integer("order").notNull().default(0),

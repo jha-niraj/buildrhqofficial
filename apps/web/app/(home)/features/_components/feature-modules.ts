@@ -120,7 +120,7 @@ export const FEATURE_MODULES: readonly FeatureModule[] = [
             'Likely interview questions pulled from a job description',
         ],
         scope: 'These edit and score your resume. They do not apply to jobs for you, and nothing here writes anything to your behalf without you pressing the button.',
-        evidence: 'apps/main/app/(main)/ai/{resume,coverletter,interviewassistant}; prices in apps/main/lib/credits/pricing.ts',
+        evidence: 'apps/main/app/(main)/ai/{resume,coverletter}; interview prep is a Pathfinder goal - see plan/interview-prep/; prices in apps/main/lib/credits/pricing.ts',
         costs: [
             { label: 'Parse an uploaded resume', credits: 0 },
             { label: 'ATS score', credits: 5 },

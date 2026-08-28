@@ -9,7 +9,7 @@ import { Label } from "@repo/ui/components/ui/label"
 import { Badge } from "@repo/ui/components/ui/badge"
 import {
     ArrowLeft, Linkedin, Github, Twitter, Globe, Sparkles,
-    CheckCircle2, AlertCircle, Loader2
+    CheckCircle2, AlertCircle
 } from "lucide-react"
 import toast from "@repo/ui/components/ui/sonner"
 import { importProfileAndCreateDraft } from "@/actions/(main)/ai/resume-import.action"
@@ -18,6 +18,7 @@ import { useResumeHubStore } from "@/app/store/resumeHubStore"
 import { creditErrorMessage, priceSuffix } from "@/lib/credits/notify"
 import { saveMyProfileLinks } from "@/actions/(main)/user/profile-links.action"
 import { githubUsernameFrom, twitterHandleFrom, type ProfileLinks } from "@/lib/profile-links"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 /**
  * The four stages the import job actually reports, and the progress percentage
@@ -204,7 +205,7 @@ export function ImportClient({ links }: { links: ProfileLinks }) {
                 <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-10 text-center space-y-6">
                     <div className="flex justify-center">
                         <div className="h-16 w-16 rounded-full bg-gradient-to-br from-neutral-100 to-neutral-100 dark:from-neutral-800/30 dark:to-neutral-800/30 flex items-center justify-center">
-                            <Loader2 className="w-8 h-8 text-neutral-800 dark:text-neutral-100 animate-spin" />
+                            <InlineLoader size="lg" className="text-neutral-800 dark:text-neutral-100" />
                         </div>
                     </div>
                     <div>
@@ -226,7 +227,7 @@ export function ImportClient({ links }: { links: ProfileLinks }) {
                                 {i < stageIdx ? (
                                     <CheckCircle2 className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100 shrink-0" />
                                 ) : i === stageIdx ? (
-                                    <Loader2 className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100 animate-spin shrink-0" />
+                                    <InlineLoader size="sm" className="text-neutral-900 dark:text-neutral-100 shrink-0" />
                                 ) : (
                                     <div className="w-3.5 h-3.5 rounded-full border border-neutral-200 dark:border-neutral-700 shrink-0" />
                                 )}

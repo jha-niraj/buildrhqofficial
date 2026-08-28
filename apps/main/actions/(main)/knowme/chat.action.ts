@@ -50,7 +50,7 @@ export async function getOrCreateChatSession(
 				where: eq(knowMeChatSessions.sessionToken, sessionToken),
 				with: {
 					messages: {
-						orderBy: (m: any, { asc }: any) => [asc(m.createdAt)],
+						orderBy: (m, { asc }) => [asc(m.createdAt)],
 						limit: 50,
 					},
 				},
@@ -80,7 +80,22 @@ export async function getOrCreateChatSession(
 			if (currentUserId === profile.userId) {
 				viewerType = "OWNER";
 			} else {
-				// TODO: Check if user is a verified recruiter
+				// Every signed-in non-owner is a REGISTERED_USER. `RECRUITER` is a
+				// viewer type nothing can produce, and that is DELIBERATE, not an
+				// unfinished branch - see KM-4 in plan/knowme/.
+				//
+				// Decided 2026-08-28: a public persona is public. The owner's
+				// controls are `allowAnonymous` and `allowRegisteredUsers` on
+				// their privacy settings, plus the per-session rate limit below.
+				// Gating on "verified recruiter" would need a recruiter identity
+				// this product does not have: no recruiter role, no verification
+				// flow, no way to become one. A gate that nobody can pass is not
+				// a gate, it is a locked door with no key.
+				//
+				// `know_me_privacy_settings.allow_recruiters` is dormant for the
+				// same reason. It is not surfaced in the settings UI and is read
+				// by nothing, so it promises the user nothing. Leave it until
+				// there is a recruiter identity to attach it to.
 				viewerType = "REGISTERED_USER";
 			}
 		}
@@ -318,7 +333,7 @@ export async function getChatHistory(
 			where: eq(knowMeChatSessions.sessionToken, sessionToken),
 			with: {
 				messages: {
-					orderBy: (m: any, { asc }: any) => [asc(m.createdAt)],
+					orderBy: (m, { asc }) => [asc(m.createdAt)],
 				},
 			},
 		});
@@ -379,7 +394,19 @@ export async function endChatSession(
 // HELPER FUNCTIONS
 // ============================================
 
-function formatChatSession(session: any): KnowMeChatSessionData {
+/**
+ * The row this formats, DERIVED from the schema rather than hand-written, so it
+ * cannot drift from the columns. `messages` is optional because the two callers
+ * differ: one loads the session with its messages, the other without.
+ *
+ * This parameter was `any`, which is why `.map((m) => ...)` below had nothing to
+ * infer from and every field access in here went unchecked.
+ */
+type ChatSessionRow = typeof knowMeChatSessions.$inferSelect & {
+    messages?: (typeof knowMeChatMessages.$inferSelect)[]
+}
+
+function formatChatSession(session: ChatSessionRow): KnowMeChatSessionData {
 	return {
 		id: session.id,
 		profileId: session.profileId,
@@ -389,7 +416,7 @@ function formatChatSession(session: any): KnowMeChatSessionData {
 		rateLimitRemaining: session.rateLimitRemaining,
 		startedAt: session.startedAt,
 		lastActivityAt: session.lastActivityAt,
-		messages: (session.messages ?? []).map((m: any) => ({
+		messages: (session.messages ?? []).map((m) => ({
 			id: m.id,
 			role: m.role as "user" | "assistant" | "system",
 			content: m.content,
@@ -521,7 +548,7 @@ export async function approveResponseAsTraining(
 					with: {
 						profile: true,
 						messages: {
-							orderBy: (m: any, { asc }: any) => [asc(m.createdAt)],
+							orderBy: (m, { asc }) => [asc(m.createdAt)],
 						},
 					},
 				},
@@ -539,7 +566,7 @@ export async function approveResponseAsTraining(
 
 		// Find the user's question that preceded this response
 		const messages = message.session.messages;
-		const messageIndex = messages.findIndex((m: any) => m.id === messageId);
+		const messageIndex = messages.findIndex((m) => m.id === messageId);
 
 		if (messageIndex <= 0) {
 			return { success: false, error: "Could not find the original question" };

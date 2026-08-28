@@ -1,6 +1,6 @@
 "use server"
 
-import { db, resumeDraft, coverLetter as coverLetters, jobInterviewAssistant, users } from "@repo/db"
+import { db, resumeDraft, coverLetter as coverLetters, users } from "@repo/db"
 import { count, eq } from "drizzle-orm"
 import { getSession } from "@repo/auth"
 import { headers } from "next/headers"
@@ -28,29 +28,29 @@ import { headers } from "next/headers"
 export interface AiHubStats {
     resumes: number
     coverLetters: number
-    interviewPlans: number
     credits: number
 }
 
 export async function getAiHubStats(): Promise<AiHubStats> {
-    const empty: AiHubStats = { resumes: 0, coverLetters: 0, interviewPlans: 0, credits: 0 }
+    const empty: AiHubStats = { resumes: 0, coverLetters: 0, credits: 0 }
     try {
         const session = await getSession(await headers())
         if (!session?.user?.id) return empty
         const userId = session.user.id
 
-        // Four independent counts - run together rather than serialising four round trips.
-        const [resumes, letters, plans, me] = await Promise.all([
+        // Three independent counts - run together rather than serialising three
+        // round trips. The interview-plan count went with the Job Interview
+        // Assistant; that capability is a Pathfinder goal now, and Pathfinder has
+        // its own dashboard to count it on.
+        const [resumes, letters, me] = await Promise.all([
             db.select({ n: count() }).from(resumeDraft).where(eq(resumeDraft.userId, userId)),
             db.select({ n: count() }).from(coverLetters).where(eq(coverLetters.userId, userId)),
-            db.select({ n: count() }).from(jobInterviewAssistant).where(eq(jobInterviewAssistant.userId, userId)),
             db.select({ credits: users.credits }).from(users).where(eq(users.id, userId)).limit(1),
         ])
 
         return {
             resumes: resumes[0]?.n ?? 0,
             coverLetters: letters[0]?.n ?? 0,
-            interviewPlans: plans[0]?.n ?? 0,
             credits: me[0]?.credits ?? 0,
         }
     } catch (error: unknown) {

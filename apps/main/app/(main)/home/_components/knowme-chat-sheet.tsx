@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    Bot, Send, MessageSquare, Loader2, ExternalLink
+    Bot, Send, MessageSquare, ExternalLink
 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Input } from "@repo/ui/components/ui/input";
@@ -20,6 +20,7 @@ import {
     sendChatMessage, getOrCreateChatSession
 } from "@/actions/(main)/knowme";
 import type { KnowMeProfileFull } from "@/types/knowme";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface ChatMessage {
     id: string;
@@ -155,7 +156,7 @@ export default function KnowmeChatSheet({
                     {
                         isLoadingProfile ? (
                             <div className="flex-1 flex items-center justify-center">
-                                <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
+                                <InlineLoader size="lg" className="text-muted-foreground" />
                             </div>
                         ) : !profile ? (
                             <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">

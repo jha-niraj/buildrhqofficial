@@ -9,13 +9,14 @@ import { Progress } from '@repo/ui/components/ui/progress'
 import {
     Target, Plus, CheckCircle2, Trophy, Flame, FolderOpen, MoreVertical,
     MoveRight, Code2, Brain, BarChart3, Zap, ChevronRight, Play,
-    PauseCircle, CheckCircle, XCircle, Compass, TrendingUp
+    PauseCircle, CheckCircle, XCircle, Compass, TrendingUp, Briefcase
 } from 'lucide-react'
 import Link from 'next/link'
 import {
     PathfinderStatus, PathfinderCategory
 } from '@repo/db'
 import { CreateGoalSheet } from './create-goal-sheet'
+import { CreateInterviewPrepSheet } from './create-interview-prep-sheet'
 import { CreateGroupSheet } from './create-group-sheet'
 import { AssignGoalSheet } from './assign-goal-sheet'
 import {
@@ -34,6 +35,8 @@ import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
     ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line
 } from 'recharts'
+import { AnimatedIcon } from "@repo/ui/components/animated-icons"
+import { GroupIcon } from './group-icon'
 
 type Goal = PathfinderGoal
 type Group = PathfinderGroup
@@ -92,8 +95,10 @@ function GoalCard({ goal, onAssign }: { goal: Goal; onAssign: () => void }) {
             <Link href={`/pathfinder/${goal.slug}`}>
                 <div className="p-4 rounded-xl border border-neutral-200/60 dark:border-neutral-800/60 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all cursor-pointer bg-white dark:bg-neutral-900/50 hover:shadow-sm">
                     <div className="flex items-start gap-3 mb-3">
-                        <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center text-lg shrink-0", category.bg)}>
-                            {category.emoji}
+                        {/* The card is a `.group`, so hovering anywhere on it runs
+                            the icon - the whole card is the hit area, not the icon. */}
+                        <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-neutral-900 dark:text-neutral-100", category.bg)}>
+                            <AnimatedIcon name={category.icon} size={20} />
                         </div>
                         <div className="flex-1 min-w-0">
                             <h3 className="font-medium text-neutral-900 dark:text-white text-sm line-clamp-1 pr-6">
@@ -167,8 +172,8 @@ function GroupSection({ group, goals, onAssignGoal }: { group: Group; goals: Goa
     return (
         <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-3">
             <CollapsibleTrigger className="flex items-center gap-2 w-full px-2 py-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800/50 transition-colors group">
-                <div className="w-5 h-5 rounded flex items-center justify-center text-xs" style={{ backgroundColor: `${group.color || '#525252'}20` }}>
-                    {group.emoji || '📁'}
+                <div className="flex h-5 w-5 items-center justify-center rounded text-neutral-900 dark:text-neutral-100" style={{ backgroundColor: `${group.color || '#525252'}20` }}>
+                    <GroupIcon value={group.emoji} size={12} />
                 </div>
                 <span className="font-medium text-xs text-neutral-700 dark:text-neutral-300 flex-1 text-left">{group.name}</span>
                 <Badge variant="secondary" className="text-[10px] h-4 px-1.5 font-normal bg-neutral-100 dark:bg-neutral-800">{goals.length}</Badge>
@@ -381,7 +386,7 @@ function CategoryChart({ goals }: { goals: Goal[] }) {
     ).map(([cat, count], idx) => ({
         name: cat.toLowerCase().replace('_', ' '),
         value: count,
-        emoji: categoryConfig[cat as PathfinderCategory]?.emoji || '📁',
+        icon: categoryConfig[cat as PathfinderCategory]?.icon ?? 'learning',
         color: PIE_COLORS[idx % PIE_COLORS.length],
     }))
 
@@ -407,7 +412,8 @@ function CategoryChart({ goals }: { goals: Goal[] }) {
                         {categoryData.map((cat, idx) => (
                             <div key={idx} className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
-                                <span className="text-xs text-neutral-600 dark:text-neutral-400 capitalize flex-1 truncate">{cat.emoji} {cat.name}</span>
+                                <AnimatedIcon name={cat.icon} size={14} className="shrink-0 text-neutral-500 dark:text-neutral-400" />
+                                <span className="flex-1 truncate text-xs capitalize text-neutral-600 dark:text-neutral-400">{cat.name}</span>
                                 <span className="text-xs font-medium text-neutral-900 dark:text-white">{cat.value}</span>
                             </div>
                         ))}
@@ -440,8 +446,8 @@ function ProgressOverview({ goals }: { goals: Goal[] }) {
                     return (
                         <Link key={goal.id} href={`/pathfinder/${goal.slug}`}>
                             <div className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800/50 transition-colors">
-                                <div className={cn("w-7 h-7 rounded-md flex items-center justify-center text-sm shrink-0", category.bg)}>
-                                    {category.emoji}
+                                <div className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-neutral-900 dark:text-neutral-100", category.bg)}>
+                                    <AnimatedIcon name={category.icon} size={15} />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-xs font-medium text-neutral-700 dark:text-neutral-300 truncate">{goal.title}</p>
@@ -476,8 +482,8 @@ function RecentActivity({ goals }: { goals: Goal[] }) {
                     return (
                         <Link key={goal.id} href={`/pathfinder/${goal.slug}`}>
                             <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800/50 transition-colors">
-                                <div className={cn("w-7 h-7 rounded-md flex items-center justify-center text-sm shrink-0", category.bg)}>
-                                    {category.emoji}
+                                <div className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-neutral-900 dark:text-neutral-100", category.bg)}>
+                                    <AnimatedIcon name={category.icon} size={15} />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-xs text-neutral-700 dark:text-neutral-300 truncate">{goal.title}</p>
@@ -542,12 +548,16 @@ export function EmptyState({ onCreateGoal }: { onCreateGoal: () => void }) {
     )
 }
 
-function QuickActions({ onCreateGoal, onCreateGroup }: { onCreateGoal: () => void; onCreateGroup: () => void }) {
+function QuickActions({ onCreateGoal, onCreateGroup, onInterviewPrep }: { onCreateGoal: () => void; onCreateGroup: () => void; onInterviewPrep: () => void }) {
     return (
         <div className="flex items-center gap-2">
             <Button variant="default" size="sm" onClick={onCreateGoal} className="h-8 text-xs bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100">
                 <Target className="w-4 h-4 mr-1.5" />
                 New Goal
+            </Button>
+            <Button variant="outline" size="sm" onClick={onInterviewPrep} className="h-8 text-xs">
+                <Briefcase className="w-4 h-4 mr-1.5" />
+                Prep for a Job
             </Button>
             <Button variant="outline" size="sm" onClick={onCreateGroup} className="h-8 text-xs">
                 <FolderOpen className="w-4 h-4 mr-1.5" />
@@ -572,6 +582,7 @@ export function PathfinderDashboard({ initialGoals, initialGroups }: PathfinderD
         addGoal, addGroup, assignGoalToGroup
     } = usePathfinderStore()
 
+    const [interviewPrepOpen, setInterviewPrepOpen] = useState(false)
     const [mobileTab, setMobileTab] = useState<'goals' | 'overview'>('goals')
 
     useEffect(() => {
@@ -623,8 +634,8 @@ export function PathfinderDashboard({ initialGoals, initialGroups }: PathfinderD
                             <p className="text-[10px] font-medium text-neutral-400 uppercase tracking-wider mb-2 px-2">Empty Groups</p>
                             {groupedGoals.filter(g => g.goals.length === 0).map(({ group }) => (
                                 <div key={group.id} className="flex items-center gap-2 px-2 py-1.5 text-xs text-neutral-400">
-                                    <span style={{ backgroundColor: `${group.color || '#525252'}20` }} className="w-4 h-4 rounded flex items-center justify-center text-[10px]">
-                                        {group.emoji || '📁'}
+                                    <span style={{ backgroundColor: `${group.color || '#525252'}20` }} className="flex h-4 w-4 items-center justify-center rounded text-neutral-700 dark:text-neutral-300">
+                                        <GroupIcon value={group.emoji} size={10} />
                                     </span>
                                     {group.name}
                                 </div>
@@ -667,6 +678,7 @@ export function PathfinderDashboard({ initialGoals, initialGroups }: PathfinderD
                     <QuickActions
                         onCreateGoal={() => setCreateSheetOpen(true)}
                         onCreateGroup={() => setCreateGroupSheetOpen(true)}
+                        onInterviewPrep={() => setInterviewPrepOpen(true)}
                     />
                 </div>
             </div>
@@ -725,6 +737,10 @@ export function PathfinderDashboard({ initialGoals, initialGroups }: PathfinderD
                 </div>
             </div>
 
+            <CreateInterviewPrepSheet
+                open={interviewPrepOpen}
+                onOpenChange={setInterviewPrepOpen}
+            />
             <CreateGoalSheet
                 open={createSheetOpen}
                 onOpenChange={setCreateSheetOpen}

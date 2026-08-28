@@ -8,12 +8,15 @@ import {
     Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle
 } from '@repo/ui/components/ui/sheet'
 import {
-    FolderPlus, Loader2
+    FolderPlus
 } from 'lucide-react'
 import { createPathfinderGroup } from '@/actions/(main)/pathfinder'
 import { cn } from '@repo/ui/lib/utils'
 import toast from '@repo/ui/components/ui/sonner'
 import type { PathfinderGroup } from '@/app/store/pathfinderStore'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { AnimatedIcon } from '@repo/ui/components/animated-icons'
+import { GROUP_ICONS, DEFAULT_GROUP_ICON, GroupIcon } from './group-icon'
 
 interface CreateGroupSheetProps {
     open: boolean
@@ -21,22 +24,26 @@ interface CreateGroupSheetProps {
     onSuccess?: (group: PathfinderGroup) => void
 }
 
+// Deduped - '#525252' appeared twice, giving two identical swatches and a
+// duplicate React key.
 const colorOptions = [
-    '#525252', '#737373', '#10b981', '#525252',
-    '#ef4444', '#ec4899', '#404040', '#a3a3a3',
+    '#525252', '#737373', '#404040', '#a3a3a3',
+    '#10b981', '#ef4444', '#ec4899', '#171717',
 ]
 
-const emojiOptions = ['📁', '🎯', '💻', '🚀', '📚', '🧠', '⚡', '🔥', '💡', '🎨']
+// The emoji list moved to GROUP_ICONS in ./group-icon. Emoji rendered
+// differently on every OS, could not inherit `currentColor`, and stayed
+// full-colour inside a dark selected swatch.
 
 export function CreateGroupSheet({ open, onOpenChange, onSuccess }: CreateGroupSheetProps) {
     const [name, setName] = useState('')
-    const [emoji, setEmoji] = useState('📁')
+    const [emoji, setEmoji] = useState<string>(DEFAULT_GROUP_ICON)
     const [color, setColor] = useState('#525252')
     const [isLoading, setIsLoading] = useState(false)
 
     const resetForm = () => {
         setName('')
-        setEmoji('📁')
+        setEmoji(DEFAULT_GROUP_ICON)
         setColor('#525252')
     }
 
@@ -111,19 +118,21 @@ export function CreateGroupSheet({ open, onOpenChange, onSuccess }: CreateGroupS
                             <Label className="text-xs text-neutral-500 dark:text-neutral-400">Icon</Label>
                             <div className="flex flex-wrap gap-1.5">
                                 {
-                                    emojiOptions.map((e) => (
+                                    GROUP_ICONS.map((name) => (
                                         <button
-                                            key={e}
+                                            key={name}
                                             type="button"
-                                            onClick={() => setEmoji(e)}
+                                            onClick={() => setEmoji(name)}
+                                            aria-label={name}
+                                            aria-pressed={emoji === name}
                                             className={cn(
-                                                "w-9 h-9 rounded-lg flex items-center justify-center text-base transition-all",
-                                                emoji === e
-                                                    ? "bg-neutral-200 dark:bg-neutral-700 ring-2 ring-neutral-400"
-                                                    : "bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                                                "flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg transition-all",
+                                                emoji === name
+                                                    ? "bg-neutral-200 text-neutral-900 ring-2 ring-neutral-400 dark:bg-neutral-700 dark:text-neutral-100"
+                                                    : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-100"
                                             )}
                                         >
-                                            {e}
+                                            <AnimatedIcon name={name} size={18} motion={emoji === name ? 'always' : 'hover'} />
                                         </button>
                                     ))
                                 }
@@ -151,10 +160,10 @@ export function CreateGroupSheet({ open, onOpenChange, onSuccess }: CreateGroupS
                         <div className="p-3 rounded-lg bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
                             <div className="flex items-center gap-3">
                                 <div
-                                    className="w-9 h-9 rounded-lg flex items-center justify-center text-base"
+                                    className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-900 dark:text-neutral-100"
                                     style={{ backgroundColor: `${color}20` }}
                                 >
-                                    {emoji}
+                                    <GroupIcon value={emoji} size={18} motion="always" />
                                 </div>
                                 <div>
                                     <div className="text-sm font-medium text-neutral-900 dark:text-white">
@@ -171,7 +180,7 @@ export function CreateGroupSheet({ open, onOpenChange, onSuccess }: CreateGroupS
                         >
                             {
                                 isLoading ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <InlineLoader size="sm" />
                                 ) : (
                                     <>
                                         <FolderPlus className="w-4 h-4 mr-1.5" />

@@ -85,17 +85,6 @@ function buildInit(init: CallInit): RequestInit {
     };
 }
 
-/** A `Request`, for the service-binding path, which takes one by contract. */
-// SUPERSEDED 2026-08-27 - no callers. BOTH transports now pass (url, init):
-// building a `Request` here was the realm hazard that broke every background job,
-// and RES-17 only removed half of it. Kept rather than deleted so the next person
-// sees why it must not come back; delete it once the worker has been watched
-// completing a job end to end.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function buildRequest(url: string, init: CallInit): Request {
-    return new Request(url, buildInit(init));
-}
-
 /**
  * Call the background job worker (apps/worker).
  *

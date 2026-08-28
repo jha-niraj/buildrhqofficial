@@ -1,8 +1,8 @@
 "use client"
 
 import { Check, X } from "lucide-react"
-import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 import { cn } from "@repo/ui/lib/utils"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // The agent's activity timeline, rendered above a reply while it works.

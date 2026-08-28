@@ -10,7 +10,7 @@ import type { AgentState } from '@/components/main/orb'
 const Orb = dynamic(() => import('@/components/main/orb').then(m => ({ default: m.Orb })), { ssr: false })
 import {
     Mic, MicOff, Volume2, VolumeX, Phone, PhoneOff,
-    Loader2, CheckCircle2, AlertCircle
+    CheckCircle2, AlertCircle
 } from 'lucide-react'
 import {
     Dialog, DialogContent, DialogDescription, DialogHeader,
@@ -19,6 +19,7 @@ import {
 import toast from '@repo/ui/components/ui/sonner'
 import { cn } from '@repo/ui/lib/utils'
 import { getElevenLabsToken } from '@/actions/(main)/mockvoice/session.action'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 export type VoiceSessionStatus = 'idle' | 'connecting' | 'active' | 'processing' | 'completed' | 'error'
 
@@ -354,7 +355,7 @@ export function Voice({
                                     {
                                         processingStatus === 'processing' && (
                                             <>
-                                                <Loader2 className="w-5 h-5 animate-spin text-neutral-800 dark:text-neutral-200" />
+                                                <InlineLoader size="md" className="text-neutral-800 dark:text-neutral-200" />
                                                 {stateLabels.processing.title}
                                             </>
                                         )

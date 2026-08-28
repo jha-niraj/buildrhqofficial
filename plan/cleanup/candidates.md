@@ -500,3 +500,119 @@ not.
 `@upstash/vector` dependency in `apps/main/package.json`, which the Vectorize
 migration left with no importers. Both are recoverable from git history; the
 dependency needs a `pnpm install` to drop out of the lockfile.
+
+---
+
+# CLN-45 - the zero-caller sweep (2026-08-28)
+
+Niraj approved sweeping the zero-caller dead code after the Interview Assistant
+retirement went cleanly. **Every item below was re-verified as having no call
+sites immediately before deletion** - not trusted from this document, which was
+already wrong once (Groups A/B/D were recorded as deleted while 15 of 16 files
+were still on disk).
+
+| What | Where | Lines | Why it was dead |
+|---|---|---:|---|
+| `generateAIStudyPlan` | `pathfinder/goals.action.ts` | 124 | superseded by the `goal_creation` job (PF-W4), now proven in use |
+| `generateAIContentForSubGoal` | `pathfinder/subgoals.action.ts` | 127 | superseded by the `subgoal_generation` job (PF-W2) |
+| `transcribeVoiceRecording` | `pathfinder/subgoals.action.ts` | 26 | zero callers - **PF-W3 is void** |
+| `resources.action.ts` (whole file) | `pathfinder/` | ~300 | only export `generateSubGoalResources`, zero callers - **PF-W5 is void** |
+| `generateNotesContent` | `pathfinder/studio-link.action.ts` | 67 | zero callers - **PF-W6 is void** |
+| `getGoalStudioContent` | `pathfinder/studio-link.action.ts` | 61 | zero callers |
+| `createOrGetStudioForGoal` | `pathfinder/studio-link.action.ts` | 80 | called only by `getGoalStudioContent`, which was itself dead |
+| `buildRequest` | `lib/workers/client.ts` | 11 | CLN-43; both transports pass `(url, init)` now |
+| 5 job types | `packages/db/src/schema/worker.ts` | 5 | `project_assessment`, `project_mock`, `resource_generation`, `task_details`, `voice_transcription` - declared, never bound, never dispatched |
+
+Roughly **800 lines** removed. All three packages typecheck at zero errors, and
+`JOB_TYPES` and `JOB_BINDINGS` now agree exactly: 16 declared, 16 bound, no
+difference in either direction.
+
+## The part worth reading
+
+**Three of these were queued as WORK.** PF-W3, PF-W5 and PF-W6 were tasks to
+carefully migrate code onto the worker - and all three turned out to have zero
+callers. The tasks were written from a `grep` for
+`openai.chat.completions.create`, which finds text, not reachability.
+
+The two calls that WOULD have justified a migration on cost - the 4,000-token
+resource generator and the notes generator with no `max_tokens` at all - were
+both in that dead set. The two calls still LIVE are the two short ones, and both
+stay inline. See the triage appended to
+`srs/core-modules/pathfinder/02-worker-migration.md`.
+
+**Check reachability before estimating cost.** That is the whole lesson, and it
+would have saved three tasks.
+
+## The declared-but-unbound job types deserve their own note
+
+A type in `JOB_TYPES` with no entry in `JOB_BINDINGS` is not inert.
+`startBackgroundJob` accepts it, inserts the row, and **holds the user's
+credits** - and only then does `jobStub` fail to resolve a binding. The user pays
+for a job that could never run. The two lists are now in exact agreement and
+should be checked together whenever either changes.
+
+---
+
+# CLN-46 - the `any` sweep, and the one part of it that was reverted (2026-08-28)
+
+`: any` in `apps/main` went from **174 to 33**, and `catch (x: any)` - which
+`CLAUDE.md` names explicitly - from **5 to 0**. Zero typecheck errors throughout.
+
+## What removing `any` actually found
+
+The point of this was never tidiness. Four real defects were hiding behind it,
+none of which any test or typecheck could have caught while the `any` was there:
+
+| Where | Defect |
+|---|---|
+| `profile/[username]/public-profile-client.tsx` | read `user._count?.followers`. `_count` is a **Prisma** idiom and this repo uses Drizzle, so it never existed - **every profile in the product rendered "0 followers"**. The action computes a real `followersCount`; nothing read it. |
+| `projects/categories.action.ts` | `orderBy: desc(ideas.upvotes)` - `project_idea` has **no `upvotes` column** (it has `buildCount`). The category grid was ordered by `undefined`. |
+| `projects/AllProjectsClient.tsx` | state typed `ProjectV2Basic[]`, which declares `generationType`, `visibility`, `stacks`, `totalStarted`, `totalSubmissions` - **none of which the query selects**. Five fields permanently `undefined`. |
+| `projects/project.action.ts` | `if (!result.success \|\| !result.data)` - an `\|\|` whose right side reads a success-only field defeats narrowing, so `result.data` stayed loose. Same trap as IP-4. |
+
+## How the bulk of it was done
+
+Most `any` annotations were not adding information, they were **discarding** it:
+61 Drizzle relational-query callbacks (`(tbl: any, { desc }: any)`) and dozens of
+array-method callbacks. Drizzle and TypeScript infer all of those - deleting the
+annotation is the fix. `conditions: any[]` became `SQL[]`, or
+`(SQL | undefined)[]` where an `or(...)` is pushed, since `or()` is typed as
+possibly-undefined and `and()` accepts that.
+
+Where a type was genuinely needed it was **derived, never hand-written**:
+`typeof table.$inferSelect`, or
+`Awaited<ReturnType<typeof someAction>>["data"]`. A hand-written mirror of a
+query result is a copy that drifts, which is what caused two of the four defects
+above.
+
+## The part that was REVERTED, and why
+
+Five files declare `interface ActionResponse { success: boolean; data?: any }`.
+That single line makes every action in each file return `data: any`, and
+`success: boolean` (rather than a discriminated union) means narrowing never
+works either. It is the largest single source of `any` left.
+
+Converting it to `<T = unknown>` was tried and **backed out**. It compiles fine
+in the action files; it fails at the CALLERS, surfacing **~22 type mismatches
+across ~10 client components** - each a hand-written state type that has drifted
+from what its action returns, exactly like the `ProjectV2Basic` case above.
+
+Several involve shared types (`ProjectV2Full`, `TasksColumns`, `StandupConfig`,
+`EnrollmentData`) whose correction cascades further. That is a proper refactor
+needing a judgement per site - narrow the client type, or widen the query - and
+it is not a tail-end cleanup. Leaving the tree with 22 errors was not an option,
+so it was reverted whole.
+
+**One exception was kept:** `getAllPublicProjects` has no return annotation, so
+callers get its real row type, and its one caller was fixed to match. That is the
+template for the rest.
+
+## What is left, and why
+
+33, and most are legitimate:
+
+- `types/elevenlabs-client.d.ts`, `excalidraw-canvas.tsx` - third-party surfaces
+  with no shipped types. `any` at a foreign boundary is honest.
+- `embeddings.action.ts` (6) - `portfolioProjects` is typed now; the remaining
+  `chunks: any[]` need the chunk builders in `utils/knowme/` typed first.
+- The `data?: any` interfaces - blocked behind the refactor above.

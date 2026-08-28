@@ -32,6 +32,7 @@ export {
 	ResumeImport,
 	SubGoalGeneration,
 	GoalCreation,
+	InterviewPrepGeneration,
 } from "./jobs"
 
 // ─────────────────────────────────────────────────────────────────────────────

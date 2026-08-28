@@ -9,11 +9,11 @@ import {
 import { Button } from "@repo/ui/components/ui/button";
 import { Badge } from "@repo/ui/components/ui/badge";
 import {
-	CheckCircle2, Coins, FileCode, ListChecks, Sparkles, AlertCircle, Loader2,
-	PartyPopper
+	CheckCircle2, Coins, FileCode, ListChecks, Sparkles, AlertCircle, PartyPopper
 } from "lucide-react";
 import { enrollInProject } from "@/actions/(main)/projects/project.action";
 import toast from "@repo/ui/components/ui/sonner";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface EnrollmentDialogProps {
 	open: boolean;
@@ -221,15 +221,15 @@ export function EnrollmentDialog({
 									<p className="font-semibold text-lg">Setting up your project...</p>
 									<div className="space-y-1 text-sm text-muted-foreground">
 										<p className="flex items-center justify-center gap-2">
-											<Loader2 className="h-3 w-3 animate-spin" />
+											<InlineLoader size="sm" />
 											Creating your workspace
 										</p>
 										<p className="flex items-center justify-center gap-2">
-											<Loader2 className="h-3 w-3 animate-spin" />
+											<InlineLoader size="sm" />
 											Initializing {tasksCount} tasks
 										</p>
 										<p className="flex items-center justify-center gap-2">
-											<Loader2 className="h-3 w-3 animate-spin" />
+											<InlineLoader size="sm" />
 											Processing payment
 										</p>
 									</div>

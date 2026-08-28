@@ -60,22 +60,25 @@ const tools = [
         href: "/ai/coverletter",
     },
     {
-        id: "interviewassistant",
+        // Points at PATHFINDER, not at an AI-tools page. The Job Interview
+        // Assistant was retired into it - see plan/interview-prep/ - because it
+        // was a narrower second copy of Pathfinder: same questions, same coding
+        // problems, same publish-and-sell model, on five parallel tables.
+        id: "interviewprep",
         icon: Briefcase,
-        name: "Interview Assistant",
+        name: "Prep for a job",
         description:
-            "Reads the posting and your resume, then builds the question set you are actually likely to be asked, with model answers and a practice mode.",
+            "Paste a posting and get a Pathfinder goal of the questions it is likely to ask, with quizzes and coding problems you work through and score.",
         price: "1 credit per 2 questions",
-        href: "/ai/interviewassistant",
+        href: "/pathfinder",
     },
 ] as const
 
-/** Four real counts for the signed-in user, each linked to the thing it counts. */
+/** Three real counts for the signed-in user, each linked to the thing it counts. */
 function statCards(stats: AiHubStats) {
     return [
         { label: "Resumes", value: stats.resumes, icon: FileText, href: "/ai/resume" },
         { label: "Cover letters", value: stats.coverLetters, icon: FileSignature, href: "/ai/coverletter" },
-        { label: "Interview plans", value: stats.interviewPlans, icon: Briefcase, href: "/ai/interviewassistant" },
         { label: "Credits left", value: stats.credits, icon: Zap, href: "/purchase" },
     ]
 }
@@ -99,9 +102,9 @@ const steps = [
     {
         icon: Target,
         title: "Prepare for the room",
-        body: "Generate the question set for that specific role, with answers to study and a practice mode to run them cold.",
-        href: "/ai/interviewassistant",
-        cta: "Build a question set",
+        body: "Turn the same posting into a Pathfinder goal of the questions it will ask, and work through them with quizzes and coding problems.",
+        href: "/pathfinder",
+        cta: "Prep for the job",
     },
 ] as const
 
@@ -131,7 +134,7 @@ export default function AiToolsPage({ stats }: { stats: AiHubStats }) {
                 <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px] dark:bg-neutral-950" />
                 <div className="absolute -top-24 left-1/2 -z-10 h-[320px] w-[320px] -translate-x-1/2 rounded-full bg-neutral-900/10 opacity-50 blur-[100px] dark:bg-neutral-200/20" />
 
-                <div className="relative z-10 mx-auto max-w-7xl px-6">
+                <div className="w-full relative z-10 px-6">
                     <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_22rem]">
                         <motion.div
                             className="space-y-7"
@@ -214,7 +217,7 @@ export default function AiToolsPage({ stats }: { stats: AiHubStats }) {
             </section>
 
             <section className="border-b border-neutral-100 bg-white py-12 dark:border-neutral-800 dark:bg-neutral-950">
-                <div className="mx-auto max-w-7xl px-6">
+                <div className="w-full px-6">
                     <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-12">
                         {cards.map((stat, index) => (
                             <motion.div
@@ -244,7 +247,7 @@ export default function AiToolsPage({ stats }: { stats: AiHubStats }) {
             </section>
 
             <section id="studio" className="bg-neutral-50/50 py-20 dark:bg-neutral-950">
-                <div className="mx-auto max-w-7xl px-6">
+                <div className="w-full px-6">
                     <div className="max-w-2xl">
                         <h2 className="mb-4 text-3xl font-bold text-neutral-900 dark:text-white">The tools</h2>
                         <p className="text-lg leading-relaxed font-light text-neutral-500 dark:text-neutral-400">
@@ -294,7 +297,7 @@ export default function AiToolsPage({ stats }: { stats: AiHubStats }) {
             </section>
 
             <section className="border-t border-neutral-100 bg-white py-20 dark:border-neutral-800 dark:bg-neutral-950">
-                <div className="mx-auto max-w-7xl px-6">
+                <div className="w-full px-6">
                     <div className="max-w-2xl">
                         <h2 className="mb-4 text-3xl font-bold text-neutral-900 dark:text-white">
                             How a run through it goes
@@ -340,7 +343,7 @@ export default function AiToolsPage({ stats }: { stats: AiHubStats }) {
             </section>
 
             <section className="border-t border-neutral-100 bg-neutral-50/50 py-20 dark:border-neutral-800 dark:bg-neutral-950">
-                <div className="mx-auto max-w-7xl px-6">
+                <div className="w-full px-6">
                     <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
                         <div>
                             <h2 className="mb-4 text-3xl font-bold text-neutral-900 dark:text-white">

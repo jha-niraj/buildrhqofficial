@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-    Sparkles, Loader2, Rocket, Clock, Target, Code2, XCircle
+    Sparkles, Rocket, Clock, Target, Code2, XCircle
 } from 'lucide-react'
 import { Button } from '@repo/ui/components/ui/button'
 import { Badge } from '@repo/ui/components/ui/badge'
@@ -21,6 +21,7 @@ import {
     startSprintGeneration, addSprintToProject
 } from '@/actions/(main)/projects/sprint-generation.action'
 import { Label } from '@repo/ui/components/ui/label'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 // ============================================================================
 // Types
@@ -268,7 +269,7 @@ export function SprintGenerationSheet({
                                     <div className="relative">
                                         <div className="w-24 h-24 rounded-full bg-gradient-to-r from-neutral-900 to-neutral-800 animate-pulse" />
                                         <div className="absolute inset-0 flex items-center justify-center">
-                                            <Loader2 className="w-10 h-10 text-white animate-spin" />
+                                            <InlineLoader size="lg" className="text-white" />
                                         </div>
                                     </div>
                                     <div className="text-center space-y-2">
@@ -403,7 +404,7 @@ export function SprintGenerationSheet({
                                         >
                                             {
                                                 isAdding ? (
-                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                    <InlineLoader size="sm" className="mr-2" />
                                                 ) : (
                                                     <Rocket className="w-4 h-4 mr-2" />
                                                 )

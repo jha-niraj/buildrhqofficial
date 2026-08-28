@@ -1,5 +1,6 @@
 // Pathfinder Types - Centralized type definitions for the Pathfinder (AI Learning Goals) feature
 import { PathfinderStatus, PathfinderCategory, PathfinderLevel } from '@repo/db'
+import type { AnimatedIconName } from '@repo/ui/components/animated-icons'
 
 // Goal duration presets (matches PathfinderGoalDuration enum)
 export const GOAL_DURATION_OPTIONS = [
@@ -282,6 +283,17 @@ export interface AssignGoalSheetProps {
 // =========================================
 
 export interface CategoryConfig {
+    /**
+     * Name in `@repo/ui/components/animated-icons`. This is what display
+     * surfaces should render.
+     */
+    icon: AnimatedIconName
+    /**
+     * KEPT, but only for surfaces too small for a drawn icon - a 12px inline
+     * chip, a plain-text notification. Emoji render differently on every OS and
+     * cannot inherit `currentColor`, so a coloured one sits unchanged inside a
+     * dark selected card. Prefer `icon`.
+     */
     emoji: string
     color: string
     bg: string
@@ -295,16 +307,17 @@ export interface StatusConfig {
 }
 
 export const PATHFINDER_CATEGORIES: Record<PathfinderCategory, CategoryConfig> = {
-    DSA: { emoji: '🧮', color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
-    WEB_DEVELOPMENT: { emoji: '🌐', color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
-    FRONTEND: { emoji: '🎨', color: 'text-pink-600', bg: 'bg-pink-500/10' },
-    BACKEND: { emoji: '⚙️', color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
-    DEVOPS: { emoji: '🚀', color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
-    AI_ML: { emoji: '🤖', color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
-    DATABASE: { emoji: '🗄️', color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
-    SYSTEM_DESIGN: { emoji: '🏗️', color: 'text-slate-600', bg: 'bg-slate-500/10' },
-    MOBILE: { emoji: '📱', color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
-    OTHER: { emoji: '📚', color: 'text-neutral-600', bg: 'bg-neutral-500/10' },
+    DSA: { icon: 'dsa', emoji: '🧮', color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
+    WEB_DEVELOPMENT: { icon: 'web-dev', emoji: '🌐', color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
+    FRONTEND: { icon: 'frontend', emoji: '🎨', color: 'text-pink-600', bg: 'bg-pink-500/10' },
+    BACKEND: { icon: 'backend', emoji: '⚙️', color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
+    DEVOPS: { icon: 'devops', emoji: '🚀', color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
+    AI_ML: { icon: 'ai-ml', emoji: '🤖', color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
+    DATABASE: { icon: 'database', emoji: '🗄️', color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
+    SYSTEM_DESIGN: { icon: 'system-design', emoji: '🏗️', color: 'text-slate-600', bg: 'bg-slate-500/10' },
+    MOBILE: { icon: 'mobile', emoji: '📱', color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
+    INTERVIEW_PREP: { icon: 'interview-prep', emoji: '🎯', color: 'text-neutral-800', bg: 'bg-neutral-900/10' },
+    OTHER: { icon: 'learning', emoji: '📚', color: 'text-neutral-600', bg: 'bg-neutral-500/10' },
 }
 
 // =========================================

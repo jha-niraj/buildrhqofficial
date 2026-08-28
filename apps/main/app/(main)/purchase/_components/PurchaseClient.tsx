@@ -7,7 +7,6 @@ import { Button } from '@repo/ui/components/ui/button'
 import { InlineLoader } from '@repo/ui/components/ui/inline-loader'
 import { Input } from '@repo/ui/components/ui/input'
 import { Label } from '@repo/ui/components/ui/label'
-import { Slider } from '@repo/ui/components/ui/slider'
 import {
 	Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle
 } from '@repo/ui/components/ui/sheet'
@@ -15,7 +14,7 @@ import {
 	Dialog, DialogContent
 } from '@repo/ui/components/ui/dialog'
 import { Badge } from '@repo/ui/components/ui/badge'
-import { Receipt, Zap, Gift, AlertTriangle, ShieldCheck, Clock, Activity, Terminal, Server, CheckCircle2, Wallet, X } from 'lucide-react'
+import { Zap, Gift, AlertTriangle, Activity, Terminal, Server, CheckCircle2, Wallet, X } from 'lucide-react'
 import Link from 'next/link'
 import toast from '@repo/ui/components/ui/sonner'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -28,6 +27,13 @@ import {
 } from '@/lib/credit-usage'
 import { submitCreditRequest } from '../../../../actions/(main)/user/dashboard.action'
 import { PricingBento } from '@repo/ui/components/pricing-bento'
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from '@repo/ui/components/ui/accordion'
+import { pricingFaqs } from '@repo/pricing/faqs'
 import { ScrollArea } from '@repo/ui/components/ui/scroll-area'
 import TransactionsClient from '@/app/(main)/transactions/_components/TransactionsClient'
 
@@ -68,6 +74,10 @@ export default function PurchasePage() {
 	const router = useRouter()
 	const searchParams = useSearchParams()
 	const [currency, setCurrency] = useState<'INR' | 'USD'>('INR')
+	// The bounds the old slider carried inline as `20 MIN` / `1000 MAX` labels.
+	// Named so the input, the clamp and the FAQ answer cannot disagree.
+	const MIN_CUSTOM_CREDITS = 20
+	const MAX_CUSTOM_CREDITS = 1000
 	const [basicCredits, setBasicCredits] = useState(50)
 
 	// UI States
@@ -87,54 +97,6 @@ export default function PurchasePage() {
 	const [linkedinPostUrl, setLinkedinPostUrl] = useState('')
 	const [twitterPostUrl, setTwitterPostUrl] = useState('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
-
-	// ── History panel ──
-	//
-	// Same shape as the AI rail in app/(main)/layout.tsx, including the lesson from it: the
-	// width is applied with NO transition while dragging. Animating it during a drag starts a
-	// new transition on every mousemove, so the panel chases the cursor and settles late,
-	// which reads as the panel moving on its own.
-	const [historyOpen, setHistoryOpen] = useState(false)
-	// The panel is `lg:flex`, so below lg it is not rendered and the content must not reserve
-	// room for it. Matched in JS rather than with a `lg:` class because the padding is an
-	// inline style - it is a pixel value derived from the drag, which no utility can express.
-	const [isWide, setIsWide] = useState(false)
-	const [historyWidth, setHistoryWidth] = useState(520)
-	const [historyResizing, setHistoryResizing] = useState(false)
-
-	useEffect(() => {
-		const mq = window.matchMedia('(min-width: 1024px)')
-		const update = () => setIsWide(mq.matches)
-		update()
-		mq.addEventListener('change', update)
-		return () => mq.removeEventListener('change', update)
-	}, [])
-
-	const clampHistory = (w: number) => Math.min(Math.max(w, 380), 900)
-
-	const startHistoryResize = useCallback((startX: number, startWidth: number) => {
-		setHistoryResizing(true)
-		// Docked RIGHT, so dragging left (smaller clientX) widens it.
-		const move = (clientX: number) => setHistoryWidth(clampHistory(startWidth + (startX - clientX)))
-		const onMouseMove = (e: MouseEvent) => { e.preventDefault(); move(e.clientX) }
-		const onTouchMove = (e: TouchEvent) => { const t = e.touches[0]; if (t) move(t.clientX) }
-		const stop = () => {
-			setHistoryResizing(false)
-			window.removeEventListener('mousemove', onMouseMove)
-			window.removeEventListener('mouseup', stop)
-			window.removeEventListener('touchmove', onTouchMove)
-			window.removeEventListener('touchend', stop)
-			document.body.style.cursor = ''
-			document.body.style.userSelect = ''
-		}
-		window.addEventListener('mousemove', onMouseMove)
-		window.addEventListener('mouseup', stop)
-		window.addEventListener('touchmove', onTouchMove, { passive: true })
-		window.addEventListener('touchend', stop)
-		// Without these the drag selects page text and the cursor flickers on every child.
-		document.body.style.cursor = 'col-resize'
-		document.body.style.userSelect = 'none'
-	}, [])
 
 	// Calculate Price Helper
 	const calculateCustomPrice = (credits: number) => {
@@ -313,8 +275,15 @@ export default function PurchasePage() {
 		}
 	}
 
+	// NO `overflow-hidden` on the root below. It was there, and it silently
+	// disabled the sticky FAQ rail: an ancestor with `overflow: hidden` becomes
+	// the containing block that `position: sticky` measures against, and since
+	// that element does not scroll, the rail had nowhere to travel. The class
+	// looked harmless and sat three hundred lines away from the thing it broke.
+	// The grid background is `absolute inset-0`, so it is bounded by the root
+	// anyway and never needed clipping.
 	return (
-		<div className="min-h-screen w-full relative overflow-hidden font-sans selection:bg-neutral-200 dark:selection:bg-neutral-800">
+		<div className="relative min-h-screen w-full font-sans selection:bg-neutral-200 dark:selection:bg-neutral-800">
 			{/* Grid background */}
 			<div className="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
 
@@ -335,11 +304,14 @@ export default function PurchasePage() {
 
 				`pt-6`, not `py-16`: the page card already gives this page a top gutter, and
 				another 64px pushed the heading a third of the way down the screen. */}
-			<div
-				className="relative z-10 transition-[padding] duration-200 ease-out"
-				style={{ paddingRight: historyOpen && isWide ? historyWidth + 28 : undefined }}
-			>
-			<div className="container mx-auto px-6 pt-6 pb-16 max-w-7xl">
+			{/* One container now. The outer div existed only to reserve room for
+				the History panel, which moved to /credits (CR-11) - with no panel
+				there is nothing to reserve and nothing to animate. */}
+			<div className="relative z-10">
+			{/* Capped. At full width on a wide monitor the pack cards stretched to
+				a shape no price card wants to be, and the FAQ line length ran past
+				comfortable reading. */}
+			<div className="mx-auto w-full max-w-7xl px-6 pt-6 pb-16">
 
 				{/* ── Hero Row ── */}
 				<div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
@@ -394,6 +366,43 @@ export default function PurchasePage() {
 								</button>
 							))}
 						</div>
+						{/* Custom amount, COMPACT and up here rather than a hero panel
+							below. Someone who wants an exact number is the minority case;
+							they get a small field, not the loudest element on the page. */}
+						<div className="flex items-end gap-2">
+							<div className="space-y-1.5">
+								<Label htmlFor="custom-credits" className="text-[10px] font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+									Custom amount
+								</Label>
+								<div className="flex items-center gap-2">
+									<Input
+										id="custom-credits"
+										type="number"
+										min={MIN_CUSTOM_CREDITS}
+										max={MAX_CUSTOM_CREDITS}
+										value={basicCredits}
+										onChange={(e) => {
+											// Clamped on the way in. An empty field parses to NaN,
+											// and NaN reaches the price helper and renders "NaN".
+											const n = Number.parseInt(e.target.value, 10)
+											setBasicCredits(Number.isNaN(n) ? MIN_CUSTOM_CREDITS : Math.max(MIN_CUSTOM_CREDITS, Math.min(MAX_CUSTOM_CREDITS, n)))
+										}}
+										className="h-9 w-24"
+									/>
+									<span className="text-xs text-neutral-500 dark:text-neutral-400">
+										= {currency === 'INR' ? '₹' : '$'}{calculateCustomPrice(basicCredits)}
+									</span>
+									<Button
+										size="sm"
+										className="h-9 cursor-pointer"
+										onClick={() => openUsageSheet(basicCredits, calculatePrice(basicCredits, currency))}
+									>
+										Buy
+									</Button>
+								</div>
+							</div>
+						</div>
+
 						{/* Action buttons */}
 						<div className="flex gap-2">
 							<Button
@@ -405,191 +414,25 @@ export default function PurchasePage() {
 								<Gift className="w-3.5 h-3.5 mr-1.5" />
 								Bounty Program
 							</Button>
-							{/* Opens a panel, does not navigate. Buying credits and checking what you
-								already spent are the same task, and sending someone to /transactions
-								made them lose the amount they had just dialled in. */}
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => setHistoryOpen((v) => !v)}
-								aria-pressed={historyOpen}
-								className="cursor-pointer border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-900"
-							>
-								<Receipt className="w-3.5 h-3.5 mr-1.5" />
-								History
-							</Button>
+							{/* History moved to /credits (CR-11). It used to open a
+								drag-resizable panel here, on the argument that buying and
+								reviewing are the same task. They are not: this page is for
+								people who have not paid yet, and a wallet with purchases,
+								receipts and a full ledger needs a page, not a drawer. */}
 						</div>
 					</motion.div>
 				</div>
 
-				{/* ── Trust badges ──
-					Above the amount field, not at the foot of the page. These answer the
-					questions somebody asks BEFORE typing a number into a payment form - is it
-					secure, do the credits expire, can I get a refund - and at the bottom they
-					were answering them after the decision had already been made. Most people
-					never scrolled that far.
+				{/* ── Packs, FIRST ────────────────────────────────────────────────
+					Reordered on 2026-08-28 (CR-13). The custom-amount control used to
+					sit here: a full-width panel with the number set in ~72px type,
+					above the packs it should be secondary to. Most people want a
+					pack, and the page was arguing with them.
 
-					Quieter than the old version to match: one row, small type, a divider under
-					it rather than a bordered block, so it reads as reassurance rather than as
-					a feature section competing with the thing it sits above. */}
-				<div className="mb-10 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-					<div className="grid grid-cols-2 gap-x-6 gap-y-4 md:grid-cols-4">
-						{[
-							{ icon: ShieldCheck, label: 'AES-256 Encryption', sub: 'Bank-grade security' },
-							{ icon: Clock,       label: 'Instant Allocation',  sub: '<100ms processing'  },
-							{ icon: AlertTriangle, label: 'No Expiration',     sub: 'Credits persist forever' },
-							{ icon: Wallet,      label: 'Refund Policy',       sub: '7-day guarantee'    },
-						].map((item, i) => (
-							<div key={i} className="flex items-start gap-2.5">
-								<div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-800">
-									<item.icon className="h-3.5 w-3.5 text-neutral-600 dark:text-neutral-400" />
-								</div>
-								<div className="min-w-0">
-									<p className="text-xs font-semibold leading-snug text-neutral-900 dark:text-white">{item.label}</p>
-									<p className="mt-0.5 text-[11px] text-neutral-500 dark:text-neutral-400">{item.sub}</p>
-								</div>
-							</div>
-						))}
-					</div>
-				</div>
-
-				{/* ── Custom Amount Card ── */}
-				<motion.div
-					initial={{ opacity: 0, y: 24 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.55, delay: 0.25 }}
-					className="mb-16"
-				>
-					<div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 overflow-hidden shadow-sm">
-						<div className="grid md:grid-cols-12">
-
-							{/* Left: input + slider */}
-							<div className="md:col-span-7 bg-white dark:bg-neutral-950 p-8 md:p-12 flex flex-col justify-between gap-10">
-								{/* Large number input */}
-								<div className="space-y-3">
-									<Label className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.18em]">
-										How many credits
-									</Label>
-									<div className="relative">
-										{/* `inputMode="numeric"` with the spinner suppressed, not `type="number"`.
-											The native spinner drew a pair of grey arrows over the right of a
-											72px numeral - the artefact in Niraj's screenshot. It is also the
-											wrong control here: the slider directly below already does
-											increment-by-a-bit, far better, so the arrows duplicated it badly.
-											`inputMode` still brings up the numeric keypad on a phone. */}
-										<Input
-											type="text"
-											inputMode="numeric"
-											pattern="[0-9]*"
-											value={basicCredits}
-											onChange={(e) => {
-												// Strip everything that is not a digit rather than relying on
-												// the input type, since it is now text.
-												const digits = e.target.value.replace(/[^0-9]/g, "");
-												const val = digits === "" ? 0 : parseInt(digits, 10);
-												if (val <= paymentConfig.maxCredits) setBasicCredits(val);
-											}}
-											className="h-auto px-5 py-4 text-6xl md:text-7xl font-bold bg-transparent border-0 border-b-2 border-neutral-100 dark:border-neutral-800 rounded-none focus-visible:ring-0 focus-visible:border-neutral-900 dark:focus-visible:border-white transition-colors tracking-tight placeholder:text-neutral-200 dark:placeholder:text-neutral-800 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-											placeholder="50"
-										/>
-										<span className="absolute right-5 bottom-5 text-xs font-medium text-neutral-400 dark:text-neutral-400">
-											credits
-										</span>
-									</div>
-								</div>
-
-								{/* Slider */}
-								<div className="space-y-3">
-									<div className="flex justify-between text-[10px] font-mono text-neutral-400 uppercase tracking-widest">
-										<span>{paymentConfig.minCredits} min</span>
-										<span>{paymentConfig.maxCredits} max</span>
-									</div>
-									<Slider
-										value={[basicCredits]}
-										min={paymentConfig.minCredits}
-										max={paymentConfig.maxCredits}
-										step={10}
-										onValueChange={(vals) => setBasicCredits(vals[0]!)}
-										className="cursor-pointer"
-									/>
-								</div>
-
-								{/* Stat pills */}
-								<div className="flex flex-wrap gap-3">
-									<div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 text-xs font-medium text-neutral-600 dark:text-neutral-400">
-										<Terminal className="w-3.5 h-3.5 text-neutral-400" />
-										≈ {Math.floor(basicCredits / 20)} Projects
-									</div>
-									<div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 text-xs font-medium text-neutral-600 dark:text-neutral-400">
-										<Activity className="w-3.5 h-3.5 text-neutral-400" />
-										≈ {Math.floor(basicCredits / 30)} Interviews
-									</div>
-								</div>
-							</div>
-
-							{/* Right: Invoice card (dark) */}
-							<div className="md:col-span-5 bg-neutral-900 dark:bg-neutral-950 border-l border-neutral-800 p-8 md:p-10 flex flex-col justify-between gap-8">
-								{/* Invoice header */}
-								<div className="flex items-center justify-between">
-									<div className="flex items-center gap-3">
-										<div className="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center">
-											<Zap className="w-4 h-4 text-white" />
-										</div>
-										<div>
-											<p className="text-sm font-bold text-white">Order summary</p>
-											<p className="text-[11px] text-neutral-400">One-time, no subscription</p>
-										</div>
-									</div>
-
-								</div>
-
-								{/* Line items */}
-								<div className="space-y-3">
-									<div className="flex justify-between items-center text-sm">
-										<span className="text-neutral-400">Credits</span>
-										<span className="font-medium text-neutral-200 tabular-nums">{basicCredits}</span>
-									</div>
-									<div className="h-px bg-neutral-800 my-2" />
-									<div className="flex justify-between items-end">
-										<span className="text-sm font-bold text-white">Total</span>
-										<span className="text-3xl font-bold text-white leading-none tabular-nums">
-											{currency === 'INR' ? '₹' : '$'}{calculateCustomPrice(basicCredits)}
-										</span>
-									</div>
-								</div>
-
-								{/* CTA */}
-								<div className="space-y-3">
-									<Button
-										onClick={() => openUsageSheet(basicCredits, Number(calculateCustomPrice(basicCredits)))}
-										disabled={isProcessing || basicCredits < paymentConfig.minCredits}
-										className="w-full h-12 bg-white text-neutral-900 hover:bg-neutral-100 font-bold text-sm tracking-wide"
-									>
-										{isProcessing
-											? <InlineLoader size="sm" />
-											: 'Buy credits'
-										}
-									</Button>
-									{basicCredits < paymentConfig.minCredits && (
-										<p className="text-[11px] text-red-400 text-center">
-											Minimum is {paymentConfig.minCredits} credits
-										</p>
-									)}
-								</div>
-							</div>
-						</div>
-					</div>
-				</motion.div>
-
-				{/* ── Tier Divider ── */}
-				<div className="flex items-center gap-5 mb-12">
-					<div className="h-px bg-neutral-200 dark:bg-neutral-800 flex-1" />
-					<span className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.22em] whitespace-nowrap">
-						Or pick a pack
-					</span>
-					<div className="h-px bg-neutral-200 dark:bg-neutral-800 flex-1" />
-				</div>
-
+					The four trust badges that sat above it are gone. They answered
+					"is it secure, do credits expire, can I refund" ahead of any
+					price - and all three of those are now questions in the FAQ at
+					the bottom, answered in sentences rather than as slogans. */}
 				{/* ── Bento Pricing ── */}
 				<div className="mb-20">
 					<PricingBento
@@ -600,81 +443,84 @@ export default function PurchasePage() {
 					/>
 				</div>
 
-			</div>
-			</div>
+				{/* ── Frequently asked ──────────────────────────────────────────────
+					Two columns, and the left one is STICKY.
 
-			{/* ── History panel ──
-				A real docked column, not a Sheet: a Sheet is modal, and the point is to look at
-				what you spent WHILE choosing what to buy. Fixed to the viewport's right edge
-				and inset by the shell's own gutter, so it lines up with the page card. */}
-			<AnimatePresence initial={false}>
-				{historyOpen && (
-				<motion.div
-					key="history-panel"
-					// Slides in from the right edge rather than appearing. `x` in percent so it
-					// starts exactly off-screen whatever width the panel has been dragged to.
-					//
-					// The same spring as the AI rail, and the same rule: NO transition while
-					// dragging. Animating width on every mousemove makes the panel chase the
-					// cursor and settle late, which reads as it moving on its own.
-					initial={{ x: '100%', opacity: 0 }}
-					animate={{ x: 0, opacity: 1 }}
-					exit={{ x: '100%', opacity: 0 }}
-					transition={{ type: 'spring', stiffness: 320, damping: 34 }}
-					// Shown at EVERY width - `maxWidth: 92vw` below makes it a near-full-width
-					// overlay on a phone, which is the right behaviour there. What is gated to
-					// wide screens is the PUSH: below lg there is no room to move the content
-					// aside, so the panel covers it instead.
-					className="fixed right-3 top-3 bottom-3 z-40 flex overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl dark:border-neutral-800 dark:bg-neutral-950"
-					style={{
-						width: historyWidth,
-						maxWidth: '92vw',
-						transition: historyResizing ? 'none' : undefined,
-					}}
-				>
-					{/* Drag handle. Keyboard-operable too - a resize that only works with a
-						mouse is not a control everyone can reach. */}
-					<div
-						role="separator"
-						aria-orientation="vertical"
-						aria-label="Resize history panel"
-						aria-valuenow={historyWidth}
-						aria-valuemin={380}
-						aria-valuemax={900}
-						tabIndex={0}
-						onMouseDown={(e) => { e.preventDefault(); startHistoryResize(e.clientX, historyWidth) }}
-						onTouchStart={(e) => { const t = e.touches[0]; if (t) startHistoryResize(t.clientX, historyWidth) }}
-						onKeyDown={(e) => {
-							if (e.key === 'ArrowLeft') { e.preventDefault(); setHistoryWidth((w) => clampHistory(w + 24)) }
-							if (e.key === 'ArrowRight') { e.preventDefault(); setHistoryWidth((w) => clampHistory(w - 24)) }
-						}}
-						className="group absolute left-0 top-0 z-10 h-full w-1.5 cursor-col-resize transition-colors hover:bg-neutral-900/40 focus:bg-neutral-900/40 focus:outline-none dark:hover:bg-white/30 dark:focus:bg-white/30"
-					>
-						<span className="absolute left-1/2 top-1/2 h-10 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-neutral-300 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-neutral-600" />
-					</div>
+					It was a full-width stack of fifteen rounded pills, which read as
+					fifteen buttons rather than as one list, and gave the reader
+					nothing to hold on to while they scrolled past it. The left
+					column now stays put and says what the section is; the right
+					column scrolls through the questions against it.
 
-					<div className="flex h-full w-full min-w-0 flex-col">
-						<div className="flex shrink-0 items-center justify-between border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
-							<span className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-900 dark:text-white">
-								<Receipt className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
-								Transaction history
-							</span>
-							<button
-								type="button"
-								onClick={() => setHistoryOpen(false)}
-								aria-label="Close history"
-								className="cursor-pointer rounded-lg p-1.5 text-neutral-500 transition-colors hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
-							>
-								<X className="h-4 w-4" />
-							</button>
+					Rows are separated by a rule, not by a card each. A question is a
+					line of text, and boxing every line makes the list look heavier
+					than the answers it contains.
+
+					Questions come from `@repo/pricing`, the same list the marketing
+					pricing page renders (CR-12). */}
+				<section className="mb-20 grid gap-10 lg:grid-cols-12 lg:gap-16">
+					<div className="lg:col-span-4">
+						{/* `top-6` clears the page card's own gutter. `self-start` is
+							load-bearing: a grid item stretches to the row height by
+							default, and a stretched item cannot be sticky - it has
+							nowhere to travel. */}
+						<div className="lg:sticky lg:top-6 lg:self-start">
+							<p className="mb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-neutral-400 dark:text-neutral-500">
+								FAQ
+							</p>
+							<h2 className="text-3xl font-semibold leading-tight tracking-tight text-neutral-900 dark:text-white">
+								Your questions,
+								<br />
+								<span className="text-neutral-400 dark:text-neutral-500">answered</span>
+							</h2>
+							<p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+								How credits work, what they cost, and what happens when they run out.
+								Still stuck? We will help.
+							</p>
+							<div className="mt-6 flex flex-wrap gap-2">
+								<Button
+									size="sm"
+									className="cursor-pointer"
+									onClick={() => setIsRequestSheetOpen(true)}
+								>
+									<Gift className="mr-1.5 h-4 w-4" />
+									Free credits
+								</Button>
+								<Button asChild size="sm" variant="outline" className="cursor-pointer">
+									<Link href="/settings">Contact us</Link>
+								</Button>
+							</div>
 						</div>
-						<ScrollArea className="min-h-0 min-w-0 flex-1" reflow>
-							<TransactionsClient embedded />
-						</ScrollArea>
 					</div>
-				</motion.div>
-				)}
-			</AnimatePresence>
+
+					<div className="lg:col-span-8">
+						{/* The shared AccordionItem defaults to
+							`rounded-2xl bg-neutral-100 dark:bg-neutral-900`, which is why
+							these rendered as fifteen dark pills running edge to edge. Each
+							row is overridden below to a plain line with a rule under it - a
+							question is a line of text, and boxing every line makes the list
+							look heavier than the answers inside it. */}
+						<Accordion type="single" collapsible className="w-full">
+							{pricingFaqs.map((faq, i) => (
+								<AccordionItem
+									key={i}
+									value={`faq-${i}`}
+									className="rounded-none border-b border-neutral-200 bg-transparent last:border-b-0 dark:border-neutral-800 dark:bg-transparent"
+								>
+									<AccordionTrigger className="cursor-pointer px-4 py-5 text-left text-[15px] font-medium text-neutral-900 hover:no-underline dark:text-white">
+										{faq.q}
+									</AccordionTrigger>
+									<AccordionContent className="px-4 pb-5 pr-10 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+										{faq.a}
+									</AccordionContent>
+								</AccordionItem>
+							))}
+						</Accordion>
+					</div>
+				</section>
+
+			</div>
+			</div>
 
 			{/* ── Bounty Program Sheet ── */}
 			<Sheet open={isRequestSheetOpen} onOpenChange={setIsRequestSheetOpen}>

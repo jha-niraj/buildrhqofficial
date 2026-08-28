@@ -8,7 +8,7 @@ import {
     Bot, Database, Shield, Key, Settings, ArrowLeft, Github, Code2,
     Award, User, ToggleRight, ToggleLeft, Copy, Check, Eye, EyeOff, 
     RefreshCw, Trash2, Globe, Lock, Users, Briefcase,
-    Clock, Loader2, ExternalLink
+    Clock, ExternalLink
 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Input } from "@repo/ui/components/ui/input";
@@ -30,6 +30,7 @@ import {
     deleteKnowMeProfile, triggerManualUpdate
 } from "@/actions/(main)/knowme";
 import CodeEditor from "@/components/main/code-editor";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface KnowMeSettingsProps {
     profile: KnowMeProfileFull;
@@ -360,7 +361,7 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                     >
                                         {
                                             isUpdating ? (
-                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                <InlineLoader size="sm" />
                                             ) : (
                                                 <RefreshCw className="w-4 h-4" />
                                             )
@@ -378,7 +379,7 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                 }
                             </div>
                             <Button onClick={handleSaveChanges} disabled={isSaving} className="gap-2">
-                                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                                {isSaving ? <InlineLoader size="sm" /> : <Check className="w-4 h-4" />}
                                 Save Changes
                             </Button>
                         </motion.div>
@@ -436,7 +437,7 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                 }
                             </div>
                             <Button onClick={handleSaveChanges} disabled={isSaving} className="gap-2">
-                                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                                {isSaving ? <InlineLoader size="sm" /> : <Check className="w-4 h-4" />}
                                 Save Changes
                             </Button>
                         </motion.div>
@@ -519,7 +520,7 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                                 >
                                                     {
                                                         isRegenerating ? (
-                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                            <InlineLoader size="sm" />
                                                         ) : (
                                                             <RefreshCw className="w-4 h-4" />
                                                         )
@@ -624,7 +625,7 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                 </div>
                             </div>
                             <Button onClick={handleSaveChanges} disabled={isSaving} className="gap-2">
-                                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                                {isSaving ? <InlineLoader size="sm" /> : <Check className="w-4 h-4" />}
                                 Save Changes
                             </Button>
 
@@ -645,7 +646,7 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                 >
                                     {
                                         isDeleting ? (
-                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            <InlineLoader size="sm" />
                                         ) : (
                                             <Trash2 className="w-4 h-4" />
                                         )

@@ -122,40 +122,57 @@ function redirectToSignIn(req: NextRequest): NextResponse {
 	return NextResponse.redirect(url)
 }
 
-// Protected routes that require authentication (only core user-specific functionality)
-const protectedRoutes = [
-	'/home',
-	'/profile',
-	'/settings',
-	'/transactions',
-]
-
-// Public routes that don't require authentication (allow exploration)
-const _publicRoutes = [
-	'/',
+/**
+ * The ONLY routes a signed-out visitor may see. Everything else under the
+ * matcher requires a session. See CR-10 in plan/credits/tasks.md.
+ *
+ * ── Why this list is the public one, and not a `protectedRoutes` list ───────
+ * It used to be the other way round: a four-entry `protectedRoutes` array
+ * (`/home`, `/profile`, `/settings`, `/transactions`) and a check of
+ * `protectedRoutes.some(r => pathname.startsWith(r))`. Everything NOT in those
+ * four was public - so Pathfinder, Projects, AI Tools, KnowMe and Jobs all
+ * rendered the full application to a signed-out visitor, with the sidebar
+ * offering them "Sign In" and "0 credits" over the top of it.
+ *
+ * Nothing was misconfigured. The DEFAULT was wrong: routes became public by
+ * omission rather than by decision, so every module shipped since has been
+ * exposed the moment it was added. Adding the missing paths would have fixed the
+ * screenshot and left the next module to ship exposed in the same way.
+ *
+ * There was even a `_publicRoutes` array directly below listing what was meant
+ * to be public. The underscore is the whole story: nothing read it. It was
+ * documentation of an intent the code never implemented, and it is now gone.
+ *
+ * Adding to this list makes a page world-readable. That should be a decision
+ * somebody makes on purpose, which is the point of putting it here.
+ */
+const PUBLIC_EXACT = new Set([
 	'/signin',
 	'/register',
 	'/forgotpassword',
 	'/resetpassword',
 	'/error',
-	'/aboutus',
-	'/careers',
-	'/search',
-	'/practice',
-	'/quizdemo',
-	'/contests',
-	'/behindthemagic',
-	'/projects',
-	'/ai',
-	'/mock',
-	'/interviewprep',
-	'/assessments',
-	'/opensource',
+	// The pricing page, deliberately. Somebody has to be able to see what
+	// credits cost before they sign up. Its History and Bounty actions live on
+	// /credits, which is NOT public - see CR-11.
 	'/purchase',
-	'/onboarding',
-	'/dashboard',  // Keep for redirect
-	'/explore',    // Keep for redirect
+])
+
+/**
+ * Public SUBTREES. Prefix-matched, so everything beneath them is public too.
+ * Kept separate from the exact set on purpose: a prefix match on '/signin'
+ * would also open '/signin-anything', and that class of mistake is why the
+ * original check was wrong.
+ */
+const PUBLIC_PREFIXES = [
+	'/resetpassword/',
+	'/purchase/',
 ]
+
+function isPublicRoute(pathname: string): boolean {
+	if (PUBLIC_EXACT.has(pathname)) return true
+	return PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))
+}
 
 // API routes that should be excluded from auth checks
 const apiRoutes = [
@@ -201,9 +218,9 @@ export default async function middleware(req: NextRequest) {
 	const isLoggedIn = !!session?.user
 	const onboardingCompleted = session?.user?.onboardingCompleted ?? false
 
-	const isProtected = protectedRoutes.some(r => pathname.startsWith(r))
-
-	if (!isLoggedIn && isProtected) {
+	// DENY BY DEFAULT. `/` is excluded because a signed-out visitor there belongs
+	// on the marketing site, not bounced into a sign-in form.
+	if (!isLoggedIn && pathname !== '/' && !isPublicRoute(pathname)) {
 		return finish(redirectToSignIn(req))
 	}
 

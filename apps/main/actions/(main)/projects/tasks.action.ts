@@ -106,7 +106,7 @@ export async function addTaskToSprint(
         // Get max order index
         const lastTask = await db.query.projectV2Tasks.findFirst({
             where: eq(projectV2Tasks.sprintId, sprintId),
-            orderBy: (tasks: any, { desc }: any) => [desc(tasks.orderIndex)],
+            orderBy: (tasks, { desc }) => [desc(tasks.orderIndex)],
             columns: { orderIndex: true }
         });
         const newOrderIndex = (lastTask?.orderIndex ?? -1) + 1;

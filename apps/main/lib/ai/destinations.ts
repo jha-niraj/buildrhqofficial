@@ -94,7 +94,7 @@ export const DESTINATIONS: readonly Destination[] = [
     },
     {
         id: "interview_assistant",
-        href: "/ai/interviewassistant",
+        href: "/pathfinder",
         label: "Open Interview Assistant",
         description: "Job-specific interview preparation built from a posting.",
     },

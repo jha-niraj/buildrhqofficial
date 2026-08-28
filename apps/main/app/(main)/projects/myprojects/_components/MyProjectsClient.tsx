@@ -27,6 +27,8 @@ import { ProjectCard, ProjectCardSkeleton } from "@/components/projects/project-
 import SmoothScroll from "@/components/smoothscroll"
 import { ProjectV2Basic, ProjectV2Progress } from "@/types/project"
 
+
+
 // Extended interface for user projects with progress and submission counts
 interface UserProjectWithProgress extends ProjectV2Basic {
 	progress?: ProjectV2Progress[]
@@ -140,7 +142,7 @@ export default function MyProjectsPage() {
 	return (
 		<SmoothScroll>
 			<div className="py-10">
-				<div className="max-w-7xl mx-auto px-6">
+				<div className="w-full px-6">
 					<motion.div
 						className="mb-6"
 						initial={{ opacity: 0, y: 20 }}

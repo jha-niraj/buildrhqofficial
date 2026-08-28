@@ -6,7 +6,7 @@ import { Input } from "@repo/ui/components/ui/input"
 import { Label } from "@repo/ui/components/ui/label"
 import { Textarea } from "@repo/ui/components/ui/textarea"
 import {
-    Plus, Trash2, Loader2, CalendarIcon, Link2, Image, ChevronDown
+    Plus, Trash2, CalendarIcon, Link2, Image, ChevronDown
 } from "lucide-react"
 import { format } from "date-fns"
 import { Calendar } from "@repo/ui/components/ui/calendar"
@@ -19,6 +19,7 @@ import {
 import {
     Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@repo/ui/components/ui/command"
 import toast from "@repo/ui/components/ui/sonner"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 type ProjectLink = { id?: string; linkType: string; url: string; description?: string | null }
 type ProjectMedia = { id?: string; mediaUrl: string; mediaType: string; caption?: string | null }
@@ -691,7 +692,7 @@ function ProjectCard({
             <Button onClick={handleSave} disabled={saving} size="sm">
                 {
                     saving ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <InlineLoader size="sm" />
                     ) : (
                         "Save Changes"
                     )

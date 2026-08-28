@@ -57,7 +57,7 @@ export default function PricingSection() {
 
     return (
         <section className="w-full bg-[#F0FFF4]">
-        <div className="max-w-7xl mx-auto p-6">
+        <div className="w-full p-6">
             <h1 className="text-4xl font-bold text-center mb-4">Elevate Your Interview Skills with AI</h1>
             <p className="text-center text-gray-600 mb-8">
                 Transparent pricing for your interview preparation needs.<br />

@@ -10,7 +10,7 @@ import {
     jobRecommendations,
     interviewProcesses,
 } from "@repo/db"
-import { eq, and, or, ilike, inArray, desc, count, sql } from "drizzle-orm"
+import { eq, and, or, ilike, inArray, desc, count, sql, type SQL } from "drizzle-orm"
 
 export interface JobFilters {
     search?: string
@@ -64,7 +64,7 @@ export async function browseJobs(filters: JobFilters = {}, page = 1, limit = 20)
     try {
         const skip = (page - 1) * limit
 
-        const conditions: any[] = [
+        const conditions: (SQL | undefined)[] = [
             eq(jobs.status, "ACTIVE"),
             eq(jobs.visibility, "PUBLIC"),
         ]

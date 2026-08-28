@@ -9,7 +9,7 @@ import {
 } from '@repo/ui/components/ui/card'
 import { Button } from '@repo/ui/components/ui/button'
 import {
-    Twitter, Linkedin, Link2, Unlink, Check, Loader2, RefreshCw,
+    Twitter, Linkedin, Link2, Unlink, Check, RefreshCw,
     GitPullRequest, GitBranch, Star, ExternalLink
 } from 'lucide-react'
 import {
@@ -25,6 +25,7 @@ import {
 import {
     getGitHubProfile, disconnectGitHub, syncGitHubContributions
 } from '@/actions/(main)/user/integrations.action'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface Connection {
     id: string
@@ -210,13 +211,13 @@ export function IntegrationsContent({ socialConnections }: IntegrationsContentPr
                         </div>
                         {loading ? (
                             <div className="flex items-center gap-2 text-muted-foreground">
-                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <InlineLoader size="sm" />
                                 <span className="text-sm">Loading...</span>
                             </div>
                         ) : githubProfile ? (
                             <div className="flex items-center gap-2">
                                 <Button variant="outline" size="sm" onClick={handleSyncGitHub} disabled={syncing}>
-                                    <RefreshCw className={cn('w-4 h-4 mr-1.5', syncing && 'animate-spin')} />
+                                    {syncing ? <InlineLoader size="sm" className="mr-1.5" /> : <RefreshCw className="w-4 h-4 mr-1.5" />}
                                     Sync
                                 </Button>
                                 <Button

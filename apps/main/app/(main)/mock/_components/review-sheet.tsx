@@ -11,10 +11,11 @@ import { Label } from '@repo/ui/components/ui/label'
 import { Textarea } from '@repo/ui/components/ui/textarea'
 import { Checkbox } from '@repo/ui/components/ui/checkbox'
 import {
-    Star, AlertCircle, Loader2, CheckCircle, MessageSquare
+    Star, AlertCircle, CheckCircle, MessageSquare
 } from 'lucide-react'
 import toast from '@repo/ui/components/ui/sonner'
 import { submitReview } from '@/actions/(main)/mockvoice/review.action'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface ReviewSheetProps {
     isOpen: boolean
@@ -240,7 +241,7 @@ export function ReviewSheet({ isOpen, onClose, sessionId, existingRating }: Revi
                                             {
                                                 isSubmitting ? (
                                                     <>
-                                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                        <InlineLoader size="sm" className="mr-2" />
                                                         Submitting...
                                                     </>
                                                 ) : (

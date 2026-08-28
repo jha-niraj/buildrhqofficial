@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
-    Brain, ArrowLeft, Trophy, Sparkles, AlertCircle, Coins, Loader2,
-    CheckCircle
+    Brain, ArrowLeft, Trophy, Sparkles, AlertCircle, Coins, CheckCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@repo/ui/components/ui/button';
@@ -22,6 +21,7 @@ import {
 import { type QuestionDifficulty } from "@repo/db";
 import Quiz, { type QuizQuestion, type QuizResult } from '@/components/main/quiz';
 import QuizResults from '@/components/main/quiz-results';
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 export default function QuizClient({ project, existingQuiz, userCredits, previousAttempts: initialAttempts }: QuizClientProps) {
     const [stage, setStage] = useState<'payment' | 'quiz' | 'results'>('payment');
@@ -219,7 +219,7 @@ export default function QuizClient({ project, existingQuiz, userCredits, previou
                                         {
                                             generating ? (
                                                 <>
-                                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                                    <InlineLoader size="md" className="mr-2" />
                                                     Generating Quiz...
                                                 </>
                                             ) : (
@@ -279,7 +279,7 @@ export default function QuizClient({ project, existingQuiz, userCredits, previou
         if (submitting) {
             return (
                 <div className="min-h-screen flex flex-col items-center justify-center p-6">
-                    <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
+                    <InlineLoader size="lg" className="text-primary mb-4" />
                     <h2 className="text-xl font-semibold mb-2">Submitting Quiz</h2>
                     <p className="text-muted-foreground">Please wait while we process your results...</p>
                 </div>

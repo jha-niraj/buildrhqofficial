@@ -9,7 +9,7 @@ import {
     projectIdeas,
     withTransaction
 } from "@repo/db";
-import { eq, and, or, desc, sql } from "drizzle-orm";
+import { eq, and, or, desc, sql, type SQL } from "drizzle-orm";
 import { revalidatePath } from "next/cache"
 import { toErrorMessage } from "@/lib/errors"
 
@@ -71,7 +71,7 @@ export async function searchProjectIdeas(query: string, filters?: {
     category?: string
 }) {
     try {
-        const conditions: any[] = [eq(projectIdeas.status, 'APPROVED')];
+        const conditions: (SQL | undefined)[] = [eq(projectIdeas.status, 'APPROVED')];
 
         if (query) {
             conditions.push(
@@ -134,7 +134,7 @@ export async function getProblemStatements(options?: {
     try {
         const { limit = 50, difficulty, search } = options || {}
 
-        const conditions: any[] = [
+        const conditions: (SQL | undefined)[] = [
             eq(projectIdeas.ideaType, 'PROBLEM_STATEMENT'),
             eq(projectIdeas.status, 'APPROVED'),
         ];

@@ -7,9 +7,10 @@ import {
 } from "@repo/ui/components/ui/dialog"
 import { Button } from "@repo/ui/components/ui/button"
 import { 
-    Upload, X, FileText, Loader2 
+    Upload, X, FileText 
 } from "lucide-react"
 import toast from "@repo/ui/components/ui/sonner";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface DocumentUploadDialogProps {
     isOpen: boolean
@@ -194,7 +195,7 @@ const DocumentUploadDialog = ({
                             {
                                 isExtracting && (
                                     <div className="flex items-center gap-2 text-sm text-primary">
-                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        <InlineLoader size="sm" />
                                         <span>Extracting text from resume...</span>
                                     </div>
                                 )

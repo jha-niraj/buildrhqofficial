@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useConversation } from '@/lib/elevenlabs/use-conversation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-    Mic, MicOff, Volume2, VolumeX, Phone, PhoneOff, Loader2, CheckCircle2,
+    Mic, MicOff, Volume2, VolumeX, Phone, PhoneOff, CheckCircle2,
     AlertCircle, ArrowLeft, Brain, Sparkles, Coins, Clock, Trophy, TrendingUp,
     Target, MessageSquare
 } from 'lucide-react'
@@ -30,6 +30,7 @@ import {
     getProjectMockAttempts
 } from '@/actions/(main)/projects/projectv2-mock.action'
 import { getElevenLabsToken } from '@/actions/(main)/mockvoice/session.action'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface AIMockInterviewClientProps {
     project: {
@@ -388,7 +389,7 @@ export default function AIMockInterviewClient({
                                         {
                                             generating ? (
                                                 <>
-                                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                                    <InlineLoader size="md" className="mr-2" />
                                                     Generating Interview...
                                                 </>
                                             ) : (
@@ -648,7 +649,7 @@ export default function AIMockInterviewClient({
                                 {
                                     processingStatus === 'processing' && (
                                         <>
-                                            <Loader2 className="w-5 h-5 animate-spin text-neutral-800 dark:text-neutral-200" />
+                                            <InlineLoader size="md" className="text-neutral-800 dark:text-neutral-200" />
                                             Processing Your Interview
                                         </>
                                     )

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
     Bot, Sparkles, MessageSquare, Github, Code2, Briefcase, ChevronRight,
     Shield, Zap, Globe, BarChart3, Users, ArrowRight, Play, Database, User,
-    Loader2, Check, ToggleRight, ToggleLeft, Lock, Award
+    Check, ToggleRight, ToggleLeft, Lock, Award
 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Badge } from "@repo/ui/components/ui/badge";
@@ -21,6 +21,7 @@ import toast from "@repo/ui/components/ui/sonner";
 import { cn } from "@repo/ui/lib/utils";
 import { useRouter } from "next/navigation";
 import type { KnowMeProfileFull } from "@/types/knowme";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface KnowMeLandingPageProps {
     isLoggedIn: boolean;
@@ -233,7 +234,7 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
                         <div className="absolute top-[25%] left-[5%] w-96 h-96 rounded-full blur-[120px] animate-pulse-slow bg-neutral-100/30 dark:bg-neutral-800/20" />
                         <div className="absolute top-[20%] right-[10%] w-96 h-96 rounded-full blur-[120px] animate-pulse-slow animation-delay-2000 bg-neutral-100/40 dark:bg-neutral-800/20" />
                     </div>
-                    <div className="container mx-auto px-4 max-w-7xl relative">
+                    <div className="w-full px-4 relative">
                         <div className="text-center max-w-4xl mx-auto">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
@@ -295,7 +296,7 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
                                         {
                                             isLoading ? (
                                                 <>
-                                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                                    <InlineLoader size="md" className="mr-2" />
                                                     Setting up...
                                                 </>
                                             ) : (
@@ -427,7 +428,7 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
                     </div>
                 </section>
                 <section className="py-20 bg-neutral-50 dark:bg-neutral-900/50">
-                    <div className="container mx-auto px-4 max-w-7xl">
+                    <div className="w-full px-4">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -475,7 +476,7 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
                     </div>
                 </section>
                 <section className="py-20 bg-white dark:bg-black">
-                    <div className="container mx-auto px-4 max-w-7xl">
+                    <div className="w-full px-4">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -644,7 +645,7 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
                                             >
                                                 {
                                                     isLoading ? (
-                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                        <InlineLoader size="sm" />
                                                     ) : (
                                                         <>
                                                             Continue
@@ -662,7 +663,7 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
                                                 {
                                                     isProcessing ? (
                                                         <>
-                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                            <InlineLoader size="sm" />
                                                             Creating AI...
                                                         </>
                                                     ) : (
@@ -747,7 +748,7 @@ function WelcomeStep({ onNext, isLoading }: { onNext: () => void; isLoading: boo
             >
                 {
                     isLoading ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <InlineLoader size="md" />
                     ) : (
                         <>
                             Let&apos;s Begin

@@ -111,7 +111,7 @@ export async function addSprintToProject(
             where: eq(projectsV2.id, projectId),
             with: {
                 sprints: {
-                    orderBy: (sprints: any, { desc }: any) => [desc(sprints.orderIndex)],
+                    orderBy: (sprints, { desc }) => [desc(sprints.orderIndex)],
                     limit: 1,
                 }
             }
@@ -314,7 +314,7 @@ export async function getUserSprintsForProject(
                 eq(projectV2Sprints.isPersonal, false)
             ),
             with: { tasks: true },
-            orderBy: (sprints: any, { asc }: any) => [asc(sprints.orderIndex)]
+            orderBy: (sprints, { asc }) => [asc(sprints.orderIndex)]
         });
 
         const personalSprints = await db.query.projectV2Sprints.findMany({
@@ -324,13 +324,13 @@ export async function getUserSprintsForProject(
                 eq(projectV2Sprints.isPersonal, true)
             ),
             with: { tasks: true },
-            orderBy: (sprints: any, { asc }: any) => [asc(sprints.orderIndex)]
+            orderBy: (sprints, { asc }) => [asc(sprints.orderIndex)]
         });
 
         return {
             success: true,
             data: {
-                approvedSprints: approvedSprints.map((s: any) => ({
+                approvedSprints: approvedSprints.map((s) => ({
                     id: s.id,
                     sprintNumber: s.sprintNumber,
                     name: s.name,
@@ -338,7 +338,7 @@ export async function getUserSprintsForProject(
                     duration: s.duration,
                     tasksCount: s.tasks.length
                 })),
-                personalSprints: personalSprints.map((s: any) => ({
+                personalSprints: personalSprints.map((s) => ({
                     id: s.id,
                     sprintNumber: s.sprintNumber,
                     name: s.name,

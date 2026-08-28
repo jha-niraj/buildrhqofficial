@@ -34,7 +34,8 @@
 			{ "name": "COVER_LETTER_QUESTIONS", "class_name": "CoverLetterQuestions" },
 			{ "name": "RESUME_IMPORT", "class_name": "ResumeImport" },
 			{ "name": "SUBGOAL_GENERATION", "class_name": "SubGoalGeneration" },
-			{ "name": "GOAL_CREATION", "class_name": "GoalCreation" }
+			{ "name": "GOAL_CREATION", "class_name": "GoalCreation" },
+			{ "name": "INTERVIEW_PREP_GENERATION", "class_name": "InterviewPrepGeneration" }
 		]
 	},
 
@@ -78,6 +79,10 @@
 		{
 			"tag": "v6",
 			"new_sqlite_classes": ["GoalCreation"]
+		},
+		{
+			"tag": "v7",
+			"new_sqlite_classes": ["InterviewPrepGeneration"]
 		}
 	],
 

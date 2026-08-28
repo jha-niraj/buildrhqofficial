@@ -22,9 +22,34 @@ import { startBackgroundJob } from '@/actions/(main)/workers/jobs.action'
 // TYPES
 // ================================================================================
 
-export type PathfinderCategory = 'DSA' | 'WEB_DEVELOPMENT' | 'FRONTEND' | 'BACKEND' | 'DEVOPS' | 'AI_ML' | 'DATABASE' | 'SYSTEM_DESIGN' | 'MOBILE' | 'OTHER'
-export type PathfinderLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT'
-export type PathfinderStatus = 'ACTIVE' | 'VERIFICATION' | 'COMPLETED' | 'FAILED' | 'ABANDONED'
+// Re-exported from the DB enums, NOT hand-written.
+//
+// These were three literal unions typed out by hand, duplicating
+// `pathfinderCategoryEnum`, `pathfinderLevelEnum` and `pathfinderStatusEnum` in
+// packages/db. Adding INTERVIEW_PREP to the enum did not add it here, so the
+// schema and the action disagreed and `createPathfinderGoal` rejected the very
+// category the database had just learned about - a type error at the call site
+// pointing at a file that looked entirely correct.
+//
+// Deriving them means the next enum value cannot drift: it either compiles
+// everywhere or fails at the definition. All three unions were verified
+// identical to their enums before this change, so nothing widened or narrowed.
+// IMPORTED ONLY, deliberately NOT re-exported.
+//
+// This file is `"use server"`, and Next's server-actions transform treats every
+// export in such a module as a callable action - including a `export type { ... }`
+// re-export, which it rewrites into a value import from an ACTIONS_MODULE and
+// then cannot resolve:
+//
+//     The export PathfinderStatus was not found in module .../goals.action.ts
+//
+// That is a 500 on every pathfinder page, and `tsc` passes on it cleanly, because
+// as far as TypeScript is concerned a type re-export is perfectly legal. Only the
+// build knows.
+//
+// Nothing needed the re-export anyway: every consumer already imports these
+// three from `@repo/db` directly, which is where they belong.
+import type { PathfinderCategory, PathfinderLevel, PathfinderStatus } from '@repo/db'
 
 export interface CreateGoalInput {
     title: string
@@ -410,130 +435,6 @@ interface StudyPlanTopic {
     order: number
 }
 
-// SUPERSEDED by the `goal_creation` worker job (PF-W4) -
-// `apps/worker/src/jobs/goal-creation.ts`, which runs this exact prompt with the
-// same model, temperature and token cap. It has no callers.
-//
-// KEPT, not deleted, per the "nothing is deleted" rule in
-// `srs/core-modules/README.md`. Listed in `plan/cleanup/candidates.md` as CLN-42.
-// Do not call it from new code - if the prompt changes, change it in the worker.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function generateAIStudyPlan(
-    goalId: string,
-    userId: string,
-    title: string,
-    category: PathfinderCategory,
-    level: PathfinderLevel,
-    focusAreas: string[]
-) {
-    try {
-        const topicCount = level === 'BEGINNER' ? '8-12' : level === 'INTERMEDIATE' ? '10-15' : '12-15'
-
-        const prompt = `You are an expert educator creating a structured study plan.
-
-A user wants to learn "${title}" at ${level.toLowerCase()} level.
-Category: ${category.replace('_', ' ')}
-Focus areas: ${focusAreas.length > 0 ? focusAreas.join(', ') : 'General'}
-
-Generate ${topicCount} study topics/sub-goals that form a logical learning path from basics to advanced.
-
-Rules:
-- Topics should be ordered from foundational to advanced
-- Each topic should be a discrete learning unit (1-3 hours of study)
-- Cover theory, practice, and real-world application
-- For ${level.toLowerCase()} level, adjust depth appropriately
-- Be specific (not "Learn arrays" but "Arrays: Traversal, Insertion, and Deletion Patterns")
-- Include practical/hands-on topics (not just theory)
-
-Return JSON:
-{
-  "topics": [
-    { "title": "Topic title", "description": "Brief 1-2 sentence description of what this covers", "order": 1 }
-  ]
-}
-
-Return ONLY valid JSON, no markdown.`
-
-        const response = await openai.chat.completions.create({
-            model: 'gpt-4o-mini',
-            messages: [{ role: 'user', content: prompt }],
-            temperature: 0.7,
-            max_tokens: 2000,
-            response_format: { type: 'json_object' },
-        })
-
-        const content = response.choices[0]?.message?.content
-        if (!content) return
-
-        const parsed = JSON.parse(content) as { topics: StudyPlanTopic[] }
-        if (!parsed.topics || !Array.isArray(parsed.topics)) return
-
-        // Log usage
-        const { logPathfinderUsage } = await import('./usage.action')
-        const inputTokens = response.usage?.prompt_tokens ?? 0
-        const outputTokens = response.usage?.completion_tokens ?? 0
-        if (inputTokens > 0 || outputTokens > 0) {
-            await logPathfinderUsage({
-                goalId,
-                userId,
-                action: 'ai_study_plan',
-                provider: 'openai',
-                inputTokens,
-                outputTokens,
-            })
-        }
-
-        // Create a daily session for the AI-generated plan
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        const todayStr = today.toISOString().split('T')[0]!
-
-        let dailySession = await db.query.pathfinderDailySessions.findFirst({
-            where: and(eq(pathfinderDailySessions.goalId, goalId), eq(pathfinderDailySessions.date, todayStr)),
-        })
-
-        if (!dailySession) {
-            const [created] = await db.insert(pathfinderDailySessions).values({
-                goalId,
-                userId,
-                date: todayStr,
-            }).returning()
-            if (!created) throw new Error("Failed to create daily session")
-            dailySession = created
-        }
-
-        // Create sub-goals from AI topics
-        for (const topic of parsed.topics) {
-            await db.insert(pathfinderSubGoals).values({
-                goalId,
-                sessionId: dailySession.id,
-                title: topic.title,
-                description: topic.description,
-                source: 'text',
-                order: topic.order,
-                isAIGenerated: true,
-                isContentLoaded: false,
-            })
-        }
-
-        // Update session and goal stats
-        await db.update(pathfinderDailySessions)
-            .set({ totalSubGoals: sql`${pathfinderDailySessions.totalSubGoals} + ${parsed.topics.length}` })
-            .where(eq(pathfinderDailySessions.id, dailySession.id))
-
-        await db.update(pathfinderGoals)
-            .set({
-                totalSubGoals: sql`${pathfinderGoals.totalSubGoals} + ${parsed.topics.length}`,
-                lastActivityAt: new Date(),
-            })
-            .where(eq(pathfinderGoals.id, goalId))
-
-        revalidatePath('/pathfinder')
-    } catch (error) {
-        console.error('Error generating AI study plan:', error)
-    }
-}
-
 /**
  * Generate AI content (quiz, coding, resources) for an AI-generated sub-goal
  * that hasn't had content loaded yet. Called when user clicks "Generate Content".
@@ -712,6 +613,7 @@ function _getCategoryEmoji(category: PathfinderCategory): string {
         DATABASE: '🗄️',
         SYSTEM_DESIGN: '🏗️',
         MOBILE: '📱',
+        INTERVIEW_PREP: '🎯',
         OTHER: '📚',
     }
     return emojis[category] || '📚'
@@ -728,6 +630,9 @@ function _mapToMockCategory(category: PathfinderCategory): 'TECHNICAL' | 'CODING
         DATABASE: 'TECHNICAL',
         SYSTEM_DESIGN: 'SYSTEM_DESIGN',
         MOBILE: 'TECHNICAL',
+        // An interview-prep goal's mock section is a general interview, not a
+        // subject exam - its questions already carry their own kind.
+        INTERVIEW_PREP: 'GENERAL',
         OTHER: 'GENERAL',
     }
     return mapping[category]

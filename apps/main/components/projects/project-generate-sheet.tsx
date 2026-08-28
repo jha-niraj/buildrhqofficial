@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-    ArrowLeft, ArrowRight, Check, Loader2, Sparkles, Code2, Brain, Rocket,
+    ArrowLeft, ArrowRight, Check, Sparkles, Code2, Brain, Rocket,
     Zap, Globe, Lock, Terminal, Cpu, Layers, AlertCircle,
 } from 'lucide-react'
 import {
@@ -20,6 +20,7 @@ import { ProjectEchoSchema } from '@/actions/(main)/schemas/projects.schema'
 import { startProjectGeneration, getGenerationStatus } from '@/actions/(main)/workers/projectsworker.action'
 import { z } from 'zod'
 import { cn } from '@repo/ui/lib/utils'
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 type FormData = z.infer<typeof ProjectEchoSchema>
 
@@ -146,7 +147,6 @@ export default function ProjectGenerateSheet({
                     <div className="flex flex-1 flex-col items-center justify-center gap-8 px-8">
                         <div className="relative flex h-20 w-20 items-center justify-center">
                             <div className="absolute inset-0 rounded-full border-2 border-neutral-900/20" />
-                            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-neutral-900 animate-spin" />
                             <Sparkles className="h-7 w-7 text-neutral-900 dark:text-neutral-100" />
                         </div>
                         <div className="text-center">
@@ -167,7 +167,7 @@ export default function ProjectGenerateSheet({
                                 return (
                                     <div key={p} className="flex items-center gap-2.5 text-sm">
                                         {done ? <Check className="h-4 w-4 text-neutral-900 dark:text-neutral-100" />
-                                            : active ? <Loader2 className="h-4 w-4 animate-spin text-neutral-900 dark:text-neutral-100" />
+                                            : active ? <InlineLoader size="sm" className="text-neutral-900 dark:text-neutral-100" />
                                                 : <div className="h-4 w-4 rounded-full border border-neutral-300 dark:border-neutral-700" />}
                                         <span className={cn(done || active ? 'text-neutral-900 dark:text-white' : 'text-neutral-400')}>{p}</span>
                                     </div>

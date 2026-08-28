@@ -69,7 +69,7 @@ export function PageOverviewCard({ page, difficultyColors }: PageOverviewCardPro
             </Card>
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-2xl">
-                    <SheetHeader className="max-w-7xl mx-auto text-left pb-6 border-b border-neutral-200 dark:border-neutral-800">
+                    <SheetHeader className="w-full text-left pb-6 border-b border-neutral-200 dark:border-neutral-800">
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-neutral-900 to-neutral-800 flex items-center justify-center text-white text-lg font-bold">
                                 {page.orderIndex !== undefined ? page.orderIndex + 1 : '#'}
@@ -99,7 +99,7 @@ export function PageOverviewCard({ page, difficultyColors }: PageOverviewCardPro
                             }
                         </div>
                     </SheetHeader>
-                    <div className="max-w-7xl mx-auto py-6 space-y-6">
+                    <div className="w-full py-6 space-y-6">
                         {
                             page.purpose && (
                                 <div>

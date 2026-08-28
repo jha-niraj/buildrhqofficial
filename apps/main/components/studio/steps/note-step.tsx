@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
 	StickyNote, Save, Check, Bold, Italic, Underline, List,
 	ListOrdered, Code, Quote, Heading1, Heading2, Heading3,
-	Link as LinkIcon, Undo, Redo, Sparkles, Loader2
+	Link as LinkIcon, Undo, Redo, Sparkles
 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -18,6 +18,7 @@ import { enhanceNoteWithAI } from "@/actions/(main)/studios/ai-generation.action
 import toast from "@repo/ui/components/ui/sonner";
 import type { StudioStep } from "@/types/studios";
 import { cn } from "@repo/ui/lib/utils";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface NoteStepProps {
 	step: StudioStep;
@@ -327,7 +328,7 @@ export function NoteStep({ step, studioId }: NoteStepProps) {
 						)}
 					>
 						{isEnhancing ? (
-							<Loader2 className="h-3 w-3 animate-spin" />
+							<InlineLoader size="sm" />
 						) : (
 							<Sparkles className="h-3 w-3" />
 						)}

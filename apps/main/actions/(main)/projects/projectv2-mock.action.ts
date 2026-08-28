@@ -1,6 +1,7 @@
 "use server"
 
 import { getSession } from "@repo/auth";
+import { fetchConversation, conversationDurationSecs } from "@/utils/elevenlabs/conversations";
 import { headers } from "next/headers";
 import {
     db,
@@ -42,7 +43,7 @@ export async function generateProjectMockKnowledgeBase(projectSlug: string) {
             where: eq(projectsV2.slug, projectSlug),
             with: {
                 sprints: {
-                    orderBy: (sprints: any, { asc }: any) => [asc(sprints.orderIndex)],
+                    orderBy: (sprints, { asc }) => [asc(sprints.orderIndex)],
                     limit: 3,
                     with: {
                         tasks: {
@@ -51,7 +52,7 @@ export async function generateProjectMockKnowledgeBase(projectSlug: string) {
                                     columns: { subTasks: true }
                                 }
                             },
-                            orderBy: (tasks: any, { asc }: any) => [asc(tasks.orderIndex)],
+                            orderBy: (tasks, { asc }) => [asc(tasks.orderIndex)],
                             limit: 5
                         }
                     }
@@ -88,12 +89,12 @@ export async function generateProjectMockKnowledgeBase(projectSlug: string) {
         }
 
         const stacks = project.stacks as any
-        const allTasks = project.sprints.flatMap((s: any) => s.tasks)
-        const taskSummary = allTasks.slice(0, 10).map((t: any) => {
+        const allTasks = project.sprints.flatMap((s) => s.tasks)
+        const taskSummary = allTasks.slice(0, 10).map((t) => {
             const subtasksData = (t.taskDetail?.subTasks as any[]) || []
             return {
                 title: t.title,
-                subtasks: subtasksData.slice(0, 3).map((st: any) => st.title || st)
+                subtasks: subtasksData.slice(0, 3).map((st) => st.title || st)
             }
         })
 
@@ -102,7 +103,7 @@ export async function generateProjectMockKnowledgeBase(projectSlug: string) {
             Description: ${project.description?.substring(0, 300) || 'N/A'}
             Technologies: ${project.technologies.slice(0, 8).join(', ')}
             Stack: Frontend: ${stacks?.frontend || 'N/A'}, Backend: ${stacks?.backend || 'N/A'}, Database: ${stacks?.database || 'N/A'}
-            Key Tasks: ${taskSummary.slice(0, 5).map((t: any) => `${t.title} (${t.subtasks.join(', ')})`).join('; ')}
+            Key Tasks: ${taskSummary.slice(0, 5).map((t) => `${t.title} (${t.subtasks.join(', ')})`).join('; ')}
         `
 
         const completion = await openai.chat.completions.create({
@@ -312,44 +313,6 @@ export async function updateProjectMockSessionStatus(
 }
 
 /**
- * Get project mock session details
- */
-export async function getProjectMockSession(sessionId: string) {
-    try {
-        const session = await getSession(headers());
-        if (!session?.user?.id) {
-            return { success: false, error: "Not authenticated" }
-        }
-
-        const mockSession = await db.query.projectV2MockSessions.findFirst({
-            where: and(
-                eq(projectV2MockSessions.id, sessionId),
-                eq(projectV2MockSessions.userId, session.user.id)
-            ),
-            with: {
-                project: {
-                    columns: {
-                        title: true,
-                        slug: true,
-                        description: true,
-                        difficulty: true
-                    }
-                }
-            }
-        });
-
-        if (!mockSession) {
-            return { success: false, error: "Session not found" }
-        }
-
-        return { success: true, session: mockSession }
-    } catch (error) {
-        console.error("Error getting mock session:", error)
-        return { success: false, error: "Failed to get session" }
-    }
-}
-
-/**
  * Save conversation transcript and generate AI feedback
  */
 export async function processProjectMockCompletion(
@@ -362,28 +325,32 @@ export async function processProjectMockCompletion(
             return { success: false, error: "Not authenticated" }
         }
 
-        const ELEVENLABS_API_KEY = process.env.ELEVENLABS_AI_KEY
+        // The shared client - see plan/mock-consolidation/, MC-1. This block used
+        // to be a second copy of the same fetch, and it carried four defects the
+        // canonical copy did not:
+        //
+        //   1. It read `process.env.ELEVENLABS_AI_KEY`, which is set NOWHERE, so
+        //      this function returned "ElevenLabs API not configured" on every
+        //      single call. The whole completion path was dead.
+        //   2. `if (response.ok)` had no else, so a failed fetch fell straight
+        //      through to the write below and marked the session COMPLETED with
+        //      an empty transcript.
+        //   3. It read `metadata?.duration` and divided by 1000. The field is
+        //      `metadata.call_duration_secs` and is already in seconds, so every
+        //      duration was 0.
+        //   4. No `cache: 'no-store'`, so a conversation still being finalised
+        //      could come back from Next's fetch cache.
+        const conversation = await fetchConversation(conversationId)
 
-        if (!ELEVENLABS_API_KEY) {
-            return { success: false, error: "ElevenLabs API not configured" }
+        // A failed fetch STOPS here. Writing a completed session with no
+        // transcript loses the interview and then generates feedback from
+        // nothing, which is worse than reporting the failure and retrying.
+        if (!conversation.success) {
+            return { success: false, error: conversation.error }
         }
 
-        const response = await fetch(`https://api.elevenlabs.io/v1/convai/conversations/${conversationId}`, {
-            method: 'GET',
-            headers: {
-                'xi-api-key': ELEVENLABS_API_KEY,
-                'Content-Type': 'application/json',
-            },
-        })
-
-        let transcript: any[] = []
-        let duration = 0
-
-        if (response.ok) {
-            const data = await response.json()
-            transcript = data.transcript || []
-            duration = Math.floor((data.metadata?.duration || 0) / 1000)
-        }
+        const transcript = conversation.data.transcript ?? []
+        const duration = conversationDurationSecs(conversation.data)
 
         await db.update(projectV2MockSessions)
             .set({
@@ -397,7 +364,7 @@ export async function processProjectMockCompletion(
 
         if (transcript.length > 0) {
             const transcriptText = transcript
-                .map((t: any) => `${t.role}: ${t.message}`)
+                .map((t) => `${t.role}: ${t.message}`)
                 .join('\n')
 
             const feedbackCompletion = await openai.chat.completions.create({
@@ -489,7 +456,7 @@ export async function getProjectMockAttempts(projectSlug: string) {
                 eq(projectV2MockSessions.projectId, project.id),
                 eq(projectV2MockSessions.status, 'COMPLETED')
             ),
-            orderBy: (sessions: any, { desc }: any) => [desc(sessions.createdAt)],
+            orderBy: (sessions, { desc }) => [desc(sessions.createdAt)],
             limit: 10,
             columns: {
                 id: true,
@@ -504,32 +471,5 @@ export async function getProjectMockAttempts(projectSlug: string) {
     } catch (error) {
         console.error("Error fetching mock attempts:", error)
         return { success: false, error: "Failed to fetch attempts" }
-    }
-}
-
-/**
- * Check if project has mock knowledge base
- */
-export async function hasProjectMockKnowledgeBase(projectSlug: string) {
-    try {
-        const project = await db.query.projectsV2.findFirst({
-            where: eq(projectsV2.slug, projectSlug),
-            with: { knowledgeBase: true }
-        });
-
-        if (!project) {
-            return { success: false, error: "Project not found" }
-        }
-
-        const knowledgeData = (project.knowledgeBase as any)
-
-        return {
-            success: true,
-            hasKnowledgeBase: !!knowledgeData?.mockKnowledgeBase,
-            knowledgeBase: (knowledgeData?.mockKnowledgeBase as string) || null
-        }
-    } catch (error) {
-        console.error("Error checking mock knowledge base:", error)
-        return { success: false, error: "Failed to check knowledge base" }
     }
 }

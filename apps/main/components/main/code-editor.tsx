@@ -7,12 +7,13 @@ import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@repo/ui/components/ui/select";
 import {
-    Play, Send, Copy, Check, Loader2, Maximize2, Minimize2
+    Play, Send, Copy, Check, Maximize2, Minimize2
 } from "lucide-react";
 import { useTheme } from '@repo/ui/components/themeprovider';
 import toast from '@repo/ui/components/ui/sonner';
 import { cn } from "@repo/ui/lib/utils";
 import { executeCode as runCodeOnWorker } from '@/actions/(main)/practice/execute-code.action';
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 // Dynamically import Monaco to avoid SSR issues
 const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
@@ -369,7 +370,7 @@ export default function CodeEditor({
                                 {
                                     isRunning ? (
                                         <>
-                                            <Loader2 className="h-3 w-3 animate-spin" />
+                                            <InlineLoader size="sm" />
                                             Running...
                                         </>
                                     ) : (
@@ -393,7 +394,7 @@ export default function CodeEditor({
                                 {
                                     isSubmitting ? (
                                         <>
-                                            <Loader2 className="h-3 w-3 animate-spin" />
+                                            <InlineLoader size="sm" />
                                             Submitting...
                                         </>
                                     ) : (
@@ -452,7 +453,7 @@ export default function CodeEditor({
                     }}
                     loading={
                         <div className="flex items-center justify-center h-full bg-neutral-50 dark:bg-neutral-900">
-                            <Loader2 className="h-6 w-6 animate-spin text-neutral-400" />
+                            <InlineLoader size="md" className="text-neutral-400" />
                         </div>
                     }
                 />

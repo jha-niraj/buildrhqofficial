@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     Bot, Database, Github, Shield, Sparkles, ChevronRight, ChevronLeft,
     Check, User, ToggleRight, ToggleLeft, Globe, Lock, Users, Briefcase,
-    Loader2, Code2, Award,
+    Code2, Award,
 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Progress } from "@repo/ui/components/ui/progress";
@@ -18,6 +18,7 @@ import {
     updateKnowMeProfile, updateOnboardingStep,
     activateKnowMeProfile, generateProfileEmbeddings
 } from "@/actions/(main)/knowme";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface OnboardingWizardProps {
     profile: KnowMeProfileFull;
@@ -238,7 +239,7 @@ export default function OnboardingWizard({ profile }: OnboardingWizardProps) {
                                     >
                                         {
                                             isLoading ? (
-                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                <InlineLoader size="sm" />
                                             ) : (
                                                 <>
                                                     Continue
@@ -256,7 +257,7 @@ export default function OnboardingWizard({ profile }: OnboardingWizardProps) {
                                         {
                                             isProcessing ? (
                                                 <>
-                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    <InlineLoader size="sm" />
                                                     Creating AI...
                                                 </>
                                             ) : (
@@ -330,7 +331,7 @@ function WelcomeStep({ onNext, isLoading }: { onNext: () => void; isLoading: boo
             >
                 {
                     isLoading ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <InlineLoader size="md" />
                     ) : (
                         <>
                             Let&apos;s Begin
@@ -456,35 +457,40 @@ function PlatformsStep({
             </div>
 
             {/* Available Platforms Preview */}
-            <div className="bg-slate-50 dark:bg-neutral-800 rounded-xl p-4 space-y-3">
-                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                    Platforms available in Settings:
+            <div className="bg-neutral-50 dark:bg-neutral-800 rounded-xl p-4 space-y-3">
+                {/* GitHub ONLY, because GitHub is the only platform with a real
+                    handler behind it. This list previously promised LeetCode,
+                    StackOverflow and LinkedIn as well; all three hit a silent
+                    `break` in the sync switch, so connecting one reported
+                    success and contributed nothing. Advertising a capability
+                    that does nothing is worse than not offering it - the user
+                    cannot tell the difference between "synced, found nothing"
+                    and "did not run". */}
+                <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Connect in Settings:
                 </p>
                 <div className="grid grid-cols-2 gap-2">
                     {
                         [
                             { name: "GitHub", icon: Github, description: "Repos & contributions" },
-                            { name: "LeetCode", icon: Code2, description: "Problem solving stats" },
-                            { name: "StackOverflow", icon: Code2, description: "Answers & reputation" },
-                            { name: "LinkedIn", icon: Briefcase, description: "Work history" },
                         ].map((platform) => (
                             <div
                                 key={platform.name}
                                 className="flex items-center gap-2 p-3 bg-white dark:bg-neutral-700 rounded-lg opacity-60"
                             >
-                                <div className="w-8 h-8 rounded bg-slate-200 dark:bg-neutral-600 flex items-center justify-center">
-                                    <platform.icon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                <div className="w-8 h-8 rounded bg-neutral-200 dark:bg-neutral-600 flex items-center justify-center">
+                                    <platform.icon className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{platform.name}</p>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">{platform.description}</p>
+                                    <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{platform.name}</p>
+                                    <p className="text-xs text-neutral-500 dark:text-neutral-400">{platform.description}</p>
                                 </div>
                             </div>
                         ))
                     }
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 text-center mt-2">
-                    🔒 Configure these after your AI is created
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 text-center mt-2">
+                    Configure this after your AI is created. More sources are coming.
                 </p>
             </div>
 

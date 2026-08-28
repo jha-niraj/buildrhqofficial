@@ -69,8 +69,8 @@ export async function updateProjectScore(projectId: string, userId?: string) {
         }
 
         const completedTasks: CompletedTask[] = progress.taskStatuses
-            .filter((ts: any) => ts.status === "COMPLETED")
-            .map((ts: any) => ({
+            .filter((ts) => ts.status === "COMPLETED")
+            .map((ts) => ({
                 taskId: ts.task.id,
                 difficulty: ts.task.difficulty
             }))
@@ -91,13 +91,15 @@ export async function updateProjectScore(projectId: string, userId?: string) {
                 eq(projectV2MockSessions.projectId, projectId),
                 eq(projectV2MockSessions.status, "COMPLETED")
             ),
-            orderBy: (sessions: any, { desc }: any) => [desc(sessions.completedAt)]
+            orderBy: (sessions, { desc }) => [desc(sessions.completedAt)]
         });
 
         const mockScore = mockSession?.score || null
 
-        const projectData = progress.project as any
-        const allTasks = projectData.sprints?.flatMap((s: any) => s.tasks) || []
+        // No `as any`. The query above already loads `project.sprints.tasks`, so
+        // Drizzle types this fully - the cast was throwing that away and taking
+        // the checking on `s.tasks` with it.
+        const allTasks = progress.project.sprints?.flatMap((s) => s.tasks) ?? []
 
         const scoreCalculation: ScoreCalculation = calculateTotalScore(
             completedTasks,
