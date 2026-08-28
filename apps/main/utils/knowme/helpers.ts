@@ -7,6 +7,12 @@
 import { createHash, randomBytes } from "crypto";
 import type { KnowMeQuestionCategory } from "@repo/db";
 
+// Pure formatters live in `format.ts` so a client component can import them
+// without dragging this module's `node:crypto` dependency - or, through the
+// barrel, `@repo/db` - into the browser bundle. Re-exported so every existing
+// server-side import of `helpers` keeps working unchanged.
+export { formatRelativeDate, truncateText } from "./format";
+
 /**
  * Generate a unique API key for external integrations
  */
@@ -69,25 +75,6 @@ export function calculateNextUpdate(
 	const nextUpdate = new Date(fromDate);
 	nextUpdate.setDate(nextUpdate.getDate() + cycleDays);
 	return nextUpdate;
-}
-
-/**
- * Format date for display
- */
-export function formatRelativeDate(date: Date): string {
-	const now = new Date();
-	const diffMs = now.getTime() - date.getTime();
-	const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-	const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-	const diffMinutes = Math.floor(diffMs / (1000 * 60));
-
-	if (diffMinutes < 1) return "Just now";
-	if (diffMinutes < 60) return `${diffMinutes} minute${diffMinutes > 1 ? "s" : ""} ago`;
-	if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
-	if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
-	if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? "s" : ""} ago`;
-
-	return date.toLocaleDateString();
 }
 
 /**
@@ -204,14 +191,6 @@ export function calculateTrend(
 		changePercent: Math.abs(changePercent),
 		direction: change > 0 ? "up" : change < 0 ? "down" : "stable",
 	};
-}
-
-/**
- * Truncate text with ellipsis
- */
-export function truncateText(text: string, maxLength: number): string {
-	if (text.length <= maxLength) return text;
-	return text.slice(0, maxLength - 3) + "...";
 }
 
 /**

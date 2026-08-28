@@ -20,7 +20,7 @@ import type { KnowMeProfileFull } from "@/types/knowme";
 import {
     sendChatMessage, getOrCreateChatSession, triggerManualUpdate
 } from "@/actions/(main)/knowme";
-import { formatRelativeDate } from "@/utils/knowme";
+import { formatRelativeDate } from "@/utils/knowme/format";
 import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 
 interface KnowMeDashboardProps {

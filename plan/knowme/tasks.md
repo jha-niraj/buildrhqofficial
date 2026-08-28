@@ -157,3 +157,50 @@ is the pattern: one resolver, many consumers, each with its own permissions.
 
 **Blocked on** KM-3, because there is no point unifying a source that has never
 been shown to work.
+
+## KM-7 - /knowme crashed with a neon connection error - DONE 2026-08-28
+
+**Symptom.** Every visit to `/knowme` died on a runtime error:
+
+```
+No database connection string was provided to `neon()`.
+Perhaps an environment variable has not been set?
+    packages/db/src/client.ts (34:17) @ module evaluation
+```
+
+The stack read, innermost last: `client.ts` <- `@repo/db/index.ts` <-
+`utils/knowme/vector-db.ts` <- `utils/knowme/index.ts` <-
+`knowme-dashboard.tsx`.
+
+**Cause.** `knowme-dashboard.tsx` is `"use client"` and needed exactly one thing
+from the utils: `formatRelativeDate`, a pure date formatter. It imported it from
+the `@/utils/knowme` barrel.
+
+A barrel re-export is a real import. The barrel re-exports `vector-db.ts`, which
+imports `db` from `@repo/db` as a value, so pulling one formatter through it
+dragged the neon client into the browser bundle - where it evaluates at module
+scope, finds no `DATABASE_URL`, and throws before the page renders.
+
+This is why the error appeared only now. `vector-db.ts` gained its `@repo/db`
+import when it moved to Vectorize and `deleteNamespace` began reading vector ids
+out of Postgres; the barrel import in the dashboard had been harmless until then.
+
+**Fix.** A new `utils/knowme/format.ts` holding only pure functions, imported
+directly by the client component.
+
+Moving the import one level deeper to `helpers.ts` would NOT have fixed it -
+that module imports `createHash`/`randomBytes` from `node:crypto` for API-key
+hashing, so a client importing it drags Node's crypto in instead. The new module
+has no server dependency of any kind. `helpers.ts` re-exports from it, so every
+existing server-side import is unchanged.
+
+**Scope.** One file, not the whole module. A sweep of every `"use client"`
+component against every util that imports the `db` value (`utils/referral.ts`,
+`utils/knowme/vector-db.ts`, `lib/resume/primary.ts`,
+`lib/github/github-service.ts`), directly or through a barrel, found no other
+crossing.
+
+**Done when.** `/knowme` and `/knowme/settings` render with no neon error and no
+runtime overlay. Verified in the browser. (`/knowme/analytics` and
+`/knowme/onboarding` both redirect to `/knowme` for this account, which is
+existing behaviour and unrelated.)
