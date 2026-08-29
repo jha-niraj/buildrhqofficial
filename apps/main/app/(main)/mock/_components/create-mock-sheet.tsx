@@ -263,7 +263,7 @@ export function CreateMockSheet({
             setOpen(isOpen)
             if (!isOpen) resetForm()
         }}>
-            <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-2xl">
+            <SheetContent side="right" className="w-full sm:max-w-2xl">
                 <div className="max-w-2xl mx-auto">
                     <SheetHeader className="mb-6">
                         <SheetTitle className="text-2xl flex items-center gap-3">

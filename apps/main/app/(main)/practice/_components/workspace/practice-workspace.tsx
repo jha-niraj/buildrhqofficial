@@ -505,7 +505,7 @@ function OutputPanel({
                 </div>
                 <button onClick={onClose} className="cursor-pointer text-neutral-600 dark:text-neutral-400 hover:text-neutral-600 text-xs">✕</button>
             </div>
-            <div className="flex-1 overflow-auto p-3 font-mono text-xs">
+            <ScrollArea className="min-h-0 flex-1 font-mono text-xs" viewportClassName="p-3" reflow>
                 {isRunning ? (
                     <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
                         <InlineLoader size="sm" />
@@ -574,7 +574,7 @@ function OutputPanel({
                 ) : (
                     <span className="text-neutral-600 dark:text-neutral-400">Run your code to see output here.</span>
                 )}
-            </div>
+            </ScrollArea>
         </div>
     );
 }
@@ -612,11 +612,17 @@ function ChatPanel({
         },
     });
 
-    // Auto-scroll to bottom on new messages
+    // Auto-scroll to bottom on new messages.
+    //
+    // The ref is on the ScrollArea ROOT, and the root does not scroll - the Radix
+    // viewport inside it does. Setting `scrollTop` on the root is a no-op that
+    // fails silently, which is exactly what happened when this list stopped being
+    // a bare `overflow-y-auto` div (JB-1).
     useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-        }
+        const viewport = scrollRef.current?.querySelector<HTMLElement>(
+            "[data-radix-scroll-area-viewport]",
+        );
+        if (viewport) viewport.scrollTop = viewport.scrollHeight;
     }, [store.chatHistory.length, store.isChatLoading]);
 
     // ── Start/Stop voice recording ──
@@ -819,7 +825,7 @@ function ChatPanel({
                     )
                 }
             </div>
-            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+            <ScrollArea ref={scrollRef} className="min-h-0 flex-1" viewportClassName="p-4 space-y-3" reflow>
                 {
                     store.chatHistory.length === 0 && (
                         <div className="text-center py-8">
@@ -847,7 +853,7 @@ function ChatPanel({
                         </div>
                     )
                 }
-            </div>
+            </ScrollArea>
 
             {
                 scribe.isConnected && store.voiceTranscript && (

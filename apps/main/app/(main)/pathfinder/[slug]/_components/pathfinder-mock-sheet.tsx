@@ -1,5 +1,6 @@
 'use client'
 
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 import { useState } from 'react'
 import {
     Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle
@@ -155,7 +156,7 @@ export function PathfinderMockSheet({
                             <Button variant="outline" size="sm" onClick={selectAll} className="w-full">
                                 Select All
                             </Button>
-                            <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                            <ScrollArea className="min-h-0 flex-1" viewportClassName="space-y-2 max-h-[300px]" reflow>
                                 {sessions.map((sess) => (
                                     <div key={sess.id} className="space-y-2">
                                         <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
@@ -179,7 +180,7 @@ export function PathfinderMockSheet({
                                         ))}
                                     </div>
                                 ))}
-                            </div>
+                            </ScrollArea>
                         </>
                     )}
                     <Button

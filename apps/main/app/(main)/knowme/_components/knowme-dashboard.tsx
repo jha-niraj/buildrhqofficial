@@ -1,16 +1,37 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+/**
+ * The KnowMe dashboard.
+ *
+ * ── Layout ───────────────────────────────────────────────────────────────────
+ * A full-height flex column, not a page that scrolls. `h-screen` is retargeted
+ * at the shell's `--page-h` by a rule in globals.css, so it means "the page
+ * card", not "the viewport"; a raw `100vh` here would overflow the card by
+ * 24px. Under the header the row splits into the chat (which takes the whole
+ * remaining height, per Niraj 2026-08-29) and a sidebar that scrolls on its own.
+ *
+ * Below `lg` the row stacks and the page scrolls normally - a 400px chat above a
+ * 600px sidebar in a single scroller is fine on a phone, and two nested
+ * scrollers there are not.
+ *
+ * ── What this screen owes the owner ──────────────────────────────────────────
+ * It used to render `<Badge>Active</Badge>` as a literal string while the row
+ * said `ERROR`, next to "0 questions" and "0 visitors" - which reads as "nobody
+ * came" when the truth was "it never worked". The status block now reports the
+ * real status, why, and what to do about it. See KM-9.
+ */
+
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
-    Bot, Send, Settings, BarChart3, Share2, Key, RefreshCw, Copy, Check,
-    ExternalLink, MessageSquare, Zap, Github, FileText, ToggleLeft,
-    ToggleRight, ChevronRight, Sparkles
+    Bot, Share2, Key, RefreshCw, Copy, Check,
+    ExternalLink, Github, FileText, ToggleLeft, ToggleRight, ChevronRight,
+    Sparkles, AlertTriangle, Database,
 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Badge } from "@repo/ui/components/ui/badge";
-import { Input } from "@repo/ui/components/ui/input";
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area";
 import {
     Avatar, AvatarFallback, AvatarImage
 } from "@repo/ui/components/ui/avatar";
@@ -21,39 +42,96 @@ import {
     sendChatMessage, getOrCreateChatSession, triggerManualUpdate
 } from "@/actions/(main)/knowme";
 import { formatRelativeDate } from "@/utils/knowme/format";
-import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { knowMeProfileUrl } from "@/lib/urls";
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader";
+import { KnowMeChat, type KnowMeChatMessage } from "@/components/knowme/knowme-chat";
 
 interface KnowMeDashboardProps {
     profile: KnowMeProfileFull;
 }
 
-interface ChatMessage {
-    id: string;
-    role: "user" | "assistant" | "system";
-    content: string;
-    createdAt: Date;
+/**
+ * What each status MEANS to the person who owns the profile, in their words
+ * rather than the enum's.
+ *
+ * `tone: "bad"` is the only one that gets a red treatment, and only ERROR earns
+ * it. PROCESSING is work in progress and must not read as a failure; INACTIVE
+ * and SETUP are states the owner chose or has not left yet.
+ */
+const STATUS_COPY: Record<
+    KnowMeProfileFull["status"],
+    { label: string; blurb: string; tone: "good" | "bad" | "neutral" }
+> = {
+    ACTIVE: {
+        label: "Live",
+        blurb: "Your link answers questions from anyone who opens it.",
+        tone: "good",
+    },
+    PROCESSING: {
+        label: "Indexing",
+        blurb: "Reading your work. Answers get better as this finishes.",
+        tone: "neutral",
+    },
+    SETUP: {
+        label: "Setup",
+        blurb: "Finish onboarding to put your assistant online.",
+        tone: "neutral",
+    },
+    PAUSED: {
+        label: "Paused",
+        blurb: "Your link is up but not answering. Resume it in settings.",
+        tone: "neutral",
+    },
+    INACTIVE: {
+        label: "Off",
+        blurb: "Nobody can reach your assistant while it is off.",
+        tone: "neutral",
+    },
+    ERROR: {
+        label: "Not working",
+        blurb: "The last attempt to read your work failed, so your assistant has nothing to answer from.",
+        tone: "bad",
+    },
+};
+
+const OWNER_SUGGESTIONS = [
+    "What are my strongest technical skills?",
+    "Summarise my most impressive project",
+    "What would you tell a recruiter about me?",
+    "Where are the gaps in my experience?",
+];
+
+/** Sparkles is the assistant rail's mark. This one is a Bot, on purpose. */
+function KnowMeMark({ className }: { className?: string }) {
+    return (
+        <span
+            className={cn(
+                "flex items-center justify-center rounded-md bg-neutral-900 text-white dark:bg-white dark:text-neutral-900",
+                className,
+            )}
+        >
+            <Bot className="h-[60%] w-[60%]" />
+        </span>
+    );
 }
 
 export default function KnowMeDashboard({ profile }: KnowMeDashboardProps) {
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [inputValue, setInputValue] = useState("");
+    const [messages, setMessages] = useState<KnowMeChatMessage[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [sessionId, setSessionId] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
-    const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const profileUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://shipithq.com"}/knowme/${profile.user.username}`;
+    const profileUrl = knowMeProfileUrl(profile.user.username ?? "");
+    const hasNothingIndexed = profile.indexedChunks === 0;
 
-    // Initialize chat session
     useEffect(() => {
         async function initSession() {
             const result = await getOrCreateChatSession(profile.id);
             if (result.success && result.data) {
                 setSessionId(result.data.id);
-                // Load existing messages
                 if (result.data.messages.length > 0) {
-                    setMessages(result.data.messages.map(m => ({
+                    setMessages(result.data.messages.map((m) => ({
                         id: m.id,
                         role: m.role,
                         content: m.content,
@@ -65,36 +143,26 @@ export default function KnowMeDashboard({ profile }: KnowMeDashboardProps) {
         initSession();
     }, [profile.id]);
 
-    // Auto-scroll to bottom
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
+    const handleSend = useCallback(async (text: string) => {
+        if (!sessionId) return;
 
-    const handleSendMessage = async () => {
-        if (!inputValue.trim() || isLoading || !sessionId) return;
-
-        const userMessage: ChatMessage = {
-            id: Date.now().toString(),
+        setMessages((prev) => [...prev, {
+            id: `local-${Date.now()}`,
             role: "user",
-            content: inputValue.trim(),
+            content: text,
             createdAt: new Date(),
-        };
-
-        setMessages((prev) => [...prev, userMessage]);
-        setInputValue("");
+        }]);
         setIsLoading(true);
 
         try {
-            const result = await sendChatMessage(sessionId, inputValue.trim());
-
+            const result = await sendChatMessage(sessionId, text);
             if (result.success && result.answer) {
-                const aiMessage: ChatMessage = {
-                    id: (Date.now() + 1).toString(),
+                setMessages((prev) => [...prev, {
+                    id: `local-${Date.now() + 1}`,
                     role: "assistant",
-                    content: result.answer,
+                    content: result.answer as string,
                     createdAt: new Date(),
-                };
-                setMessages((prev) => [...prev, aiMessage]);
+                }]);
             } else {
                 toast.error(result.error || "Failed to get response");
             }
@@ -103,12 +171,12 @@ export default function KnowMeDashboard({ profile }: KnowMeDashboardProps) {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [sessionId]);
 
     const handleCopyLink = () => {
         navigator.clipboard.writeText(profileUrl);
         setCopied(true);
-        toast.success("Link copied to clipboard!");
+        toast.success("Link copied to clipboard");
         setTimeout(() => setCopied(false), 2000);
     };
 
@@ -117,7 +185,7 @@ export default function KnowMeDashboard({ profile }: KnowMeDashboardProps) {
         try {
             const result = await triggerManualUpdate();
             if (result.success) {
-                toast.success("Knowledge base updated successfully!");
+                toast.success("Knowledge base updated");
             } else {
                 toast.error(result.error || "Failed to update");
             }
@@ -129,333 +197,300 @@ export default function KnowMeDashboard({ profile }: KnowMeDashboardProps) {
     };
 
     return (
-        <div className="w-full px-4 py-8">
-            <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-8"
-            >
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-neutral-900 to-neutral-800 flex items-center justify-center shadow-lg shadow-neutral-900/25">
-                            <Bot className="w-7 h-7 text-white" />
+        <div className="flex h-screen min-h-0 w-full flex-col px-4 py-4 sm:px-6">
+            {/* NO page header. The sidebar already carries "KnowMe" with Overview,
+                Analytics and Settings under it, so a title bar repeating the module
+                name and duplicating two of its own nav links spent the top ~70px of
+                a full-height page telling the user where they already knew they
+                were. Niraj, 2026-08-29. The chat gets that height instead. */}
+
+            {/* min-h-0 so the chat column can shrink. Without it the grid row sizes to
+                its tallest child and the chat's own scroller never engages. */}
+            <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-3">
+                <motion.section
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05 }}
+                    className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white lg:col-span-2 dark:border-neutral-800 dark:bg-neutral-900"
+                >
+                    <div className="flex shrink-0 items-center justify-between gap-3 border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
+                        <div className="flex min-w-0 items-center gap-2">
+                            <KnowMeMark className="h-7 w-7 shrink-0 rounded-lg" />
+                            <div className="min-w-0">
+                                <h2 className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
+                                    Ask it what a visitor would
+                                </h2>
+                                <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">
+                                    Same answers your public link gives
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-                                KnowMe Dashboard
-                            </h1>
-                            <p className="text-slate-500 dark:text-slate-400 text-sm">
-                                Manage your AI-powered portfolio assistant
+                        <StatusPill status={profile.status} />
+                    </div>
+
+                    {/* The chat has a fixed height on mobile because the page scrolls
+                        there; on lg the parent gives it the rest of the column. */}
+                    <div className="flex min-h-[26rem] flex-1 flex-col lg:min-h-0">
+                        <KnowMeChat
+                            messages={messages}
+                            isLoading={isLoading}
+                            onSend={handleSend}
+                            disabled={!sessionId}
+                            suggestions={OWNER_SUGGESTIONS}
+                            mark={<KnowMeMark className="h-5 w-5 rounded" />}
+                            emptyMark={<KnowMeMark className="h-12 w-12 rounded-xl" />}
+                            assistantName="Your KnowMe AI"
+                            emptyTitle={
+                                hasNothingIndexed
+                                    ? "Nothing is indexed yet"
+                                    : "Try it the way a recruiter would"
+                            }
+                            emptyHint={
+                                hasNothingIndexed
+                                    ? "Your assistant has no chunks to answer from, so it will say it does not know. Update the knowledge base first."
+                                    : "Whatever it says here is what a stranger on your public link gets."
+                            }
+                            placeholder="Ask a question about yourself..."
+                            footer="Enter to send · Shift+Enter for a new line · this chat is private to you"
+                        />
+                    </div>
+                </motion.section>
+
+                {/* On lg this is its own scroller so a long sidebar never grows the page.
+                    Below lg it is just a stack in the page's own scroll. */}
+                <motion.aside
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="min-h-0 min-w-0"
+                >
+                    <ScrollArea className="h-full min-h-0 min-w-0" reflow>
+                        <div className="space-y-4 lg:pr-3">
+                            <StatusCard
+                                profile={profile}
+                                onUpdate={handleManualUpdate}
+                                isUpdating={isUpdating}
+                            />
+
+                            <Card>
+                                <CardTitle icon={<FileText className="h-4 w-4" />}>
+                                    Data sources
+                                </CardTitle>
+                                <div className="space-y-1">
+                                    <DataSourceItem
+                                        icon={
+                                            <Avatar className="h-6 w-6">
+                                                <AvatarImage src={profile.user.image || undefined} />
+                                                <AvatarFallback className="text-xs">
+                                                    {profile.user.name?.charAt(0) || "U"}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                        }
+                                        label="ShipItHQ profile"
+                                        enabled={profile.includePersonalData}
+                                    />
+                                    <DataSourceItem
+                                        icon={<FileText className="h-4 w-4" />}
+                                        label="Resume"
+                                        enabled={profile.personalData.some((d) => d.dataType === "RESUME")}
+                                    />
+                                    {profile.platformConnections.map((conn) => (
+                                        <DataSourceItem
+                                            key={conn.id}
+                                            icon={<Github className="h-4 w-4" />}
+                                            label={conn.platform}
+                                            enabled={conn.isConnected}
+                                            subtitle={conn.platformUsername || undefined}
+                                        />
+                                    ))}
+                                </div>
+                                <Button asChild variant="ghost" size="sm" className="mt-3 w-full gap-2">
+                                    <Link href="/knowme/settings">
+                                        Manage data sources
+                                        <ChevronRight className="h-4 w-4" />
+                                    </Link>
+                                </Button>
+                            </Card>
+
+                            <div className="rounded-2xl bg-neutral-900 p-5 text-white dark:bg-neutral-800">
+                                <h3 className="mb-1.5 flex items-center gap-2 text-sm font-semibold">
+                                    <Share2 className="h-4 w-4" />
+                                    Your public link
+                                </h3>
+                                <p className="mb-3 text-xs text-neutral-300">
+                                    Anyone with this link can ask about you. No account needed.
+                                </p>
+                                <div className="flex gap-2">
+                                    <div className="min-w-0 flex-1 truncate rounded-lg bg-white/10 px-3 py-2 font-mono text-xs">
+                                        {profileUrl}
+                                    </div>
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        onClick={handleCopyLink}
+                                        aria-label="Copy public link"
+                                        className="shrink-0"
+                                    >
+                                        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                    </Button>
+                                </div>
+                                <Button
+                                    asChild
+                                    variant="ghost"
+                                    size="sm"
+                                    className="mt-2 w-full gap-2 text-white hover:bg-white/10 hover:text-white"
+                                >
+                                    <Link href={profileUrl} target="_blank">
+                                        <ExternalLink className="h-4 w-4" />
+                                        Open it as a visitor
+                                    </Link>
+                                </Button>
+                            </div>
+
+                            <Card>
+                                <CardTitle icon={<Key className="h-4 w-4" />}>API</CardTitle>
+                                <p className="mb-3 text-sm text-neutral-600 dark:text-neutral-400">
+                                    Embed the same answers in your own site.
+                                </p>
+                                <Button asChild variant="outline" size="sm" className="w-full gap-2">
+                                    <Link href="/knowme/settings?tab=api">
+                                        <Sparkles className="h-4 w-4" />
+                                        Get API keys
+                                    </Link>
+                                </Button>
+                            </Card>
+                        </div>
+                    </ScrollArea>
+                </motion.aside>
+            </div>
+        </div>
+    );
+}
+
+/**
+ * The honest version of the old hardcoded `<Badge>Active</Badge>`.
+ *
+ * Two numbers sit beside it deliberately. "Chunks indexed" is the one that says
+ * whether the assistant knows anything at all - a profile can be ACTIVE with
+ * zero chunks and answer every question with "they have not said".
+ */
+function StatusCard({
+    profile,
+    onUpdate,
+    isUpdating,
+}: {
+    profile: KnowMeProfileFull;
+    onUpdate: () => void;
+    isUpdating: boolean;
+}) {
+    const status = STATUS_COPY[profile.status];
+    const job = profile.lastJob;
+    const showFailure = profile.status === "ERROR" || job?.status === "FAILED";
+
+    return (
+        <Card>
+            <div className="mb-3 flex items-center justify-between gap-2">
+                <CardTitle icon={<Database className="h-4 w-4" />}>Status</CardTitle>
+                <StatusPill status={profile.status} />
+            </div>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">{status.blurb}</p>
+
+            {showFailure && job?.error && (
+                <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-900/40 dark:bg-red-950/30">
+                    <div className="flex items-start gap-2">
+                        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-600 dark:text-red-400" />
+                        <div className="min-w-0">
+                            <p className="text-sm font-medium text-red-900 dark:text-red-200">
+                                The last update failed{job.createdAt ? ` ${formatRelativeDate(job.createdAt)}` : ""}
+                            </p>
+                            {/* The raw text is an operator's message, not the headline.
+                                `break-words` because it is a sentence with no spaces in
+                                the wrong places, and it must not widen the sidebar. */}
+                            <p className="mt-1 text-xs break-words text-red-800/80 dark:text-red-300/80">
+                                {job.error}
                             </p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <Link href="/knowme/analytics">
-                            <Button variant="outline" className="gap-2">
-                                <BarChart3 className="w-4 h-4" />
-                                Analytics
-                            </Button>
-                        </Link>
-                        <Link href="/knowme/settings">
-                            <Button variant="outline" className="gap-2">
-                                <Settings className="w-4 h-4" />
-                                Settings
-                            </Button>
-                        </Link>
-                    </div>
                 </div>
-            </motion.div>
-            <div className="grid lg:grid-cols-3 gap-6">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="lg:col-span-2"
-                >
-                    <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 overflow-hidden shadow-sm">
-                        <div className="p-4 border-b border-slate-200 dark:border-neutral-800 bg-slate-50 dark:bg-neutral-800/50">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-neutral-900 to-neutral-800 flex items-center justify-center">
-                                        <Bot className="w-5 h-5 text-white" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold text-slate-900 dark:text-white">
-                                            Test Your AI
-                                        </h3>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                                            See how your AI responds to questions
-                                        </p>
-                                    </div>
-                                </div>
-                                <Badge
-                                    variant={profile.status === "ACTIVE" ? "default" : "secondary"}
-                                    className={cn(
-                                        "gap-1",
-                                        profile.status === "ACTIVE" && "bg-neutral-900/10 text-neutral-800 dark:text-neutral-100 border-neutral-900/20"
-                                    )}
-                                >
-                                    <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                                    {profile.status}
-                                </Badge>
-                            </div>
-                        </div>
-                        <div className="h-[400px] overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-slate-50/50 to-white dark:from-neutral-900 dark:to-neutral-900">
-                            {
-                                messages.length === 0 && (
-                                    <div className="text-center py-12">
-                                        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-100 dark:bg-neutral-800 flex items-center justify-center">
-                                            <MessageSquare className="w-8 h-8 text-slate-400" />
-                                        </div>
-                                        <p className="text-slate-500 dark:text-slate-400 mb-2">
-                                            No messages yet
-                                        </p>
-                                        <p className="text-sm text-slate-400 dark:text-slate-400 max-w-xs mx-auto">
-                                            Try asking about your skills, projects, or experience
-                                        </p>
-                                    </div>
-                                )
-                            }
+            )}
 
-                            <AnimatePresence>
-                                {
-                                    messages.map((message, index) => (
-                                        <motion.div
-                                            key={message.id}
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: index * 0.05 }}
-                                            className={cn(
-                                                "flex gap-3",
-                                                message.role === "user" && "justify-end"
-                                            )}
-                                        >
-                                            {
-                                                message.role === "assistant" && (
-                                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neutral-900 to-neutral-800 flex items-center justify-center flex-shrink-0">
-                                                        <Bot className="w-4 h-4 text-white" />
-                                                    </div>
-                                                )
-                                            }
-                                            <div
-                                                className={cn(
-                                                    "max-w-[80%] rounded-2xl px-4 py-3",
-                                                    message.role === "user"
-                                                        ? "bg-neutral-800 text-white rounded-tr-none"
-                                                        : "bg-white dark:bg-neutral-800 text-slate-900 dark:text-white rounded-tl-none shadow-sm border border-slate-200 dark:border-neutral-700"
-                                                )}
-                                            >
-                                                <p className="text-sm whitespace-pre-wrap">
-                                                    {message.content}
-                                                </p>
-                                            </div>
-                                        </motion.div>
-                                    ))
-                                }
-                            </AnimatePresence>
+            <dl className="mt-4 space-y-2.5">
+                <Row
+                    label="Chunks indexed"
+                    value={profile.indexedChunks.toLocaleString()}
+                    muted={profile.indexedChunks === 0}
+                />
+                <Row
+                    label="Last updated"
+                    value={profile.lastUpdatedAt ? formatRelativeDate(profile.lastUpdatedAt) : "Never"}
+                    muted={!profile.lastUpdatedAt}
+                />
+                <Row label="Questions answered" value={profile.totalQuestionsAnswered.toLocaleString()} />
+                <Row label="Visitors" value={profile.totalVisitors.toLocaleString()} />
+            </dl>
 
-                            {
-                                isLoading && (
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        className="flex gap-3"
-                                    >
-                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neutral-900 to-neutral-800 flex items-center justify-center">
-                                            <Bot className="w-4 h-4 text-white" />
-                                        </div>
-                                        <div className="bg-white dark:bg-neutral-800 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm border border-slate-200 dark:border-neutral-700">
-                                            <div className="flex gap-1">
-                                                <span className="w-2 h-2 rounded-full bg-slate-400 animate-bounce [animation-delay:0ms]" />
-                                                <span className="w-2 h-2 rounded-full bg-slate-400 animate-bounce [animation-delay:150ms]" />
-                                                <span className="w-2 h-2 rounded-full bg-slate-400 animate-bounce [animation-delay:300ms]" />
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                )
-                            }
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={onUpdate}
+                disabled={isUpdating}
+                className="mt-4 w-full gap-2"
+            >
+                {isUpdating ? <InlineLoader size="sm" /> : <RefreshCw className="h-4 w-4" />}
+                {isUpdating ? "Updating..." : showFailure ? "Try again" : "Update knowledge base"}
+            </Button>
+        </Card>
+    );
+}
 
-                            <div ref={messagesEndRef} />
-                        </div>
-                        <div className="p-4 border-t border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
-                            <form
-                                onSubmit={(e) => {
-                                    e.preventDefault();
-                                    handleSendMessage();
-                                }}
-                                className="flex gap-3"
-                            >
-                                <Input
-                                    value={inputValue}
-                                    onChange={(e) => setInputValue(e.target.value)}
-                                    placeholder="Ask a question about yourself..."
-                                    className="flex-1 rounded-xl"
-                                    disabled={isLoading}
-                                />
-                                <Button
-                                    type="submit"
-                                    disabled={!inputValue.trim() || isLoading}
-                                    className="rounded-xl bg-gradient-to-r from-neutral-800 to-neutral-800 hover:from-neutral-700 hover:to-neutral-700"
-                                >
-                                    <Send className="w-4 h-4" />
-                                </Button>
-                            </form>
-                        </div>
-                    </div>
-                    <div className="mt-4 flex flex-wrap gap-3">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleManualUpdate}
-                            disabled={isUpdating}
-                            className="gap-2"
-                        >
-                            {isUpdating ? <InlineLoader size="sm" /> : <RefreshCw className="w-4 h-4" />}
-                            {isUpdating ? "Updating..." : "Update Knowledge Base"}
-                        </Button>
-                        <Link href={profileUrl} target="_blank">
-                            <Button variant="outline" size="sm" className="gap-2">
-                                <ExternalLink className="w-4 h-4" />
-                                Preview Public Page
-                            </Button>
-                        </Link>
-                    </div>
-                </motion.div>
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="space-y-6"
-                >
-                    <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 p-5">
-                        <h3 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                            <Zap className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
-                            Status
-                        </h3>
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-slate-600 dark:text-slate-400">
-                                    Status
-                                </span>
-                                <Badge className="bg-neutral-900/10 text-neutral-800 dark:text-neutral-200 border-neutral-900/20">
-                                    Active
-                                </Badge>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-slate-600 dark:text-slate-400">
-                                    Last updated
-                                </span>
-                                <span className="text-sm font-medium text-slate-900 dark:text-white">
-                                    {
-                                        profile.lastUpdatedAt
-                                            ? formatRelativeDate(profile.lastUpdatedAt)
-                                            : "Never"
-                                    }
-                                </span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-slate-600 dark:text-slate-400">
-                                    Questions answered
-                                </span>
-                                <span className="text-sm font-medium text-slate-900 dark:text-white">
-                                    {profile.totalQuestionsAnswered}
-                                </span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-slate-600 dark:text-slate-400">
-                                    Total visitors
-                                </span>
-                                <span className="text-sm font-medium text-slate-900 dark:text-white">
-                                    {profile.totalVisitors}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 p-5">
-                        <h3 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
-                            Data Sources
-                        </h3>
-                        <div className="space-y-3">
-                            <DataSourceItem
-                                icon={<Avatar className="w-6 h-6">
-                                    <AvatarImage src={profile.user.image || undefined} />
-                                    <AvatarFallback className="text-xs">
-                                        {profile.user.name?.charAt(0) || "U"}
-                                    </AvatarFallback>
-                                </Avatar>}
-                                label="ShipItHQ Profile"
-                                enabled={profile.includePersonalData}
-                            />
-                            <DataSourceItem
-                                icon={<FileText className="w-4 h-4" />}
-                                label="Resume"
-                                enabled={profile.personalData.some(d => d.dataType === "RESUME")}
-                            />
-                            {
-                                profile.platformConnections.map((conn) => (
-                                    <DataSourceItem
-                                        key={conn.id}
-                                        icon={<Github className="w-4 h-4" />}
-                                        label={conn.platform}
-                                        enabled={conn.isConnected}
-                                        subtitle={conn.platformUsername || undefined}
-                                    />
-                                ))
-                            }
-                        </div>
-                        <Link href="/knowme/settings">
-                            <Button variant="ghost" size="sm" className="w-full mt-4 gap-2">
-                                Manage Data Sources
-                                <ChevronRight className="w-4 h-4" />
-                            </Button>
-                        </Link>
-                    </div>
-                    <div className="bg-gradient-to-br from-neutral-900 to-neutral-800 rounded-2xl p-5 text-white">
-                        <h3 className="font-semibold mb-2 flex items-center gap-2">
-                            <Share2 className="w-4 h-4" />
-                            Share Your AI
-                        </h3>
-                        <p className="text-sm text-white/80 mb-4">
-                            Let people discover you through your AI assistant
-                        </p>
-                        <div className="flex gap-2">
-                            <div className="flex-1 bg-white/10 rounded-lg px-3 py-2 text-sm font-mono truncate">
-                                {profileUrl}
-                            </div>
-                            <Button
-                                size="sm"
-                                variant="secondary"
-                                onClick={handleCopyLink}
-                                className="flex-shrink-0"
-                            >
-                                {
-                                    copied ? (
-                                        <Check className="w-4 h-4" />
-                                    ) : (
-                                        <Copy className="w-4 h-4" />
-                                    )
-                                }
-                            </Button>
-                        </div>
-                    </div>
-                    <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 p-5">
-                        <h3 className="font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
-                            <Key className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
-                            API Integration
-                        </h3>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                            Embed your AI into your own portfolio
-                        </p>
-                        <Link href="/knowme/settings?tab=api">
-                            <Button variant="outline" size="sm" className="w-full gap-2">
-                                <Sparkles className="w-4 h-4" />
-                                Get API Keys
-                            </Button>
-                        </Link>
-                    </div>
-                </motion.div>
-            </div>
+function StatusPill({ status }: { status: KnowMeProfileFull["status"] }) {
+    const copy = STATUS_COPY[status];
+    return (
+        <Badge
+            variant="secondary"
+            className={cn(
+                "shrink-0 gap-1.5",
+                copy.tone === "bad" &&
+                "border-red-200 bg-red-50 text-red-800 dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-200",
+                copy.tone === "good" &&
+                "border-neutral-300 bg-neutral-100 text-neutral-900 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100",
+            )}
+        >
+            <span className="h-1.5 w-1.5 rounded-full bg-current" />
+            {copy.label}
+        </Badge>
+    );
+}
+
+function Card({ children }: { children: React.ReactNode }) {
+    return (
+        <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
+            {children}
+        </div>
+    );
+}
+
+function CardTitle({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
+    return (
+        <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-neutral-900 dark:text-white">
+            <span className="text-neutral-500 dark:text-neutral-400">{icon}</span>
+            {children}
+        </h3>
+    );
+}
+
+function Row({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
+    return (
+        <div className="flex items-center justify-between gap-3">
+            <dt className="text-sm text-neutral-600 dark:text-neutral-400">{label}</dt>
+            <dd
+                className={cn(
+                    "text-sm font-medium text-neutral-900 dark:text-white",
+                    muted && "text-neutral-500 dark:text-neutral-400",
+                )}
+            >
+                {value}
+            </dd>
         </div>
     );
 }
@@ -472,29 +507,27 @@ function DataSourceItem({
     subtitle?: string;
 }) {
     return (
-        <div className="flex items-center justify-between py-2">
-            <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-neutral-800 flex items-center justify-center">
+        <div className="flex items-center justify-between gap-3 py-1.5">
+            <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
                     {icon}
-                </div>
-                <div>
-                    <span className="text-sm font-medium text-slate-900 dark:text-white">
+                </span>
+                <div className="min-w-0">
+                    <span className="block truncate text-sm font-medium text-neutral-900 dark:text-white">
                         {label}
                     </span>
-                    {
-                        subtitle && (
-                            <p className="text-xs text-slate-500 dark:text-slate-400">@{subtitle}</p>
-                        )
-                    }
+                    {subtitle && (
+                        <span className="block truncate text-xs text-neutral-500 dark:text-neutral-400">
+                            @{subtitle}
+                        </span>
+                    )}
                 </div>
             </div>
-            {
-                enabled ? (
-                    <ToggleRight className="w-5 h-5 text-neutral-900 dark:text-neutral-100" />
-                ) : (
-                    <ToggleLeft className="w-5 h-5 text-slate-400" />
-                )
-            }
+            {enabled ? (
+                <ToggleRight className="h-5 w-5 shrink-0 text-neutral-900 dark:text-white" aria-label="On" />
+            ) : (
+                <ToggleLeft className="h-5 w-5 shrink-0 text-neutral-400" aria-label="Off" />
+            )}
         </div>
     );
 }

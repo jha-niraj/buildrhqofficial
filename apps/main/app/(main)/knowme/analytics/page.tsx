@@ -18,6 +18,14 @@ interface Props {
     searchParams: Promise<{ range?: string }>;
 }
 
+const RANGES = ["7d", "30d", "90d", "all"] as const;
+type Range = typeof RANGES[number];
+
+/** An unknown `?range=` is not an error - it is a stale bookmark. Fall back. */
+function parseRange(value: string | undefined): Range {
+    return RANGES.includes(value as Range) ? (value as Range) : "30d";
+}
+
 export default async function KnowMeAnalyticsPage({ searchParams }: Props) {
     const session = await getSession(headers());
     const params = await searchParams;
@@ -27,18 +35,25 @@ export default async function KnowMeAnalyticsPage({ searchParams }: Props) {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
-            <Suspense fallback={<AnalyticsSkeleton />}>
-                <AnalyticsContent timeRange={params.range as "7d" | "30d" | "90d" | "all" || "30d"} />
-            </Suspense>
-        </div>
+        <Suspense fallback={<AnalyticsSkeleton />}>
+            <AnalyticsContent timeRange={parseRange(params.range)} />
+        </Suspense>
     );
 }
 
-async function AnalyticsContent({ timeRange }: { timeRange: "7d" | "30d" | "90d" | "all" }) {
+async function AnalyticsContent({ timeRange }: { timeRange: Range }) {
     const profileCheck = await hasKnowMeProfile();
 
-    if (!profileCheck.success || !profileCheck.data?.exists || profileCheck.data.status !== 'ACTIVE') {
+    // Only "there is no profile at all" sends you away, because there is genuinely
+    // nothing to show and /knowme is where you make one.
+    //
+    // This used to also redirect on `status !== 'ACTIVE'`, which meant that a
+    // profile sitting at ERROR - the state a failed embedding job leaves it in -
+    // bounced every visit straight back to the dashboard. The sidebar had a link
+    // that appeared to do nothing, on the one screen that could have shown the
+    // owner what was wrong. `getKnowMeAnalytics` has never had that restriction
+    // and answers fine for any status. See KM-10.
+    if (!profileCheck.success || !profileCheck.data?.exists) {
         redirect('/knowme');
     }
 
@@ -48,5 +63,11 @@ async function AnalyticsContent({ timeRange }: { timeRange: "7d" | "30d" | "90d"
         redirect('/knowme');
     }
 
-    return <KnowMeAnalytics analytics={analyticsResult.data} initialRange={timeRange} />;
+    return (
+        <KnowMeAnalytics
+            analytics={analyticsResult.data}
+            initialRange={timeRange}
+            profileStatus={profileCheck.data.status}
+        />
+    );
 }

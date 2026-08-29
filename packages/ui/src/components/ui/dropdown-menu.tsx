@@ -69,7 +69,7 @@ const DropdownMenuContent = React.forwardRef<
         z-50 min-w-[10rem]
         rounded-xl border
         bg-white dark:bg-neutral-900
-        border-gray-200 dark:border-neutral-700
+        border-neutral-200 dark:border-neutral-700
         p-1 shadow-xl
         `,
 				className
@@ -93,10 +93,10 @@ const DropdownMenuItem = React.forwardRef<
 				relative flex cursor-pointer select-none items-center
 				rounded-lg px-2 py-2 text-sm
 
-				text-gray-700 dark:text-gray-200
+				text-neutral-700 dark:text-neutral-200
 				transition-colors
 
-				focus:bg-gray-100 dark:focus:bg-neutral-800
+				focus:bg-neutral-100 dark:focus:bg-neutral-800
 				data-[disabled]:pointer-events-none
 				data-[disabled]:opacity-50
       		`,
@@ -120,8 +120,8 @@ const DropdownMenuCheckboxItem = React.forwardRef<
 				relative flex select-none items-center
 				rounded-lg py-2 pl-8 pr-2 text-sm
 
-				text-gray-700 dark:text-gray-200
-				focus:bg-gray-100 dark:focus:bg-neutral-800
+				text-neutral-700 dark:text-neutral-200
+				focus:bg-neutral-100 dark:focus:bg-neutral-800
       		`,
 			className
 		)}
@@ -150,11 +150,11 @@ const DropdownMenuRadioItem = React.forwardRef<
 				relative flex cursor-pointer select-none items-center
 				rounded-lg py-2 pl-8 pr-2 text-sm
 
-				text-gray-700 dark:text-gray-200
+				text-neutral-700 dark:text-neutral-200
 				transition-colors
 
-				focus:bg-gray-100 dark:focus:bg-neutral-800
-				data-[state=checked]:bg-gray-200
+				focus:bg-neutral-100 dark:focus:bg-neutral-800
+				data-[state=checked]:bg-neutral-200
 				dark:data-[state=checked]:bg-neutral-700
 
 				data-[disabled]:pointer-events-none
@@ -166,7 +166,7 @@ const DropdownMenuRadioItem = React.forwardRef<
 	>
 		<span className="absolute left-2 flex h-4 w-4 items-center justify-center">
 			<DropdownMenuPrimitive.ItemIndicator>
-				<Circle className="h-2.5 w-2.5 fill-current text-gray-900 dark:text-white" />
+				<Circle className="h-2.5 w-2.5 fill-current text-neutral-900 dark:text-white" />
 			</DropdownMenuPrimitive.ItemIndicator>
 		</span>
 		{children}
@@ -201,7 +201,7 @@ const DropdownMenuSeparator = React.forwardRef<
 	<DropdownMenuPrimitive.Separator
 		ref={ref}
 		className={cn(
-			"my-1 h-px bg-gray-200 dark:bg-neutral-700",
+			"my-1 h-px bg-neutral-200 dark:bg-neutral-700",
 			className
 		)}
 		{...props}

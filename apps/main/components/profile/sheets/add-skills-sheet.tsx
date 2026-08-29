@@ -15,6 +15,7 @@ import toast from '@repo/ui/components/ui/sonner'
 import { updateUserSkills, deleteSkill } from '@/actions/(main)/user/user.action'
 import type { UserSkill } from '@/types/user'
 import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 
 const CATEGORIES = [
     'LANGUAGES', 'FRAMEWORKS_LIBRARIES', 'TOOLS_DATABASES',
@@ -87,7 +88,7 @@ export function AddSkillsSheet({ open, onOpenChange, onSuccess, existingSkills =
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto flex flex-col p-0">
+            <SheetContent scroll={false} side="right" className="w-full sm:max-w-lg flex flex-col p-0">
                 <SheetHeader className="px-6 pt-6 pb-4 border-b border-neutral-100 dark:border-neutral-800">
                     <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-lg bg-neutral-900/10 flex items-center justify-center">
@@ -102,7 +103,7 @@ export function AddSkillsSheet({ open, onOpenChange, onSuccess, existingSkills =
                     </div>
                 </SheetHeader>
 
-                <div className="flex-1 px-6 py-5 space-y-5 overflow-y-auto">
+                <ScrollArea className="min-h-0 flex-1" viewportClassName="px-6 py-5 space-y-5" reflow>
                     {/* Add new skill */}
                     <div className="space-y-3 p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
                         <p className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 tracking-wide">Add Skill</p>
@@ -190,7 +191,7 @@ export function AddSkillsSheet({ open, onOpenChange, onSuccess, existingSkills =
                             </div>
                         </div>
                     )}
-                </div>
+                </ScrollArea>
 
                 <div className="px-6 pb-6 pt-0 border-t border-neutral-100 dark:border-neutral-800 flex-shrink-0">
                     <Button

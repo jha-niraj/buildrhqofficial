@@ -2,9 +2,8 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
-    ArrowLeft, ArrowRight, Check, Sparkles, Code2, Brain, Rocket,
+    ArrowRight, Check, Sparkles, Code2, Brain, Rocket,
     Zap, Globe, Lock, Terminal, Cpu, Layers, AlertCircle,
 } from 'lucide-react'
 import {
@@ -15,6 +14,7 @@ import { Input } from '@repo/ui/components/ui/input'
 import { Textarea } from '@repo/ui/components/ui/textarea'
 import { Label } from '@repo/ui/components/ui/label'
 import { Progress } from '@repo/ui/components/ui/progress'
+import { ScrollArea } from '@repo/ui/components/ui/scroll-area'
 import toast from '@repo/ui/components/ui/sonner'
 import { ProjectEchoSchema } from '@/actions/(main)/schemas/projects.schema'
 import { startProjectGeneration, getGenerationStatus } from '@/actions/(main)/workers/projectsworker.action'
@@ -68,7 +68,6 @@ export default function ProjectGenerateSheet({
     const open = externalIsOpen !== undefined ? externalIsOpen : internalOpen
     const setOpen = useCallback((v: boolean) => { setInternalOpen(v); externalOnOpenChange?.(v) }, [externalOnOpenChange])
 
-    const [step, setStep] = useState(0)
     const [loading, setLoading] = useState(false)
     const [progress, setProgress] = useState(0)
     const [phaseLabel, setPhaseLabel] = useState<string>(PHASES[0]!)
@@ -95,9 +94,13 @@ export default function ProjectGenerateSheet({
 
     const cost = (form.visibility === 'PUBLIC' ? 13 : 25) + (form.includeAssessment ? 30 : 0)
 
-    const canProceed = step === 0
-        ? (form.projectTitle?.length ?? 0) >= 3 && (form.projectDescription?.length ?? 0) >= 10 && !!form.generationType
-        : true
+    // The three things `ProjectEchoSchema` actually requires. Checked here so the
+    // button is disabled rather than the user finding out through a Zod toast
+    // after clicking Generate.
+    const canProceed =
+        (form.projectTitle?.length ?? 0) >= 3 &&
+        (form.projectDescription?.length ?? 0) >= 10 &&
+        !!form.generationType
 
     const startPolling = useCallback((jobId: string) => {
         pollingRef.current = setInterval(async () => {
@@ -143,7 +146,7 @@ export default function ProjectGenerateSheet({
     if (loading) {
         return (
             <Sheet open={open} onOpenChange={(v) => { if (!v) toast.info('Generation continues in the background.'); setOpen(v) }}>
-                <SheetContent side="right" className="w-full sm:max-w-[560px] p-0 flex flex-col">
+                <SheetContent side="right" className="flex w-full flex-col p-0 sm:max-w-[720px]">
                     <div className="flex flex-1 flex-col items-center justify-center gap-8 px-8">
                         <div className="relative flex h-20 w-20 items-center justify-center">
                             <div className="absolute inset-0 rounded-full border-2 border-neutral-900/20" />
@@ -182,152 +185,237 @@ export default function ProjectGenerateSheet({
     }
 
     // ── Form view ────────────────────────────────────────────────────────────
+    //
+    // The trigger DEFAULTS to a real button. It used to be `{trigger && ...}` with
+    // no fallback, so the three call sites that pass neither `trigger` nor
+    // `isOpen` - the hub's primary hero action, the hub's closing CTA, and the
+    // "Registry Empty" state whose whole job is to offer this action - each
+    // mounted a Sheet that rendered nothing and could not be opened. A component
+    // whose only purpose is to open should not answer silence with silence.
+    // See PRJ-8.
+    //
+    // `isControlled` is what stops the ideas page, which drives `isOpen` itself,
+    // from getting a second stray button beside its own.
+    const isControlled = externalIsOpen !== undefined
+
     return (
         <Sheet open={open} onOpenChange={setOpen}>
-            {trigger && <SheetTrigger asChild>{trigger}</SheetTrigger>}
-            <SheetContent side="right" className="w-full sm:max-w-[560px] p-0 flex flex-col gap-0">
-                <SheetHeader className="border-b border-neutral-200 dark:border-neutral-800 px-6 py-4 space-y-0">
+            {trigger ? (
+                <SheetTrigger asChild>{trigger}</SheetTrigger>
+            ) : !isControlled ? (
+                <SheetTrigger asChild>
+                    <Button className="gap-2">
+                        <Sparkles className="h-4 w-4" />
+                        Generate a project
+                    </Button>
+                </SheetTrigger>
+            ) : null}
+            <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-[720px]">
+                <SheetHeader className="space-y-0 border-b border-neutral-200 px-6 py-4 dark:border-neutral-800">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-900 dark:bg-white text-white dark:text-neutral-900">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-900 text-white dark:bg-white dark:text-neutral-900">
                             <Sparkles className="h-5 w-5" />
                         </div>
                         <div>
                             <SheetTitle className="text-base">Generate a project</SheetTitle>
-                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Step {step + 1} of 2 · {step === 0 ? 'Details' : 'Setup'}</p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                Two answers is enough. The AI decides the rest.
+                            </p>
                         </div>
-                    </div>
-                    <div className="mt-3 flex gap-1.5">
-                        {[0, 1].map(i => (
-                            <div key={i} className={cn('h-1 flex-1 rounded-full transition-colors', i <= step ? 'bg-neutral-900' : 'bg-neutral-200 dark:bg-neutral-800')} />
-                        ))}
                     </div>
                 </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto px-6 py-5">
-                    <AnimatePresence mode="wait">
-                        {step === 0 ? (
-                            <motion.div key="s0" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.2 }} className="space-y-6">
-                                <div className="space-y-1.5">
-                                    <Label className="text-sm">Project title</Label>
-                                    <Input placeholder="e.g. Realtime collaboration board" value={form.projectTitle} onChange={e => set('projectTitle', e.target.value)} />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <Label className="text-sm">What do you want to build?</Label>
-                                    <Textarea rows={3} placeholder="Describe the idea, who it's for, and the core features…" value={form.projectDescription} onChange={e => set('projectDescription', e.target.value)} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-sm">Project type</Label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {GENERATION_TYPES.map(t => {
-                                            const active = form.generationType === t.value
-                                            return (
-                                                <button key={t.value} type="button" onClick={() => set('generationType', t.value)}
-                                                    className={cn('flex items-start gap-2.5 rounded-xl border p-3 text-left transition-colors',
-                                                        active ? 'border-neutral-900 bg-neutral-50 dark:bg-neutral-200/10' : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700')}>
-                                                    <t.icon className={cn('h-4.5 w-4.5 mt-0.5 shrink-0', active ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-500')} />
-                                                    <div className="min-w-0">
-                                                        <p className="text-sm font-semibold text-neutral-900 dark:text-white">{t.label}</p>
-                                                        <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">{t.description}</p>
-                                                    </div>
-                                                </button>
-                                            )
-                                        })}
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-sm">Difficulty</Label>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {DIFFICULTY_LEVELS.map(d => {
-                                            const active = form.difficulty === d.value
-                                            return (
-                                                <button key={d.value} type="button" onClick={() => set('difficulty', d.value)}
-                                                    className={cn('rounded-xl border p-3 text-center transition-colors',
-                                                        active ? 'border-neutral-900 bg-neutral-50 dark:bg-neutral-200/10' : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-300')}>
-                                                    <p className="text-sm font-semibold text-neutral-900 dark:text-white">{d.label}</p>
-                                                    <p className="text-xs text-neutral-500 dark:text-neutral-400">{d.desc}</p>
-                                                </button>
-                                            )
-                                        })}
-                                    </div>
-                                </div>
-                            </motion.div>
-                        ) : (
-                            <motion.div key="s1" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.2 }} className="space-y-6">
-                                <div className="space-y-3">
-                                    <div>
-                                        <Label className="text-sm">Tech stack <span className="text-neutral-600 dark:text-neutral-400 font-normal">· optional</span></Label>
-                                        <p className="text-xs text-neutral-500 dark:text-neutral-400">Leave blank and the AI picks a sensible stack.</p>
-                                    </div>
-                                    <StackRow label="Frontend" options={FRONTEND_STACKS} value={form.stacks?.frontend} onSelect={v => setStack('frontend', v)} />
-                                    <StackRow label="Backend" options={BACKEND_STACKS} value={form.stacks?.backend} onSelect={v => setStack('backend', v)} />
-                                    <StackRow label="Database" options={DATABASES} value={form.stacks?.database} onSelect={v => setStack('database', v)} />
-                                </div>
+                {/* ONE screen, not two.
+                    This was a wizard asking for title, description, type, difficulty,
+                    technologies, learning focus and five separate stack pickers before
+                    it would start - nine answers to a question the user is asking the
+                    AI precisely because they do not want to answer it themselves.
+                    Niraj, 2026-08-29: "make sure that we are not asking much questions".
 
-                                <div className="space-y-2">
-                                    <Label className="text-sm">Visibility</Label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {([
-                                            { value: 'PUBLIC', label: 'Public', desc: 'Anyone can view · 13 credits', icon: Globe },
-                                            { value: 'PRIVATE', label: 'Private', desc: 'Only you · 25 credits', icon: Lock },
-                                        ] as const).map(v => {
-                                            const active = form.visibility === v.value
-                                            return (
-                                                <button key={v.value} type="button" onClick={() => set('visibility', v.value)}
-                                                    className={cn('flex items-start gap-2.5 rounded-xl border p-3 text-left transition-colors',
-                                                        active ? 'border-neutral-900 bg-neutral-50 dark:bg-neutral-200/10' : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-300')}>
-                                                    <v.icon className={cn('h-4 w-4 mt-0.5', active ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-500')} />
-                                                    <div>
-                                                        <p className="text-sm font-semibold text-neutral-900 dark:text-white">{v.label}</p>
-                                                        <p className="text-xs text-neutral-500 dark:text-neutral-400">{v.desc}</p>
-                                                    </div>
-                                                </button>
-                                            )
-                                        })}
-                                    </div>
-                                </div>
+                    What is left required is what genuinely steers the output and cannot
+                    be inferred from the description: what to build, and how hard.
 
-                                <button type="button" onClick={() => set('includeAssessment', !form.includeAssessment)}
-                                    className={cn('flex w-full items-center justify-between rounded-xl border p-3 text-left transition-colors',
-                                        form.includeAssessment ? 'border-neutral-900 bg-neutral-50 dark:bg-neutral-200/10' : 'border-neutral-200 dark:border-neutral-800')}>
-                                    <div className="flex items-center gap-2.5">
-                                        <Cpu className={cn('h-4 w-4', form.includeAssessment ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-500')} />
+                    Cost-bearing choices stay VISIBLE. Visibility and the assessment
+                    toggle change the price (13 vs 25, plus 30), and a field hidden
+                    behind a disclosure that silently changes what someone is charged is
+                    worse than one more question. Only the stack pickers - which cost
+                    nothing and have a good default of "let the AI pick" - are folded
+                    away. See PRJ-9. */}
+                {/* ScrollArea, not `overflow-y-auto`. The native scrollbar is an OS
+                    control: it paints outside the sheet's rounded corner on Windows,
+                    reserves gutter width on some platforms and not others, and cannot
+                    be styled to match this surface. `min-h-0 flex-1` because a flex
+                    child defaults to `min-height: auto` and refuses to shrink below
+                    its content - without it the footer with the Generate button gets
+                    pushed off the bottom instead of this list scrolling. See JB-1. */}
+                <ScrollArea className="min-h-0 min-w-0 flex-1" reflow>
+                    <div className="space-y-5 px-6 py-5">
+                        <div className="space-y-1.5">
+                            <Label className="text-sm">What do you want to build?</Label>
+                            <Textarea
+                                rows={4}
+                                placeholder="A realtime collaboration board for small design teams. Boards, sticky notes, live cursors, and comments."
+                                value={form.projectDescription}
+                                onChange={e => set('projectDescription', e.target.value)}
+                            />
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                The more concrete this is, the better the sprints and tasks come out.
+                            </p>
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label className="text-sm">Call it</Label>
+                            <Input
+                                placeholder="Realtime collaboration board"
+                                value={form.projectTitle}
+                                onChange={e => set('projectTitle', e.target.value)}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label className="text-sm">What kind of project?</Label>
+                            <div className="grid grid-cols-2 gap-2">
+                                {GENERATION_TYPES.map(t => {
+                                    const active = form.generationType === t.value
+                                    return (
+                                        <button
+                                            key={t.value}
+                                            type="button"
+                                            onClick={() => set('generationType', t.value)}
+                                            className={cn(
+                                                'flex cursor-pointer items-start gap-2.5 rounded-xl border p-3 text-left transition-colors',
+                                                active
+                                                    ? 'border-neutral-900 bg-neutral-50 dark:border-white dark:bg-neutral-800'
+                                                    : 'border-neutral-200 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700',
+                                            )}
+                                        >
+                                            <t.icon className={cn('mt-0.5 h-4 w-4 shrink-0', active ? 'text-neutral-900 dark:text-white' : 'text-neutral-500')} />
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-semibold text-neutral-900 dark:text-white">{t.label}</p>
+                                                <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">{t.description}</p>
+                                            </div>
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label className="text-sm">How hard should it be?</Label>
+                            <div className="grid grid-cols-3 gap-2">
+                                {DIFFICULTY_LEVELS.map(d => {
+                                    const active = form.difficulty === d.value
+                                    return (
+                                        <button
+                                            key={d.value}
+                                            type="button"
+                                            onClick={() => set('difficulty', d.value)}
+                                            className={cn(
+                                                'cursor-pointer rounded-xl border p-3 text-center transition-colors',
+                                                active
+                                                    ? 'border-neutral-900 bg-neutral-50 dark:border-white dark:bg-neutral-800'
+                                                    : 'border-neutral-200 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700',
+                                            )}
+                                        >
+                                            <p className="text-sm font-semibold text-neutral-900 dark:text-white">{d.label}</p>
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">{d.desc}</p>
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                        </div>
+
+                        <div className="grid gap-2 sm:grid-cols-2">
+                            {([
+                                { value: 'PUBLIC', label: 'Public', desc: 'Anyone can view · 13 credits', icon: Globe },
+                                { value: 'PRIVATE', label: 'Private', desc: 'Only you · 25 credits', icon: Lock },
+                            ] as const).map(v => {
+                                const active = form.visibility === v.value
+                                return (
+                                    <button
+                                        key={v.value}
+                                        type="button"
+                                        onClick={() => set('visibility', v.value)}
+                                        className={cn(
+                                            'flex cursor-pointer items-start gap-2.5 rounded-xl border p-3 text-left transition-colors',
+                                            active
+                                                ? 'border-neutral-900 bg-neutral-50 dark:border-white dark:bg-neutral-800'
+                                                : 'border-neutral-200 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700',
+                                        )}
+                                    >
+                                        <v.icon className={cn('mt-0.5 h-4 w-4', active ? 'text-neutral-900 dark:text-white' : 'text-neutral-500')} />
                                         <div>
-                                            <p className="text-sm font-semibold text-neutral-900 dark:text-white">Add skill assessment</p>
-                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Auto-graded checkpoints · +30 credits</p>
+                                            <p className="text-sm font-semibold text-neutral-900 dark:text-white">{v.label}</p>
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">{v.desc}</p>
                                         </div>
-                                    </div>
-                                    <div className={cn('h-5 w-9 rounded-full p-0.5 transition-colors', form.includeAssessment ? 'bg-neutral-900' : 'bg-neutral-300 dark:bg-neutral-700')}>
-                                        <div className={cn('h-4 w-4 rounded-full bg-white transition-transform', form.includeAssessment && 'translate-x-4')} />
-                                    </div>
-                                </button>
+                                    </button>
+                                )
+                            })}
+                        </div>
 
-                                <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 p-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-neutral-600 dark:text-neutral-400">Total cost</span>
-                                        <span className="font-mono text-lg font-bold text-neutral-900 dark:text-white">{cost} credits</span>
-                                    </div>
-                                    <p className="mt-1 flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
-                                        <AlertCircle className="h-3 w-3" /> Credits are only charged once generation succeeds.
-                                    </p>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
+                        <button
+                            type="button"
+                            onClick={() => set('includeAssessment', !form.includeAssessment)}
+                            className={cn(
+                                'flex w-full cursor-pointer items-center justify-between rounded-xl border p-3 text-left transition-colors',
+                                form.includeAssessment
+                                    ? 'border-neutral-900 bg-neutral-50 dark:border-white dark:bg-neutral-800'
+                                    : 'border-neutral-200 dark:border-neutral-800',
+                            )}
+                        >
+                            <span className="flex items-center gap-2.5">
+                                <Cpu className={cn('h-4 w-4', form.includeAssessment ? 'text-neutral-900 dark:text-white' : 'text-neutral-500')} />
+                                <span>
+                                    <span className="block text-sm font-semibold text-neutral-900 dark:text-white">Add skill assessment</span>
+                                    <span className="block text-xs text-neutral-500 dark:text-neutral-400">Auto-graded checkpoints · +30 credits</span>
+                                </span>
+                            </span>
+                            <span className={cn('h-5 w-9 shrink-0 rounded-full p-0.5 transition-colors', form.includeAssessment ? 'bg-neutral-900 dark:bg-white' : 'bg-neutral-300 dark:bg-neutral-700')}>
+                                <span className={cn('block h-4 w-4 rounded-full bg-white transition-transform dark:bg-neutral-900', form.includeAssessment && 'translate-x-4')} />
+                            </span>
+                        </button>
 
-                <div className="flex items-center justify-between gap-3 border-t border-neutral-200 dark:border-neutral-800 px-6 py-4">
-                    {step === 0 ? <span /> : (
-                        <Button variant="ghost" onClick={() => setStep(0)}><ArrowLeft className="mr-1.5 h-4 w-4" />Back</Button>
-                    )}
-                    {step === 0 ? (
-                        <Button disabled={!canProceed} onClick={() => setStep(1)} className="bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900">
-                            Continue <ArrowRight className="ml-1.5 h-4 w-4" />
-                        </Button>
-                    ) : (
-                        <Button onClick={handleSubmit} className="bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-200">
-                            <Sparkles className="mr-1.5 h-4 w-4" /> Generate · {cost} credits
-                        </Button>
-                    )}
+                        {/* Folded away, and genuinely optional: the generator picks a
+                            coherent stack on its own, and picking one badly is a worse
+                            outcome than not picking. */}
+                        <details className="group rounded-xl border border-neutral-200 dark:border-neutral-800">
+                            <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2.5 text-sm font-medium text-neutral-900 dark:text-white">
+                                <span className="flex items-center gap-2">
+                                    <Layers className="h-4 w-4 text-neutral-500" />
+                                    Pick the stack yourself
+                                    <span className="font-normal text-neutral-500 dark:text-neutral-400">· optional</span>
+                                </span>
+                                <ArrowRight className="h-4 w-4 shrink-0 text-neutral-500 transition-transform group-open:rotate-90" />
+                            </summary>
+                            <div className="space-y-3 border-t border-neutral-200 px-3 py-3 dark:border-neutral-800">
+                                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                    Leave these alone and the AI picks a stack that fits what you described.
+                                </p>
+                                <StackRow label="Frontend" options={FRONTEND_STACKS} value={form.stacks?.frontend} onSelect={v => setStack('frontend', v)} />
+                                <StackRow label="Backend" options={BACKEND_STACKS} value={form.stacks?.backend} onSelect={v => setStack('backend', v)} />
+                                <StackRow label="Database" options={DATABASES} value={form.stacks?.database} onSelect={v => setStack('database', v)} />
+                            </div>
+                        </details>
+
+                        <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm text-neutral-600 dark:text-neutral-400">Total cost</span>
+                                <span className="font-mono text-lg font-bold text-neutral-900 dark:text-white">{cost} credits</span>
+                            </div>
+                            <p className="mt-1 flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+                                <AlertCircle className="h-3 w-3" /> Credits are only charged once generation succeeds.
+                            </p>
+                        </div>
+                    </div>
+                </ScrollArea>
+
+                <div className="flex shrink-0 items-center justify-between gap-3 border-t border-neutral-200 px-6 py-4 dark:border-neutral-800">
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                        Takes about a minute. You can close this and it keeps going.
+                    </p>
+                    <Button onClick={handleSubmit} disabled={!canProceed} className="shrink-0">
+                        <Sparkles className="mr-1.5 h-4 w-4" /> Generate · {cost} credits
+                    </Button>
                 </div>
             </SheetContent>
         </Sheet>

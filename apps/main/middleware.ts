@@ -169,8 +169,42 @@ const PUBLIC_PREFIXES = [
 	'/purchase/',
 ]
 
+/**
+ * The child routes of /knowme that belong to the OWNER, and must stay behind the
+ * session gate. Everything else one level under /knowme is a username.
+ *
+ * IMPORTANT: adding a page at `app/(main)/knowme/<segment>/` and forgetting to
+ * list it here makes that page world-readable. The set has to be kept in step
+ * with the directory by hand, because middleware runs on the edge and cannot
+ * read the filesystem to derive it.
+ */
+const KNOWME_OWNER_SEGMENTS = new Set([
+	'analytics',
+	'settings',
+	'onboarding',
+])
+
+/**
+ * `/knowme/<username>` - the public persona.
+ *
+ * This is the ONE public page in the app whose path is not fixed, and it was
+ * unreachable: CR-10's deny-by-default rule bounced every signed-out visitor to
+ * /signin. The link the dashboard tells the owner that "anyone can open, no
+ * account needed" asked for an account.
+ *
+ * It cannot be a `PUBLIC_PREFIXES` entry, because '/knowme/' would also open the
+ * owner's own analytics and settings pages to the world. Exactly two segments,
+ * and the second must not be one of the owner's.
+ */
+function isPublicKnowMeProfile(pathname: string): boolean {
+	const segments = pathname.split('/').filter(Boolean)
+	if (segments.length !== 2 || segments[0] !== 'knowme') return false
+	return !KNOWME_OWNER_SEGMENTS.has(segments[1]!)
+}
+
 function isPublicRoute(pathname: string): boolean {
 	if (PUBLIC_EXACT.has(pathname)) return true
+	if (isPublicKnowMeProfile(pathname)) return true
 	return PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))
 }
 

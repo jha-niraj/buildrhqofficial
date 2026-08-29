@@ -239,48 +239,85 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
 
     return (
         <div className="min-h-full p-6 lg:p-8">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => router.back()}
-                    className="rounded-xl w-fit"
-                >
-                    <ArrowLeft className="w-5 h-5" />
-                </Button>
-                <div className="flex-1">
-                    <h1 className="text-2xl lg:text-3xl font-bold text-neutral-900 dark:text-white flex items-center gap-3">
-                        <FileText className="w-7 h-7 text-neutral-900 dark:text-neutral-100" />
-                        My Applications
-                    </h1>
-                    <p className="text-neutral-500 dark:text-neutral-400 mt-1">
-                        {applications.length} application{applications.length !== 1 ? 's' : ''} total
-                    </p>
+            {/* One header row: title on the left, the status filter and the view
+                toggle on the right. It used to be four stacked rows - back arrow,
+                icon + 3xl title, subtitle, then a full-width four-tab strip - which
+                is five rows of chrome before the first application. Niraj,
+                2026-08-29. */}
+            <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex min-w-0 items-center gap-2">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => router.back()}
+                        aria-label="Go back"
+                        className="h-8 w-8 shrink-0 rounded-lg"
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                    </Button>
+                    <div className="min-w-0">
+                        <h1 className="truncate text-xl font-bold text-neutral-900 dark:text-white">
+                            My applications
+                        </h1>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                            {applications.length} total
+                        </p>
+                    </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Button
-                        variant={viewMode === "list" ? "secondary" : "ghost"}
-                        size="icon"
-                        className="rounded-xl"
-                        onClick={() => setViewMode("list")}
-                    >
-                        <LayoutList className="w-4 h-4" />
-                    </Button>
-                    <Button
-                        variant={viewMode === "timeline" ? "secondary" : "ghost"}
-                        size="icon"
-                        className="rounded-xl"
-                        onClick={() => setViewMode("timeline")}
-                    >
-                        <History className="w-4 h-4" />
-                    </Button>
+
+                <div className="flex flex-wrap items-center gap-2">
+                    <Tabs value={activeTab} onValueChange={setActiveTab}>
+                        <TabsList className="h-9 rounded-xl bg-neutral-100 p-1 dark:bg-neutral-800">
+                            <TabsTrigger value="all" className="h-7 flex-none rounded-lg px-3 text-xs">
+                                All ({applications.length})
+                            </TabsTrigger>
+                            <TabsTrigger value="active" className="h-7 flex-none rounded-lg px-3 text-xs">
+                                Active ({activeCount})
+                            </TabsTrigger>
+                            <TabsTrigger value="offers" className="h-7 flex-none rounded-lg px-3 text-xs">
+                                Offers ({offersCount})
+                            </TabsTrigger>
+                            <TabsTrigger value="closed" className="h-7 flex-none rounded-lg px-3 text-xs">
+                                Closed ({closedCount})
+                            </TabsTrigger>
+                        </TabsList>
+                    </Tabs>
+
+                    {/* These two DO work - they swap the list for a dated timeline.
+                        With zero applications both views rendered the same empty
+                        state, so there was nothing to tell them apart, and neither
+                        button said what it was. They are labelled now. */}
+                    <div className="flex items-center gap-1 rounded-xl bg-neutral-100 p-1 dark:bg-neutral-800">
+                        <Button
+                            variant={viewMode === "list" ? "secondary" : "ghost"}
+                            size="icon"
+                            className="h-7 w-7 rounded-lg"
+                            onClick={() => setViewMode("list")}
+                            aria-label="List view"
+                            aria-pressed={viewMode === "list"}
+                            title="List view"
+                        >
+                            <LayoutList className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            variant={viewMode === "timeline" ? "secondary" : "ghost"}
+                            size="icon"
+                            className="h-7 w-7 rounded-lg"
+                            onClick={() => setViewMode("timeline")}
+                            aria-label="Timeline view"
+                            aria-pressed={viewMode === "timeline"}
+                            title="Timeline view"
+                        >
+                            <History className="h-4 w-4" />
+                        </Button>
+                    </div>
                 </div>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-4 rounded-2xl bg-gradient-to-br from-neutral-50 to-neutral-50 dark:from-neutral-800/20 dark:to-neutral-800/20 border border-neutral-100 dark:border-neutral-800"
+                    className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
                 >
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-neutral-800/30 flex items-center justify-center">
@@ -296,7 +333,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.05 }}
-                    className="p-4 rounded-2xl bg-gradient-to-br from-neutral-50 to-neutral-50 dark:from-neutral-800/20 dark:to-neutral-800/20 border border-neutral-100 dark:border-neutral-800"
+                    className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
                 >
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-neutral-800/30 flex items-center justify-center">
@@ -312,7 +349,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="p-4 rounded-2xl bg-gradient-to-br from-neutral-50 to-neutral-50 dark:from-neutral-800/20 dark:to-neutral-800/20 border border-neutral-100 dark:border-neutral-800"
+                    className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
                 >
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-neutral-800/30 flex items-center justify-center">
@@ -341,22 +378,6 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                     </div>
                 </motion.div>
             </div>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-                <TabsList className="bg-neutral-100 dark:bg-neutral-800 rounded-xl p-1">
-                    <TabsTrigger value="all" className="rounded-lg">
-                        All ({applications.length})
-                    </TabsTrigger>
-                    <TabsTrigger value="active" className="rounded-lg">
-                        Active ({activeCount})
-                    </TabsTrigger>
-                    <TabsTrigger value="offers" className="rounded-lg">
-                        Offers ({offersCount})
-                    </TabsTrigger>
-                    <TabsTrigger value="closed" className="rounded-lg">
-                        Closed ({closedCount})
-                    </TabsTrigger>
-                </TabsList>
-            </Tabs>
             <AnimatePresence mode="popLayout">
                 {
                     filteredApplications.length > 0 ? (
@@ -398,7 +419,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                                                                 </h3>
                                                             </Link>
                                                             <Link href={`/companies/${application.job.company.slug}`}>
-                                                                <p className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-600 transition-colors">
+                                                                <p className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-white transition-colors">
                                                                     {application.job.company.name}
                                                                 </p>
                                                             </Link>
@@ -715,7 +736,7 @@ export function ApplicationsContent({ applications: initialApplications }: Appli
                 }
             </AnimatePresence>
             <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-                <DialogContent className="max-w-2xl max-h-[80dvh] overflow-y-auto">
+                <DialogContent scroll className="flex max-h-[80dvh] max-w-2xl flex-col">
                     {
                         selectedApplication && (
                             <>

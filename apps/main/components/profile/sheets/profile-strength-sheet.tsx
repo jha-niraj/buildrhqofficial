@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "@repo/ui/lib/utils";
 import Link from "next/link";
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 
 interface ProfileStrengthSheetProps {
 	open: boolean;
@@ -143,7 +144,7 @@ export function ProfileStrengthSheet({
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto p-0 flex flex-col">
+			<SheetContent scroll={false} side="right" className="w-full sm:max-w-lg p-0 flex flex-col">
 				<div className="w-full flex flex-col h-full">
 					<SheetHeader className="px-6 pt-6 pb-4 border-b shrink-0">
 						<SheetTitle className="flex items-center gap-2">
@@ -151,7 +152,7 @@ export function ProfileStrengthSheet({
 							Profile Strength
 						</SheetTitle>
 					</SheetHeader>
-					<div className="flex-1 overflow-y-auto px-6 py-6">
+					<ScrollArea className="min-h-0 flex-1" viewportClassName="px-6 py-6" reflow>
 						<div className="text-center mb-8">
 							<div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-primary/10 mb-4">
 								<span className="text-3xl font-bold text-primary">{calculatedScore}%</span>
@@ -218,7 +219,7 @@ export function ProfileStrengthSheet({
 								to export your data as a polished PDF.
 							</p>
 						</div>
-					</div>
+					</ScrollArea>
 				</div>
 			</SheetContent>
 		</Sheet>

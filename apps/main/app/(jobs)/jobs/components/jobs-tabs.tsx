@@ -36,9 +36,24 @@ interface TabConfig {
     href: string
     icon: React.ComponentType<{ className?: string }>
     countKey: keyof TabCounts
-    color: string
     requiresAuth: boolean
 }
+
+// NO `color` field, deliberately.
+//
+// Every tab carried `color: "text-neutral-900"` with no `dark:` pair, applied to
+// the icon ONLY when the tab was active. So in dark mode the active tab's icon
+// became near-black on a `neutral-800` pill and vanished - while its label stayed
+// white, because the label inherits the link's own colour, which IS paired. That
+// is the screenshot: "Saved" readable, its bookmark invisible.
+//
+// This is the same defect as the pathfinder stat tiles: a colour written in a
+// DATA ARRAY rather than in a `className`, so every repo-wide contrast sweep
+// that greps `className=` walks straight past it. A colour is a colour wherever
+// it is written down.
+//
+// The icon now inherits from the link, which already handles active, inactive,
+// light and dark correctly - and it was the only thing `color` was ever used for.
 
 const tabs: TabConfig[] = [
     {
@@ -47,7 +62,6 @@ const tabs: TabConfig[] = [
         href: "/jobs",
         icon: Sparkles,
         countKey: "spark",
-        color: "text-neutral-900",
         requiresAuth: false
     },
     {
@@ -56,7 +70,6 @@ const tabs: TabConfig[] = [
         href: "/jobs/following",
         icon: UserCheck,
         countKey: "following",
-        color: "text-neutral-900",
         requiresAuth: true
     },
     {
@@ -65,7 +78,6 @@ const tabs: TabConfig[] = [
         href: "/jobs/saved",
         icon: Bookmark,
         countKey: "saved",
-        color: "text-neutral-900",
         requiresAuth: true
     },
     {
@@ -74,7 +86,6 @@ const tabs: TabConfig[] = [
         href: "/jobs/applications",
         icon: FileText,
         countKey: "applied",
-        color: "text-neutral-900",
         requiresAuth: true
     },
     {
@@ -83,7 +94,6 @@ const tabs: TabConfig[] = [
         href: "/jobs/browse",
         icon: LayoutList,
         countKey: "browse",
-        color: "text-neutral-500",
         requiresAuth: false
     }
 ]
@@ -120,7 +130,7 @@ export function JobsTabs({ counts, isAuthenticated }: JobsTabsProps) {
                                 "relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all",
                                 isActive
                                     ? "text-neutral-900 dark:text-white"
-                                    : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-600 dark:text-neutral-400"
+                                    : "text-neutral-500 hover:text-neutral-700 dark:hover:text-white dark:text-neutral-400"
                             )}>
                             {isActive && (
                                 <motion.div
@@ -130,7 +140,7 @@ export function JobsTabs({ counts, isAuthenticated }: JobsTabsProps) {
                                 />
                             )}
                             <span className="relative flex items-center gap-2">
-                                <Icon className={cn("w-4 h-4", isActive && tab.color)} />
+                                <Icon className="h-4 w-4" />
                                 <span>{tab.label}</span>
                                 {showCount && (
                                     <Badge 
@@ -158,7 +168,7 @@ export function JobsTabs({ counts, isAuthenticated }: JobsTabsProps) {
                             className="w-full justify-between rounded-xl h-12 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
                         >
                             <span className="flex items-center gap-2">
-                                <activeTabConfig.icon className={cn("w-4 h-4", activeTabConfig.color)} />
+                                <activeTabConfig.icon className="h-4 w-4" />
                                 <span className="font-medium">{activeTabConfig.label}</span>
                                 {counts[activeTabConfig.countKey] > 0 && (
                                     <Badge variant="secondary" className="text-xs px-1.5 py-0">
@@ -189,7 +199,7 @@ export function JobsTabs({ counts, isAuthenticated }: JobsTabsProps) {
                                     )}
                                 >
                                     <span className="flex items-center gap-3">
-                                        <Icon className={cn("w-5 h-5", tab.color)} />
+                                        <Icon className="h-5 w-5" />
                                         <span className="font-medium">{tab.label}</span>
                                     </span>
                                     <span className="flex items-center gap-2">

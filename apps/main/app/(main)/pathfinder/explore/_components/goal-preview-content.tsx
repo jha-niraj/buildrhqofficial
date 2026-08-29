@@ -18,6 +18,7 @@ import { cn } from '@repo/ui/lib/utils'
 import toast from '@repo/ui/components/ui/sonner'
 import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 import { AnimatedIcon } from "@repo/ui/components/animated-icons"
+import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels"
 
 interface SubGoal {
     id: string
@@ -122,7 +123,19 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
     }
 
     return (
-        <div className="flex h-full min-h-0 w-full overflow-hidden">
+        // A resizable two-pane split, not a fixed 360px aside.
+        //
+        // The panel was `max-w-[360px]`, which on a topic with a real description
+        // wrapped the text every three or four words - and the width was not the
+        // reader's to change. It now defaults to 34% (roughly 460px on a 1512px
+        // screen with the app sidebar collapsed) and is draggable between 24% and
+        // 55%.
+        //
+        // v4 of react-resizable-panels takes `orientation` rather than `direction`,
+        // sizes as percentage STRINGS, and has no `order` prop - the same API the
+        // practice workspace already uses. See JB-6.
+        <PanelGroup orientation="horizontal" id="pathfinder-explore" className="flex h-full min-h-0 w-full overflow-hidden">
+        <Panel id="content" minSize="35%" className="flex min-w-0 flex-col">
         <ScrollArea reflow className="h-full min-w-0 min-h-0 flex-1">
             {/* Full width. This was `max-w-3xl mx-auto`, which centred a 768px column
                 inside a pane that is already the narrower half of a two-pane
@@ -306,9 +319,23 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                 )}
             </div>
         </ScrollArea>
+        </Panel>
 
         {selected && (
-            <aside className="flex w-full max-w-[360px] shrink-0 flex-col border-l border-neutral-200 bg-neutral-50/60 dark:border-neutral-800 dark:bg-neutral-950">
+            <>
+            {/* The handle is 1px of border with an 9px transparent hit area either
+                side - a 1px drag target is not a target. */}
+            <PanelResizeHandle className="group relative w-px shrink-0 bg-neutral-200 outline-none dark:bg-neutral-800">
+                <span className="absolute inset-y-0 -left-2 -right-2 cursor-col-resize" />
+                <span className="absolute inset-y-0 left-0 w-px bg-transparent transition-colors group-hover:bg-neutral-400 group-data-[resize-handle-state=drag]:bg-neutral-900 dark:group-hover:bg-neutral-600 dark:group-data-[resize-handle-state=drag]:bg-white" />
+            </PanelResizeHandle>
+            <Panel
+                id="topic"
+                defaultSize="34%"
+                minSize="24%"
+                maxSize="55%"
+                className="flex min-w-0 flex-col border-neutral-200 bg-neutral-50/60 dark:border-neutral-800 dark:bg-neutral-950"
+            >
                 <div className="flex shrink-0 items-start justify-between gap-3 border-b border-neutral-200 p-4 dark:border-neutral-800">
                     <div className="min-w-0">
                         <p className="text-xs font-medium tracking-wide text-neutral-500 dark:text-neutral-400">
@@ -388,8 +415,9 @@ export function GoalPreviewContent({ goal }: GoalPreviewContentProps) {
                         </div>
                     </div>
                 </ScrollArea>
-            </aside>
+            </Panel>
+            </>
         )}
-        </div>
+        </PanelGroup>
     )
 }

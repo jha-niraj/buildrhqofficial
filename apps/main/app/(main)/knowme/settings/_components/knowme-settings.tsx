@@ -31,6 +31,7 @@ import {
 } from "@/actions/(main)/knowme";
 import CodeEditor from "@/components/main/code-editor";
 import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { absoluteUrl } from "@/lib/urls";
 
 interface KnowMeSettingsProps {
     profile: KnowMeProfileFull;
@@ -38,10 +39,14 @@ interface KnowMeSettingsProps {
     initialTab?: string;
 }
 
+// `RECRUITERS` is gone from this list, not merely unselected. This product has no
+// recruiter identity - no role, no verification, no way to become one (KM-4) - so
+// the option could only ever mean "everyone", which is what it silently meant, or
+// "nobody". Neither is what "Verified recruiters only" promised. Same reasoning
+// that removed the platforms with no sync handler in KM-5. See KM-12.
 const privacyOptions = [
     { value: "PUBLIC", label: "Anyone with the link", icon: Globe },
     { value: "REGISTERED", label: "Logged-in users only", icon: Users },
-    { value: "RECRUITERS", label: "Verified recruiters only", icon: Briefcase },
     { value: "PRIVATE", label: "Private (only you)", icon: Lock },
 ];
 
@@ -79,7 +84,7 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
         setIsSaving(true);
         try {
             const result = await updateKnowMeProfile({
-                privacy: privacy as "PUBLIC" | "REGISTERED" | "RECRUITERS" | "PRIVATE",
+                privacy: privacy as "PUBLIC" | "REGISTERED" | "PRIVATE",
                 updateCycleDays: parseInt(updateCycle),
                 includePersonalData,
                 includePlatformData,
@@ -190,18 +195,18 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                         </Button>
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white flex items-center gap-3">
                             <Settings className="w-6 h-6" />
                             KnowMe Settings
                         </h1>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm">
+                        <p className="text-neutral-500 dark:text-neutral-400 text-sm">
                             Configure your AI assistant
                         </p>
                     </div>
                 </div>
             </motion.div>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid grid-cols-4 mb-8 bg-slate-100 dark:bg-neutral-800 p-1 rounded-xl">
+                <TabsList className="grid grid-cols-4 mb-8 bg-neutral-100 dark:bg-neutral-800 p-1 rounded-xl">
                     <TabsTrigger value="data" className="rounded-lg">
                         <Database className="w-4 h-4 mr-2" />
                         Data Sources
@@ -225,18 +230,18 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
-                            className="bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 p-6 space-y-6"
+                            className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-6"
                         >
                             <div>
-                                <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">
                                     Data Sources
                                 </h2>
-                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+                                <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-6">
                                     Choose what data your AI should know about
                                 </p>
                             </div>
                             <div className="space-y-4">
-                                <h3 className="font-medium text-slate-900 dark:text-white">
+                                <h3 className="font-medium text-neutral-900 dark:text-white">
                                     ShipItHQ Platform Data
                                 </h3>
 
@@ -271,31 +276,38 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
 
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="font-medium text-slate-900 dark:text-white">
+                                    <h3 className="font-medium text-neutral-900 dark:text-white">
                                         External Platforms
                                     </h3>
                                     <Badge variant={includePlatformData ? "default" : "secondary"}>
                                         {includePlatformData ? "Enabled" : "Disabled"}
                                     </Badge>
                                 </div>
+                                {/* GitHub, and only GitHub. It is the one platform with a
+                                    real sync handler; LeetCode, StackOverflow and LinkedIn
+                                    hit a silent `break` in the switch, so connecting one
+                                    reported success and imported nothing (KM-5). Naming
+                                    them here is the same promise by another route. */}
                                 <DataToggle
                                     icon={<Github className="w-5 h-5" />}
                                     title="Platform Data"
-                                    description="GitHub, LeetCode, and more"
+                                    description="Your GitHub repositories and contributions"
                                     enabled={includePlatformData}
                                     onToggle={() => setIncludePlatformData(!includePlatformData)}
                                 />
 
                                 <div className="bg-neutral-50 dark:bg-neutral-800/20 border border-neutral-200 dark:border-neutral-800 rounded-xl p-4">
                                     <p className="text-sm text-neutral-700 dark:text-neutral-100">
-                                        <strong>Coming Soon:</strong> Connect GitHub, LeetCode, and other platforms to automatically import your projects, contributions, and achievements. Enable this toggle to be ready when platform integrations launch.
+                                        GitHub is the only platform connected today. Turning this on
+                                        lets your AI answer from your repositories and contributions
+                                        the next time it indexes. More sources are coming.
                                     </p>
                                 </div>
 
                                 {
                                     profile.platformConnections.length > 0 && (
-                                        <div className="bg-slate-50 dark:bg-neutral-800 rounded-xl p-4">
-                                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                                        <div className="bg-neutral-50 dark:bg-neutral-800 rounded-xl p-4">
+                                            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3">
                                                 Connected platforms:
                                             </p>
                                             {
@@ -306,7 +318,7 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                                             <span className="text-sm font-medium">{conn.platform}</span>
                                                             {
                                                                 conn.platformUsername && (
-                                                                    <span className="text-sm text-slate-500 dark:text-slate-400">@{conn.platformUsername}</span>
+                                                                    <span className="text-sm text-neutral-500 dark:text-neutral-400">@{conn.platformUsername}</span>
                                                                 )
                                                             }
                                                         </div>
@@ -324,7 +336,7 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                             <Separator />
 
                             <div className="space-y-4">
-                                <h3 className="font-medium text-slate-900 dark:text-white">
+                                <h3 className="font-medium text-neutral-900 dark:text-white">
                                     Update Schedule
                                 </h3>
                                 <div className="flex items-center gap-4">
@@ -371,7 +383,7 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                 </div>
                                 {
                                     profile.nextScheduledUpdate && (
-                                        <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                                        <p className="text-sm text-neutral-500 dark:text-neutral-400 flex items-center gap-2">
                                             <Clock className="w-4 h-4" />
                                             Next update: {new Date(profile.nextScheduledUpdate).toLocaleDateString()}
                                         </p>
@@ -389,13 +401,13 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
-                            className="bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 p-6 space-y-6"
+                            className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-6"
                         >
                             <div>
-                                <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">
                                     Privacy Settings
                                 </h2>
-                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+                                <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-6">
                                     Control who can access your AI assistant
                                 </p>
                             </div>
@@ -408,18 +420,18 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                         return (
                                             <div
                                                 key={option.value}
-                                                onClick={() => setPrivacy(option.value as "PRIVATE" | "PUBLIC" | "REGISTERED" | "RECRUITERS")}
+                                                onClick={() => setPrivacy(option.value as "PRIVATE" | "PUBLIC" | "REGISTERED")}
                                                 className={cn(
                                                     "flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all",
                                                     isSelected
                                                         ? "bg-neutral-50 dark:bg-neutral-800/20 border-neutral-900"
-                                                        : "bg-slate-50 dark:bg-neutral-800 border-slate-200 dark:border-neutral-700 hover:border-slate-300"
+                                                        : "bg-neutral-50 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300"
                                                 )}
                                             >
                                                 <div className="flex items-center gap-3">
                                                     <div className={cn(
                                                         "w-10 h-10 rounded-lg flex items-center justify-center",
-                                                        isSelected ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900" : "bg-slate-200 dark:bg-neutral-700"
+                                                        isSelected ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900" : "bg-neutral-200 dark:bg-neutral-700"
                                                     )}>
                                                         <Icon className="w-5 h-5" />
                                                     </div>
@@ -427,7 +439,7 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                                 </div>
                                                 <div className={cn(
                                                     "w-5 h-5 rounded-full border-2",
-                                                    isSelected ? "bg-neutral-900 border-neutral-900" : "border-slate-300"
+                                                    isSelected ? "bg-neutral-900 border-neutral-900" : "border-neutral-300"
                                                 )}>
                                                     {isSelected && <Check className="w-full h-full text-white p-0.5" />}
                                                 </div>
@@ -447,23 +459,23 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
-                            className="bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 p-6 space-y-6"
+                            className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-6"
                         >
                             <div>
-                                <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
                                     <Key className="w-5 h-5" />
                                     API Integration
                                 </h2>
-                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+                                <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-6">
                                     Embed your AI into your personal portfolio
                                 </p>
                             </div>
-                            <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-neutral-800 rounded-xl">
+                            <div className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-800 rounded-xl">
                                 <div>
-                                    <h3 className="font-medium text-slate-900 dark:text-white">
+                                    <h3 className="font-medium text-neutral-900 dark:text-white">
                                         API Access
                                     </h3>
-                                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
                                         Enable external API requests
                                     </p>
                                 </div>
@@ -532,32 +544,32 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                             </p>
                                         </div>
                                         <div className="grid grid-cols-3 gap-4">
-                                            <div className="p-4 bg-slate-50 dark:bg-neutral-800 rounded-xl">
-                                                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                                            <div className="p-4 bg-neutral-50 dark:bg-neutral-800 rounded-xl">
+                                                <p className="text-2xl font-bold text-neutral-900 dark:text-white">
                                                     {apiConfig.apiUsageToday}
                                                 </p>
-                                                <p className="text-sm text-slate-500 dark:text-slate-400">Today</p>
+                                                <p className="text-sm text-neutral-500 dark:text-neutral-400">Today</p>
                                             </div>
-                                            <div className="p-4 bg-slate-50 dark:bg-neutral-800 rounded-xl">
-                                                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                                            <div className="p-4 bg-neutral-50 dark:bg-neutral-800 rounded-xl">
+                                                <p className="text-2xl font-bold text-neutral-900 dark:text-white">
                                                     {apiConfig.apiUsageTotal}
                                                 </p>
-                                                <p className="text-sm text-slate-500 dark:text-slate-400">Total</p>
+                                                <p className="text-sm text-neutral-500 dark:text-neutral-400">Total</p>
                                             </div>
-                                            <div className="p-4 bg-slate-50 dark:bg-neutral-800 rounded-xl">
-                                                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                                            <div className="p-4 bg-neutral-50 dark:bg-neutral-800 rounded-xl">
+                                                <p className="text-2xl font-bold text-neutral-900 dark:text-white">
                                                     {apiConfig.apiRateLimit}
                                                 </p>
-                                                <p className="text-sm text-slate-500 dark:text-slate-400">Daily Limit</p>
+                                                <p className="text-sm text-neutral-500 dark:text-neutral-400">Daily Limit</p>
                                             </div>
                                         </div>
-                                        <div className="bg-slate-900 dark:bg-neutral-800 rounded-xl p-4 text-white">
+                                        <div className="bg-neutral-900 dark:bg-neutral-800 rounded-xl p-4 text-white">
                                             <h3 className="font-medium mb-3 flex items-center gap-2">
                                                 <Code2 className="w-4 h-4" />
                                                 Quick Start
                                             </h3>
                                             <CodeEditor
-                                                placeholder={`fetch('${process.env.NEXT_PUBLIC_APP_URL}/api/v1/knowme/chat', {
+                                                placeholder={`fetch('${absoluteUrl('/api/v1/knowme/chat')}', {
                                                     method: 'POST',
                                                     headers: {
                                                         'Authorization': 'Bearer YOUR_API_KEY',
@@ -589,13 +601,13 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
-                            className="bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 p-6 space-y-6"
+                            className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-6"
                         >
                             <div>
-                                <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">
                                     Customize Your AI
                                 </h2>
-                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+                                <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-6">
                                     Personalize how your AI greets visitors
                                 </p>
                             </div>
@@ -612,7 +624,7 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Suggested Questions</Label>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-2">
                                         One question per line
                                     </p>
                                     <Textarea
@@ -635,7 +647,7 @@ export default function KnowMeSettings({ profile, apiConfig, initialTab }: KnowM
                                 <h3 className="font-medium text-red-600 dark:text-red-400 mb-2">
                                     Danger Zone
                                 </h3>
-                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                                <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
                                     Permanently delete your KnowMe profile and all associated data.
                                 </p>
                                 <Button
@@ -682,26 +694,26 @@ function DataToggle({
             className={cn(
                 "flex items-center justify-between p-4 rounded-xl transition-all",
                 locked
-                    ? "bg-slate-50 dark:bg-neutral-800"
+                    ? "bg-neutral-50 dark:bg-neutral-800"
                     : enabled
                         ? "bg-neutral-50 dark:bg-neutral-800/20 cursor-pointer"
-                        : "bg-slate-50 dark:bg-neutral-800 cursor-pointer hover:bg-slate-100 dark:hover:bg-neutral-700"
+                        : "bg-neutral-50 dark:bg-neutral-800 cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-700"
             )}
             onClick={locked ? undefined : onToggle}
         >
             <div className="flex items-center gap-3">
                 <div className={cn(
                     "w-10 h-10 rounded-lg flex items-center justify-center",
-                    enabled ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900" : "bg-slate-200 dark:bg-neutral-700"
+                    enabled ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900" : "bg-neutral-200 dark:bg-neutral-700"
                 )}>
                     {icon}
                 </div>
                 <div>
-                    <h4 className="font-medium text-slate-900 dark:text-white flex items-center gap-2">
+                    <h4 className="font-medium text-neutral-900 dark:text-white flex items-center gap-2">
                         {title}
-                        {locked && <Lock className="w-3 h-3 text-slate-400" />}
+                        {locked && <Lock className="w-3 h-3 text-neutral-400" />}
                     </h4>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">{description}</p>
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400">{description}</p>
                 </div>
             </div>
             {
@@ -709,7 +721,7 @@ function DataToggle({
                     enabled ? (
                         <ToggleRight className="w-8 h-8 text-neutral-900 dark:text-neutral-100" />
                     ) : (
-                        <ToggleLeft className="w-8 h-8 text-slate-400" />
+                        <ToggleLeft className="w-8 h-8 text-neutral-400" />
                     )
                 )
             }

@@ -1,6 +1,8 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
+import { getSession } from '@repo/auth';
 import { getKnowMeProfileByUsername } from '@/actions/(main)/knowme';
 import PublicChatInterface from './_components/public-chat-interface';
 import PublicChatSkeleton from './_components/public-chat-skeleton';
@@ -15,7 +17,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     if (!result.success || !result.data) {
         return {
-            title: 'Profile Not Found | KnowMe',
+            title: 'Assistant not available | KnowMe',
+            // A username that resolves to nothing should not leave a crawlable
+            // page behind at that address.
+            robots: { index: false, follow: false },
         };
     }
 
@@ -36,12 +41,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function PublicKnowMePage({ params }: Props) {
     const { username } = await params;
 
+    // This route lives under `(public)`, NOT `(main)` - see app/(public)/layout.tsx
+    // for why a stranger must not be handed the application shell.
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
-            <Suspense fallback={<PublicChatSkeleton />}>
-                <PublicChatContent username={username} />
-            </Suspense>
-        </div>
+        <Suspense fallback={<PublicChatSkeleton />}>
+            <PublicChatContent username={username} />
+        </Suspense>
     );
 }
 
@@ -52,5 +57,12 @@ async function PublicChatContent({ username }: { username: string }) {
         notFound();
     }
 
-    return <PublicChatInterface profile={result.data} />;
+    // Whether the VIEWER is signed in, not whether the owner is. The page offers
+    // links into the app (the owner's profile, "contact them directly"), and
+    // every one of those routes is behind CR-10's session gate - so showing them
+    // to an anonymous visitor is an invitation to a sign-in wall. They are
+    // rendered only for someone who can actually follow them.
+    const session = await getSession(headers());
+
+    return <PublicChatInterface profile={result.data} viewerSignedIn={!!session?.user?.id} />;
 }

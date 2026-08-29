@@ -22,6 +22,7 @@ import {
 import { TechSelect } from "@/app/(main)/ai/resume/_components/projects-tab-form"
 import toast from "@repo/ui/components/ui/sonner"
 import { addPortfolioProject } from "@/actions/(main)/user/profile.action"
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 
 const PROJECT_TYPES = ["PROFESSIONAL", "PERSONAL", "OPEN_SOURCE", "ACADEMIC"]
 const STATUSES = ["IN_PROGRESS", "COMPLETED", "ARCHIVED"]
@@ -118,7 +119,7 @@ export function AddProjectSheet({ open, onOpenChange, onSuccess }: AddProjectShe
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto p-0 flex flex-col">
+            <SheetContent scroll={false} side="right" className="w-full sm:max-w-2xl p-0 flex flex-col">
                 <div className="w-full max-w-5xl mx-auto flex flex-col h-full">
                     <SheetHeader className="px-6 pt-6 pb-4 border-b shrink-0">
                         <SheetTitle>Add Project</SheetTitle>
@@ -126,7 +127,7 @@ export function AddProjectSheet({ open, onOpenChange, onSuccess }: AddProjectShe
                             Projects you add here will appear on your profile and auto-populate your resumes.
                         </p>
                     </SheetHeader>
-                    <div className="flex-1 overflow-y-auto px-6 py-4 w-full">
+                    <ScrollArea className="min-h-0 flex-1 w-full" viewportClassName="px-6 py-4" reflow>
                         <div className="space-y-6 w-full max-w-3xl">
                             <div>
                                 <Label>Project Name</Label>
@@ -304,7 +305,7 @@ export function AddProjectSheet({ open, onOpenChange, onSuccess }: AddProjectShe
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </ScrollArea>
                     <div className="px-6 py-4 border-t shrink-0">
                         <Button onClick={handleSubmit}>
                             Add Project

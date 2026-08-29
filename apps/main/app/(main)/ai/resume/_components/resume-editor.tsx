@@ -1050,9 +1050,19 @@ function PreviewPane({ content, templateSlug }: { content: ResumeDraftContent; t
     }, [])
 
     return (
-        <div
+        // The padding stays on the ROOT, not the viewport: `paneRef` measures
+        // `clientWidth - 48` to derive the scale, and moving `p-6` inside would make
+        // that subtraction wrong by exactly one padding box.
+        //
+        // The measure comment below warns that a scrollbar changes `clientWidth` and
+        // can oscillate the scale forever. Radix's scrollbar is an overlay and does
+        // not take layout width, so that feedback loop is gone - the guard stays
+        // anyway, because it also covers the page-height round trip.
+        <ScrollArea
             ref={paneRef}
-            className="hidden xl:flex flex-1 min-w-0 overflow-y-auto overflow-x-hidden bg-neutral-200 dark:bg-neutral-800 p-6 items-start justify-center"
+            className="hidden min-w-0 flex-1 bg-neutral-200 p-6 xl:block dark:bg-neutral-800"
+            viewportClassName="flex items-start justify-center"
+            reflow
         >
             {/* Outer box carries the scaled dimensions, so the shadow traces the page edge
                 and the pane scrolls exactly as far as there is page to see. */}
@@ -1061,7 +1071,7 @@ function PreviewPane({ content, templateSlug }: { content: ResumeDraftContent; t
                     <LivePreview content={content} templateSlug={templateSlug} />
                 </div>
             </div>
-        </div>
+        </ScrollArea>
     )
 }
 
@@ -1211,8 +1221,11 @@ export function ResumeEditor({ draft, content: initialContent, templates }: Prop
                     1280 the preview pane could not fit a 595px page at all - it showed a
                     strip of one - so the form takes the whole width there instead, which is
                     the pane that is actually being used at that size. */}
-                <div className={cn(
-                    "w-full border-r border-neutral-200 bg-white transition-[width] duration-300 xl:flex-shrink-0 dark:border-neutral-800 dark:bg-neutral-900 overflow-y-auto",
+                {/* ScrollArea rather than `overflow-y-auto`. The `sticky top-0` tab
+                    strip below still pins: Radix's viewport is an ordinary overflow
+                    container, so it is the sticky ancestor either way. JB-1. */}
+                <ScrollArea reflow className={cn(
+                    "w-full border-r border-neutral-200 bg-white transition-[width] duration-300 xl:flex-shrink-0 dark:border-neutral-800 dark:bg-neutral-900",
                     // Narrows when the AI tools column opens, for the reason
                     // `app/(main)/layout.tsx` gives for collapsing the sidebar when the AI
                     // rail opens: "three full-width columns do not fit". Measured on a
@@ -1236,7 +1249,7 @@ export function ResumeEditor({ draft, content: initialContent, templates }: Prop
                             <TabsContent value="skills" className="mt-0"><SkillsSection items={content.skills} onChange={v => setContent(c => ({ ...c, skills: v }))} /></TabsContent>
                         </div>
                     </Tabs>
-                </div>
+                </ScrollArea>
 
                 {/* Middle: Live preview, scaled to whatever width the panes leave it. */}
                 <PreviewPane content={content} templateSlug={templateSlug} />

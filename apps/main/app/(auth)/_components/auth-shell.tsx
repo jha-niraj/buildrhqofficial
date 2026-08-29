@@ -1,5 +1,6 @@
 "use client"
 
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 import type { ReactNode } from "react"
 import { usePathname } from "next/navigation"
 import { Logo } from "@repo/ui/components/logo"
@@ -153,7 +154,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
                 </aside>
 
                 {/* ── Form column. Scrolls internally so the shell never grows. ── */}
-                <main className="relative flex h-full w-full flex-col overflow-y-auto lg:w-1/2">
+                <ScrollArea className="relative flex h-full w-full flex-col lg:w-1/2" reflow>
                     <AuthBackdropMobile />
 
                     <div className="relative flex min-h-full items-center justify-center px-6 py-10 sm:px-10">
@@ -177,7 +178,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
                             <div key={pathname} className="auth-enter">{children}</div>
                         </div>
                     </div>
-                </main>
+                </ScrollArea>
             </div>
         </div>
     )

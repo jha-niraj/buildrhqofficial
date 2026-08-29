@@ -149,7 +149,7 @@ export default function DailyStandupSheet({
 
     return (
         <Sheet open={isOpen} onOpenChange={onClose}>
-            <SheetContent className="sm:max-w-2xl overflow-y-auto">
+            <SheetContent className="sm:max-w-2xl">
                 <SheetHeader className="mb-6">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">

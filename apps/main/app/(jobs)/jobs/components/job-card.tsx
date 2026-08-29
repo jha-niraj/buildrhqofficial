@@ -171,11 +171,14 @@ export function JobCard({
             onClick={() => onViewDetails(job)}
         >
             {/* Match score indicator bar */}
+            {/* The two upper branches were `from-neutral-900 to-neutral-900` - a
+                gradient between one colour and itself. And the bar was invisible in
+                dark mode, where `neutral-900` IS the card. Flat, and paired. */}
             <div className={cn(
-                "absolute top-0 left-0 right-0 h-1",
-                job.matchScore >= 90 ? "bg-gradient-to-r from-neutral-900 to-neutral-900" :
-                    job.matchScore >= 70 ? "bg-gradient-to-r from-neutral-900 to-neutral-900" :
-                        "bg-gradient-to-r from-neutral-900 to-red-400"
+                "absolute inset-x-0 top-0 h-1",
+                job.matchScore >= 70
+                    ? "bg-neutral-900 dark:bg-white"
+                    : "bg-neutral-300 dark:bg-neutral-600",
             )} />
 
             <div className="flex items-start gap-4">
@@ -367,14 +370,20 @@ export function JobCard({
                     </div>
                 </div>
 
-                <ChevronRight className="w-5 h-5 text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-600 transition-colors shrink-0 mt-6" />
+                <ChevronRight className="mt-6 h-5 w-5 shrink-0 text-neutral-500 transition-colors group-hover:text-neutral-900 dark:text-neutral-400 dark:group-hover:text-white" />
             </div>
 
-            {/* Applied Banner */}
+            {/* IN FLOW, not `absolute bottom-0`.
+                It was absolutely positioned across the bottom of the card, so it
+                painted straight over the card's own last row - "Interview process
+                not disclosed" and the applicant count sat underneath it. A banner
+                that hides the content it is attached to is worse than no banner.
+                The negative margins pull it out to the card's edges; the card grows
+                to fit it. See JB-9. */}
             {job.hasApplied && (
-                <div className="absolute bottom-0 left-0 right-0 bg-neutral-50 dark:bg-neutral-800/20 px-5 py-2 border-t border-neutral-100 dark:border-neutral-800/30">
-                    <span className="text-sm text-neutral-800 dark:text-neutral-100 font-medium flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4" />
+                <div className="-mx-5 -mb-5 mt-4 border-t border-neutral-200 bg-neutral-50 px-5 py-2 dark:border-neutral-800 dark:bg-neutral-800/30">
+                    <span className="flex items-center gap-2 text-sm font-medium text-neutral-800 dark:text-neutral-100">
+                        <CheckCircle2 className="h-4 w-4" />
                         You&apos;ve applied to this job
                     </span>
                 </div>

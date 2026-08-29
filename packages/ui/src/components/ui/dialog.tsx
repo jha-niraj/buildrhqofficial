@@ -5,6 +5,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 
 import { cn } from "../../lib/utils"
+import { ScrollArea } from "./scroll-area"
 
 /**
  * ── Why there are no `slide-in-from-*` classes on the content ──
@@ -56,21 +57,40 @@ const DialogOverlay = React.forwardRef<
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
+/**
+ * `scroll` puts the body in a ScrollArea instead of letting the panel scroll
+ * natively - the same rule as SheetContent (JB-1).
+ *
+ * It defaults to FALSE here where the sheet's defaults to true, and the
+ * difference is deliberate. `sheetVariants` carried `overflow-y-auto` in its
+ * base class, so every sheet was already scrolling and turning it on by default
+ * changed nothing. Dialog's base has never had it: only the two call sites that
+ * added `max-h-[..] overflow-y-auto` themselves scroll at all, and switching the
+ * other ~30 from `grid gap-4` to a flex column with a scroller would change
+ * layouts nobody asked about.
+ */
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { scroll?: boolean }
+>(({ className, children, scroll = false, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
         "fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-2rem)] max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg",
+        scroll && "flex flex-col overflow-hidden",
         className
       )}
       {...props}
     >
-      {children}
+      {scroll ? (
+        <ScrollArea className="min-h-0 min-w-0 flex-1" reflow>
+          {children}
+        </ScrollArea>
+      ) : (
+        children
+      )}
       <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>

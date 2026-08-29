@@ -125,6 +125,21 @@ surfaces, two auth boundaries and two tones.
 **So the answer is: merge the knowledge, keep the chats.** That is the useful
 half of the idea, and it is also the safe half.
 
+## Where the two surfaces live, since 2026-08-29
+
+`/knowme`, `/knowme/analytics` and `/knowme/settings` are the OWNER's, and stay
+under `app/(main)` behind the session gate.
+
+`/knowme/[username]` is the visitor's, and now lives under `app/(public)` with a
+layout that paints a background and nothing else. It is the only page in this app
+whose path is not fixed and whose audience has no account, and putting it inside
+the application shell handed every stranger the sidebar, a credits counter and
+the owner's private AI rail. KM-13 has the full account.
+
+The consequence to remember: **middleware decides that split by segment name.**
+A new page under `/knowme/` that is not added to `KNOWME_OWNER_SEGMENTS` in
+`middleware.ts` is world-readable the moment it ships.
+
 ## Out of scope
 
 - Rebuilding the assistant rail. It is inward-facing and stays.

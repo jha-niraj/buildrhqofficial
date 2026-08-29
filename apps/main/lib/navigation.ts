@@ -3,8 +3,9 @@ import {
     Briefcase, Video, Brain, LayoutDashboard, Heading,
     Home, FileText, Code2,
     Network, Globe, Server, Compass, Telescope, IdCard, BarChart3,
-    Search, Bookmark, Bell, Building2, Send, Zap, Upload, History
-, Wallet } from "lucide-react"
+    Upload, History, Wallet,
+    ArrowLeft, Search, Send, Bookmark, Bell, Building2, Zap,
+} from "lucide-react"
 
 export type LucideIcon = typeof LayoutDashboard
 
@@ -117,22 +118,29 @@ export const mainNavigation: NavigationConfig = {
             ]
         },
         {
-            // Jobs had SIX real sub-pages and no children at all, so every one of
-            // them was reachable only from inside the module's own page chrome.
-            // Every path below resolves literally - `pnpm check-nav` enforces it.
+            // NO CHILDREN, deliberately - and this reverses an earlier decision, so
+            // the reasoning for both is here rather than one silently replacing the
+            // other.
+            //
+            // The children were ADDED because "Jobs had SIX real sub-pages and no
+            // children at all, so every one of them was reachable only from inside
+            // the module's own page chrome". True at the time, and the right call
+            // then.
+            //
+            // What changed: `app/(jobs)/layout.tsx` mounts the shared sidebar with
+            // `jobsNavigation` (JB-8), so entering
+            // this module REPLACES the sidebar wholesale with the jobs one, which
+            // lists the same six items. `app/(jobs)/jobs/layout.tsx` then renders them
+            // a third time as a tab row. Expanding Jobs here showed a user seven links
+            // that vanish the instant they click any of them.
+            //
+            // Niraj, 2026-08-29: "as we are changing the content of the sidebar when
+            // clicking on Job so just add this icon here, not these children". See
+            // JB-2. If the jobs shell ever loses its own sidebar, put these back.
             name: "Jobs",
             path: "jobs",
             icon: Briefcase,
             status: "active",
-            children: [
-                { name: 'Overview', path: 'jobs', icon: LayoutDashboard },
-                { name: 'Browse', path: 'jobs/browse', icon: Search },
-                { name: 'Applications', path: 'jobs/applications', icon: Send },
-                { name: 'Saved', path: 'jobs/saved', icon: Bookmark },
-                { name: 'Following', path: 'jobs/following', icon: Bell },
-                { name: 'Companies', path: 'companies', icon: Building2 },
-                { name: 'Spark', path: 'jobs/spark', icon: Zap },
-            ]
         },
         {
             // KnowMe is the OUTWARD-facing half of the product: a queryable public
@@ -164,3 +172,30 @@ export const mainNavigation: NavigationConfig = {
     ],
     secondary: []
 }
+
+/**
+ * The sidebar for `app/(jobs)`.
+ *
+ * ── Why this is a nav list and not a second sidebar ──────────────────────────
+ * `components/common/jobssidebar.tsx` was a 319-line reimplementation of
+ * the app sidebar with its own brand block, its own collapse control, its own
+ * theme toggle and its own user footer - all of which looked subtly unlike the
+ * real one, because a copy always does. Niraj, 2026-08-29: *"the sidebar ui is
+ * totally different from the main sidebar ... the content only needs to change
+ * not the full side."*
+ *
+ * The jobs shell now renders the SAME `Sidebar` component with this list passed
+ * in. One sidebar, two sets of links.
+ *
+ * `Back to ShipItHQ` is first and deliberate: entering jobs replaces the whole
+ * nav, so without it the way out is the browser's back button.
+ */
+export const jobsNavigation: NavigationItem[] = [
+    { name: "Back to ShipItHQ", path: "home", icon: ArrowLeft, status: "active" },
+    { name: "Discover", path: "jobs", icon: Zap, status: "active" },
+    { name: "Browse All", path: "jobs/browse", icon: Search, status: "active" },
+    { name: "Applications", path: "jobs/applications", icon: Send, status: "active" },
+    { name: "Saved", path: "jobs/saved", icon: Bookmark, status: "active" },
+    { name: "Following", path: "jobs/following", icon: Bell, status: "active" },
+    { name: "Companies", path: "companies", icon: Building2, status: "active" },
+]

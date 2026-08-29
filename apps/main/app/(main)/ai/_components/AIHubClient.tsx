@@ -11,6 +11,7 @@ import { Button } from "@repo/ui/components/ui/button"
 import { TemplatePreview, type TemplateShape } from "@/components/resume/template-preview"
 import { priceLabel, type PricedOperation } from "@/lib/credits/pricing"
 import type { AiHubStats } from "@/actions/(main)/ai/hub-stats.action"
+import { ActivityChart, type ActivityPoint } from "@/components/common/activity-chart"
 
 /**
  * The entry page for every AI module.
@@ -125,7 +126,13 @@ const HERO_CARDS: Array<{ shape: TemplateShape; x: number; y: number; r: number;
     { shape: "modern-creative", x: 46, y: 18, r: 9, o: 0.35, d: 0.24 },
 ]
 
-export default function AiToolsPage({ stats }: { stats: AiHubStats }) {
+export default function AiToolsPage({
+    stats,
+    activity,
+}: {
+    stats: AiHubStats
+    activity: { series: ActivityPoint[]; unit: string; total: number }
+}) {
     const cards = statCards(stats)
 
     return (
@@ -242,6 +249,31 @@ export default function AiToolsPage({ stats }: { stats: AiHubStats }) {
                                 </Link>
                             </motion.div>
                         ))}
+                    </div>
+
+                    {/* Cover letters per day. Resume drafts are edited in place rather
+                        than created per session, so counting them would report one
+                        point ever and call it activity - see the note beside `ai` in
+                        module-activity.action.ts. */}
+                    <div className="mt-10 rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
+                        <div className="mb-1 flex items-baseline justify-between gap-3">
+                            <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
+                                Cover letters written
+                            </h2>
+                            <Link
+                                href="/ai/coverletter"
+                                className="shrink-0 text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
+                            >
+                                Open the writer
+                            </Link>
+                        </div>
+                        <p className="mb-3 text-sm text-neutral-500 dark:text-neutral-400">
+                            <span className="font-medium text-neutral-900 tabular-nums dark:text-white">
+                                {activity.total}
+                            </span>
+                            {" in the last 30 days"}
+                        </p>
+                        <ActivityChart data={activity.series} unit={activity.unit} />
                     </div>
                 </div>
             </section>

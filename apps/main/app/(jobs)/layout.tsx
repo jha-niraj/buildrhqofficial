@@ -2,7 +2,8 @@
 
 import React from 'react'
 import Script from 'next/script'
-import JobsSidebar from '@/components/common/jobssidebar'
+import Sidebar from '@/components/common/mainsidebar'
+import { jobsNavigation } from '@/lib/navigation'
 import {
     useSidebar, SidebarProvider
 } from '@/components/common/sidebarprovider'
@@ -23,14 +24,28 @@ const JobsContent = ({ children }: { children: React.ReactNode }) => {
 
     return (
         <>
-            <JobsSidebar />
-            <div className="flex flex-col flex-1 h-dvh overflow-hidden bg-neutral-100 dark:bg-black transition-colors duration-300">
+            {/* The SAME sidebar the rest of the app uses, with a different set of
+                links. What stood here was `jobssidebar.tsx`, a 319-line copy with its
+                own brand block, collapse control, theme toggle and user footer - all
+                of which looked subtly unlike the real one, because a copy always
+                does. Niraj: "the content only needs to change not the full side."
+                See JB-8. */}
+            <Sidebar primary={jobsNavigation} />
+            {/* The offsets MATCH `app/(main)/layout.tsx`, and that is the whole point.
+                They were `lg:ml-[70px]` / `lg:ml-[240px]`, measured against the
+                deleted `jobssidebar.tsx`. The shared `AppSidebar` is wider - 106px
+                collapsed, 17rem open - so after JB-8 swapped the component in, the
+                shell reserved 36px and 32px too little and the sidebar sat ON TOP of
+                the job list. That is the overlap in Niraj's screenshot: not a new
+                bug, an old number that stopped being true.
+                Any change to the sidebar's width has to change both shells. */}
+            <div className="flex h-dvh flex-1 flex-col overflow-hidden bg-neutral-100 transition-colors duration-300 dark:bg-black">
                 <main className={cn(
-                    "h-full relative transition-all duration-300 ease-in-out",
+                    "relative h-full transition-all duration-300 ease-in-out",
                     "ml-0",
-                    isCollapsed ? "lg:ml-[70px]" : "lg:ml-[240px]"
+                    isCollapsed ? "lg:ml-[106px]" : "lg:ml-[17rem]",
                 )}>
-                    <div className="h-full w-full bg-white dark:bg-neutral-950 lg:rounded-l-3xl lg:border-l border-neutral-200 dark:border-neutral-800 shadow-xl relative">
+                    <div className="relative h-full w-full border-neutral-200 bg-white shadow-xl lg:rounded-l-3xl lg:border-l dark:border-neutral-800 dark:bg-neutral-950">
                         {/* `reflow` pins this to vertical-only, same as the (main) shell's
                             ScrollArea - without it Radix's shrink-to-fit content box sizes
                             to a wide descendant (a table, a chart) and the page silently

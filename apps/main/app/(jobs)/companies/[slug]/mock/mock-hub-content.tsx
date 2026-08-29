@@ -341,7 +341,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                 </div>
 
                 {/* Main Content - Mock Interviews for Selected Role */}
-                <div className="flex-1 p-6 overflow-y-auto">
+                <ScrollArea className="min-h-0 flex-1" viewportClassName="p-6" reflow>
                     <AnimatePresence mode="wait">
                         {
                             selectedJob ? (
@@ -568,7 +568,7 @@ export function CompanyMockHubContent({ company, mockHub }: CompanyMockHubConten
                             )
                         }
                     </AnimatePresence>
-                </div>
+                </ScrollArea>
             </div>
         </div>
     )

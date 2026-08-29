@@ -1,5 +1,6 @@
 'use client'
 
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 import { useState, useEffect } from 'react'
 import {
     Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle
@@ -136,7 +137,7 @@ export function CreatorEarningsSheet({
                             earnings.length > 0 && (
                                 <div>
                                     <p className="text-sm font-medium mb-2">Recent transactions</p>
-                                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                                    <ScrollArea className="min-h-0 flex-1" viewportClassName="space-y-2 max-h-48" reflow>
                                         {
                                             earnings.map((e) => (
                                                 <div
@@ -150,7 +151,7 @@ export function CreatorEarningsSheet({
                                                 </div>
                                             ))
                                         }
-                                    </div>
+                                    </ScrollArea>
                                 </div>
                             )
                         }

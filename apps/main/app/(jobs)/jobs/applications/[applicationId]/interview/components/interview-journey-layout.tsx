@@ -1,5 +1,6 @@
 "use client"
 
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
 import Link from "next/link"
@@ -214,7 +215,7 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                 room for a real two-column layout. See docs/responsiveness.md
                 section 3. */}
             <div className="w-full flex flex-col lg:flex-row">
-                <aside className="w-full bg-white dark:bg-neutral-900 border-b lg:border-b-0 lg:border-r border-neutral-200 dark:border-neutral-800 lg:w-72 lg:min-h-[calc(100dvh-73px)] lg:sticky lg:top-[73px] lg:overflow-y-auto">
+                <ScrollArea className="w-full bg-white dark:bg-neutral-900 border-b lg:border-b-0 lg:border-r border-neutral-200 dark:border-neutral-800 lg:w-72 lg:min-h-[calc(100dvh-73px)] lg:sticky lg:top-[73px]" reflow>
                     <div className="p-4">
                         <div className="mb-6 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800">
                             <div className="flex items-center justify-between mb-2">
@@ -356,7 +357,7 @@ export function InterviewJourneyLayout({ application }: InterviewJourneyLayoutPr
                             }
                         </nav>
                     </div>
-                </aside>
+                </ScrollArea>
                 <main className="flex-1 p-6 lg:p-8">
                     <div className="max-w-3xl">
                         <motion.div

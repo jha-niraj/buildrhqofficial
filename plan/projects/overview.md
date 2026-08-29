@@ -86,3 +86,33 @@ the chain is how a fresh environment gets built.
 - **Task detail access.** Same - buying deeper detail on a task, for yourself.
 - **Bookmarks.** One user saving a project for later.
 - **Rewriting how sprints or tasks work.** They stay exactly as they are.
+
+## Definition of done, extended 2026-08-29
+
+7. **Every projects screen is about the user's own work, or honestly says there
+   is none.** No screen inside the authenticated app sells the product to
+   somebody already using it, and no number on any of them is invented.
+
+Added after Niraj looked at `/projects` and `/projects/ideas`:
+
+> *"the overview page should be about the user and what are the things that the
+> user have done across this all module and not marketing"*
+
+This answers open question 3 in `srs/core-modules/projects/00-state-of-play.md`
+and settles `PRJ-U2` in `03-ui-layout.md`, which had been waiting on exactly this
+decision: **it is a hub, not a landing page.** Discovery moves below the user's
+own state rather than above it.
+
+## The database is empty, and that shapes every UI decision here
+
+Verified 2026-08-29: **all 24 projects tables hold 0 rows**, including
+`project_category`, `project_technology`, `project_idea` and `project_v2`.
+
+This is not incidental. It is why `/projects` shows "0+ Projects Built" beside an
+invented "94% Success Rate", and why `/projects/ideas` renders an empty category
+rail over a full-height void. Neither screen has an empty state, because both were
+built against an imagined populated future.
+
+So the rule for this module, until it has data: **a screen with nothing to show
+must say so in words and offer the one action that fills it.** That is
+`PRJ-U4`, and it is now the load-bearing requirement rather than a polish item.

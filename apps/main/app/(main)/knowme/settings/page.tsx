@@ -27,7 +27,7 @@ export default async function KnowMeSettingsPage({ searchParams }: Props) {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+        <div className="min-h-screen">
             <Suspense fallback={<SettingsSkeleton />}>
                 <SettingsContent initialTab={params.tab} />
             </Suspense>

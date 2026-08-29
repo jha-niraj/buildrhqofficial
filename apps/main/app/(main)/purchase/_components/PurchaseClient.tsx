@@ -441,7 +441,7 @@ export default function PurchasePage() {
 									className={`cursor-pointer px-4 py-1.5 rounded-md text-xs font-bold font-mono transition-all ${
 										currency === c
 											? 'bg-white dark:bg-neutral-800 shadow-sm text-neutral-900 dark:text-white'
-											: 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-600'
+											: 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-600 dark:hover:text-white'
 									}`}
 								>
 									{c}

@@ -17,7 +17,8 @@
         "db:migrate": "dotenv -e ../../apps/main/.env -- drizzle-kit migrate",
         "db:push": "dotenv -e ../../apps/main/.env -- drizzle-kit push",
         "db:studio": "dotenv -e ../../apps/main/.env -- drizzle-kit studio",
-        "db:pull": "dotenv -e ../../apps/main/.env -- drizzle-kit introspect"
+        "db:pull": "dotenv -e ../../apps/main/.env -- drizzle-kit introspect",
+        "db:seed": "dotenv -e ../../apps/main/.env -- tsx src/seed/index.ts"
     },
     "keywords": [],
     "author": "",
@@ -33,6 +34,7 @@
         "dotenv-cli": "^11.0.0",
         "drizzle-kit": "^0.31.0",
         "eslint": "^9.39.1",
+        "tsx": "^4.23.12",
         "typescript": "5.9.2"
     }
 }

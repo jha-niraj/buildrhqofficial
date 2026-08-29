@@ -9,6 +9,7 @@ import { Button } from '@repo/ui/components/ui/button'
 import { AnimatedIcon } from '@repo/ui/components/animated-icons'
 import { cn } from '@repo/ui/lib/utils'
 import { getMyMockStats, type MyMockStats } from '@/actions/(main)/mockvoice/stats.action'
+import { ActivityChart, type ActivityPoint } from '@/components/common/activity-chart'
 import { MOCK_CATEGORIES } from '../voice/_constants/mock-categories'
 
 /**
@@ -53,21 +54,48 @@ export function MyPractice() {
         )
     }
 
+    // The zero case keeps the page's SHAPE.
+    //
+    // It used to return one dashed box floating in a large empty area, which is
+    // what Niraj meant by "not done yet" - the page had nothing to hold on to.
+    // Every other overview in the product now shows its stat row and its chart at
+    // zero, because an axis with nothing on it is a true reading and a page that
+    // changes shape the first time you use it is a worse one. The invitation is
+    // one panel among them rather than the whole screen. See JB-7.
     if (!stats || stats.total === 0) {
         return (
-            <div className="mt-8 rounded-2xl border border-dashed border-neutral-300 px-6 py-16 text-center dark:border-neutral-700">
-                <AnimatedIcon name="voice" size={44} motion="always" className="mx-auto mb-4 text-neutral-500 dark:text-neutral-400" />
-                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
-                    You have not practised yet
-                </h2>
-                <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                    A mock interview is a real conversation with an AI interviewer: it asks
-                    follow-ups, you answer out loud, and afterwards you get a transcript and
-                    a breakdown of how you did. Your sessions and scores will chart here.
-                </p>
-                <Button asChild className="mt-6 cursor-pointer">
-                    <Link href="/mock/voice">Start your first interview</Link>
-                </Button>
+            <div className="mt-6 space-y-6">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <Stat label="Sessions" value="0" sub="none yet" />
+                    <Stat label="Practice time" value="-" sub="not recorded yet" />
+                    <Stat label="Average score" value="-" sub="none scored yet" />
+                    <Stat label="Streak" value="-" sub="practise today to start one" />
+                </div>
+
+                <section>
+                    <div className="mb-3">
+                        <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Practice over time</h2>
+                        <p className="text-xs text-neutral-600 dark:text-neutral-400">Last 30 days.</p>
+                    </div>
+                    <div className="rounded-xl border border-neutral-200 p-4 dark:border-neutral-800">
+                        <ActivityChart data={emptyThirtyDays()} unit="interview" />
+                    </div>
+                </section>
+
+                <div className="rounded-2xl border border-dashed border-neutral-300 px-6 py-10 text-center dark:border-neutral-700">
+                    <AnimatedIcon name="voice" size={40} motion="always" className="mx-auto mb-3 text-neutral-500 dark:text-neutral-400" />
+                    <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
+                        You have not practised yet
+                    </h2>
+                    <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                        A mock interview is a real conversation with an AI interviewer: it asks
+                        follow-ups, you answer out loud, and afterwards you get a transcript and
+                        a breakdown of how you did.
+                    </p>
+                    <Button asChild className="mt-5 cursor-pointer">
+                        <Link href="/mock/voice">Start your first interview</Link>
+                    </Button>
+                </div>
             </div>
         )
     }
@@ -91,75 +119,50 @@ export function MyPractice() {
                 <Stat label="Streak" value={streak > 0 ? `${streak}d` : '-'} sub={streak > 0 ? 'consecutive days' : 'practise today to start one'} />
             </div>
 
+            {/* TWO charts, not one chart with two y-axes.
+                What stood here was a dual-axis LineChart: sessions on the left
+                scale, average score (1-5) on the right. The comment beside it
+                argued that sharing one axis "would flatten whichever is smaller",
+                which correctly identifies the problem and picks the wrong fix.
+
+                A second y-scale is arbitrary, and everything the reader infers
+                from the two lines TOGETHER - where they cross, which is higher,
+                whether they diverge - is an artefact of the two ranges somebody
+                chose, not something in the data. Slide either axis and the story
+                changes. Small multiples keep both series honest: a shared x-axis
+                so the dates line up, separate y-axes so neither is flattened, and
+                no invitation to read a relationship that is not there.
+
+                Gridlines are solid rather than `strokeDasharray="3 3"` for the
+                same reason a dashed line is: a second rhythm the eye has to
+                filter out before it can read the data. */}
             <section>
-                <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
-                    <div>
-                        <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Practice over time</h2>
-                        <p className="text-xs text-neutral-600 dark:text-neutral-400">Sessions and average score, last 30 days.</p>
-                    </div>
-                    <div className="flex items-center gap-4 text-xs text-neutral-600 dark:text-neutral-400">
-                        <span className="inline-flex items-center gap-1.5">
-                            <span className="h-0.5 w-4 rounded bg-neutral-900 dark:bg-neutral-100" />
-                            Sessions <span className="text-neutral-500">(left)</span>
-                        </span>
-                        <span className="inline-flex items-center gap-1.5">
-                            <span
-                                className="h-0.5 w-4 rounded text-neutral-500 dark:text-neutral-400"
-                                style={{ backgroundImage: 'repeating-linear-gradient(90deg,currentColor 0 4px,transparent 4px 7px)' }}
-                            />
-                            Score <span className="text-neutral-500">(right)</span>
-                        </span>
-                    </div>
+                <div className="mb-3">
+                    <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Practice over time</h2>
+                    <p className="text-xs text-neutral-600 dark:text-neutral-400">Last 30 days.</p>
                 </div>
-                {/* recharts writes real SVG attributes and cannot read `currentColor`,
-                    so the inks are CSS variables set here and flipped for dark mode. */}
-                <div className="rounded-xl border border-neutral-200 p-4 dark:border-neutral-800 [--mk-axis:#525252] [--mk-grid:#e5e5e5] [--mk-ink:#171717] dark:[--mk-axis:#a3a3a3] dark:[--mk-grid:#262626] dark:[--mk-ink:#f5f5f5]">
-                    <div className="h-[22rem] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={trend} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                                <CartesianGrid stroke="var(--mk-grid)" strokeDasharray="3 3" vertical={false} />
-                                <XAxis
-                                    dataKey="date"
-                                    tickFormatter={(d: string) => new Date(d).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
-                                    tick={{ fontSize: 12, fill: 'var(--mk-axis)' }}
-                                    axisLine={false} tickLine={false} minTickGap={28}
-                                />
-                                {/* TWO axes. Sessions are single digits and a score is 1-5
-                                    on a different meaning entirely - sharing one axis would
-                                    flatten whichever is smaller, which is the bug the
-                                    credits chart had. */}
-                                <YAxis
-                                    yAxisId="sessions" allowDecimals={false} width={44}
-                                    tick={{ fontSize: 12, fill: 'var(--mk-axis)' }} axisLine={false} tickLine={false}
-                                />
-                                <YAxis
-                                    yAxisId="score" orientation="right" domain={[0, 5]} width={44}
-                                    tick={{ fontSize: 12, fill: 'var(--mk-axis)' }} axisLine={false} tickLine={false}
-                                />
-                                <Tooltip
-                                    cursor={{ stroke: 'var(--mk-axis)', strokeDasharray: '3 3' }}
-                                    contentStyle={{
-                                        background: 'var(--popover)', border: '1px solid var(--border)',
-                                        borderRadius: 10, fontSize: 12, color: 'var(--popover-foreground)',
-                                    }}
-                                    labelFormatter={(d) => new Date(String(d)).toLocaleDateString('en-US', { day: 'numeric', month: 'long' })}
-                                    formatter={(v, name) => [v === null ? 'not scored' : String(v), String(name)] as [string, string]}
-                                />
-                                <Line
-                                    yAxisId="sessions" type="monotone" dataKey="sessions" name="Sessions"
-                                    stroke="var(--mk-ink)" strokeWidth={2} dot={false} activeDot={{ r: 4 }}
-                                />
-                                {/* `connectNulls`: an unscored day is a GAP in the score
-                                    series, not a zero. Joining across it would invent a
-                                    score the user never received. */}
-                                <Line
-                                    yAxisId="score" type="monotone" dataKey="score" name="Score"
-                                    stroke="var(--mk-axis)" strokeWidth={2} strokeDasharray="4 3"
-                                    dot={false} activeDot={{ r: 4 }} connectNulls={false}
-                                />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </div>
+
+                <div className="grid gap-4 rounded-xl border border-neutral-200 p-4 dark:border-neutral-800 [--mk-axis:#525252] [--mk-grid:#e5e5e5] [--mk-ink:#171717] dark:[--mk-axis:#a3a3a3] dark:[--mk-grid:#262626] dark:[--mk-ink:#f5f5f5]">
+                    <TrendChart
+                        title="Sessions"
+                        data={trend}
+                        dataKey="sessions"
+                        allowDecimals={false}
+                        formatValue={(v) => (v === null ? "-" : String(v))}
+                    />
+                    {/* Score is plotted only if anything has been scored. An axis of
+                        1-5 with no points on it says a session was rated badly
+                        rather than not rated at all. */}
+                    {scoredSessions > 0 && (
+                        <TrendChart
+                            title="Average score"
+                            data={trend}
+                            dataKey="score"
+                            domain={[0, 5]}
+                            connectNulls={false}
+                            formatValue={(v) => (v === null ? "not scored" : `${v}/5`)}
+                        />
+                    )}
                 </div>
             </section>
 
@@ -187,6 +190,71 @@ export function MyPractice() {
     )
 }
 
+/**
+ * One series, one y-axis, one title. The title names the series, so there is no
+ * legend - a box with a single swatch restates the heading and costs a row.
+ */
+function TrendChart({
+    title,
+    data,
+    dataKey,
+    domain,
+    allowDecimals = true,
+    connectNulls = true,
+    formatValue,
+}: {
+    title: string
+    data: MyMockStats['trend']
+    dataKey: 'sessions' | 'score'
+    domain?: [number, number]
+    allowDecimals?: boolean
+    connectNulls?: boolean
+    formatValue: (v: number | null) => string
+}) {
+    return (
+        <div>
+            <p className="mb-1 text-xs font-medium text-neutral-600 dark:text-neutral-400">{title}</p>
+            <div className="h-40 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                        <CartesianGrid stroke="var(--mk-grid)" vertical={false} />
+                        <XAxis
+                            dataKey="date"
+                            tickFormatter={(d: string) => new Date(d).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+                            tick={{ fontSize: 12, fill: 'var(--mk-axis)' }}
+                            axisLine={false} tickLine={false} minTickGap={28}
+                        />
+                        {/* width=44 holds two digits plus padding. A narrower axis
+                            renders "10" as "0", which is a WRONG number rather than
+                            a clipped one. */}
+                        <YAxis
+                            width={44}
+                            allowDecimals={allowDecimals}
+                            domain={domain}
+                            tick={{ fontSize: 12, fill: 'var(--mk-axis)' }}
+                            axisLine={false} tickLine={false}
+                        />
+                        <Tooltip
+                            cursor={{ stroke: 'var(--mk-axis)' }}
+                            contentStyle={{
+                                background: 'var(--popover)', border: '1px solid var(--border)',
+                                borderRadius: 10, fontSize: 12, color: 'var(--popover-foreground)',
+                            }}
+                            labelFormatter={(d) => new Date(String(d)).toLocaleDateString('en-US', { day: 'numeric', month: 'long' })}
+                            formatter={(v) => [formatValue(v as number | null), title] as [string, string]}
+                        />
+                        <Line
+                            type="monotone" dataKey={dataKey} name={title}
+                            stroke="var(--mk-ink)" strokeWidth={2} dot={false} activeDot={{ r: 4 }}
+                            connectNulls={connectNulls}
+                        />
+                    </LineChart>
+                </ResponsiveContainer>
+            </div>
+        </div>
+    )
+}
+
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
     return (
         <div className={cn('rounded-xl border border-neutral-200 px-4 py-3 dark:border-neutral-800')}>
@@ -195,4 +263,21 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
             {sub && <p className="mt-0.5 text-xs text-neutral-600 dark:text-neutral-400">{sub}</p>}
         </div>
     )
+}
+
+/**
+ * A full 30-day run of zeros ending today, in UTC.
+ *
+ * `getMyMockStats` returns an empty `trend` when there are no sessions, and an
+ * empty array draws no axis at all. The chart is built to render a real one with
+ * nothing on it, so it needs the days.
+ */
+function emptyThirtyDays(): ActivityPoint[] {
+    const out: ActivityPoint[] = []
+    const today = new Date()
+    for (let i = 29; i >= 0; i--) {
+        const d = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - i))
+        out.push({ date: d.toISOString().slice(0, 10), value: 0 })
+    }
+    return out
 }

@@ -89,7 +89,7 @@ const TabsList = React.forwardRef<
       relative isolate flex w-full
       rounded-xl border p-1
       bg-white dark:bg-neutral-900
-      border-gray-200 dark:border-neutral-700
+      border-neutral-200 dark:border-neutral-700
       `,
                 className,
             )}
@@ -103,7 +103,7 @@ const TabsList = React.forwardRef<
             {box && (
                 <span
                     aria-hidden
-                    className="pointer-events-none absolute inset-y-1 -z-10 rounded-lg bg-gray-200 shadow-sm transition-[transform,width] duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none dark:bg-neutral-700"
+                    className="pointer-events-none absolute inset-y-1 -z-10 rounded-lg bg-neutral-200 shadow-sm transition-[transform,width] duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none dark:bg-neutral-700"
                     // `will-change` promotes the pill to its own layer, so the slide
                     // is composited instead of repainting the tab bar every frame.
                     // Without it the movement is subtly steppy on a busy page - the
@@ -138,11 +138,11 @@ const TabsTrigger = React.forwardRef<
       text-center text-sm font-semibold
       cursor-pointer
       transition-colors duration-300
-      text-gray-600 dark:text-gray-300
+      text-neutral-600 dark:text-neutral-300
 
-      hover:text-gray-900 dark:hover:text-white
+      hover:text-neutral-900 dark:hover:text-white
 
-      data-[state=active]:text-gray-900
+      data-[state=active]:text-neutral-900
       dark:data-[state=active]:text-white
 
       focus-visible:outline-none

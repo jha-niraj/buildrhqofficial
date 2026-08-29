@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { cn } from "@repo/ui/lib/utils";
+import { ActivityChart, type ActivityPoint } from "@/components/common/activity-chart";
 import type {
     PracticeUserStats, PracticeModule, PracticeProgressData,
     PracticeRecentSession
@@ -44,9 +45,10 @@ interface DailyChallengeData {
 interface PracticeDashboardProps {
     stats: PracticeUserStats | null;
     dailyChallenge?: DailyChallengeData | null;
+    activity: { series: ActivityPoint[]; unit: string; total: number };
 }
 
-export function PracticeDashboard({ stats, dailyChallenge }: PracticeDashboardProps) {
+export function PracticeDashboard({ stats, dailyChallenge, activity }: PracticeDashboardProps) {
     if (!stats) {
         return <EmptyDashboard dailyChallenge={dailyChallenge} />;
     }
@@ -86,6 +88,24 @@ export function PracticeDashboard({ stats, dailyChallenge }: PracticeDashboardPr
                     value={`${stats.averageScore}%`}
                 />
             </div>
+            {/* Sessions per day, over the same 30-day window every module uses, so
+                the reader can compare across the product rather than learning a new
+                axis on each page. */}
+            <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-5">
+                <div className="mb-1 flex items-baseline justify-between gap-3">
+                    <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                        Practice sessions
+                    </h2>
+                    <span className="text-sm text-neutral-500 dark:text-neutral-400">
+                        <span className="font-medium text-neutral-900 tabular-nums dark:text-white">
+                            {activity.total}
+                        </span>
+                        {" in 30 days"}
+                    </span>
+                </div>
+                <ActivityChart data={activity.series} unit={activity.unit} />
+            </div>
+
             <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-5">
                 <h2 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4">
                     Difficulty Progress

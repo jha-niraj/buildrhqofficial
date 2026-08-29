@@ -11,6 +11,10 @@ so every step leaves the app compiling.
 | PRJ-4 | Remove voting and moderation from ideas and errors | 3 | done (2026-08-20) |
 | PRJ-5 | Drop the tables | 6 | done (2026-08-20) |
 | PRJ-6 | Verify the solo loop still compiles and holds together | 5 | done (2026-08-20) |
+| PRJ-7 | /projects is the user's own overview, not a sales page | 7 | done (2026-08-29) |
+| PRJ-8 | The generate sheet has no button to open it | 5 | done (2026-08-29) |
+| PRJ-9 | The generate sheet asks too much | 5 | done (2026-08-29) |
+| PRJ-10 | /projects/ideas renders a void when the catalogue is empty | 7 | done (2026-08-29) |
 
 ---
 
@@ -267,3 +271,255 @@ Routes: `/projects/leaderboard`, `/projects/leaderboard/[username]`,
 - Project ideas are browse-only: no community submission, no moderation queue, no
   upvotes. The grid now sorts by views rather than upvotes, and the assistant's
   `search_project_ideas` tool sorts by build count.
+
+---
+
+## PRJ-7 - `/projects` is the user's own overview, not a sales page
+
+**Status:** done (2026-08-29)
+**Serves:** 7
+
+**Why.** Niraj, 2026-08-29: *"the overview page should be about the user and what
+are the things that the user have done across this all module and not
+marketing."*
+
+`ProjectsHubClient.tsx` (457 lines) is a marketing landing page rendered **inside
+the authenticated app shell**: a centred hero reading *"Build Real Projects,
+Master Real Skills"*, a "Stop watching tutorials" sub-headline, a four-up stat
+band, a `features` array of four sales blurbs, a "Community Showcase" section,
+and a closing *"Join thousands of developers"* call to action.
+
+Every part of that is aimed at somebody deciding whether to sign up. The reader
+is signed up, is paying, and came to see their own work.
+
+**And two of the four stats are not true.** The band reads `0+ Projects Built ·
+0+ Active Builders · 0+ Tasks Completed · 94% Success Rate`. The first three are
+real and zero; the fourth is hardcoded, because with zero completed tasks there
+is nothing to compute a rate from. A screen that shows three honest zeroes next
+to one invented 94% is worse than one that shows nothing.
+
+One of the four `features` blurbs also advertises *"Community Driven - Project
+sharing, Community voting, Inspiration gallery"*. All three were **deleted in
+PRJ-1 through PRJ-4**. The marketing copy outlived the features it describes.
+
+**Files**
+- `app/(main)/projects/_components/ProjectsHubClient.tsx` - rewritten
+- `app/(main)/projects/page.tsx` - server-render the user's own data
+- `app/(main)/projects/loading.tsx` - re-match the skeleton
+- new: an action returning the signed-in user's own project state
+
+**Steps**
+1. Server-fetch the user's own state: projects in progress, next task, recent
+   activity, totals that come from their own rows.
+2. Rebuild the page as: what you are building now -> pick up where you left off
+   -> start something new -> discovery below.
+3. Delete the hero, the `features` array, the closing CTA and the stat band.
+4. Re-match `loading.tsx`.
+
+**Edge cases**
+- **Zero is the normal state.** Every projects table has 0 rows today, so the
+  first-run view IS the view. It must read as an invitation, not as a broken
+  dashboard.
+- **Do not invent a number to fill a card.** If a rate cannot be computed from
+  the user's own rows, the card does not exist.
+- **`getProjectsPageStats` is platform-wide**, not per-user. A hub about the user
+  should not lead with counts of everyone else's work; check what still needs it
+  before deleting the call.
+- **The stat band is duplicated in `loading.tsx`.** A skeleton left matching the
+  old layout is worse than none.
+
+**Done when** `/projects` opens on the signed-in user's own projects, contains no
+sales copy, and every number on it is computed from their rows.
+
+---
+
+## PRJ-8 - The generate sheet has no button to open it
+
+**Status:** done (2026-08-29)
+**Serves:** 5
+
+**Why.** Niraj, 2026-08-29: *"I can see the button to open the sheet"* - meaning
+he cannot.
+
+`project-generate-sheet.tsx:187` is:
+
+    {trigger && <SheetTrigger asChild>{trigger}</SheetTrigger>}
+
+`trigger` is an optional prop. **Three of the four call sites pass nothing**, so
+those three render a `<Sheet>` with no trigger and no external `isOpen` - a
+component that mounts, renders nothing, and cannot be opened:
+
+- `ProjectsHubClient.tsx:184` - the hub's PRIMARY hero action. The screenshot
+  shows only "Browse Ideas" beside it, because the generate button is not a
+  styling problem, it is absent.
+- `ProjectsHubClient.tsx:450` - the closing call to action.
+- `public-projects-grid.tsx:72` - the "Registry Empty" empty state, whose entire
+  job is to offer the one action that fills it.
+
+Only `ProjectIdeasClient.tsx:682` drives it properly, through `isOpen`.
+
+**The design fault under the bug:** a component whose only purpose is to open
+renders nothing when told nothing about how to open it. The optional prop should
+have a default, so forgetting it produces a button rather than silence.
+
+**Files** `components/projects/project-generate-sheet.tsx`, the three call sites.
+
+**Steps**
+1. Default the trigger to a real "Generate a project" button when neither
+   `trigger` nor `isOpen` is supplied.
+2. Widen the sheet - `sm:max-w-[560px]` is narrow for a two-column form.
+
+**Edge cases**
+- **Do not render a default trigger when `isOpen` is controlled.** The ideas page
+  drives it externally and would get a second, stray button.
+- The sheet already opens from the right (`side="right"`), which is what Niraj
+  asked for. Keep it; widen only.
+
+**Done when** every call site shows a button, and clicking it opens the sheet
+from the right.
+
+---
+
+## PRJ-9 - The generate sheet asks too much
+
+**Status:** done (2026-08-29)
+**Serves:** 5
+
+**Why.** Niraj, 2026-08-29: *"from the generation sheet project make sure that we
+are not asking much questions."*
+
+Two steps and, counted from the form state: title, description, generation type
+(7 options), difficulty (3), technologies, learning focus, five separate stack
+pickers (frontend, backend, database, deployment, AI provider), visibility, and
+an assessment toggle.
+
+The user is asking an AI to design a project **for** them. Every stack question
+is one the generator is better placed to answer, and answering nine of them is
+the same work as writing the brief by hand.
+
+**Steps** Reduce to what genuinely changes the output and cannot be inferred -
+what to build, and roughly how hard. Everything else becomes optional, behind a
+disclosure, with a sensible default.
+
+**Edge cases**
+- **`ProjectEchoSchema` is the worker's input contract.** Fields dropped from the
+  UI must still be sent with defaults, or the worker's validation rejects the
+  job - the failure would land after the credit hold.
+- **Cost depends on the answers**: `(visibility === 'PUBLIC' ? 13 : 25) +
+  (includeAssessment ? 30 : 0)`. Hiding a field that changes the price is worse
+  than asking for it. Either keep it visible or fix the default and say the price
+  plainly.
+
+**Done when** the first screen asks for what to build and nothing else, and a
+project can be generated without opening the optional section.
+
+---
+
+## PRJ-10 - `/projects/ideas` renders a void when the catalogue is empty
+
+**Status:** done (2026-08-29)
+**Serves:** 7
+
+**Why.** The screenshot shows the page with a "Categories" heading over an empty
+rail and roughly 900px of nothing beside it.
+
+Nothing is broken. `project_category`, `project_technology` and `project_idea`
+all hold **0 rows**, and the page has no empty state - it renders the frame it
+would use if there were data. A first-time visitor cannot tell that apart from a
+page that failed to load, and the module's own catalogue is the thing that is
+supposed to give them somewhere to start.
+
+**Steps** Give the category rail and the results panel real empty states, and
+offer the action that works with no catalogue at all: generating a project.
+
+**Edge cases**
+- **Distinguish "loading" from "empty".** They currently look identical, which is
+  half of why the screen reads as broken.
+- **The generate sheet is already imported here** and driven correctly. The empty
+  state should open it rather than introduce a second path.
+
+**Done when** the page with an empty database says so and offers one action.
+
+---
+
+## Where the module stands, 2026-08-29
+
+Asked for directly: *"scan the whole of them as well perfectly and then complete
+this and tell me where do we stand."*
+
+### The headline
+
+**Every one of the 24 projects tables holds 0 rows.** `project_v2`,
+`project_idea`, `project_category`, `project_technology`, `user_project_v2_progress`
+- all zero. The module is ~13,000 lines of implementation that has never been
+run by a real user. As with KnowMe, "complete" here means the code paths exist,
+not that they work.
+
+That is also the direct cause of both screenshots Niraj sent: the hub's `0+`
+counts, and the ideas page rendering a category rail over a void.
+
+### Worker migration - the part Niraj asked about is already done
+
+*"make sure that this big project generation process goes to the worker on do +
+alarms"* - **it already does, and has for a while.**
+
+| flow | where it runs |
+|---|---|
+| Project generation | `apps/worker/src/jobs/project-generation.ts` - DO + Alarm |
+| Sprint generation | `apps/worker/src/jobs/sprint-generation.ts` - DO + Alarm |
+| Quiz generation | `apps/worker/src/jobs/project-quiz.ts` - DO + Alarm |
+| Standup voice | `apps/worker/src/jobs/standup-voice.ts` - DO + Alarm |
+
+Project generation is in fact the reference implementation the other jobs copied,
+including the two details that matter: a duplicate-run guard for alarms that
+re-fire after a DO eviction, and catching rather than rethrowing so the platform
+does not auto-retry into a second charge.
+
+**Still inline, and deliberately so:**
+
+| flow | LLM calls | why it has not moved |
+|---|---|---|
+| `projectassessments.action.ts` | 3 | `PRJ-W2` - blocked on whether assessments survive the narrowing at all |
+| `projectv2-mock.action.ts` | 2 | `PRJ-W3` - blocked on the overlap with the standalone `mock` module |
+| `task-details.action.ts` | 1 | `PRJ-W5` - "migrate on measurement, not on principle" |
+
+The first two are **decisions**, not work. Both are listed as open questions in
+`srs/core-modules/projects/00-state-of-play.md` and neither has been answered.
+
+### Fixed today
+
+- **PRJ-7** `/projects` is the user's own work. The hero, the four sales blurbs,
+  the "Community Showcase" and the closing "Join thousands of developers" are
+  gone, along with a hardcoded `94% Success Rate` that was never computed from
+  anything. New `getMyProjectsOverview` reads only the signed-in user's rows.
+- **PRJ-8** The generate sheet had **no button**. `{trigger && <SheetTrigger>}`
+  with no fallback, and three of four call sites passed nothing - including the
+  hub's primary hero action and the "Registry Empty" state whose only job was to
+  offer it. It now defaults to a real button.
+- **PRJ-9** Two steps and nine questions became one screen and three.
+- **PRJ-10** The ideas page now says the catalogue is empty instead of rendering
+  the frame it would use if it were not.
+
+### Still open, in the order I would take them
+
+1. **PRJ-B1 - credits are debited with no refund on failure.** `_refundCredits`
+   is defined in `project.action.ts:57` and called by nothing; the underscore is
+   the only thing keeping the linter quiet. This costs real money and is the
+   highest-value item left in the module. `lib/credits/hold.ts` (SHARED-3) exists
+   now, so the fix is routing debits through it rather than building anything.
+2. **PRJ-B2 - no error boundaries.** There is no `error.tsx` anywhere under
+   `app/(main)/projects`, so a thrown error in any of 12 routes replaces the
+   entire app shell - sidebar and AI rail included.
+3. **PRJ-B3 - the dark-mode tab strip.** `project-details-client.tsx:768`/`:779`
+   apply `dark:bg-white` ungated by `data-[state=active]`, so in dark mode every
+   tab is white and the active one is invisible.
+4. **The two decisions** above, which unblock `PRJ-W2` and `PRJ-W3`.
+5. **PRJ-B4 - 43 `catch (error: any)`**, banned by `CLAUDE.md` and actively
+   producing `undefined` in user-facing messages.
+
+### Not verified, and worth saying
+
+The new hub and the ideas empty state were verified by server-rendered HTML and a
+clean compile, not by eye: the MCP browser tab reports `visibilityState: hidden`,
+which throttles React's streaming badly enough that the page never leaves its
+Suspense fallback. Both need a human look.

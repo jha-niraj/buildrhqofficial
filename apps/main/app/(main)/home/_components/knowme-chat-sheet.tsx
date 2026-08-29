@@ -21,6 +21,7 @@ import {
 } from "@/actions/(main)/knowme";
 import type { KnowMeProfileFull } from "@/types/knowme";
 import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 
 interface ChatMessage {
     id: string;
@@ -173,7 +174,7 @@ export default function KnowmeChatSheet({
                             </div>
                         ) : (
                             <>
-                                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                                <ScrollArea className="min-h-0 flex-1" viewportClassName="p-4 space-y-4" reflow>
                                     {
                                         messages.length === 0 && (
                                             <div className="text-center py-8">
@@ -240,7 +241,7 @@ export default function KnowmeChatSheet({
                                     }
 
                                     <div ref={messagesEndRef} />
-                                </div>
+                                </ScrollArea>
                                 <div className="p-4 border-t shrink-0">
                                     <form
                                         onSubmit={(e) => {

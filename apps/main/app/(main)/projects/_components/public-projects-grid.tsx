@@ -9,7 +9,6 @@ import {
     Terminal, AlertCircle
 } from 'lucide-react'
 import { ProjectV2Basic } from '@/types/project'
-import ProjectGenerateSheet from '@/components/projects/project-generate-sheet'
 
 
 
@@ -60,16 +59,23 @@ export function PublicProjectsGrid() {
     }
 
     if (projects.length === 0) {
+        // Compact, and with NO call to action.
+        //
+        // This grid sits at the bottom of the hub, under an "In progress" section
+        // whose own empty state already offers "Generate a project". A 16rem-tall
+        // dashed panel repeating the same button turned a page with nothing on it
+        // into a page with the same invitation three times, stacked - which is
+        // what made the overview read as dead rather than as new. One line is
+        // enough to say the shelf is bare.
         return (
-            <div className="w-full py-16 border border-dashed border-neutral-300 dark:border-neutral-700 rounded-xl bg-neutral-50/50 dark:bg-neutral-900/50 flex flex-col items-center justify-center text-center">
-                <div className="w-12 h-12 rounded-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center mb-4">
-                    <Terminal className="w-6 h-6 text-neutral-500 dark:text-neutral-400" />
-                </div>
-                <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">Registry Empty</h3>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-sm mx-auto mb-6">
-                    No public projects have been deployed to the registry yet. Be the first to ship.
+            <div className="flex items-center gap-3 rounded-xl border border-dashed border-neutral-300 px-4 py-5 dark:border-neutral-700">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+                    <Terminal className="h-4 w-4" />
+                </span>
+                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                    Nothing published to the public catalogue yet. Projects people mark
+                    public will show up here.
                 </p>
-                <ProjectGenerateSheet />
             </div>
         )
     }

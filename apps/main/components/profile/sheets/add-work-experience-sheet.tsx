@@ -1,5 +1,6 @@
 'use client'
 
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 import { useState, useEffect } from 'react'
 import {
     Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription
@@ -135,7 +136,7 @@ export function AddWorkExperienceSheet({ open, onOpenChange, onSuccess, editExpe
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto flex flex-col p-0">
+            <SheetContent scroll={false} side="right" className="w-full sm:max-w-lg flex flex-col p-0">
                 <SheetHeader className="px-6 pt-6 pb-4 border-b border-neutral-100 dark:border-neutral-800">
                     <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-lg bg-neutral-900/10 flex items-center justify-center">
@@ -150,7 +151,7 @@ export function AddWorkExperienceSheet({ open, onOpenChange, onSuccess, editExpe
                     </div>
                 </SheetHeader>
 
-                <div className="flex-1 px-6 py-5 space-y-4 overflow-y-auto">
+                <ScrollArea className="min-h-0 flex-1" viewportClassName="px-6 py-5 space-y-4" reflow>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5 col-span-2">
                             <Label className="text-xs font-medium">Company Name <span className="text-red-500">*</span></Label>
@@ -219,7 +220,7 @@ export function AddWorkExperienceSheet({ open, onOpenChange, onSuccess, editExpe
                             {...field('bulletPoints')}
                         />
                     </div>
-                </div>
+                </ScrollArea>
 
                 <div className="px-6 pb-6 pt-0 border-t border-neutral-100 dark:border-neutral-800 space-y-2.5 flex-shrink-0">
                     <Button

@@ -73,11 +73,11 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
                     `
                         max-h-64 min-h-[96px] w-full
                         rounded-xl border
-                        border-gray-200 bg-white dark:border-neutral-700 dark:bg-neutral-900
+                        border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-900
                         px-3 py-2 text-sm
-                        text-gray-900 dark:text-gray-100
+                        text-neutral-900 dark:text-neutral-100
                         transition-colors
-                        hover:bg-gray-50 dark:hover:bg-neutral-800
+                        hover:bg-neutral-50 dark:hover:bg-neutral-800
                         has-[textarea:focus]:ring-2 has-[textarea:focus]:ring-ring has-[textarea:focus]:ring-offset-2
                         has-[textarea:disabled]:cursor-not-allowed has-[textarea:disabled]:opacity-50
                     `,
@@ -93,7 +93,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
                     }}
                     className={cn(`
                         block w-full resize-none border-0 bg-transparent p-0
-                        text-inherit placeholder:text-gray-400 dark:placeholder:text-neutral-500
+                        text-inherit placeholder:text-neutral-400 dark:placeholder:text-neutral-500
                         focus:outline-none focus:ring-0
                         disabled:cursor-not-allowed
                     `)}

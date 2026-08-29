@@ -1,5 +1,6 @@
 'use client'
 
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -171,7 +172,7 @@ export function SprintGenerationSheet({
 
     return (
         <Sheet open={isOpen} onOpenChange={handleClose}>
-            <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-2xl">
+            <SheetContent side="right" className="w-full sm:max-w-2xl">
                 <SheetHeader className="text-left pb-6 max-w-5xl mx-auto space-y-6">
                     <SheetTitle className="flex items-center gap-2 text-xl">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neutral-900 to-neutral-800 flex items-center justify-center">
@@ -344,7 +345,7 @@ export function SprintGenerationSheet({
                                             <Code2 className="w-4 h-4" />
                                             {generatedSprint.tasks.length} Tasks
                                         </h4>
-                                        <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                                        <ScrollArea className="min-h-0 flex-1" viewportClassName="space-y-2 max-h-[300px] pr-2" reflow>
                                             {
                                                 generatedSprint.tasks.map((task, idx) => (
                                                     <motion.div
@@ -383,7 +384,7 @@ export function SprintGenerationSheet({
                                                     </motion.div>
                                                 ))
                                             }
-                                        </div>
+                                        </ScrollArea>
                                     </div>
                                     <div className="flex gap-3 pt-4 border-t border-neutral-200 dark:border-neutral-800">
                                         <Button

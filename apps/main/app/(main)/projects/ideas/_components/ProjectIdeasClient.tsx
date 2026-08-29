@@ -1,5 +1,6 @@
 "use client"
 
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { useState, useEffect, useCallback, useRef } from 'react'
@@ -233,7 +234,7 @@ export default function ProjectIdeasPage() {
                     >
                         <div className="flex min-h-[calc(100dvh-4rem)]">
                             {/* LEFT SIDEBAR - Categories */}
-                            <aside className="w-64 lg:w-72 border-r border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 flex-shrink-0 hidden md:block overflow-y-auto sticky top-16 h-[calc(100vh-4rem)]">
+                            <ScrollArea className="w-64 lg:w-72 border-r border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 flex-shrink-0 hidden md:block sticky top-16" viewportClassName="h-[calc(100vh-4rem)]" reflow>
                                 <div className="p-4">
                                     <p className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 mb-3 px-2">
                                         Categories
@@ -244,6 +245,16 @@ export default function ProjectIdeasPage() {
                                                 <Skeleton key={i} className="h-12 rounded-lg" />
                                             ))}
                                         </div>
+                                    ) : dbCategories.length === 0 ? (
+                                        /* The catalogue is empty in this environment -
+                                           `project_category` holds 0 rows - and without
+                                           this the rail rendered a heading over nothing,
+                                           which reads as a page that failed to load
+                                           rather than one with nothing to show. PRJ-10. */
+                                        <p className="px-2 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+                                            No categories yet. You can still generate a project
+                                            from your own description.
+                                        </p>
                                     ) : (
                                         <div className="space-y-0.5">
                                             {dbCategories.map((cat) => (
@@ -287,10 +298,10 @@ export default function ProjectIdeasPage() {
                                         </div>
                                     )}
                                 </div>
-                            </aside>
+                            </ScrollArea>
 
                             {/* MAIN CONTENT - Right side */}
-                            <main className="flex-1 overflow-y-auto">
+                            <ScrollArea className="min-h-0 flex-1" reflow>
                                 {/* Mobile category selector */}
                                 <div className="md:hidden p-4 border-b border-neutral-200 dark:border-neutral-800">
                                     <Select
@@ -310,6 +321,61 @@ export default function ProjectIdeasPage() {
                                         </SelectContent>
                                     </Select>
                                 </div>
+
+                                {/* Nothing selected, and nothing selectable. The main panel
+                                    used to render only `selectedCategory && ...`, so with an
+                                    empty catalogue the whole right-hand side - roughly 900px
+                                    of it - was blank. An empty state has to say which of the
+                                    two it is: still loading, or genuinely empty. PRJ-10. */}
+                                {!selectedCategory && (
+                                    <div className="flex min-h-[60vh] items-center justify-center p-6">
+                                        <div className="max-w-md text-center">
+                                            <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+                                                <Lightbulb className="h-6 w-6" />
+                                            </span>
+                                            {loadingCategories ? (
+                                                <>
+                                                    <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                                        Loading the catalogue
+                                                    </p>
+                                                    <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                                                        One moment.
+                                                    </p>
+                                                </>
+                                            ) : dbCategories.length === 0 ? (
+                                                <>
+                                                    <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                                        The idea catalogue is empty
+                                                    </p>
+                                                    <p className="mx-auto mt-1 max-w-sm text-sm text-neutral-500 dark:text-neutral-400">
+                                                        Nothing has been added to browse yet. You do not need it:
+                                                        describe what you want to build and the AI turns it into a
+                                                        project with sprints and tasks.
+                                                    </p>
+                                                    <div className="mt-5">
+                                                        <ProjectGenerateSheet
+                                                            trigger={
+                                                                <Button className="gap-2">
+                                                                    <Sparkles className="h-4 w-4" />
+                                                                    Generate a project
+                                                                </Button>
+                                                            }
+                                                        />
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                                        Pick a category
+                                                    </p>
+                                                    <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                                                        Choose one on the left to see the projects inside it.
+                                                    </p>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
 
                                 {selectedCategory && (
                                     <div className="p-4 md:p-6">
@@ -496,7 +562,7 @@ export default function ProjectIdeasPage() {
                                         </div>
                                     </div>
                                 )}
-                            </main>
+                            </ScrollArea>
                         </div>
                     </motion.div>
                 ) : (
@@ -593,7 +659,7 @@ export default function ProjectIdeasPage() {
 
             {/* Problem Detail Sheet */}
             <Sheet open={problemDetailOpen} onOpenChange={setProblemDetailOpen}>
-                <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-2xl">
+                <SheetContent side="right" className="w-full sm:max-w-2xl">
                     {selectedProblem && (
                         <section className="w-full max-w-5xl mx-auto">
                             <SheetHeader className="mb-6">
@@ -679,8 +745,12 @@ export default function ProjectIdeasPage() {
             </Sheet>
 
 
+            {/* No `trigger`. This instance is driven by `isOpen` from the cards
+                above, and it used to pass `trigger={<></>}` to suppress the button -
+                an empty fragment handed to Radix's `asChild`, which needs a real
+                element to attach its props to. The sheet now renders no trigger of
+                its own whenever `isOpen` is supplied. See PRJ-8. */}
             <ProjectGenerateSheet
-                trigger={<></>}
                 defaultValues={generateDefaults}
                 isOpen={generateSheetOpen}
                 onOpenChange={setGenerateSheetOpen}

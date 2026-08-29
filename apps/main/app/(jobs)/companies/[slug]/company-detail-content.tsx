@@ -121,7 +121,7 @@ export function CompanyDetailContent({ company, interviewProcesses, jobs }: Comp
 
     return (
         <div className="min-h-full">
-            <div className="sticky top-0 z-20 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl border-b border-neutral-200 dark:border-neutral-800">
+            <div className="sticky top-0 z-20 border-b border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <Button
                         variant="ghost"

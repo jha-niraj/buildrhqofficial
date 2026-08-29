@@ -107,7 +107,7 @@ export default function PathfinderGoalsCard({ goals }: PathfinderGoalsCardProps)
                                 }
                                 {
                                     activeGoals.length > 4 && (
-                                        <Link href="/pathfinder" className="w-full text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-600 py-1.5 transition-colors">
+                                        <Link href="/pathfinder" className="w-full text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-white py-1.5 transition-colors">
                                             +{activeGoals.length - 4} more goals
                                         </Link>
                                     )

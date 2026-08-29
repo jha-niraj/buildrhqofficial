@@ -1,5 +1,6 @@
 "use client";
 
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 import { usePathname, useSearchParams } from "next/navigation";
 import { PracticeSidebar } from "./practice-sidebar";
 import type { PracticeModule } from "@/types/practice";
@@ -28,9 +29,9 @@ export function PracticeLayoutWrapper({ children }: { children: React.ReactNode 
     return (
         <div className="flex h-full">
             <PracticeSidebar activeModule={activeModule} activeCategory={activeCategory} />
-            <main className="flex-1 overflow-auto">
+            <ScrollArea className="min-h-0 flex-1" reflow>
                 {children}
-            </main>
+            </ScrollArea>
         </div>
     );
 }

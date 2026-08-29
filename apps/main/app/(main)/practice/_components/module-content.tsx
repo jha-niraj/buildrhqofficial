@@ -74,14 +74,14 @@ export function ModuleContent({
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400 mb-1">
-                        <Link href="/practice" className="hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-600 transition-colors">
+                        <Link href="/practice" className="hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-white transition-colors">
                             Practice
                         </Link>
                         <ChevronRight className="h-3 w-3" />
                         {
                             activeCategory ? (
                                 <>
-                                    <Link href={basePath} className="hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-600 transition-colors">
+                                    <Link href={basePath} className="hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-white transition-colors">
                                         {moduleLabel}
                                     </Link>
                                     <ChevronRight className="h-3 w-3" />

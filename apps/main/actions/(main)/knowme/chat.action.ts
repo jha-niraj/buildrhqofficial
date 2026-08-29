@@ -28,6 +28,7 @@ import {
 	enhanceResponseWithCTAs, createOwnerTrainingChunks,
 	generateVectorId, upsertVectorsBatch,
 } from "@/utils/knowme";
+import { knowMeProfileUrl } from "@/lib/urls";
 
 // ============================================
 // SESSION MANAGEMENT
@@ -249,7 +250,7 @@ export async function sendChatMessage(
 			responseTimeMs = result.responseTimeMs;
 
 			// Enhance with CTAs
-			const profileUrl = `${process.env.NEXT_PUBLIC_APP_URL}/knowme/${user.username}`;
+			const profileUrl = knowMeProfileUrl(user.username ?? "");
 			answer = enhanceResponseWithCTAs(answer, chatSession.viewerType, profileUrl);
 		} else {
 			// No context found
@@ -259,8 +260,13 @@ export async function sendChatMessage(
 			);
 		}
 
-		// Save AI response
-		await db.insert(knowMeChatMessages).values({
+		// Save AI response.
+		//
+		// The id comes back to the caller. Feedback is written by message id, and
+		// the public chat used to invent one client-side (`Date.now().toString()`),
+		// so every thumbs-up matched zero rows and reported success anyway - the
+		// UPDATE simply had nothing to update. See KM-8.
+		const [savedMessage] = await db.insert(knowMeChatMessages).values({
 			sessionId,
 			role: "assistant",
 			content: answer,
@@ -271,7 +277,7 @@ export async function sendChatMessage(
 				id: c.id,
 				score: c.score,
 			})) as any,
-		});
+		}).returning({ id: knowMeChatMessages.id });
 
 		// Update session stats
 		await db.update(knowMeChatSessions)
@@ -310,6 +316,7 @@ export async function sendChatMessage(
 			success: true,
 			answer,
 			sources,
+			messageId: savedMessage?.id,
 			sessionId: chatSession.sessionToken,
 			rateLimit: {
 				remaining: chatSession.rateLimitRemaining - 1,
@@ -361,9 +368,17 @@ export async function submitMessageFeedback(
 	feedback?: string
 ): Promise<KnowMeActionResponse<void>> {
 	try {
-		await db.update(knowMeChatMessages)
+		// `.returning()` so a miss is a miss. A bare UPDATE that matches no row is
+		// a successful statement in Postgres, which is how feedback against an
+		// invented client-side id reported success while recording nothing.
+		const updated = await db.update(knowMeChatMessages)
 			.set({ wasHelpful, feedback })
-			.where(eq(knowMeChatMessages.id, messageId));
+			.where(eq(knowMeChatMessages.id, messageId))
+			.returning({ id: knowMeChatMessages.id });
+
+		if (updated.length === 0) {
+			return { success: false, error: "That message no longer exists" };
+		}
 
 		return { success: true, message: "Feedback submitted" };
 	} catch (error) {

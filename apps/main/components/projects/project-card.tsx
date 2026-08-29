@@ -221,7 +221,7 @@ export function ProjectCard({ project, showProgress = false }: ProjectCardProps)
                                 </Link>
                             </>
                         ) : (
-                            <Link href={`/projects/${project.slug}`} className="flex items-center gap-1 text-xs font-medium text-neutral-900 dark:text-white hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-600 transition-colors">
+                            <Link href={`/projects/${project.slug}`} className="flex items-center gap-1 text-xs font-medium text-neutral-900 dark:text-white hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-white transition-colors">
                                 View Project
                                 <ArrowRight className="w-3.5 h-3.5" />
                             </Link>

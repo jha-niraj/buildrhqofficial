@@ -35,6 +35,12 @@ import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
     ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line
 } from 'recharts'
+// Aliased: this file already declares a local `ActivityChart`, which charts GOALS.
+// The imported one charts days the user actually practised.
+import {
+    ActivityChart as DailyActivityChart,
+    type ActivityPoint,
+} from '@/components/common/activity-chart'
 import { AnimatedIcon } from "@repo/ui/components/animated-icons"
 import { GroupIcon } from './group-icon'
 
@@ -44,6 +50,7 @@ type Group = PathfinderGroup
 interface PathfinderDashboardProps {
     initialGoals: PathfinderGoal[]
     initialGroups: PathfinderGroup[]
+    activity: { series: ActivityPoint[]; unit: string; total: number }
 }
 
 const categoryConfig = PATHFINDER_CATEGORIES
@@ -503,7 +510,15 @@ function RecentActivity({ goals }: { goals: Goal[] }) {
     )
 }
 
-function OverviewContent({ goals, groups: _groups }: { goals: Goal[]; groups: Group[] }) {
+function OverviewContent({
+    goals,
+    groups: _groups,
+    activity,
+}: {
+    goals: Goal[]
+    groups: Group[]
+    activity: { series: ActivityPoint[]; unit: string; total: number }
+}) {
     if (goals.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center h-full text-center py-20">
@@ -523,6 +538,25 @@ function OverviewContent({ goals, groups: _groups }: { goals: Goal[]; groups: Gr
     return (
         <div className="space-y-6">
             <StatsSection goals={goals} />
+
+            {/* Days practised. Distinct from every other chart on this page, which
+                are all derived from GOAL rows - this one comes from
+                `pathfinder_daily_session`, the record of turning up. */}
+            <div className="rounded-xl border border-neutral-200 p-4 dark:border-neutral-800">
+                <div className="mb-1 flex items-baseline justify-between gap-3">
+                    <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                        Days practised
+                    </h3>
+                    <span className="text-sm text-neutral-500 dark:text-neutral-400">
+                        <span className="font-medium text-neutral-900 tabular-nums dark:text-white">
+                            {activity.total}
+                        </span>
+                        {" in 30 days"}
+                    </span>
+                </div>
+                <DailyActivityChart data={activity.series} unit={activity.unit} />
+            </div>
+
             <GoalTrendChart goals={goals} />
             <ActivityChart goals={goals} />
             <CategoryChart goals={goals} />
@@ -573,7 +607,7 @@ function QuickActions({ onCreateGoal, onCreateGroup, onInterviewPrep }: { onCrea
     )
 }
 
-export function PathfinderDashboard({ initialGoals, initialGroups }: PathfinderDashboardProps) {
+export function PathfinderDashboard({ initialGoals, initialGroups, activity }: PathfinderDashboardProps) {
     const {
         goals, groups, initialize,
         setCreateSheetOpen, setCreateGroupSheetOpen, setAssignSheetOpen,
@@ -730,7 +764,7 @@ export function PathfinderDashboard({ initialGoals, initialGroups }: PathfinderD
                         <ScrollArea className="min-h-0 flex-1">
                             <div className="p-6">
                                 <h2 className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-4">Overview</h2>
-                                <OverviewContent goals={displayGoals} groups={displayGroups} />
+                                <OverviewContent goals={displayGoals} groups={displayGroups} activity={activity} />
                             </div>
                         </ScrollArea>
                     </div>

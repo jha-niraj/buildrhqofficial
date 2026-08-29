@@ -43,6 +43,14 @@ export interface KnowMeProfileBasic {
 	totalVisitors: number;
 	apiEnabled: boolean;
 	apiRateLimit: number;
+	/**
+	 * Which step setup reached, 1-4, or 0 before it starts.
+	 *
+	 * `updateOnboardingStep` has always written this and nothing has ever read
+	 * it, so a user who closed the wizard at step 3 restarted at step 1. It is
+	 * exposed here so both entry points can resume. See CLN-49.
+	 */
+	onboardingStep: number;
 	onboardingCompleted: boolean;
 	createdAt: Date;
 	updatedAt: Date;
@@ -62,6 +70,31 @@ export interface KnowMeProfileFull extends KnowMeProfileBasic {
 	privacySettings: KnowMePrivacySettingsData | null;
 	suggestedQuestions: string[];
 	welcomeMessage: string | null;
+	/**
+	 * The most recent embedding job, or null if none has ever run.
+	 *
+	 * The dashboard needs this to be honest about `status`. A profile sitting at
+	 * ERROR knows nothing about WHY on its own row - the reason is recorded two
+	 * tables away in `know_me_embedding_job.result`, and without it the owner is
+	 * told their assistant is broken and given nowhere to look. See KM-9.
+	 */
+	lastJob: KnowMeLastJob | null;
+	/**
+	 * How many chunks are actually indexed. This, not `status`, is the honest
+	 * answer to "does my assistant know anything yet" - a profile can sit at
+	 * ACTIVE with zero chunks and answer every question with "I do not know".
+	 */
+	indexedChunks: number;
+}
+
+export interface KnowMeLastJob {
+	id: string;
+	jobType: KnowMeJobType;
+	status: KnowMeJobStatus;
+	/** The operator-facing failure text, straight from the job row. May be long. */
+	error: string | null;
+	createdAt: Date;
+	completedAt: Date | null;
 }
 
 export interface KnowMeProfilePublic {
@@ -286,6 +319,12 @@ export interface ChatResponse {
 	success: boolean;
 	answer?: string;
 	sources?: ChatMessageSource[];
+	/**
+	 * The row id of the assistant message that was just saved. Feedback is
+	 * written against this - a client-invented id updates nothing and reports
+	 * success. See KM-8.
+	 */
+	messageId?: string;
 	sessionId?: string;
 	rateLimit?: {
 		remaining: number;

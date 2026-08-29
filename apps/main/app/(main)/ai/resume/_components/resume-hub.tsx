@@ -209,7 +209,7 @@ function NewResumeSheet({ templates, open, onClose }: {
 
     return (
         <Sheet open={open} onOpenChange={onClose}>
-            <SheetContent side="right" className="w-full sm:max-w-lg flex flex-col p-0 overflow-y-auto">
+            <SheetContent scroll={false} side="right" className="w-full sm:max-w-lg flex flex-col p-0">
                 <SheetHeader className="p-6 pb-4 border-b border-neutral-100 dark:border-neutral-800">
                     <SheetTitle className="text-xl">Create New Resume</SheetTitle>
                     <SheetDescription>Name your resume and choose how to populate it.</SheetDescription>

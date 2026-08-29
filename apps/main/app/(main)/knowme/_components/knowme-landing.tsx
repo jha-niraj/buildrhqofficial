@@ -3,25 +3,21 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-    Bot, Sparkles, MessageSquare, Github, Code2, Briefcase, ChevronRight,
-    Shield, Zap, Globe, BarChart3, Users, ArrowRight, Play, Database, User,
-    Check, ToggleRight, ToggleLeft, Lock, Award
+    Bot, Sparkles, MessageSquare, Github, Code2, ChevronRight, Briefcase,
+    Shield, Zap, Globe, BarChart3, Users, ArrowRight, Play,
 } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { Badge } from "@repo/ui/components/ui/badge";
-import { Progress } from "@repo/ui/components/ui/progress";
 import {
     Sheet, SheetContent, SheetHeader, SheetTitle
 } from "@repo/ui/components/ui/sheet";
-import {
-    initializeKnowMeProfile, updateKnowMeProfile, updateOnboardingStep,
-    activateKnowMeProfile, generateProfileEmbeddings
-} from "@/actions/(main)/knowme";
+import { initializeKnowMeProfile } from "@/actions/(main)/knowme";
 import toast from "@repo/ui/components/ui/sonner";
 import { cn } from "@repo/ui/lib/utils";
 import { useRouter } from "next/navigation";
 import type { KnowMeProfileFull } from "@/types/knowme";
-import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { InlineLoader } from "@repo/ui/components/ui/inline-loader";
+import { KnowMeOnboarding } from "@/components/knowme/knowme-onboarding";
 
 interface KnowMeLandingPageProps {
     isLoggedIn: boolean;
@@ -37,7 +33,9 @@ const features = [
     {
         icon: Github,
         title: "Connect Platforms",
-        description: "Sync data from GitHub, LeetCode, and more to enrich your AI.",
+        // GitHub only. LeetCode was named here too, and has no sync handler - see
+        // KM-5. A marketing card is still a promise.
+        description: "Sync your GitHub repositories and contributions to enrich your AI.",
     },
     {
         icon: Code2,
@@ -72,54 +70,22 @@ const howItWorks = [
     },
 ];
 
-const privacyOptions = [
-    {
-        value: "PUBLIC",
-        label: "Anyone with the link",
-        description: "Best for job seekers and networking",
-        icon: Globe,
-        recommended: true,
-    },
-    {
-        value: "REGISTERED",
-        label: "Only logged-in users",
-        description: "Best for community engagement",
-        icon: Users,
-    },
-    {
-        value: "RECRUITERS",
-        label: "Only verified recruiters",
-        description: "Best for active job search",
-        icon: Briefcase,
-    },
-    {
-        value: "PRIVATE",
-        label: "Private (just for me)",
-        description: "Best for testing before sharing",
-        icon: Lock,
-    },
-] as const;
-
-const TOTAL_STEPS = 4;
+// `RECRUITERS` is gone from this list, not merely unselected. This product has no
+// recruiter identity - no role, no verification, no way to become one (KM-4) - so
+// the option could only ever mean "everyone", which is what it silently meant, or
+// "nobody". Neither is what "Verified recruiters only" promised. Same reasoning
+// that removed the platforms with no sync handler in KM-5. See KM-12.
 
 export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLandingPageProps) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
-    // Auto-open sheet if profile exists with incomplete onboarding
+    // Opens by itself when a profile exists but setup was never finished, so
+    // somebody who abandoned halfway is put back where they were rather than
+    // shown the marketing page again. The wizard resumes from
+    // `profile.onboardingStep`.
     const [onboardingOpen, setOnboardingOpen] = useState(
-        profile && !profile.onboardingCompleted && profile.status === "SETUP"
+        !!profile && !profile.onboardingCompleted && profile.status === "SETUP"
     );
-    const [currentStep, setCurrentStep] = useState(1);
-    const [isProcessing, setIsProcessing] = useState(false);
-
-    // Form state
-    const [includePersonalData, setIncludePersonalData] = useState(profile?.includePersonalData ?? true);
-    const [includeProjects, setIncludeProjects] = useState(profile?.includeProjects ?? true);
-    const [includeAssessments, setIncludeAssessments] = useState(profile?.includeAssessments ?? true);
-    const [includePlatformData, setIncludePlatformData] = useState(profile?.includePlatformData ?? false);
-    const [selectedPrivacy, setSelectedPrivacy] = useState<string>(profile?.privacy ?? "PUBLIC");
-
-    const progress = (currentStep / TOTAL_STEPS) * 100;
 
     const handleGetStarted = async () => {
         if (!isLoggedIn) {
@@ -148,75 +114,6 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
         }
     };
 
-    const handleNext = async () => {
-        if (currentStep >= TOTAL_STEPS) return;
-
-        setIsLoading(true);
-        try {
-            // Save current step data
-            if (currentStep === 2) {
-                await updateKnowMeProfile({
-                    includePersonalData,
-                    includeProjects,
-                    includeAssessments,
-                    includePlatformData,
-                });
-            }
-
-            if (currentStep === 3) {
-                await updateKnowMeProfile({
-                    includePlatformData,
-                });
-            }
-
-            if (currentStep === TOTAL_STEPS - 1) {
-                await updateKnowMeProfile({
-                    privacy: selectedPrivacy as "PUBLIC" | "REGISTERED" | "RECRUITERS" | "PRIVATE",
-                    isPublic: selectedPrivacy !== "PRIVATE",
-                });
-            }
-
-            await updateOnboardingStep(currentStep + 1);
-            setCurrentStep(prev => prev + 1);
-        } catch {
-            toast.error("Failed to save progress");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleBack = () => {
-        if (currentStep <= 1) return;
-        setCurrentStep(prev => prev - 1);
-    };
-
-    const handleCreateAI = async () => {
-        setIsProcessing(true);
-        try {
-            // Update final settings
-            await updateKnowMeProfile({
-                privacy: selectedPrivacy as "PUBLIC" | "REGISTERED" | "RECRUITERS" | "PRIVATE",
-                isPublic: selectedPrivacy !== "PRIVATE",
-            });
-
-            // Generate embeddings
-            const result = await generateProfileEmbeddings();
-
-            if (result.success) {
-                // Activate profile
-                await activateKnowMeProfile();
-                toast.success("Your AI assistant is ready!");
-                setOnboardingOpen(false);
-                router.push("/knowme");
-            } else {
-                throw new Error(result.error);
-            }
-        } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Failed to create AI");
-        } finally {
-            setIsProcessing(false);
-        }
-    };
 
     return (
         <>
@@ -330,17 +227,24 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
                                 transition={{ duration: 0.5, delay: 0.4 }}
                                 className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-neutral-500 dark:text-neutral-400"
                             >
-                                <div className="flex items-center gap-2">
-                                    <Users className="w-4 h-4" />
-                                    <span>500+ developers using</span>
-                                </div>
+                                {/* These were "500+ developers using", "10K+ questions
+                                    answered" and "100+ recruiters engaged". Every KnowMe
+                                    table has 0 rows, and the product has no recruiter
+                                    identity at all (KM-4) - so all three were invented,
+                                    on the screen that asks somebody to trust the module
+                                    with their professional history. Replaced with what
+                                    it actually does, which needs no number. */}
                                 <div className="flex items-center gap-2">
                                     <MessageSquare className="w-4 h-4" />
-                                    <span>10K+ questions answered</span>
+                                    <span>Answers around the clock</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Briefcase className="w-4 h-4" />
-                                    <span>100+ recruiters engaged</span>
+                                    <Github className="w-4 h-4" />
+                                    <span>Trained on your real work</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Shield className="w-4 h-4" />
+                                    <span>You choose who can ask</span>
                                 </div>
                             </motion.div>
                         </div>
@@ -562,126 +466,40 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
                 </section>
             </div>
 
-            <Sheet open={onboardingOpen!} onOpenChange={setOnboardingOpen}>
-                <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-2xl">
-                    <div className="max-w-2xl mx-auto py-6">
-                        <SheetHeader className="text-center mb-6">
-                            <div className="flex items-center justify-center gap-3 mb-2">
-                                <div className="w-10 h-10 rounded-xl bg-neutral-900 dark:bg-white flex items-center justify-center">
-                                    <Bot className="w-5 h-5 text-white dark:text-neutral-900" />
-                                </div>
-                                <SheetTitle className="text-xl font-bold">KnowMe Setup</SheetTitle>
+
+            {/* This Sheet is the ONLY way a user reaches setup - /knowme/onboarding
+                is a bare redirect back here (CLN-50). The flow itself is
+                `KnowMeOnboarding`, because this file used to hold a second copy of
+                all four steps and the two had drifted: KM-5 cut the platform list
+                back to GitHub in the OTHER copy, the unreachable one, and left this
+                one advertising three platforms that silently sync nothing. The fix
+                shipped and every user still met the bug. See CLN-49. */}
+            <Sheet open={onboardingOpen} onOpenChange={setOnboardingOpen}>
+                <SheetContent side="right" className="w-full sm:max-w-2xl">
+                    <div className="mx-auto max-w-2xl py-6">
+                        <SheetHeader className="mb-6 text-center">
+                            <div className="mb-2 flex items-center justify-center gap-3">
+                                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-900 text-white dark:bg-white dark:text-neutral-900">
+                                    <Bot className="h-5 w-5" />
+                                </span>
+                                <SheetTitle className="text-xl font-bold">KnowMe setup</SheetTitle>
                             </div>
-                            <p className="text-neutral-600 dark:text-neutral-400 text-sm">
-                                Create your AI-powered portfolio assistant
+                            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                                An assistant that answers about you, to everyone else
                             </p>
                         </SheetHeader>
-                        <div className="space-y-2 mb-6">
-                            <div className="flex items-center justify-between text-sm">
-                                <span className="text-neutral-600 dark:text-neutral-400">
-                                    Step {currentStep} of {TOTAL_STEPS}
-                                </span>
-                                <span className="text-neutral-600 dark:text-neutral-400">
-                                    {Math.round(progress)}% complete
-                                </span>
-                            </div>
-                            <Progress value={progress} className="h-2" />
-                        </div>
-                        <div className="bg-neutral-50 dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6 mb-6 overflow-y-auto max-h-[calc(85dvh-280px)]">
-                            {
-                                currentStep === 1 && (
-                                    <WelcomeStep onNext={handleNext} isLoading={isLoading} />
-                                )
-                            }
-                            {
-                                currentStep === 2 && (
-                                    <DataSourcesStep
-                                        includePersonalData={includePersonalData}
-                                        setIncludePersonalData={setIncludePersonalData}
-                                        includeProjects={includeProjects}
-                                        setIncludeProjects={setIncludeProjects}
-                                        includeAssessments={includeAssessments}
-                                        setIncludeAssessments={setIncludeAssessments}
-                                    />
-                                )
-                            }
-                            {
-                                currentStep === 3 && (
-                                    <PlatformsStep
-                                        includePlatformData={includePlatformData}
-                                        setIncludePlatformData={setIncludePlatformData}
-                                    />
-                                )
-                            }
-                            {
-                                currentStep === 4 && (
-                                    <PrivacyStep
-                                        selectedPrivacy={selectedPrivacy}
-                                        setSelectedPrivacy={setSelectedPrivacy}
-                                    />
-                                )
-                            }
-                        </div>
 
-                        {
-                            currentStep > 1 && (
-                                <div className="flex items-center justify-between">
-                                    <Button
-                                        variant="ghost"
-                                        onClick={handleBack}
-                                        disabled={isLoading || isProcessing}
-                                        className="gap-2"
-                                    >
-                                        <ChevronRight className="w-4 h-4 rotate-180" />
-                                        Back
-                                    </Button>
-
-                                    {
-                                        currentStep < TOTAL_STEPS ? (
-                                            <Button
-                                                onClick={handleNext}
-                                                disabled={isLoading}
-                                                className="gap-2 bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 dark:text-neutral-900"
-                                            >
-                                                {
-                                                    isLoading ? (
-                                                        <InlineLoader size="sm" />
-                                                    ) : (
-                                                        <>
-                                                            Continue
-                                                            <ChevronRight className="w-4 h-4" />
-                                                        </>
-                                                    )
-                                                }
-                                            </Button>
-                                        ) : (
-                                            <Button
-                                                onClick={handleCreateAI}
-                                                disabled={isProcessing}
-                                                className="gap-2 bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 dark:text-neutral-900"
-                                            >
-                                                {
-                                                    isProcessing ? (
-                                                        <>
-                                                            <InlineLoader size="sm" />
-                                                            Creating AI...
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <Sparkles className="w-4 h-4" />
-                                                            Create My AI
-                                                        </>
-                                                    )
-                                                }
-                                            </Button>
-                                        )
-                                    }
-                                </div>
-                            )
-                        }
+                        <KnowMeOnboarding
+                            profile={profile}
+                            onComplete={() => {
+                                setOnboardingOpen(false);
+                                router.push("/knowme");
+                            }}
+                        />
                     </div>
                 </SheetContent>
             </Sheet>
+
 
             {/* eslint-disable-next-line react/no-unknown-property */}
             <style jsx>{`
@@ -697,360 +515,5 @@ export default function KnowMeLandingPage({ isLoggedIn, profile }: KnowMeLanding
                 }
             `}</style>
         </>
-    );
-}
-
-// Step 1: Welcome
-function WelcomeStep({ onNext, isLoading }: { onNext: () => void; isLoading: boolean }) {
-    return (
-        <div className="text-center space-y-6">
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-neutral-900 dark:bg-white flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-white dark:text-neutral-900" />
-            </div>
-            <div>
-                <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">
-                    Welcome to KnowMe! 👋
-                </h2>
-                <p className="text-neutral-600 dark:text-neutral-400 text-sm">
-                    We&apos;ll help you create an AI assistant that knows everything about your work.
-                </p>
-            </div>
-            <div className="text-left bg-white dark:bg-neutral-800 rounded-xl p-4 space-y-3">
-                <p className="font-medium text-neutral-900 dark:text-white text-sm">
-                    This takes about 2 minutes:
-                </p>
-                <div className="space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
-                    <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center text-neutral-600 dark:text-neutral-400 text-xs font-bold">
-                            1
-                        </div>
-                        <span>Choose your data sources (30 sec)</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center text-neutral-600 dark:text-neutral-400 text-xs font-bold">
-                            2
-                        </div>
-                        <span>Connect platforms (optional, 60 sec)</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center text-neutral-600 dark:text-neutral-400 text-xs font-bold">
-                            3
-                        </div>
-                        <span>Set privacy preferences (30 sec)</span>
-                    </div>
-                </div>
-            </div>
-            <Button
-                onClick={onNext}
-                disabled={isLoading}
-                className="w-full gap-2 bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 dark:text-neutral-900 py-5"
-                size="lg"
-            >
-                {
-                    isLoading ? (
-                        <InlineLoader size="md" />
-                    ) : (
-                        <>
-                            Let&apos;s Begin
-                            <ChevronRight className="w-5 h-5" />
-                        </>
-                    )
-                }
-            </Button>
-        </div>
-    );
-}
-
-// Step 2: Data Sources
-function DataSourcesStep({
-    includePersonalData,
-    setIncludePersonalData,
-    includeProjects,
-    setIncludeProjects,
-    includeAssessments,
-    setIncludeAssessments,
-}: {
-    includePersonalData: boolean;
-    setIncludePersonalData: (v: boolean) => void;
-    includeProjects: boolean;
-    setIncludeProjects: (v: boolean) => void;
-    includeAssessments: boolean;
-    setIncludeAssessments: (v: boolean) => void;
-}) {
-    return (
-        <div className="space-y-4">
-            <div className="text-center">
-                <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-neutral-900 dark:bg-white flex items-center justify-center">
-                    <Database className="w-6 h-6 text-white dark:text-neutral-900" />
-                </div>
-                <h2 className="text-lg font-bold text-neutral-900 dark:text-white mb-1">
-                    What should your AI know?
-                </h2>
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                    Select the data sources to include
-                </p>
-            </div>
-            <div className="space-y-2">
-                <DataSourceOption
-                    icon={<User className="w-4 h-4" />}
-                    title="ShipItHQ Profile Data"
-                    description="Bio, skills, and basic information"
-                    enabled={includePersonalData}
-                    onToggle={() => setIncludePersonalData(!includePersonalData)}
-                />
-                <DataSourceOption
-                    icon={<Code2 className="w-4 h-4" />}
-                    title="Projects"
-                    description="All your ShipItHQ projects and details"
-                    enabled={includeProjects}
-                    onToggle={() => setIncludeProjects(!includeProjects)}
-                />
-                <DataSourceOption
-                    icon={<Award className="w-4 h-4" />}
-                    title="Assessments"
-                    description="Test scores and certifications"
-                    enabled={includeAssessments}
-                    onToggle={() => setIncludeAssessments(!includeAssessments)}
-                />
-            </div>
-            <div className="bg-neutral-100 dark:bg-neutral-800 rounded-xl p-3">
-                <p className="text-xs text-neutral-600 dark:text-neutral-400 flex items-start gap-2">
-                    <Sparkles className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                    <span>
-                        <strong>Tip:</strong> More data = better answers. You can always change this later.
-                    </span>
-                </p>
-            </div>
-        </div>
-    );
-}
-
-// Step 3: Platform Connections
-function PlatformsStep({
-    includePlatformData,
-    setIncludePlatformData,
-}: {
-    includePlatformData: boolean;
-    setIncludePlatformData: (v: boolean) => void;
-}) {
-    return (
-        <div className="space-y-4">
-            <div className="text-center">
-                <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-neutral-900 dark:bg-white flex items-center justify-center">
-                    <Github className="w-6 h-6 text-white dark:text-neutral-900" />
-                </div>
-                <h2 className="text-lg font-bold text-neutral-900 dark:text-white mb-1">
-                    Connect External Platforms
-                </h2>
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                    Supercharge your AI with data from other platforms
-                </p>
-            </div>
-            <div
-                className={cn(
-                    "flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all",
-                    includePlatformData
-                        ? "bg-neutral-100 dark:bg-neutral-800 border-neutral-900 dark:border-white"
-                        : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600"
-                )}
-                onClick={() => setIncludePlatformData(!includePlatformData)}
-            >
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-neutral-900 dark:bg-white flex items-center justify-center">
-                        <Github className="w-5 h-5 text-white dark:text-neutral-900" />
-                    </div>
-                    <div>
-                        <h4 className="font-medium text-neutral-900 dark:text-white flex items-center gap-2 text-sm">
-                            Enable Platform Data
-                            <Badge variant="secondary" className="text-xs">Recommended</Badge>
-                        </h4>
-                        <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                            GitHub repositories, contributions, and more
-                        </p>
-                    </div>
-                </div>
-                {
-                    includePlatformData ? (
-                        <ToggleRight className="w-7 h-7 text-neutral-900 dark:text-white" />
-                    ) : (
-                        <ToggleLeft className="w-7 h-7 text-neutral-600 dark:text-neutral-400" />
-                    )
-                }
-            </div>
-
-            {
-                includePlatformData && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        className="bg-white dark:bg-neutral-800 rounded-xl p-3 space-y-2"
-                    >
-                        <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                            Platforms will be synced after setup:
-                        </p>
-                        <div className="grid grid-cols-2 gap-2">
-                            {
-                                ["GitHub", "LeetCode", "StackOverflow", "LinkedIn"].map((platform) => (
-                                    <div
-                                        key={platform}
-                                        className="flex items-center gap-2 p-2 bg-neutral-50 dark:bg-neutral-700 rounded-lg text-xs"
-                                    >
-                                        <div className="w-5 h-5 rounded bg-neutral-200 dark:bg-neutral-600 flex items-center justify-center">
-                                            <Code2 className="w-3 h-3" />
-                                        </div>
-                                        {platform}
-                                    </div>
-                                ))
-                            }
-                        </div>
-                    </motion.div>
-                )
-            }
-
-            <Button
-                variant="ghost"
-                className="w-full text-neutral-500 dark:text-neutral-400 text-sm"
-                onClick={() => setIncludePlatformData(false)}
-            >
-                Skip for now
-            </Button>
-        </div>
-    );
-}
-
-// Step 4: Privacy Settings
-function PrivacyStep({
-    selectedPrivacy,
-    setSelectedPrivacy,
-}: {
-    selectedPrivacy: string;
-    setSelectedPrivacy: (v: string) => void;
-}) {
-    return (
-        <div className="space-y-4">
-            <div className="text-center">
-                <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-neutral-900 dark:bg-white flex items-center justify-center">
-                    <Shield className="w-6 h-6 text-white dark:text-neutral-900" />
-                </div>
-                <h2 className="text-lg font-bold text-neutral-900 dark:text-white mb-1">
-                    Who can chat with your AI?
-                </h2>
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                    Choose who can access your AI profile
-                </p>
-            </div>
-            <div className="space-y-2">
-                {
-                    privacyOptions.map((option) => {
-                        const Icon = option.icon;
-                        const isSelected = selectedPrivacy === option.value;
-
-                        return (
-                            <div
-                                key={option.value}
-                                onClick={() => setSelectedPrivacy(option.value)}
-                                className={cn(
-                                    "flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all",
-                                    isSelected
-                                        ? "bg-neutral-100 dark:bg-neutral-800 border-neutral-900 dark:border-white"
-                                        : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600"
-                                )}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className={cn(
-                                        "w-8 h-8 rounded-lg flex items-center justify-center",
-                                        isSelected ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900" : "bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400"
-                                    )}>
-                                        <Icon className="w-4 h-4" />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-medium text-neutral-900 dark:text-white flex items-center gap-2 text-sm">
-                                            {option.label}
-                                            {
-                                                'recommended' in option && option.recommended === true && (
-                                                    <Badge className="text-xs bg-neutral-100 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300">
-                                                        Recommended
-                                                    </Badge>
-                                                )
-                                            }
-                                        </h4>
-                                        <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                                            {option.description}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className={cn(
-                                    "w-5 h-5 rounded-full border-2 flex items-center justify-center",
-                                    isSelected
-                                        ? "border-neutral-900 bg-neutral-900 dark:border-white dark:bg-white"
-                                        : "border-neutral-300 dark:border-neutral-600"
-                                )}>
-                                    {isSelected && <Check className="w-3 h-3 text-white dark:text-neutral-900" />}
-                                </div>
-                            </div>
-                        );
-                    })
-                }
-            </div>
-            <p className="text-center text-xs text-neutral-500 dark:text-neutral-400">
-                You can change this anytime in settings
-            </p>
-        </div>
-    );
-}
-
-// Data Source Option Component
-function DataSourceOption({
-    icon,
-    title,
-    description,
-    enabled,
-    onToggle,
-}: {
-    icon: React.ReactNode;
-    title: string;
-    description: string;
-    enabled: boolean;
-    onToggle: () => void;
-}) {
-    return (
-        <div
-            className={cn(
-                "flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all",
-                enabled
-                    ? "bg-neutral-100 dark:bg-neutral-800 border-neutral-900 dark:border-white"
-                    : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600"
-            )}
-            onClick={onToggle}
-        >
-            <div className="flex items-center gap-3">
-                <div className={cn(
-                    "w-8 h-8 rounded-lg flex items-center justify-center",
-                    enabled ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900" : "bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400"
-                )}>
-                    {icon}
-                </div>
-                <div>
-                    <h4 className="font-medium text-neutral-900 dark:text-white flex items-center gap-2 text-sm">
-                        {title}
-                        {
-                            enabled && (
-                                <Check className="w-3 h-3 text-neutral-600 dark:text-neutral-400" />
-                            )
-                        }
-                    </h4>
-                    <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                        {description}
-                    </p>
-                </div>
-            </div>
-            {
-                enabled ? (
-                    <ToggleRight className="w-7 h-7 text-neutral-900 dark:text-white" />
-                ) : (
-                    <ToggleLeft className="w-7 h-7 text-neutral-600 dark:text-neutral-400" />
-                )
-            }
-        </div>
     );
 }

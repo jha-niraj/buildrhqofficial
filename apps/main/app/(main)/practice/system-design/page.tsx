@@ -36,8 +36,11 @@ export default async function SystemDesignPracticePage({ searchParams }: PagePro
         getLeaderboard("SYSTEM_DESIGN", 10),
     ]);
 
+    // No scroller here. This div is a block child of the wrapper's <main>, which is
+    // the real scroller - `flex-1` does nothing outside a flex parent and
+    // `overflow-auto` never fires without a height cap. See JB-1.
     return (
-        <div className="flex-1 overflow-auto">
+        <div>
             <Suspense fallback={<ContentSkeleton />}>
                 <ModuleContent
                     module="SYSTEM_DESIGN"

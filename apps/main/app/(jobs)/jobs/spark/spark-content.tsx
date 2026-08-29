@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
     Sparkles, LayoutList, PartyPopper,
@@ -8,9 +9,6 @@ import {
 } from "lucide-react"
 import { Button } from "@repo/ui/components/ui/button"
 import Link from "next/link"
-import {
-    Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
-} from "@repo/ui/components/ui/dialog"
 import { SwipeStack } from "../components/swipe-card"
 import { SkillGapModal } from "../components/skill-gap-modal"
 import { recordSwipeAction, getSparkJobs } from "@/actions/jobs/tabs"
@@ -42,9 +40,9 @@ export function SparkContent({ initialJobs, pagination, isAuthenticated }: Spark
     )
 
     // Modal states
+    const router = useRouter()
     const [selectedJob, setSelectedJob] = useState<FeedJobResult | null>(null)
     const [showSkillGapModal, setShowSkillGapModal] = useState(false)
-    const [showInterestedModal, setShowInterestedModal] = useState(false)
 
     const handleSwipeLeft = useCallback(async (job: FeedJobResult) => {
         // Remove from current jobs
@@ -65,11 +63,19 @@ export function SparkContent({ initialJobs, pagination, isAuthenticated }: Spark
         setLastSwipedJob(job)
         setSelectedJob(job)
 
-        // Show interested modal
+        // NO modal.
+        //
+        // A "Great Choice!" dialog fired on every right swipe, which stops the one
+        // gesture this screen exists for: swipe, dialog, dismiss, swipe, dialog.
+        // The deck is meant to be flicked through. A toast says the same thing
+        // without taking the pointer away, and the Undo button beside the stack is
+        // the real recovery path. Niraj, 2026-08-29. See JB-12.
         if (isAuthenticated) {
-            setShowInterestedModal(true)
-            // Record the swipe (saves the job)
             await recordSwipeAction(job.id, "right")
+            toast.success(`Saved ${job.title}`, {
+                description: job.company.name,
+                action: { label: "View saved", onClick: () => router.push("/jobs/saved") },
+            })
         } else {
             toast.info("Sign in to save jobs you're interested in")
         }
@@ -203,42 +209,6 @@ export function SparkContent({ initialJobs, pagination, isAuthenticated }: Spark
                 }}
             />
 
-            {/* Interested Modal */}
-            <Dialog open={showInterestedModal} onOpenChange={setShowInterestedModal}>
-                <DialogContent className="max-w-md">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 text-xl">
-                            <PartyPopper className="w-6 h-6 text-neutral-900 dark:text-neutral-100" />
-                            Great Choice!
-                        </DialogTitle>
-                        <DialogDescription>
-                            We&apos;ve saved <span className="font-medium text-neutral-900 dark:text-white">{selectedJob?.title}</span> at <span className="font-medium text-neutral-900 dark:text-white">{selectedJob?.company.name}</span> to your Saved jobs.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 mt-4">
-                        <div className="p-4 bg-neutral-50 dark:bg-neutral-800/20 rounded-xl">
-                            <p className="text-sm text-neutral-700 dark:text-neutral-100">
-                                You can review your saved jobs and apply when you&apos;re ready. We recommend preparing by practicing mock interviews for this role.
-                            </p>
-                        </div>
-                        <div className="flex gap-3">
-                            <Button 
-                                variant="outline" 
-                                className="flex-1 rounded-xl"
-                                onClick={() => setShowInterestedModal(false)}
-                            >
-                                Keep Swiping
-                            </Button>
-                            <Link href="/jobs/saved" className="flex-1">
-                                <Button className="w-full rounded-xl">
-                                    View Saved
-                                    <ArrowRight className="w-4 h-4 ml-2" />
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
-                </DialogContent>
-            </Dialog>
         </div>
     )
 }

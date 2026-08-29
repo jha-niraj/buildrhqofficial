@@ -212,8 +212,15 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
 
     return (
         <div className="min-h-full">
-            <div className="sticky top-0 z-20 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl border-b border-neutral-200 dark:border-neutral-800">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            {/* OPAQUE, and z-30.
+                It was `bg-white/80` with a backdrop blur, which is fine over a
+                photograph and wrong over text: at 80% the content scrolling
+                underneath stayed legible through it, so the header read as a
+                transparent smear with two overlapping paragraphs in it. A sticky
+                bar over prose has to be a surface, not a filter. z-30 puts it
+                above the sticky sidebar column below. See JB-11. */}
+            <div className="sticky top-0 z-30 border-b border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950">
+                <div className="mx-auto max-w-[90rem] px-4 py-3 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between">
                         <Button
                             variant="ghost"
@@ -246,8 +253,8 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                     </div>
                 </div>
             </div>
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="mx-auto max-w-[90rem] px-4 py-8 sm:px-6 lg:px-8">
+                <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
                     <div className="lg:col-span-2 space-y-8">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -660,12 +667,20 @@ export function JobDetailContent({ job }: JobDetailContentProps) {
                             }
                         </motion.div>
                     </div>
-                    <div className="space-y-6">
+                    {/* The COLUMN sticks, not the first card inside it.
+                        `sticky top-24` was on the apply panel alone, so the "About
+                        the Company" card below it kept scrolling while the panel
+                        stayed - and the two drew over each other, which is the
+                        overlapping-logo screenshot. Sticking the column moves them
+                        together. `self-start` is required: a grid item stretches to
+                        the row height by default, and a full-height box has nothing
+                        to stick within. */}
+                    <div className="space-y-6 lg:sticky lg:top-20 lg:self-start">
                         <motion.div
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.2 }}
-                            className="sticky top-24 p-6 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-lg"
+                            className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-lg dark:border-neutral-800 dark:bg-neutral-900"
                         >
                             {
                                 hasApplied ? (

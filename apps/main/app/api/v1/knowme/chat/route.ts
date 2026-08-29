@@ -43,6 +43,7 @@ import {
     categorizeQuestion,
     extractKeywords,
 } from "@/utils/knowme";
+import { knowMeProfileUrl } from "@/lib/urls";
 
 // CORS headers for external requests
 const corsHeaders = {
@@ -245,7 +246,7 @@ export async function POST(request: NextRequest) {
             tokensUsed = result.tokensUsed;
 
             // Add profile link
-            answer += `\n\nView full profile: ${process.env.NEXT_PUBLIC_APP_URL}/knowme/${username}`;
+            answer += `\n\nView full profile: ${knowMeProfileUrl(username ?? "")}`;
         } else {
             // No context found
             answer = await generateNoContextResponse(
@@ -320,7 +321,7 @@ export async function POST(request: NextRequest) {
                     resetAt: session.rateLimitResetAt.toISOString(),
                 },
                 poweredBy: "ShipItHQ KnowMe",
-                profileUrl: `${process.env.NEXT_PUBLIC_APP_URL}/knowme/${username}`,
+                profileUrl: knowMeProfileUrl(username ?? ""),
             },
             { status: 200, headers: corsHeaders }
         );

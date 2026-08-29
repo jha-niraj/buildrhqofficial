@@ -15,6 +15,7 @@ import { showInterest } from "@/actions/jobs"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 
 interface Job {
     id: string
@@ -212,7 +213,7 @@ export function JobDetailSheet({ job }: JobDetailSheetProps) {
                     </Button>
                 </div>
             </div>
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <ScrollArea className="min-h-0 flex-1" viewportClassName="p-6 space-y-6" reflow>
                 <div className="grid grid-cols-2 gap-4">
                     {
                         job.location && (
@@ -415,7 +416,7 @@ export function JobDetailSheet({ job }: JobDetailSheetProps) {
                         </div>
                     </Link>
                 </div>
-            </div>
+            </ScrollArea>
             <div className="sticky bottom-0 bg-white dark:bg-neutral-950 border-t border-neutral-200 dark:border-neutral-800 p-4">
                 <Button
                     onClick={handleShowInterest}

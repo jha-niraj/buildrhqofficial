@@ -12,9 +12,11 @@ import {
     db,
     knowMeProfiles,
     knowMePrivacySettings,
+    knowMeEmbeddingJobs,
+    knowMeEmbeddings,
     users,
 } from "@repo/db";
-import { eq } from "drizzle-orm";
+import { count, desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import type {
 	KnowMeProfileBasic,
@@ -72,6 +74,21 @@ export async function getMyKnowMeProfile(): Promise<
 			return { success: false, error: "Profile not found" };
 		}
 
+		// Two facts the profile row does not carry, and the dashboard cannot be
+		// honest without: WHY the status is what it is, and whether anything is
+		// actually indexed. Both are cheap single-row reads and are fetched
+		// together so the page makes one round trip rather than two. See KM-9.
+		const [lastJobRow, indexedRows] = await Promise.all([
+			db.query.knowMeEmbeddingJobs.findFirst({
+				where: eq(knowMeEmbeddingJobs.profileId, profile.id),
+				orderBy: [desc(knowMeEmbeddingJobs.createdAt)],
+			}),
+			db
+				.select({ n: count() })
+				.from(knowMeEmbeddings)
+				.where(eq(knowMeEmbeddings.profileId, profile.id)),
+		]);
+
 		return {
 			success: true,
 			data: {
@@ -92,6 +109,7 @@ export async function getMyKnowMeProfile(): Promise<
 				totalVisitors: profile.totalVisitors,
 				apiEnabled: profile.apiEnabled,
 				apiRateLimit: profile.apiRateLimit,
+				onboardingStep: profile.onboardingStep,
 				onboardingCompleted: profile.onboardingCompleted,
 				createdAt: profile.createdAt,
 				updatedAt: profile.updatedAt,
@@ -140,6 +158,24 @@ export async function getMyKnowMeProfile(): Promise<
 					: null,
 				suggestedQuestions: profile.suggestedQuestions,
 				welcomeMessage: profile.welcomeMessage,
+				lastJob: lastJobRow
+					? {
+						id: lastJobRow.id,
+						jobType: lastJobRow.jobType,
+						status: lastJobRow.status,
+						// `result.error` is what generateProfileEmbeddings writes;
+						// `errorLogs` is the append-only list behind it. Prefer the
+						// first and fall back to the last log line, because an
+						// aborted job can have logs and no result at all.
+						error:
+							((lastJobRow.result as { error?: string } | null)?.error) ??
+							lastJobRow.errorLogs[lastJobRow.errorLogs.length - 1] ??
+							null,
+						createdAt: lastJobRow.createdAt,
+						completedAt: lastJobRow.completedAt,
+					}
+					: null,
+				indexedChunks: indexedRows[0]?.n ?? 0,
 			},
 		};
 	} catch (error) {
@@ -151,6 +187,34 @@ export async function getMyKnowMeProfile(): Promise<
 /**
  * Get KnowMe profile by username (public view)
  */
+/**
+ * Can this viewer see a profile set to `privacy`?
+ *
+ * `RECRUITERS` is deliberately read as `REGISTERED`. KM-4 established that this
+ * product has no recruiter identity - no role, no verification, no way to become
+ * one - so enforcing the label literally would mean "nobody", and silently
+ * hiding a profile its owner believes is live is the worse of the two errors.
+ * "Not open to anonymous strangers" is the nearest honest reading of what the
+ * option promised.
+ *
+ * `isPublic` is no longer consulted; it is derived from this same column in
+ * `updateKnowMeProfile` so the two cannot disagree.
+ */
+function canView(privacy: string, isSignedIn: boolean): boolean {
+	switch (privacy) {
+		case "PUBLIC":
+			return true;
+		case "REGISTERED":
+		case "RECRUITERS":
+			return isSignedIn;
+		case "PRIVATE":
+			return false;
+		default:
+			// An unknown value is not a licence to publish.
+			return false;
+	}
+}
+
 export async function getKnowMeProfileByUsername(
 	username: string
 ): Promise<KnowMeActionResponse<KnowMeProfilePublic>> {
@@ -172,8 +236,23 @@ export async function getKnowMeProfileByUsername(
 			return { success: false, error: "Profile not found" };
 		}
 
-		// Check if profile is accessible
-		if (profile.status !== "ACTIVE" || !profile.isPublic) {
+		// Check if profile is accessible.
+		//
+		// `privacy` is read HERE, not just written. It used to be a column nothing
+		// consulted: the only gate was `isPublic`, which the wizard set as
+		// `privacy !== "PRIVATE"`, so *Only logged-in users* and *Only verified
+		// recruiters* both resolved to "anyone at all". See KM-12.
+		//
+		// The owner is exempt from every setting - previewing their own public page
+		// is how they check what a visitor sees.
+		if (profile.status !== "ACTIVE") {
+			return { success: false, error: "Profile is not public" };
+		}
+
+		const session = await getSession(headers());
+		const isOwner = session?.user?.id === user.id;
+
+		if (!isOwner && !canView(profile.privacy, !!session?.user?.id)) {
 			return { success: false, error: "Profile is not public" };
 		}
 
@@ -244,6 +323,7 @@ export async function initializeKnowMeProfile(): Promise<
 						totalVisitors: existing.totalVisitors,
 						apiEnabled: existing.apiEnabled,
 						apiRateLimit: existing.apiRateLimit,
+						onboardingStep: existing.onboardingStep,
 						onboardingCompleted: existing.onboardingCompleted,
 						createdAt: existing.createdAt,
 						updatedAt: existing.updatedAt,
@@ -311,6 +391,7 @@ export async function initializeKnowMeProfile(): Promise<
 				totalVisitors: profile!.totalVisitors,
 				apiEnabled: profile!.apiEnabled,
 				apiRateLimit: profile!.apiRateLimit,
+				onboardingStep: profile!.onboardingStep,
 				onboardingCompleted: profile!.onboardingCompleted,
 				createdAt: profile!.createdAt,
 				updatedAt: profile!.updatedAt,
@@ -331,7 +412,8 @@ export async function initializeKnowMeProfile(): Promise<
  * Update KnowMe profile settings
  */
 export async function updateKnowMeProfile(data: {
-	privacy?: "PUBLIC" | "REGISTERED" | "RECRUITERS" | "PRIVATE";
+	privacy?: "PUBLIC" | "REGISTERED" | "PRIVATE";
+	/** @deprecated Derived from `privacy`; passing it has no effect. */
 	isPublic?: boolean;
 	includePersonalData?: boolean;
 	includePlatformData?: boolean;
@@ -363,9 +445,16 @@ export async function updateKnowMeProfile(data: {
 			nextScheduledUpdate = calculateNextUpdate(data.updateCycleDays);
 		}
 
+		// `isPublic` is DERIVED, never taken from the caller. Two call sites were
+		// each computing it themselves from the same `privacy` value, which is one
+		// copy too many for a field that decides who can read a person's profile.
+		// See KM-12.
+		const isPublic = data.privacy ? data.privacy !== "PRIVATE" : profile.isPublic;
+
 		await db.update(knowMeProfiles)
 			.set({
 				...data,
+				isPublic,
 				nextScheduledUpdate,
 			})
 			.where(eq(knowMeProfiles.id, profile.id));

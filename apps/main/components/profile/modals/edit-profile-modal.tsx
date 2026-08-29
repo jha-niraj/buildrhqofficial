@@ -31,6 +31,7 @@ import {
 } from "@repo/ui/components/ui/popover";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 
 interface EditProfileModalProps {
     isOpen: boolean;
@@ -218,7 +219,7 @@ export function EditProfileModal({
 
     return (
         <Sheet open={isOpen} onOpenChange={onClose}>
-            <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto p-0 flex flex-col">
+            <SheetContent scroll={false} side="right" className="w-full sm:max-w-2xl p-0 flex flex-col">
                 <div className="w-full flex flex-col h-full">
                 <SheetHeader className="px-6 pt-6 pb-4 border-b shrink-0">
                     <SheetTitle className="text-xl font-semibold flex items-center gap-2">
@@ -226,7 +227,7 @@ export function EditProfileModal({
                         Edit Profile
                     </SheetTitle>
                 </SheetHeader>
-                <div className="overflow-y-auto flex-1">
+                <ScrollArea className="min-h-0 flex-1" reflow>
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                         <TabsList className="w-full justify-start px-6 pt-2 bg-transparent border-b rounded-none h-auto gap-4 sticky top-0 bg-background z-10">
                             <TabsTrigger
@@ -501,7 +502,7 @@ export function EditProfileModal({
                             </div>
                         </TabsContent>
                     </Tabs>
-                </div>
+                </ScrollArea>
                 <div className="flex items-center justify-end gap-3 px-6 py-4 border-t bg-muted/30 shrink-0">
                     <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
                         Cancel

@@ -1,5 +1,6 @@
 "use client";
 
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 import { useEffect, useState } from "react";
 import {
     Sheet, SheetContent, SheetHeader, SheetTitle
@@ -119,14 +120,14 @@ export default function ActivityDaySheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-lg">
+            <SheetContent side="right" className="w-full sm:max-w-lg">
                 <SheetHeader>
                     <SheetTitle className="flex items-center gap-2">
                         <Activity className="h-5 w-5" />
                         Activity on {formattedDate}
                     </SheetTitle>
                 </SheetHeader>
-                <div className="mt-6 overflow-y-auto">
+                <ScrollArea className="mt-6" reflow>
                     {
                         isLoading ? (
                             <div className="flex items-center justify-center py-12">
@@ -183,7 +184,7 @@ export default function ActivityDaySheet({
                             </div>
                         )
                     }
-                </div>
+                </ScrollArea>
             </SheetContent>
         </Sheet>
     );

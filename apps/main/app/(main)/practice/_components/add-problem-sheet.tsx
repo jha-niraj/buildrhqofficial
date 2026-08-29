@@ -139,7 +139,7 @@ export function AddProblemSheet({ module, onProblemAdded }: AddProblemSheetProps
                 to reach the clipped half. Dropping it leaves the Sheet primitive's own
                 responsive `w-3/4` mobile width in place, capped at 500px from `sm` up.
                 See docs/responsiveness.md section 6. */}
-            <SheetContent side="right" className="sm:max-w-[500px] overflow-y-auto">
+            <SheetContent side="right" className="sm:max-w-[500px]">
                 <SheetHeader className="pb-4">
                     <SheetTitle className="text-base">Add Custom Problem</SheetTitle>
                 </SheetHeader>
@@ -152,7 +152,7 @@ export function AddProblemSheet({ module, onProblemAdded }: AddProblemSheetProps
                             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-colors ${
                                 mode === "url"
                                     ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
-                                    : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-600 dark:text-neutral-400"
+                                    : "text-neutral-500 hover:text-neutral-700 dark:hover:text-white dark:text-neutral-400"
                             }`}
                         >
                             <Link className="h-3.5 w-3.5" />
@@ -163,7 +163,7 @@ export function AddProblemSheet({ module, onProblemAdded }: AddProblemSheetProps
                             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-colors ${
                                 mode === "name"
                                     ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
-                                    : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-600 dark:text-neutral-400"
+                                    : "text-neutral-500 hover:text-neutral-700 dark:hover:text-white dark:text-neutral-400"
                             }`}
                         >
                             <Type className="h-3.5 w-3.5" />

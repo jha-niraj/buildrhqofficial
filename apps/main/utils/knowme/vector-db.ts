@@ -71,8 +71,12 @@ const INDEX_NAME = process.env.VECTORIZE_INDEX_NAME || "shipithq-knowme";
 // ── Transport ───────────────────────────────────────────────────────────────
 //
 // Same two-transport shape as lib/workers/client.ts, and for the same reason:
-// on Workers the binding is free and needs no credentials, but `next dev` does
-// not run inside a Worker, so local development has to go over the REST API.
+// on Workers the binding is free and needs no credentials, but `next dev` has no
+// Vectorize emulation, so local development has to go over the REST API.
+//
+// The choice is NOT "is there a binding" - see `isBindingUnavailable`. Local dev
+// hands out a binding that exists and throws, so the transport is decided by
+// what the first call does, not by what the environment appears to hold.
 
 /** The subset of Vectorize's binding this file uses. */
 interface VectorizeBinding {
@@ -127,13 +131,58 @@ async function getBinding(): Promise<VectorizeBinding | null> {
 	}
 }
 
+/**
+ * Does this error mean "the binding cannot run here", rather than "Vectorize
+ * said no"?
+ *
+ * `next dev` through opennext DOES expose a `VECTORIZE` binding - a local stub
+ * that satisfies the duck-type in `getBinding` and then throws
+ * `Binding VECTORIZE needs to be run remotely` on every call. So the REST
+ * fallback below, and the paragraph in `.env.example` explaining its two
+ * credentials, were unreachable code: the binding was always found, and always
+ * failed. Both of the profile's embedding jobs died on exactly this string.
+ *
+ * The test is deliberately narrow. A genuine Vectorize rejection - a 400, an
+ * unindexed metadata field, a dimension mismatch - must NOT be retried over
+ * REST, or one real failure becomes two and the message the caller finally sees
+ * is about the wrong transport.
+ */
+function isBindingUnavailable(error: unknown): boolean {
+	const message = error instanceof Error ? error.message : String(error);
+	return /needs to be run remotely|not supported in local|no( |-)?local (support|emulation)/i.test(message);
+}
+
+/**
+ * Run against the binding when there is one, and fall through to REST when that
+ * binding turns out to be a local stub. One place, so every operation behaves
+ * the same way rather than four call sites each remembering to.
+ */
+async function viaBinding<T>(
+	onBinding: (binding: VectorizeBinding) => Promise<T>,
+	onRest: () => Promise<T>,
+): Promise<T> {
+	const binding = await getBinding();
+	if (!binding) return onRest();
+
+	try {
+		return await onBinding(binding);
+	} catch (error: unknown) {
+		if (isBindingUnavailable(error)) return onRest();
+		throw error;
+	}
+}
+
 function restConfig(): { accountId: string; token: string } {
 	const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
 	const token = process.env.CLOUDFLARE_API_TOKEN;
 	if (!accountId || !token) {
+		// Names the two variables rather than repeating wrangler's message. The
+		// caller reaching here has either no binding or one that cannot run
+		// locally, and in both cases the fix is the same pair of credentials.
 		throw new Error(
-			"Vectorize is unreachable: no VECTORIZE binding (so this is not running on Workers) " +
-				"and CLOUDFLARE_ACCOUNT_ID / CLOUDFLARE_API_TOKEN are not set for the REST fallback.",
+			"Vectorize is unreachable: the VECTORIZE binding is absent or cannot run here " +
+				"(local `next dev` has no Vectorize emulation), and CLOUDFLARE_ACCOUNT_ID / " +
+				"CLOUDFLARE_API_TOKEN are not set for the REST fallback. See .env.example.",
 		);
 	}
 	return { accountId, token };
@@ -262,22 +311,20 @@ export async function upsertVectorsBatch(
 		metadata: trimMetadata({ ...v.metadata, profileId: namespace, text: v.text || v.metadata.text }),
 	}));
 
-	const binding = await getBinding();
-
 	try {
 		for (let i = 0; i < prepared.length; i += UPSERT_BATCH) {
 			const batch = prepared.slice(i, i + UPSERT_BATCH);
-			if (binding) {
-				await binding.upsert(batch);
-			} else {
+			await viaBinding(
+				(binding) => binding.upsert(batch).then(() => undefined),
 				// The REST endpoint takes NDJSON - one vector per line - not a JSON
 				// array, and rejects `application/json` outright.
-				await rest("/upsert", {
-					method: "POST",
-					contentType: "application/x-ndjson",
-					body: batch.map((v) => JSON.stringify(v)).join("\n"),
-				});
-			}
+				() =>
+					rest("/upsert", {
+						method: "POST",
+						contentType: "application/x-ndjson",
+						body: batch.map((v) => JSON.stringify(v)).join("\n"),
+					}).then(() => undefined),
+			);
 		}
 	} catch (error: unknown) {
 		console.error("Error upserting vectors batch:", error);
@@ -313,18 +360,18 @@ export async function queryVectors(
 	const scoped = scopeFilter(namespace, filter);
 
 	try {
-		const binding = await getBinding();
-
-		const matches: VectorizeMatch[] = binding
-			? (
+		const matches = await viaBinding<VectorizeMatch[]>(
+			async (binding) =>
+				(
 					await binding.query(queryEmbedding, {
 						topK: effectiveTopK,
 						filter: scoped,
 						returnValues: includeVectors,
 						returnMetadata: includeMetadata ? "all" : "none",
 					})
-				).matches
-			: (
+				).matches,
+			async () =>
+				(
 					await rest<{ matches: VectorizeMatch[] }>("/query", {
 						method: "POST",
 						body: JSON.stringify({
@@ -335,7 +382,8 @@ export async function queryVectors(
 							returnMetadata: includeMetadata ? "all" : "none",
 						}),
 					})
-				).matches;
+				).matches,
+		);
 
 		return (matches ?? [])
 			.filter((m) => (m.score ?? 0) >= minScore)
@@ -359,13 +407,14 @@ export async function getVector(
 	namespace: string,
 ): Promise<{ id: string; metadata: Record<string, unknown> } | null> {
 	try {
-		const binding = await getBinding();
-		const found = binding
-			? await binding.getByIds([id])
-			: await rest<VectorizeMatch[]>("/get_by_ids", {
+		const found = await viaBinding<VectorizeMatch[]>(
+			(binding) => binding.getByIds([id]),
+			() =>
+				rest<VectorizeMatch[]>("/get_by_ids", {
 					method: "POST",
 					body: JSON.stringify({ ids: [id] }),
-				});
+				}),
+		);
 
 		const hit = (found ?? [])[0];
 		if (!hit) return null;
@@ -392,15 +441,16 @@ export async function deleteVectorsBatch(ids: string[], _namespace: string): Pro
 	if (ids.length === 0) return;
 
 	try {
-		const binding = await getBinding();
-
 		for (let i = 0; i < ids.length; i += DELETE_BATCH) {
 			const batch = ids.slice(i, i + DELETE_BATCH);
-			if (binding) {
-				await binding.deleteByIds(batch);
-			} else {
-				await rest("/delete_by_ids", { method: "POST", body: JSON.stringify({ ids: batch }) });
-			}
+			await viaBinding(
+				(binding) => binding.deleteByIds(batch).then(() => undefined),
+				() =>
+					rest("/delete_by_ids", {
+						method: "POST",
+						body: JSON.stringify({ ids: batch }),
+					}).then(() => undefined),
+			);
 		}
 	} catch (error: unknown) {
 		console.error("Error deleting vectors batch:", error);
@@ -468,12 +518,10 @@ export async function getNamespaceStats(namespace: string): Promise<{
 
 export async function checkVectorDbConnection(): Promise<boolean> {
 	try {
-		const binding = await getBinding();
-		if (binding) {
-			await binding.describe();
-			return true;
-		}
-		await rest("/info", { method: "GET" });
+		await viaBinding(
+			(binding) => binding.describe().then(() => undefined),
+			() => rest("/info", { method: "GET" }).then(() => undefined),
+		);
 		return true;
 	} catch {
 		return false;

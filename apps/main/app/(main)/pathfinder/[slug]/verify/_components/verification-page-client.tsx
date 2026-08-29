@@ -208,7 +208,7 @@ export function VerificationPageClient({ goal: initialGoal, verification }: Veri
                 open={generateSheetOpen}
                 onOpenChange={(open) => !isGenerating && setGenerateSheetOpen(open)}
             >
-                <SheetContent side="right" className="w-full sm:max-w-2xl md:max-w-5xl overflow-y-auto">
+                <SheetContent side="right" className="w-full sm:max-w-2xl md:max-w-5xl">
                     {isGenerating ? (
                         <>
                             <SheetHeader>

@@ -334,9 +334,9 @@ const Layout = ({ children }: LayoutProps) => {
         return (
             // Outside the shell, so it does not inherit the height above - but the bottom
             // bar is fixed to the viewport and covers this too.
-            <div className="w-screen overflow-y-auto bg-neutral-950 h-[calc(100dvh-var(--app-bottom-nav-h))]">
+            <ScrollArea className="w-screen bg-neutral-950 h-[calc(100dvh-var(--app-bottom-nav-h))]" reflow>
                 {children}
-            </div>
+            </ScrollArea>
         );
     }
 

@@ -11,12 +11,20 @@ import { toast } from "@repo/ui/components/ui/sonner"
 import { cn } from "@repo/ui/lib/utils"
 import { AppSidebar, type AppSidebarNotification } from "@repo/ui/components/app-sidebar"
 import { useSidebar } from "@/components/common/sidebarprovider"
-import { mainNavigation } from "@/lib/navigation"
+import { mainNavigation, type NavigationItem } from "@/lib/navigation"
 import { useUserStore } from "@/app/store/useUserStore"
 import { useAIPanelStore } from "@/app/store/aiPanelStore"
 import { getNotifications, markAsRead, markAllAsRead } from "@/actions/(main)/notifications/notification.action"
 
-export default function Sidebar() {
+/**
+ * `primary` overrides the nav list, and nothing else.
+ *
+ * The jobs shell needs a DIFFERENT set of links inside the SAME sidebar - same
+ * brand block, same collapse behaviour, same notifications, same user footer.
+ * It used to have its own 319-line component instead, which drifted visually
+ * from this one in every detail. See JB-8.
+ */
+export default function Sidebar({ primary }: { primary?: NavigationItem[] } = {}) {
     const { isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar()
     const { data: session, isPending } = useSession()
     const router = useRouter()
@@ -137,7 +145,7 @@ export default function Sidebar() {
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neutral-900 dark:bg-white text-white dark:text-neutral-900"><Logo className="h-[19px] w-[19px]" /></div>
                 ),
             }}
-            primary={mainNavigation.primary}
+            primary={primary ?? mainNavigation.primary}
             bottomNav={{ items: bottomNavItems, centreAction: aiCentreAction }}
             isCollapsed={isCollapsed}
             setIsCollapsed={setIsCollapsed}

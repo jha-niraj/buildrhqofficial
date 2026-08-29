@@ -9,7 +9,7 @@ import { cn } from "../../lib/utils"
 const Accordion = AccordionPrimitive.Root
 
 // Every default here is a light/dark PAIR. The previous defaults -
-// `bg-gray-200` on the item and `text-black` on the trigger and content - had no
+// `bg-neutral-200` on the item and `text-black` on the trigger and content - had no
 // dark counterpart, so in dark mode the surface stayed light grey while any
 // caller-supplied `dark:text-white` turned the label white: white on light grey,
 // measured at a contrast ratio of 1.24 across all eight FAQ questions on the

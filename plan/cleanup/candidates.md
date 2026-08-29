@@ -687,3 +687,112 @@ unreachable.
 Collapse the prop and delete the dead half. Not urgent, and not something to do
 in the same change as the route deletion: it touches the whole file, whereas the
 deletion touched one import.
+
+---
+
+## CLN-49 - The KnowMe onboarding wizard exists twice - DONE 2026-08-29
+
+**Found 2026-08-29 while doing KM-12; approved and collapsed the same day.**
+
+`app/(main)/knowme/_components/knowme-landing.tsx` (1,055 lines) contains a
+second, near-identical copy of `onboarding/_components/onboarding-wizard.tsx`
+(~590 lines): the same `TOTAL_STEPS`, `privacyOptions`, `handleCreateAI`,
+`WelcomeStep`, `DataSourcesStep`, `PlatformsStep` and `PrivacyStep`.
+
+**How it announced itself.** KM-12 removed one privacy option and changed one
+call site, and the identical edit had to be made in THREE files - the landing,
+the wizard, and settings - each found only because `tsc` happened to reject the
+type. A privacy control that has to be fixed in three places is one that will
+eventually be fixed in two.
+
+They have already drifted: the landing copy is reached when a profile is in
+`SETUP` from `/knowme`, the wizard copy when the user lands on
+`/knowme/onboarding` directly, and nothing guarantees the two ask the same
+questions in the same order.
+
+**Proposed:** the landing page renders `<OnboardingWizard>` rather than
+reimplementing it, leaving `knowme-landing.tsx` to be the marketing panel it is
+named after. Needs Niraj's approval - it deletes roughly 450 lines.
+
+**DONE 2026-08-29.** Both copies now render
+`components/knowme/knowme-onboarding.tsx`. `onboarding-wizard.tsx` went from 645
+lines to 61 (a heading and a card); `knowme-landing.tsx` from 1,053 to 521 (the
+marketing page it is named after, plus a Sheet).
+
+**The drift was worse than styling, which is the part worth recording.** KM-5 cut
+the platform list back to GitHub - the only platform with a real sync handler -
+in the WIZARD copy only. The landing copy went on offering LeetCode,
+StackOverflow and LinkedIn, all three of which hit a silent `break`, reported
+success and wrote nothing. `/knowme` is the normal way in, so the copy most users
+met was the one still carrying the bug that task had closed. A duplicate is not
+just twice the code; it is a fix that looks applied and is not.
+
+**Two defects fixed while merging**, both of which had survived in both copies:
+
+- **Setup never resumed.** `updateOnboardingStep` has always written
+  `know_me_profile.onboarding_step` and nothing has ever read it back, because
+  the column was not in `KnowMeProfileFull`. Closing the wizard at step 3
+  restarted it at step 1. The column is exposed now and seeds `currentStep`.
+- **A state setter ran during render.** The wizard's platform step called
+  `setIncludePlatformData(false)` inside its own render body - React warns about
+  this, and it made the toggle beside it a no-op. Platforms are connected from
+  Settings after the AI exists, so the step is informational now and the flag is
+  written where the save happens.
+
+---
+
+## CLN-50 - `/knowme/onboarding` is a redirect wrapping three dead files
+
+**Found 2026-08-29, while verifying CLN-49. Needs Niraj's approval to delete.**
+
+`app/(main)/knowme/onboarding/page.tsx` is, in full:
+
+    export default function KnowMeOnboardingPage() {
+        redirect('/knowme');
+    }
+
+Setup is the Sheet on the KnowMe landing page. So the other three files in that
+directory - `_components/onboarding-wizard.tsx`, `_components/onboarding-skeleton.tsx`
+and `loading.tsx` - have no reachable caller. `loading.tsx` imports the skeleton,
+but it only ever shows while `page.tsx` resolves, and `page.tsx` redirects
+immediately.
+
+**This is not cosmetic, and CLN-49 is the proof.** The wizard copy in that dead
+directory is where KM-5's platform fix was applied - cutting the list back to the
+one platform with a working sync handler. The copy users could actually reach
+kept advertising LeetCode, StackOverflow and LinkedIn. The task was closed, the
+fix was real, and every user still met the bug, because the fix landed in a file
+nothing renders. An unreachable second copy does not merely sit there; it absorbs
+maintenance that was meant for the live one.
+
+**Proposed:** delete `app/(main)/knowme/onboarding/` entirely, and give
+`/knowme/onboarding` a redirect in `next.config` or drop it - whichever suits the
+existing convention. Roughly 4 files, ~130 lines after CLN-49 shrank the wizard.
+
+**Before deleting, check:** nothing links to `/knowme/onboarding`. `pnpm
+check-nav` covers the sidebar; the home page's feature-discovery card and any
+email template are worth a grep too, since a link to a deleted route 404s rather
+than redirecting.
+
+---
+
+## CLN-51 - Two orphans left by the projects hub rewrite
+
+**Found 2026-08-29, while doing PRJ-7. Needs Niraj's approval to delete.**
+
+The marketing hub was the only caller of both:
+
+- `app/(main)/projects/_components/recent-submissions-grid.tsx` (201 lines) -
+  the "Community Showcase" strip. Zero references now.
+- `getProjectsPageStats` in `actions/(common)/stats/platform-stats.action.ts:151`
+  - the platform-wide counts behind the stat band. Zero references now.
+
+Both are left in place rather than deleted, because deletions get approved.
+
+**Worth knowing before deleting `getProjectsPageStats`:** it is the action that
+produced `0+ Projects Built · 0+ Active Builders · 0+ Tasks Completed` beside the
+hardcoded `94% Success Rate`. It was not wrong - the three real numbers were
+accurate. The fourth was never computed from anything, which is why the hub now
+reads the user's own rows instead. If a platform-wide stat is ever wanted again
+(a marketing page in `apps/web`, say), this is the action to reuse, and the 94%
+is the thing not to.

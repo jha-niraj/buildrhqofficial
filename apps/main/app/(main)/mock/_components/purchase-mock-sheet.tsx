@@ -116,7 +116,7 @@ export function PurchaseMockSheet({ isOpen, onClose, mock, userCredits }: Purcha
 
     return (
         <Sheet open={isOpen} onOpenChange={onClose}>
-            <SheetContent side="right" className="w-full sm:max-w-md flex flex-col p-0 gap-0 overflow-y-auto">
+            <SheetContent scroll={false} side="right" className="w-full sm:max-w-md flex flex-col p-0 gap-0">
                 {/* Header */}
                 <SheetHeader className="p-6 pb-4 border-b border-neutral-100 dark:border-neutral-800">
                     <div className="flex items-center gap-3 mb-3">

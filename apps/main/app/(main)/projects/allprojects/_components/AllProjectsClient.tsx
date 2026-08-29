@@ -214,7 +214,7 @@ export default function AllProjectsPage() {
 												variant="ghost"
 												size="sm"
 												onClick={() => setSelectedTech([])}
-												className="text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-600 rounded-xl"
+												className="text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-white rounded-xl"
 											>
 												Clear filters ({selectedTech.length})
 											</Button>

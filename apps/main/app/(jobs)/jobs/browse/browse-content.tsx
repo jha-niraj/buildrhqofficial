@@ -93,52 +93,75 @@ export function BrowseContent({ initialData, isAuthenticated }: BrowseContentPro
     }, [loading, hasMore, page])
 
     return (
-        <div className="p-4 lg:p-6">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neutral-400 to-neutral-600 flex items-center justify-center">
-                        <LayoutList className="w-5 h-5 text-white" />
+        // The control bar pins beneath the header, WITH space.
+        //
+        // Two earlier attempts got this wrong in opposite directions. First it was
+        // `sticky top-[85px]` - a hand-written offset that parked it flush under
+        // the header with no gap, so the two read as one tall stuck block. Then I
+        // removed the sticky entirely, and it scrolled away with the list.
+        //
+        // What Niraj asked for both times is the same thing: stay put, and have
+        // room around it. So it sticks, at the header's MEASURED height rather
+        // than a guessed one (`--jobs-header-h`, published by `header-offset.tsx`),
+        // and it is a floating toolbar - inset, rounded, its own border - rather
+        // than a full-bleed strip welded to the bar above. The gap is what stops
+        // it reading as stacked. See JB-17.
+        <div>
+            <div
+                className="sticky z-10 px-4 pt-4 lg:px-6"
+                style={{ top: "var(--jobs-header-h, 96px)" }}
+            >
+            <div className="rounded-2xl border border-neutral-200 bg-white p-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                {/* Title, search, filters and the mode toggle on ONE row from `lg`.
+                    They were three stacked rows before, which spent ~190px of a
+                    scrolling page on chrome. */}
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-3">
+                    <div className="flex min-w-0 shrink-0 items-center gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-neutral-900 text-white dark:bg-white dark:text-neutral-900">
+                            <LayoutList className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0">
+                            <h2 className="truncate text-base font-semibold text-neutral-900 dark:text-white">
+                                Browse all jobs
+                            </h2>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                {total} job{total !== 1 ? 's' : ''} available
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
-                            Browse All Jobs
-                        </h2>
-                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                            {total} job{total !== 1 ? 's' : ''} available
-                        </p>
+
+                    <div className="relative min-w-0 flex-1">
+                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500 dark:text-neutral-400" />
+                        <Input
+                            placeholder="Search jobs, companies, or skills..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="h-9 rounded-xl border-neutral-200 bg-neutral-50 pl-10 dark:border-neutral-800 dark:bg-neutral-900"
+                        />
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-9 rounded-xl"
+                            onClick={() => setIsFilterOpen(true)}
+                        >
+                            <Filter className="mr-2 h-4 w-4" />
+                            Filters
+                        </Button>
+                        <Button asChild variant="outline" size="sm" className="h-9 gap-2 rounded-xl">
+                            <Link href="/jobs">
+                                <Sparkles className="h-4 w-4" />
+                                <span className="hidden sm:inline">Swipe mode</span>
+                            </Link>
+                        </Button>
                     </div>
                 </div>
-                <Link href="/jobs">
-                    <Button variant="outline" size="sm" className="rounded-xl gap-2">
-                        <Sparkles className="w-4 h-4" />
-                        <span className="hidden sm:inline">Swipe Mode</span>
-                    </Button>
-                </Link>
+            </div>
             </div>
 
-            {/* Search & Filters */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600 dark:text-neutral-400" />
-                    <Input
-                        placeholder="Search jobs, companies, or skills..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 rounded-xl bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
-                    />
-                </div>
-                <Button
-                    variant="outline"
-                    className="rounded-xl"
-                    onClick={() => setIsFilterOpen(true)}
-                >
-                    <Filter className="w-4 h-4 mr-2" />
-                    Filters
-                </Button>
-            </div>
-
-            {/* Jobs List */}
+            <div className="p-4 pt-5 lg:p-6">
             <AnimatePresence mode="popLayout">
                 {jobs.length > 0 ? (
                     <div className="space-y-4">
@@ -158,30 +181,39 @@ export function BrowseContent({ initialData, isAuthenticated }: BrowseContentPro
                 )}
             </AnimatePresence>
 
-            {/* Load More */}
-            {hasMore && (
-                <div className="mt-8 text-center">
-                    <Button
-                        variant="outline"
-                        className="rounded-xl"
-                        onClick={loadMore}
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <InlineLoader size="sm" className="mr-2" />
-                        ) : (
-                            <ChevronDown className="w-4 h-4 mr-2" />
-                        )}
-                        Load More
-                    </Button>
-                </div>
-            )}
+            </div>
 
-            {/* Count */}
+            {/* PINNED to the bottom of the viewport, carrying both the count and
+                Load More.
+                They used to sit at the end of the list, so on a 12-job page you had
+                to scroll past everything to find out how many there were or to ask
+                for more. `sticky bottom-0` rather than `position: fixed`: fixed
+                would anchor to the VIEWPORT and slide under the sidebar and past
+                the page card's rounded edge, while sticky stays inside this column
+                and respects its width. It is the last child of the scrolling
+                content, so it pins while the list moves behind it. See JB-13. */}
             {jobs.length > 0 && (
-                <p className="text-center text-sm text-neutral-500 dark:text-neutral-400 mt-4">
-                    Showing {jobs.length} of {total} jobs
-                </p>
+                <div className="sticky bottom-0 z-10 flex items-center justify-between gap-4 border-t border-neutral-200 bg-white px-4 py-3 lg:px-6 dark:border-neutral-800 dark:bg-neutral-950">
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                        Showing <span className="font-medium text-neutral-900 tabular-nums dark:text-white">{jobs.length}</span> of {total} jobs
+                    </p>
+                    {hasMore && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="shrink-0 rounded-xl"
+                            onClick={loadMore}
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <InlineLoader size="sm" className="mr-2" />
+                            ) : (
+                                <ChevronDown className="mr-2 h-4 w-4" />
+                            )}
+                            Load more
+                        </Button>
+                    )}
+                </div>
             )}
 
             {/* Skill Gap Modal */}

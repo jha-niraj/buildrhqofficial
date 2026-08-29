@@ -29,6 +29,7 @@ import { InlineLoader } from "@repo/ui/components/ui/inline-loader"
 import { AnimatedIcon } from "@repo/ui/components/animated-icons"
 import { PATHFINDER_CATEGORIES } from "@/types/pathfinder"
 import { GroupIcon, GROUP_ICONS, DEFAULT_GROUP_ICON } from './group-icon'
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 
 type Group = PathfinderGroup
 
@@ -318,7 +319,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                 without this the sheet scrolls AND the body scrolls - two surfaces
                 for one region. */}
             <SheetContent side="right" className="flex w-full flex-col overflow-hidden p-0 sm:max-w-xl">
-                <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
+                <ScrollArea className="min-h-0 flex-1" viewportClassName="px-6 py-6" reflow>
                     <SheetHeader className="mb-6">
                         <SheetTitle className="text-xl flex items-center gap-2">
                             <div className="p-1.5 bg-neutral-100 dark:bg-neutral-800 rounded-lg">
@@ -861,7 +862,7 @@ export function CreateGoalSheet({ open, onOpenChange, onSuccess, groups = [], on
                             )
                         }
                     </AnimatePresence>
-                </div>
+                </ScrollArea>
             </SheetContent>
         </Sheet>
     )

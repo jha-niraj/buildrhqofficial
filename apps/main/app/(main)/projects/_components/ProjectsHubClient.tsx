@@ -1,458 +1,343 @@
 "use client"
 
-import { useState, useEffect } from "react"
+/**
+ * `/projects` - the user's own work, not a sales page.
+ *
+ * ── What this replaced ───────────────────────────────────────────────────────
+ * 457 lines of marketing rendered INSIDE the authenticated shell: a centred hero
+ * reading "Build Real Projects, Master Real Skills", a "Stop watching tutorials"
+ * sub-headline, a four-up stat band, four `features` blurbs, a "Community
+ * Showcase", and a closing "Join thousands of developers" call to action.
+ *
+ * Every word of that was aimed at someone deciding whether to sign up. The
+ * reader is signed up, is paying, and came to see what they are building.
+ * Niraj, 2026-08-29: *"the overview page should be about the user and what are
+ * the things that the user have done across this all module and not marketing."*
+ * That also settles `PRJ-U2` and open question 3 in `00-state-of-play.md`.
+ *
+ * ── Two things the old page was saying that were not true ────────────────────
+ *  - The stat band read `0+ Projects Built · 0+ Active Builders · 0+ Tasks
+ *    Completed · 94% Success Rate`. The first three were real and zero; the
+ *    fourth was a hardcoded literal, because with zero completed tasks there is
+ *    nothing to compute a rate from. Three honest zeroes next to one invented
+ *    number is worse than showing neither.
+ *  - One `features` blurb advertised "Community Driven - Project sharing,
+ *    Community voting, Inspiration gallery". All three were deleted in PRJ-1
+ *    through PRJ-4. The copy outlived the features it described.
+ *
+ * Every number below comes from `getMyProjectsOverview`, which reads only the
+ * signed-in user's own rows. If a figure cannot be computed from their work, it
+ * is not on the page.
+ */
+
+import Link from "next/link"
 import { motion } from "framer-motion"
 import {
-	ArrowRight, Sparkles, Users, Brain, Zap, Trophy, CheckCircle2,
-	Rocket, Target, Lightbulb, Briefcase, Star, Award
+	ArrowRight, CheckCircle2, Compass, Lightbulb, ListTodo, Plus, Sparkles,
 } from "lucide-react"
 import { Button } from "@repo/ui/components/ui/button"
 import { Badge } from "@repo/ui/components/ui/badge"
-import {
-	Card, CardContent, CardDescription, CardHeader, CardTitle
-} from "@repo/ui/components/ui/card"
-import Link from "next/link"
-import {
-	PublicProjectsGrid
-} from "@/app/(main)/projects/_components/public-projects-grid"
-import {
-	RecentSubmissionsGrid
-} from "@/app/(main)/projects/_components/recent-submissions-grid"
+import { cn } from "@repo/ui/lib/utils"
 import ProjectGenerateSheet from "@/components/projects/project-generate-sheet"
-import { getProjectsPageStats } from "@/actions/(common)/stats/platform-stats.action"
+import { PublicProjectsGrid } from "@/app/(main)/projects/_components/public-projects-grid"
+import { ActivityChart, type ActivityPoint } from "@/components/common/activity-chart"
+import { OverviewPanel } from "@/components/common/overview-kit"
+import type { MyProjectSummary, MyProjectsOverview } from "@/actions/(main)/projects/overview.action"
 
-interface ProjectStats {
-	totalProjects: number
-	totalProjectIdeas: number
-	problemStatements: number
-	technologyIdeas: number
-	byType: {
-		frontend: number
-		fullStack: number
-		backend: number
-		aiAgent: number
-	}
-	totalTasks: number
-	completedTasks: number
-	successRate: number
-	activeBuilders: number
+interface ProjectsHubClientProps {
+	overview: MyProjectsOverview | null
+	activity: { series: ActivityPoint[]; unit: string; total: number }
 }
 
-const features = [
-	{
-		icon: Brain,
-		title: "AI-Powered Generation",
-		description: "Advanced AI analyzes your skills and generates personalized projects tailored to your learning goals and technology preferences.",
-		highlights: ["Personalized difficulty", "Smart tech stack", "Learning objectives"],
-	},
-	{
-		icon: Target,
-		title: "Step-by-Step Guidance",
-		description: "Follow comprehensive task lists that guide you from initial setup to production deployment, building real-world experience.",
-		highlights: ["Detailed roadmaps", "Progressive learning", "Real deployments"],
-	},
-	{
-		icon: Zap,
-		title: "Interactive Learning",
-		description: "Engage with dynamic content, earn XP for milestones, take knowledge quizzes, and practice with AI-powered mock interviews.",
-		highlights: ["XP & achievements", "Knowledge quizzes", "Mock interviews"],
-	},
-	{
-		icon: Users,
-		title: "Community Driven",
-		description: "Share your completed projects, discover amazing builds from other developers, and get inspired by community creations.",
-		highlights: ["Project sharing", "Community voting", "Inspiration gallery"],
-	}
-]
-
-export default function ProjectsHomePage() {
-	const [stats, setStats] = useState<ProjectStats | null>(null)
-	const [loading, setLoading] = useState(true)
-
-	useEffect(() => {
-		async function fetchStats() {
-			try {
-				const result = await getProjectsPageStats()
-				if (result.success && result.data) {
-					setStats(result.data as ProjectStats)
-				}
-			} catch (error) {
-				console.error('Failed to fetch stats:', error)
-			} finally {
-				setLoading(false)
-			}
-		}
-		fetchStats()
-	}, [])
-
-	const scrollToProjects = () => {
-		const element = document.getElementById('public-projects-section')
-		if (element) {
-			element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-		}
-	}
-
-	// Format number for display
-	const formatNumber = (num: number): string => {
-		if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`
-		if (num >= 1000) return `${(num / 1000).toFixed(1)}K`
-		return num.toString()
-	}
-
-	// Dynamic stats using real data
-	const displayStats = [
-		{
-			label: "Projects Built",
-			value: loading ? "..." : formatNumber(stats?.totalProjects || 0),
-			icon: Rocket,
-			suffix: "+"
-		},
-		{
-			label: "Active Builders",
-			value: loading ? "..." : formatNumber(stats?.activeBuilders || 0),
-			icon: Users,
-			suffix: "+"
-		},
-		{
-			label: "Tasks Completed",
-			value: loading ? "..." : formatNumber(stats?.completedTasks || 0),
-			icon: CheckCircle2,
-			suffix: "+"
-		},
-		{
-			label: "Success Rate",
-			value: loading ? "..." : `${stats?.successRate || 94}`,
-			icon: Trophy,
-			suffix: "%"
-		},
-	]
+export default function ProjectsHubClient({ overview, activity }: ProjectsHubClientProps) {
+	const active = overview?.active ?? []
+	const finished = overview?.finished ?? []
+	const totals = overview?.totals
+	const nextTask = overview?.nextTask
+	const hasWork = (totals?.projects ?? 0) > 0
 
 	return (
-		<>
-			<div>
-				<section className="relative py-20">
-					<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_center,_var(--tw-gradient-stops))] from-neutral-100/50 via-white to-white dark:from-neutral-900/50 dark:via-neutral-950 dark:to-neutral-950 -z-10" />
-					<div className="w-full px-6">
-						<motion.div
-							className="text-center space-y-4 max-w-4xl mx-auto"
-							initial={{ opacity: 0, y: 20 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ duration: 0.6 }}
-						>
-							<motion.div
-								initial={{ opacity: 0, scale: 0.9 }}
-								animate={{ opacity: 1, scale: 1 }}
-								transition={{ delay: 0.1, duration: 0.5 }}
-								className="flex justify-center"
-							>
-								<div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-full shadow-sm">
-									<Sparkles className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100" />
-									<span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 tracking-wide">
-										AI-Powered Project Generator
-									</span>
-								</div>
-							</motion.div>
-							<div className="space-y-4">
-								<motion.h1
-									className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-neutral-900 dark:text-white"
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									transition={{ delay: 0.2, duration: 0.6 }}
-								>
-									Build Real Projects,
-									<span className="block text-neutral-600 dark:text-neutral-400">
-										Master Real Skills.
-									</span>
-								</motion.h1>
-								<motion.p
-									className="text-lg md:text-xl text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto leading-relaxed font-light"
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									transition={{ delay: 0.3, duration: 0.6 }}
-								>
-									Stop watching tutorials that lead nowhere. Generate personalized coding projects with AI,
-									follow step-by-step guidance, and build a portfolio that gets you hired.
-								</motion.p>
-							</div>
-							<motion.div
-								className="flex flex-col items-center gap-8 pt-4"
-								initial={{ opacity: 0, y: 20 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ delay: 0.4, duration: 0.6 }}
-							>
-								<div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-									<ProjectGenerateSheet />
-									<Link href="/projects/ideas" className="w-full sm:w-auto">
-										<Button
-											variant="outline"
-											className="w-full sm:w-auto h-14 px-8 text-base border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-900 rounded-xl bg-white dark:bg-neutral-950 font-semibold"
-										>
-											<Lightbulb className="mr-2 h-5 w-5" />
-											Browse Ideas
-										</Button>
-									</Link>
-								</div>
-								<div className="flex flex-wrap justify-center gap-3 md:gap-6">
-									<Link href="/projects/myprojects">
-										<Button variant="ghost" className="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-transparent">
-											My Projects
-										</Button>
-									</Link>
-									<span className="hidden sm:block text-neutral-600 dark:text-neutral-400 py-2">|</span>
-									<Button
-										onClick={scrollToProjects}
-										variant="ghost"
-										className="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-transparent"
-									>
-										Explore All
-									</Button>
-								</div>
-							</motion.div>
-						</motion.div>
-					</div>
-				</section>
-				<section className="bg-white dark:bg-neutral-950">
-					<div className="w-full px-6">
-						<motion.div
-							className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8"
-							initial={{ opacity: 0, y: 30 }}
-							whileInView={{ opacity: 1, y: 0 }}
-							viewport={{ once: true }}
-							transition={{ duration: 0.6 }}
-						>
-							{
-								displayStats.map((stat, index) => {
-									const Icon = stat.icon
-									return (
-										<motion.div
-											key={stat.label}
-											className="group bg-white dark:bg-neutral-900 rounded-xl p-6 text-center border border-transparent hover:border-neutral-100 dark:hover:border-neutral-800 transition-colors duration-300"
-											initial={{ opacity: 0, scale: 0.95 }}
-											whileInView={{ opacity: 1, scale: 1 }}
-											viewport={{ once: true }}
-											transition={{ delay: index * 0.1, duration: 0.5 }}
-										>
-											<div className="inline-flex items-center justify-center w-12 h-12 bg-neutral-50 dark:bg-neutral-800 rounded-xl text-neutral-900 dark:text-white mb-4 group-hover:scale-110 transition-transform duration-300">
-												<Icon className="w-5 h-5" />
-											</div>
-											<div className="text-3xl font-bold text-neutral-900 dark:text-white mb-1 tracking-tight">
-												{stat.value}
-												<span className="text-neutral-600 dark:text-neutral-400 ml-0.5 text-2xl">{stat.suffix}</span>
-											</div>
-											<div className="text-sm text-neutral-500 dark:text-neutral-400 font-medium">
-												{stat.label}
-											</div>
-										</motion.div>
-									)
-								})
-							}
-						</motion.div>
-					</div>
-				</section>
-				<section id="public-projects-section" className="py-24 bg-neutral-50 dark:bg-neutral-900/50">
-					<div className="w-full px-6">
-						<motion.div
-							className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4"
-							initial={{ opacity: 0, y: 30 }}
-							whileInView={{ opacity: 1, y: 0 }}
-							viewport={{ once: true }}
-							transition={{ duration: 0.6 }}
-						>
-							<div>
-								<div className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-100/60 dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-800 rounded-full backdrop-blur-sm mb-4">
-									<Users className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />
-									<span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Community Showcase</span>
-								</div>
-								<h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-900 to-neutral-500 dark:from-neutral-50 dark:to-neutral-400 mb-2">
-									Featured Public Projects
-								</h2>
-								<p className="text-lg text-neutral-600 dark:text-neutral-400">
-									Discover projects built by our community
-								</p>
-							</div>
-							<Link href="/projects/allprojects">
-								<Button variant="outline" className="border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 rounded-xl">
-									View All Projects <ArrowRight className="ml-2 h-4 w-4" />
-								</Button>
-							</Link>
-						</motion.div>
+		<div className="w-full px-4 py-6 sm:px-6">
+			<motion.header
+				initial={{ opacity: 0, y: -12 }}
+				animate={{ opacity: 1, y: 0 }}
+				className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+			>
+				<div className="min-w-0">
+					<h1 className="text-xl font-bold text-neutral-900 dark:text-white">
+						{hasWork ? "Your projects" : "Build something"}
+					</h1>
+					<p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">
+						{hasWork
+							? "Everything you have started here, and what to do next."
+							: "Generate a project from an idea, then work it sprint by sprint."}
+					</p>
+				</div>
+				<div className="flex shrink-0 items-center gap-2">
+					<Button asChild variant="outline" size="sm" className="gap-2">
+						<Link href="/projects/ideas">
+							<Lightbulb className="h-4 w-4" />
+							Browse ideas
+						</Link>
+					</Button>
+					<ProjectGenerateSheet
+						trigger={
+							<Button size="sm" className="gap-2">
+								<Plus className="h-4 w-4" />
+								New project
+							</Button>
+						}
+					/>
+				</div>
+			</motion.header>
 
-						<PublicProjectsGrid />
-					</div>
-				</section>
-				<section className="py-24 bg-white dark:bg-neutral-950">
-					<div className="w-full px-6">
-						<motion.div
-							className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4"
-							initial={{ opacity: 0, y: 30 }}
-							whileInView={{ opacity: 1, y: 0 }}
-							viewport={{ once: true }}
-							transition={{ duration: 0.6 }}
-						>
-							<div>
-								<div className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-100/60 dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-800 rounded-full backdrop-blur-sm mb-4">
-									<Trophy className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />
-									<span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Recent Submissions</span>
-								</div>
-								<h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-900 to-neutral-500 dark:from-neutral-50 dark:to-neutral-400 mb-2">
-									Latest Project Submissions
-								</h2>
-								<p className="text-lg text-neutral-600 dark:text-neutral-400">
-									See what our community has been building
-								</p>
-							</div>
-							<Link href="/projects/submissions">
-								<Button variant="outline" className="border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 rounded-xl">
-									View All Submissions <ArrowRight className="ml-2 h-4 w-4" />
-								</Button>
+			{/* Pick up where you left off. Above everything, because it is the one
+				thing a returning user almost always wants. */}
+			{nextTask && (
+				<motion.section
+					initial={{ opacity: 0, y: 12 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.04 }}
+					className="mb-6 rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900"
+				>
+					<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+						<div className="min-w-0">
+							<p className="text-xs font-medium tracking-wide text-neutral-500 uppercase dark:text-neutral-400">
+								Next up
+							</p>
+							<p className="mt-1 truncate text-base font-semibold text-neutral-900 dark:text-white">
+								{nextTask.title}
+							</p>
+							<p className="mt-0.5 truncate text-sm text-neutral-500 dark:text-neutral-400">
+								{nextTask.projectTitle}
+								{nextTask.sprintTitle ? ` · ${nextTask.sprintTitle}` : ""}
+							</p>
+						</div>
+						<Button asChild className="shrink-0 gap-2">
+							<Link href={`/projects/${nextTask.projectSlug}/tasks`}>
+								Continue
+								<ArrowRight className="h-4 w-4" />
 							</Link>
-						</motion.div>
+						</Button>
+					</div>
+				</motion.section>
+			)}
 
-						<RecentSubmissionsGrid />
-					</div>
-				</section>
-				<section className="py-24 bg-white dark:bg-neutral-950">
-					<div className="w-full px-6">
-						<motion.div
-							className="text-center space-y-4 mb-16"
-							initial={{ opacity: 0, y: 30 }}
-							whileInView={{ opacity: 1, y: 0 }}
-							viewport={{ once: true }}
-							transition={{ duration: 0.6 }}
+			{/* Only rendered once there is something to count. An all-zero stat band
+				on a first run is noise, and it is exactly what the old page did. */}
+			{hasWork && totals && (
+				<motion.div
+					initial={{ opacity: 0, y: 12 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.08 }}
+					className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4"
+				>
+					<Stat label="Projects" value={totals.projects} icon={<Compass className="h-4 w-4" />} />
+					<Stat label="In progress" value={totals.active} icon={<ListTodo className="h-4 w-4" />} />
+					<Stat label="Finished" value={totals.finished} icon={<CheckCircle2 className="h-4 w-4" />} />
+					<Stat
+						label="Tasks done"
+						value={totals.tasksCompleted}
+						hint={totals.totalTasks > 0 ? `of ${totals.totalTasks}` : undefined}
+						icon={<CheckCircle2 className="h-4 w-4" />}
+					/>
+				</motion.div>
+			)}
+
+			{/* The chart is rendered whether or not there is anything in it. An
+				all-zero series still shows the window, the axis and a real baseline,
+				which is a true reading; hiding it until data exists means the page
+				changes shape the first time somebody finishes a task. */}
+			<OverviewPanel
+				title="Tasks completed"
+				action={{ label: "All projects", href: "/projects/myprojects" }}
+				delay={0.1}
+				className="mb-6"
+			>
+				<p className="-mt-2 mb-3 text-sm text-neutral-500 dark:text-neutral-400">
+					<span className="font-medium text-neutral-900 tabular-nums dark:text-white">
+						{activity.total}
+					</span>
+					{" in the last 30 days"}
+				</p>
+				<ActivityChart data={activity.series} unit={activity.unit} />
+			</OverviewPanel>
+
+			<motion.section
+				initial={{ opacity: 0, y: 12 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ delay: 0.14 }}
+				className="mb-8"
+			>
+				<div className="mb-3 flex items-baseline justify-between gap-3">
+					<h2 className="text-base font-semibold text-neutral-900 dark:text-white">
+						In progress
+					</h2>
+					{active.length > 0 && (
+						<Link
+							href="/projects/myprojects"
+							className="text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
 						>
-							<div className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-100/60 dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-800 rounded-full backdrop-blur-sm">
-								<Brain className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />
-								<span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Powered by Advanced AI</span>
-							</div>
-							<h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-900 to-neutral-500 dark:from-neutral-50 dark:to-neutral-400">
-								Why Choose AI-Generated Projects?
-							</h2>
-							<p className="text-lg text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto">
-								Traditional tutorials teach you to follow instructions. Our AI-powered approach teaches you to think like a developer.
-							</p>
-						</motion.div>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-							{
-								features.map((feature, index) => {
-									const Icon = feature.icon
-									return (
-										<motion.div
-											key={feature.title}
-											initial={{ opacity: 0, y: 30 }}
-											whileInView={{ opacity: 1, y: 0 }}
-											viewport={{ once: true }}
-											transition={{ delay: index * 0.1, duration: 0.6 }}
-										>
-											<Card className="h-full bg-white dark:bg-neutral-900 shadow-2xl p-5 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
-												<CardHeader className="pb-4 flex items-center justify-center">
-													<div className="flex items-center justify-center w-12 h-12 bg-black dark:bg-white rounded-xl text-white dark:text-black mb-4">
-														<Icon className="w-6 h-6" />
-													</div>
-													<CardTitle className="text-xl font-semibold text-neutral-900 dark:text-white">
-														{feature.title}
-													</CardTitle>
-												</CardHeader>
-												<CardContent>
-													<CardDescription className="text-neutral-600 dark:text-neutral-400 text-base leading-relaxed mb-4">
-														{feature.description}
-													</CardDescription>
-													<div className="flex items-center gap-2 justify-center">
-														{
-															feature.highlights.map((highlight, idx) => (
-																<Badge key={idx} variant="outline" className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-																	<div className="w-1.5 h-1.5 bg-black dark:bg-white rounded-full"></div>
-																	<span className="font-medium">{highlight}</span>
-																</Badge>
-															))
-														}
-													</div>
-												</CardContent>
-											</Card>
-										</motion.div>
-									)
-								})
-							}
-						</div>
+							All projects
+						</Link>
+					)}
+				</div>
+
+				{active.length > 0 ? (
+					<div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+						{active.map((p) => (
+							<ProjectRow key={p.id} project={p} />
+						))}
 					</div>
-				</section>
-				<section className="py-24 bg-neutral-50 dark:bg-neutral-900/50">
-					<div className="w-full px-6">
-						<motion.div
-							className="text-center space-y-4 mb-16"
-							initial={{ opacity: 0, y: 30 }}
-							whileInView={{ opacity: 1, y: 0 }}
-							viewport={{ once: true }}
-							transition={{ duration: 0.6 }}
-						>
-							<div className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-100/60 dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-800 rounded-full backdrop-blur-sm">
-								<Award className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />
-								<span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">More Features</span>
-							</div>
-							<h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-900 to-neutral-500 dark:from-neutral-50 dark:to-neutral-400">
-								Everything You Need to Succeed
-							</h2>
-						</motion.div>
-						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-							{
-								[
-									{ icon: Brain, title: "AI Mock Interviews", desc: "Practice with AI-powered interviews", link: null },
-									{ icon: Briefcase, title: "Portfolio Ready", desc: "Build projects that impress employers", link: null },
-									{ icon: Star, title: "Community Submissions", desc: "See what others have built", link: "/projects/submissions" },
-								].map((item, index) => {
-									const Icon = item.icon
-									return (
-										<motion.div
-											key={item.title}
-											initial={{ opacity: 0, y: 30 }}
-											whileInView={{ opacity: 1, y: 0 }}
-											viewport={{ once: true }}
-											transition={{ delay: index * 0.1, duration: 0.6 }}
-										>
-											<Card className="h-full bg-white dark:bg-neutral-900 shadow-2xl p-5 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
-												<CardContent className="p-0">
-													<div className="inline-flex items-center justify-center w-12 h-12 bg-neutral-900 dark:bg-neutral-100 rounded-xl text-white dark:text-neutral-900 mb-4">
-														<Icon className="w-6 h-6" />
-													</div>
-													<h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">
-														{item.title}
-													</h3>
-													<p className="text-sm text-neutral-600 dark:text-neutral-400">
-														{item.desc}
-													</p>
-												</CardContent>
-											</Card>
-										</motion.div>
-									)
-								})
-							}
-						</div>
+				) : (
+					<EmptyState
+						title={hasWork ? "Nothing in progress" : "You have not started a project yet"}
+						body={
+							hasWork
+								? "Everything you started is finished. Generate another one when you are ready."
+								: "Describe what you want to build and the AI turns it into sprints and tasks you can actually work through."
+						}
+					/>
+				)}
+			</motion.section>
+
+			{finished.length > 0 && (
+				<motion.section
+					initial={{ opacity: 0, y: 12 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.16 }}
+					className="mb-8"
+				>
+					<h2 className="mb-3 text-base font-semibold text-neutral-900 dark:text-white">
+						Finished
+					</h2>
+					<div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+						{finished.slice(0, 6).map((p) => (
+							<ProjectRow key={p.id} project={p} />
+						))}
 					</div>
-				</section>
-				<section className="py-24 bg-neutral-50 dark:bg-neutral-900/50">
-					<div className="max-w-4xl mx-auto px-6">
-						<motion.div
-							className="bg-white dark:bg-neutral-900 shadow-2xl p-8 md:p-12 rounded-xl border border-neutral-200 dark:border-neutral-800 text-center"
-							initial={{ opacity: 0, y: 30 }}
-							whileInView={{ opacity: 1, y: 0 }}
-							viewport={{ once: true }}
-							transition={{ duration: 0.6 }}
-						>
-							<div className="inline-flex items-center justify-center w-16 h-16 bg-neutral-900 dark:bg-neutral-100 rounded-xl text-white dark:text-neutral-900 mb-6 mx-auto">
-								<Rocket className="w-8 h-8" />
-							</div>
-							<h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-900 to-neutral-500 dark:from-neutral-50 dark:to-neutral-400 mb-4">
-								Ready to Build Your Next Project?
-							</h2>
-							<p className="text-lg text-neutral-600 dark:text-neutral-400 mb-8 max-w-2xl mx-auto">
-								Join thousands of developers who are building real projects, earning XP, and advancing their careers through hands-on learning.
-							</p>
-							<div className="flex flex-col sm:flex-row gap-4 justify-center">
-								<ProjectGenerateSheet />
-							</div>
-						</motion.div>
-					</div>
-				</section>
+				</motion.section>
+			)}
+
+			{/* Discovery, BELOW the user's own work rather than above it. */}
+			<motion.section
+				initial={{ opacity: 0, y: 12 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ delay: 0.2 }}
+			>
+				<div className="mb-3 flex items-baseline justify-between gap-3">
+					<h2 className="text-base font-semibold text-neutral-900 dark:text-white">
+						From the catalogue
+					</h2>
+					<Link
+						href="/projects/allprojects"
+						className="text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
+					>
+						Browse all
+					</Link>
+				</div>
+				<PublicProjectsGrid />
+			</motion.section>
+		</div>
+	)
+}
+
+function Stat({
+	label,
+	value,
+	hint,
+	icon,
+}: {
+	label: string
+	value: number
+	hint?: string
+	icon: React.ReactNode
+}) {
+	return (
+		<div className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+			<span className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+				{icon}
+			</span>
+			<p className="mt-3 text-2xl font-bold tabular-nums text-neutral-900 dark:text-white">
+				{value.toLocaleString()}
+				{hint && (
+					<span className="ml-1.5 text-sm font-normal text-neutral-500 dark:text-neutral-400">
+						{hint}
+					</span>
+				)}
+			</p>
+			<p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">{label}</p>
+		</div>
+	)
+}
+
+function ProjectRow({ project }: { project: MyProjectSummary }) {
+	const pct = Math.round(project.progressPercentage)
+
+	return (
+		<Link
+			href={`/projects/${project.slug}`}
+			className="group flex flex-col rounded-2xl border border-neutral-200 bg-white p-4 transition-colors hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700"
+		>
+			<div className="flex items-start justify-between gap-3">
+				<h3 className="min-w-0 truncate text-sm font-semibold text-neutral-900 dark:text-white">
+					{project.title}
+				</h3>
+				<Badge variant="secondary" className="shrink-0 text-xs capitalize">
+					{project.difficulty.toLowerCase()}
+				</Badge>
 			</div>
-		</>
+
+			{project.shortDescription && (
+				<p className="mt-1 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-400">
+					{project.shortDescription}
+				</p>
+			)}
+
+			<div className="mt-auto pt-3">
+				<div className="mb-1.5 flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
+					<span>
+						{project.tasksCompleted} of {project.totalTasks} tasks
+					</span>
+					<span className="tabular-nums">{pct}%</span>
+				</div>
+				<div className="h-1.5 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
+					<div
+						className={cn("h-full rounded-full bg-neutral-900 dark:bg-white")}
+						style={{ width: `${Math.min(Math.max(pct, 0), 100)}%` }}
+					/>
+				</div>
+			</div>
+		</Link>
+	)
+}
+
+function EmptyState({ title, body }: { title: string; body: string }) {
+	return (
+		<div className="rounded-2xl border border-dashed border-neutral-300 bg-white p-8 text-center dark:border-neutral-700 dark:bg-neutral-900">
+			<span className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+				<Sparkles className="h-5 w-5" />
+			</span>
+			<p className="text-sm font-semibold text-neutral-900 dark:text-white">{title}</p>
+			<p className="mx-auto mt-1 max-w-md text-sm text-neutral-500 dark:text-neutral-400">
+				{body}
+			</p>
+			<div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+				<ProjectGenerateSheet
+					trigger={
+						<Button size="sm" className="gap-2">
+							<Sparkles className="h-4 w-4" />
+							Generate a project
+						</Button>
+					}
+				/>
+				<Button asChild variant="outline" size="sm" className="gap-2">
+					<Link href="/projects/ideas">
+						<Lightbulb className="h-4 w-4" />
+						Browse ideas
+					</Link>
+				</Button>
+			</div>
+		</div>
 	)
 }

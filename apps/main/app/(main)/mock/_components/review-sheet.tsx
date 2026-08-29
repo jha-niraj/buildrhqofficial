@@ -94,7 +94,7 @@ export function ReviewSheet({ isOpen, onClose, sessionId, existingRating }: Revi
 
     return (
         <Sheet open={isOpen} onOpenChange={onClose}>
-            <SheetContent side="right" className="sm:max-w-xl overflow-y-auto">
+            <SheetContent side="right" className="sm:max-w-xl">
                 <AnimatePresence mode="wait">
                     {
                         step === 'rating' ? (

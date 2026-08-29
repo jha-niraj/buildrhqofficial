@@ -48,6 +48,20 @@ export function publicResumeUrl(username: string): string {
     return absoluteUrl(`/ai/resume/${encodeURIComponent(username)}`);
 }
 
+/**
+ * A user's public KnowMe assistant - app/(main)/knowme/[username].
+ *
+ * This is the link the product exists to hand out, and it was being built inline
+ * from `NEXT_PUBLIC_APP_URL` in five places. That variable is not set in this
+ * repo at all, so the dashboard fell back to a hardcoded `https://shipithq.com`
+ * and the API docs, the chat CTA and the v1 route all rendered the literal string
+ * `undefined/knowme/alice`. `NEXT_PUBLIC_BASE_URL` is the one this app actually
+ * defines, in every environment, which is the whole reason this module exists.
+ */
+export function knowMeProfileUrl(username: string): string {
+	return absoluteUrl(`/knowme/${encodeURIComponent(username)}`);
+}
+
 /** A shared resume draft by its share slug - app/(main)/r/[slug]. */
 export function resumeShareUrl(shareSlug: string): string {
     return absoluteUrl(`/r/${encodeURIComponent(shareSlug)}`);

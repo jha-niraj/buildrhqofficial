@@ -1,5 +1,6 @@
 "use client";
 
+import { ScrollArea } from "@repo/ui/components/ui/scroll-area"
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import {
@@ -203,9 +204,9 @@ export function CodeStep({ step, studioId }: CodeStepProps) {
 									Output
 								</span>
 							</div>
-							<pre className="px-4 py-3 text-sm text-neutral-600 dark:text-neutral-400 font-mono whitespace-pre-wrap max-h-48 overflow-y-auto">
+							<ScrollArea className="text-sm text-neutral-600 dark:text-neutral-400 font-mono whitespace-pre-wrap" viewportClassName="px-4 py-3 max-h-48" reflow>
 								{output}
-							</pre>
+							</ScrollArea>
 						</motion.div>
 					)
 				}

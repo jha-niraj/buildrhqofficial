@@ -21,12 +21,13 @@ export default async function KnowMePage() {
         return <KnowMeLandingPage isLoggedIn={false} />;
     }
 
+    // No wrapper. The dashboard is itself a full-height flex column (`h-screen`,
+    // retargeted at the shell's `--page-h`), and a `min-h-screen` parent around it
+    // only gives the page card a second thing to size against.
     return (
-        <div className="min-h-screen">
-            <Suspense fallback={<KnowMeDashboardSkeleton />}>
-                <KnowMeContent />
-            </Suspense>
-        </div>
+        <Suspense fallback={<KnowMeDashboardSkeleton />}>
+            <KnowMeContent />
+        </Suspense>
     );
 }
 
